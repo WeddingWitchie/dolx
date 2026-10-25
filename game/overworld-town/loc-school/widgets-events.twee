@@ -188,7 +188,7 @@
 	<<else>>
 
 		<<beastNEWinit 1 cat>>
-		<<if ($monster is 1 or $settings.bestialityEnabled) and not ($NPCList[0] and $NPCList[0].lewdBlocked)>>
+		<<if beastSexEnabledForType("cat", $monster is 1) and not ($NPCList[0] and $NPCList[0].lewdBlocked)>>
 			The quiet is broken by a low growl behind you. A large <<beasttype>> pounces on you from the shadows, forcing you to your knees.
 			<br><br>
 			<<if (effectiveTransformationLevel("cat") gte 6)>>
@@ -382,7 +382,7 @@
 			<</addinlineevent>>
 		<</if>>
 
-		<<if getRobinLocation() is "school" and !$daily.robin.bump>>
+		<<if C.npc.Robin.init is 1 and getRobinLocation() is "school" and $robinmissing is 0 and !$daily.robin.bump>>
 			<<addinlineevent "robin_bump">>
 				<<effects>>
 				<<set $daily.robin.bump to true>>
@@ -680,7 +680,7 @@
 
 		<<set _fameRumour to []>>
 		<<run ["sex", "prostitution", "rape", "exhibitionism"].forEach(name => {if (V.fame[name] >= 400) T.fameRumour.push(name)})>>
-		<<if ($settings.monsterChance gte 1 or $settings.bestialityEnabled) and $fame.bestiality gte 400>>
+		<<if isBestialityOnForAnyCreature() and $fame.bestiality gte 400>>
 			<<set _fameRumour.push("bestiality")>>
 		<</if>>
 
@@ -721,7 +721,7 @@
 							"Maybe we could have a turn sometime?"
 						<</if>>
 					<<case "bestiality">>
-						<<if $settings.bestialityEnabled>>
+						<<if animalSexEnabledForType("dog")>>
 							<<if $cool gte 120>>
 								"I swear!" you overhear the <<person1>><<person>> saying. "I heard moans coming from the alley, then some dogs walked out from there!"<br>
 								"But you didn't look into the alley?"<br>
@@ -797,7 +797,7 @@
 					<br>
 				<<elseif $cool gte 120>>
 					<<if $schoolrep.herm gte 5 and !$worn.face.type.includes("mask")>>
-						You pass by a group of students who break into whispers as you pass by. You hear something about a hermaphrodite.
+						You pass by a group of students who break into whispers as you pass by. You make out the word 'both', whispered louder than the rest.
 					<<elseif $schoolrep.crossdress gte 5 and !$worn.face.type.includes("mask")>>
 						You pass by a group of students who break into whispers as you pass by. You hear something about a crossdresser.
 					<<else>>
@@ -1233,8 +1233,8 @@
 			<<link [[Find a teacher to help them (0:03)|Hallways Locker Victim]]>><<pass 3>><<set $phase to 1>><</link>>
 			<br>
 			<<bratTaxCalc>>
-			<<if $sadism gte 300 or $delinquency gte 600 or ($soldCount gte 1 and $money lt $rentmoney + ($babyRent or 0) + ($bratTax or 0))>>
-				<<link [[Demand money to help (0:10)|Hallways Locker Victim]]>><<pass 10>><<set $phase to 2>><</link>><<if $soldCount gte 1 and $money lt $rentmoney + ($babyRent or 0) + ($bratTax or 0)>><<note "You need money for Bailey!" "red">><<else>><<note "Cash?" "gold">><</if>>
+			<<if $sadism gte 300 or $delinquency gte 600 or ($soldCount gte 1 and $money lt $rentMoney + ($babyRent or 0) + ($bratTax or 0))>>
+				<<link [[Demand money to help (0:10)|Hallways Locker Victim]]>><<pass 10>><<set $phase to 2>><</link>><<if $soldCount gte 1 and $money lt $rentMoney + ($babyRent or 0) + ($bratTax or 0)>><<note "You need money for Bailey!" "red">><<else>><<note "Cash?" "gold">><</if>>
 				<br>
 			<</if>>
 			<<link [[Ignore them|Hallways Locker Victim]]>><<set $phase to 3>><</link>>
@@ -1674,7 +1674,7 @@
 					<<bratTaxCalc>>
 					<<if hasSexStat("promiscuity", 3) and $prostitutionstat gte 1>>
 						You look <<him>> up and down. After a moment, you start quoting your prices,
-					<<elseif $uncomfortable.prostituting is false or ($soldCount gte 1 and $money lt $rentmoney + ($babyRent or 0) + ($bratTax or 0))>>
+					<<elseif $uncomfortable.prostituting is false or ($soldCount gte 1 and $money lt $rentMoney + ($babyRent or 0) + ($bratTax or 0))>>
 						You hesitate, but thoughts of Bailey flash through your mind, and you know you need the money. You take a deep breath and start quoting a price,
 					<<else>>
 						<<switch _speechAttitudeResolved>>
@@ -2069,7 +2069,7 @@
 					<</addinlineevent>>
 				<</if>>
 
-				<<if $photo and $photo.nude_footage is 1>>
+				<<if $photo?.nude_footage is 1>>
 					<<addinlineevent "courtyard_crush_photo_nude">>
 						<<set $photo.nude_footage to 0>>
 						<<generatey1>><<generatey2>><<generatey3>>
@@ -2085,7 +2085,7 @@
 					<</addinlineevent>>
 				<</if>>
 
-				<<if $photo and $photo.assault_footage is 1>>
+				<<if $photo?.assault_footage is 1>>
 					<<addinlineevent "courtyard_crush_photo_assault">>
 						<<set $photo.assault_footage to 0>>
 						<<generatey1>><<generatey2>><<generatey3>>
@@ -2727,7 +2727,7 @@
 			<<cleareventpool>>
 
 			<<addinlineevent "courtyard_dog_molest">>
-				<<if ($monster is 1 or $settings.bestialityEnabled) and not ($NPCList[0] and $NPCList[0].lewdBlocked)>>
+				<<if beastSexEnabledForType("dog", $monster is 1) and not ($NPCList[0] and $NPCList[0].lewdBlocked)>>
 					You see a <<beasttype>> rummaging in litter behind the kitchen. <<bHis>> ears prick, <span class="red">and <<bhe>> bounds towards you</span>.
 					<br><br>
 
@@ -3953,6 +3953,87 @@
 		<<else>>
 			<<set $bullyevent to 3>>
 		<</if>>
+
+	<<elseif $bullyevent is 17>> /* Parasite */
+		<<set $bullyevent += 1>>
+		/* parasite bully event */
+		<<if $settings.parasitesEnabled>>
+			<<generatey2>><<person1>>
+			A pair of hands grab you from behind. Alarmed, you turn to face Whitney and <<his>> friends. "Hey, slut," <<he>> says. <<Hes>> hiding something behind <<his>> back. "I brought you a little present. I think you'll like it." <<He>> reveals a small bag. You watch in confusion as <<he>> gropes inside the bag for this thing with a weird mixture of amusement and revulsion on <<his>> face, adding to your apprehension. Eventually <<he>> manages to get a grip on whatever it is <<hes>> fishing around in there for and removes it from the bag. It's a parasite.
+			<br><br>
+			Your skin crawls at the sight, and a <<print hasSexStat("deviancy", 5) ? (["lewd", "delightfully <<EZdisgusting>>"].pluck()) : "<<EZdisgusting>>">> thought comes to mind. <<Hes>> not going to do what you think <<he>> is with that, is <<he>>?
+			<<if hasSexStat("deviancy", 5)>><<arousal 20>><<garousal>><<else>><<stress 20>><<gstress>><</if>>
+			<br><br>
+
+			<<link [[Let it happen|Bully Parasite]]>><<set $phase to 0>><<npcincr Whitney dom 1>><<sub 1>><</link>><<gdom>>
+			<br>
+			<<link [[Try to escape|Bully Parasite]]>><<set $phase to 1>><<npcincr Whitney dom -1>><</link>><<physiquedifficulty 1 $physiquemax>><<ldom>>
+		<<else>>
+			You see Whitney and <<his>> friends walking in your direction, talking amongst themselves. Whitney appears absorbed in the conversation and doesn't even seem to notice you.
+			<br><br>
+
+			<<if $player.breastsize gte 4>>
+				As <<he>> passes you, Whitney raises a hand up to your chest and palms one of your <<breasts>> without a glance in your direction.
+				<<stress 3>><<gstress>><<arousal 20 "breasts">><<garousal>>
+			<<else>>
+				<<He>> passes you without a glance, and then you feel a sharp spank to your ass.
+				<<pain 3>><<gpain>><<arousal 20 "bottom">><<garousal>>
+			<</if>>
+			<<npcincr Whitney lust 5>><<glust>>
+			<br><br>
+
+			<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
+			<br>
+		<</if>>
+
+	<<elseif $bullyevent is 18 and C.npc.Robin.init is 1 and getRobinLocation() is "school" and $robinmissing is 0>>/* Robin Pantsed*/
+		<<set $bullyevent += 1>>
+		<<endevent>><<npc "Robin">><<person1>>
+		<<set _lower to C.npc.Robin.clothes.lower.name>>
+
+		You enter the hallway to the hustle and bustle of the school. As you turn a corner, you spot Whitney standing behind Robin. Before you can do anything, Whitney pulls Robin's _lower down, flashing <<his>> underwear to everyone nearby. <<gstress>><<garousal>><<stress 6>><<arousal 600>>
+		<br><br>
+
+		<<if C.npc.Robin.trauma lte 30>>
+			Robin is stunned for a moment, <<his>> face bright red and on the verge of tears. Whitney and <<nnpc_his "Whitney">> friends burst out laughing and walk away, high-fiving each other.
+
+		<<else>>
+			<<His>> eyes begin to well up with tears. <<He>> begins to sob loudly, <<his>> face turning bright red.<<gstress>><<lldom>><<ggrtrauma>><<stress 6>><<npcincr "Robin" trauma 2>><<npcincr "Robin" dom -2>>
+			<br><br>
+
+			Whitney and <<nnpc_his "Whitney">> friends look shocked and back away from Robin. They dash down the hall before a teacher can catch wind of the commotion and investigate.
+
+		<</if>>
+		<br><br>
+
+		<<link [[Comfort (0:05)|Bully Pantsing Robin]]>><<npcincr "Robin" trauma -2>><<pass 5>><</link>><<llrtrauma>>
+		<br>
+		<<link [[Ignore|Hallways]]>><<endevent>><<set $eventskip to 1>><<stress 6>><</link>><<gstress>>
+
+	/* [18, 19].includes($bullyevent) and [18, 19, 20].includes($bullyevent) is a temp fix for this event being skipped in cases of Robin being missing, both event 18 and 19 need an alternative for when the event can't be run. The code can then be adjusted to fit with previous checks */
+	<<elseif [18, 19].includes($bullyevent) and C.npc.Whitney.dom gte 18 and ($settings.watersportsEnabled or $pillory.tenant.special.name isnot "Leighton")>>/* Watersports*/
+		<<set $bullyevent to 20>>
+
+		You're walking down the hallway when someone <<= $worn.neck.type.includes("leash") ? "jerks your leash back" : $worn.neck.name isnot "naked" ? "hooks a finger into your $worn.neck.name" : "grabs your arm">>, stopping you in your tracks.
+		<br><br>
+		"And where do you think you're going, slut?" It's Whitney, with several of <<his>> goons trailing behind <<him>>. "Come on, step into my office." <<He>> herds you toward the <<nnpc_gendery "Whitney">>s' toilets.
+		<br><br>
+
+		<<if !$settings.watersportsEnabled>>
+			<<link [[Next|Bully Piss Rescue]]>><</link>>
+		<<else>>
+			<<link [[Go with it (0:15)|Bully Piss]]>><<set $phase to 0>><<pass 15>><<sub 1>><<npcincr Whitney dom 1>><</link>><<gdom>>
+			<br>
+			<<link [[Fight|Bully Fight]]>><<set $phase to 0>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
+			<br>
+		<</if>>
+
+	<<elseif [18, 19, 20].includes($bullyevent)>>/* Pantycheck*/
+		<<set $bullyevent to 21>>
+		<<WhitneyPantyCheck>>
+
+	<<else>>/* Hair Pull*/
+		<<set $bullyevent to 2>>
 		Someone grabs your hair from behind, tugging your head back. It's Whitney. <<He>> grins as <<his>> friends laugh.
 			<<if $worn.neck.name is "Whitney's collar with leash" or $worn.neck.name is "Whitney's collar">>
 				<<He>> glances over your collar and gives you a smirk.
@@ -5250,5 +5331,68 @@
 		<br><br>
 		<<whitneyRulePunishment true>>
 		<<exitAll>>
+	<</if>>
+<</widget>>
+
+<<widget "events_school_library_study">>
+	<<rng 100>>
+	<<if $scienceprojectwon is 1 and $rng gte 91>>
+		<<generates1>><<person1>>A <<person>> stops at your table. "Hey, you're that <<girl>> who won the science fair, right?"
+		<br><br>
+
+		<<if $speech_attitude is "meek">>
+			"Ah, it wasn't that impressive..." You nod shyly, eyes drifting away.
+		<<elseif $speech_attitude is "bratty">>
+			You shove a thumbs up proudly into the air. "The one and only!"
+		<<else>>
+			"I sure did." You nod. "What's up?"
+		<</if>>
+		<br><br>
+
+		The <<personsimple>> nods back at you with a smile. "That's amazing! Your project was so well-researched, you really knew what you were doing! I wish I could be like you! I entered the science fair too, but the teachers didn't even bother coming to my table."
+		<br><br>
+
+		<<He>> sighs. "Not even the <<nnpc_title "Leighton">>. Maybe it's because I don't have the grades to show for it, but sometimes it's too hard to concentrate in class! Especially when some of the students keep touching and pulling pranks on me, or when my school supplies keep disappearing, and just because I was a little late too many times that I had to go to detention and—"
+		<br><br>
+
+		<<He>> stiffens, then shakes <<his>> head. "...Sorry, I'm rambling."
+		<br><br>
+
+		<<link [[Continue studying|Library Study Science Fair]]>><<set $phase to 0>><<stress -4>><</link>><<lstress>>
+		<br>
+		<<link [[Help out (0:10)|Library Study Science Fair]]>><<set $phase to 1>><<pass 10>><<status 6>><</link>><<gcool>>
+		<br>
+	<<elseif $rng gte 51>>
+		<<generatey1>><<generatey2>>While you are minding your own business, a <<fullGroup>> start harassing you.
+		<br><br>
+
+		<<link [[Ignore them|School Library Harass]]>><<set $phase to 0>><<trauma 2>><<stress 2>><</link>><<gtrauma>><<gstress>>
+		<br>
+		<<link [[Ask the librarian for help|School Library Harass]]>><<set $phase to 1>><<status -10>><</link>><<llcool>>
+		<br>
+		<<if C.npc.Sydney.init is 1 and $sydneySeen.includes("library") and _sydney_location is "library">>
+			<<link [[Ask Sydney for help|School Library Harass]]>><<set $phase to 2>><</link>>
+			<br>
+		<</if>>
+	<<elseif _wraithEvent>>
+		After some time, you begin to feel anxious. You move to replace your textbook in the bookshelf.
+		<br><br>
+		You catch a brief glimpse of a pale face through the gaps on the other side. <<stress 12>><<ggstress>><<trauma 4>><<gtrauma>>
+		<br><br>
+		<<link [[Next|School Library]]>><<endevent>><</link>>
+		<br>
+	<<else>>
+		<<outfitChecks>>
+		<<set _bottom.integrity -= 10>>
+		<<if _bottom.integrity lte 0>>
+			As you rise from the chair, you hear a tear. Your <<bottoms>> <<is _bottom>> caught on the desk. You try to free <<= _bottom.plural ? "them" : "it">>, but <<= _bottom.plural ? "they are" : "it is">> torn clean off your body, exposing your <<= _bottomUnder?.name || "<<undies>>">>.
+			<<integritycheck no_text>>
+			<br><br>
+		<<else>>
+			As you rise from the seat, you hear a tear. Your <<bottoms>> <<is _bottom>> caught on the desk.
+			<br><br>
+		<</if>>
+		<<link [[Next|School Library]]>><<endevent>><</link>>
+		<br>
 	<</if>>
 <</widget>>

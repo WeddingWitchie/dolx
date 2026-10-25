@@ -440,7 +440,7 @@
 	setup.inflation.RENT_INVESTMENT_DEMAND = setup.inflation.settingDefault("inflationBaileyDemandInvestment"); // £250,000
 	setup.inflation.RENT_INFLATION_PCT = setup.inflation.settingDefault("inflationBaileyRentPct"); // Current-preset fallback.
 	/* Extra Bailey pressure rises by this much per paid week while Bailey-visible wealth is at the rent-pressure setting or higher.
-	The pressure is separate from vanilla $rentstage so it can fall back to normal when the player is poor again. */
+	The pressure is separate from vanilla $rentStage so it can fall back to normal when the player is poor again. */
 	setup.inflation.RENT_STAGE_STEP = setup.inflation.settingDefault("inflationBaileyStep"); // +£500 per paid week
 
 	setup.inflation.rentSettingModifier = function () {
@@ -512,7 +512,7 @@
 	setup.inflation.nextRentBase = function () {
 		if (typeof V === "undefined") return setup.inflation.rentBaseWithModifiers(200000);
 		const baseRents = [10000, 30000, 50000, 70000, 100000, 150000, 200000];
-		const stage = Number.isFinite(V.rentstage) ? V.rentstage : 6;
+		const stage = Number.isFinite(V.rentStage) ? V.rentStage : 6;
 		return setup.inflation.rentBaseWithModifiers(baseRents[Math.clamp(stage, 1, 6)]);
 	};
 

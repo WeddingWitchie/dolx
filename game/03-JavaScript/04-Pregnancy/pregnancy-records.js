@@ -328,13 +328,15 @@ function playerLabouringOrifice() {
 window.playerLabouringOrifice = playerLabouringOrifice;
 
 /**
- * Mark the player's labouring pregnancy as actively giving birth.
+ * Mark the player's labouring litter as born. The pregnancy is active until birthUi.
  */
-function beginPlayerBirth() {
+function setPlayerLitterBorn() {
 	const pregnancy = getLabouringPregnancy("pc");
-	if (pregnancy) pregnancy.birthInProgress = true;
+	if (!pregnancy) return;
+	pregnancy.birthInProgress = true;
+	pregnancy.litterBorn = true;
 }
-window.beginPlayerBirth = beginPlayerBirth;
+window.setPlayerLitterBorn = setPlayerLitterBorn;
 
 /**
  * DoLX: which hole the player is currently delivering from.
@@ -616,6 +618,21 @@ function setKnowsDonor(pregnancyId, who) {
 	V.pregnancies[pregnancyId].awareOfDonor.pushUnique(who);
 }
 window.setKnowsDonor = setKnowsDonor;
+
+/**
+ * The player knows both parents of a birth when they're the only possible donor.
+ *
+ * @param {number} pregnancyId the pregnancy's index in V.pregnancies
+ */
+function learnPlayerFatheredBirth(pregnancyId) {
+	const pregnancy = V.pregnancies[pregnancyId];
+	const onlyPlayer = pregnancy.possibleDonors.length > 0 && pregnancy.possibleDonors.every(donor => donor.name === "pc");
+	if (onlyPlayer) {
+		setKnowsCarrier(pregnancyId, "pc");
+		setKnowsDonor(pregnancyId, "pc");
+	}
+}
+window.learnPlayerFatheredBirth = learnPlayerFatheredBirth;
 
 /**
  * Marks who knows a child exists.

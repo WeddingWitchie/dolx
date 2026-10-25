@@ -30,11 +30,13 @@ setup.speechCategories = {
 	expose: { priority: 75 },
 	penisSize: { priority: 75 },
 	pregnant: { priority: 75 },
-	sexToy: { priority: 75 },
+	/* Saying a sexToy line clears $speechNoticeSexToy. */
+	sexToy: { priority: 75, clears: "speechNoticeSexToy" },
 
 	/* NNPC reacting to the PC's actions. */
 	steal: { priority: 72 },
-	namedrop: { priority: 71 },
+	/* Saying a namedrop line clears $speechLINameDrop. */
+	namedrop: { priority: 71, clears: "speechLINameDrop" },
 
 	apologise: { priority: 70 },
 	askRough: { priority: 70 },
@@ -53,7 +55,7 @@ setup.speechCategories = {
 	playerOrgasm: { priority: 70 },
 	plead: { priority: 70 },
 	screamForHelp: { priority: 70 },
-	struggle: { priority: 70 },
+	struggle: { priority: 70, cooldown: 3 },
 
 	/* An NNPC's follow up line to something they said earlier. */
 	followUp: { priority: 65 },
@@ -194,7 +196,7 @@ function getUnsaidSpeechLines(speaker, lines) {
  */
 function pickSpeechLine(lines) {
 	const highestPriority = Math.max(...lines.map(line => setup.speechCategories[line.category].priority));
-	return window.rollWeightedRandomFromArray(lines.filter(line => setup.speechCategories[line.category].priority === highestPriority));
+	return rollWeightedRandomFromArray(lines.filter(line => setup.speechCategories[line.category].priority === highestPriority));
 }
 
 /* <<speechPool speaker ["noMouthAction"]>>: opens the speaker's pool for this turn. */
@@ -279,6 +281,8 @@ Macro.add("speechSay", {
 			return;
 		}
 		const line = pickSpeechLine(lines);
+		const { clears } = setup.speechCategories[line.category];
+		if (clears && T.speechPoolSpeaker !== "pc") V[clears] = 0;
 		addSpeechHistoryEntry(T.speechPoolSpeaker, { id: line.id, category: line.category });
 		if (line.reply) getOrCreateSpeechPool(line.reply.speaker).lines.push(createSpeechLine(line.reply.content, "pairedReply", 1));
 		$(this.output).wiki(line.content);

@@ -6,8 +6,10 @@
 	pregnancyLockable: true, //Will disable the unlocking of the feat if certain pregnancy settings are too low
 	pregnancySillyLockable: true, //Will disable the unlocking of the feat if the silly pregnancy mode is enabled
 	hidden: true, //Will hide the feat at all times unless unlocked, best for feats for unreleased content
-	alt: "altTitle", //Alternate title to display if the feat is unlocked and altCond is met
-	altCond: "conditional" //Conditional evaluated to decide whether or not to display the altTitle (the feat must be owned in the current save for this to happen, regardless of the conditional)
+	altTitle: "altTitleText", //Alternate title to display if the feat is unlocked and altTitleCond is met
+	altTitleCond: "conditional" //Conditional evaluated to decide whether or not to display the altTitleText (the feat must be owned in the current save for this to happen, regardless of the conditional)
+	altDesc: "altDescText", //Alternate description to display if the feat is unlocked and altDescCond is met
+	altDescCond: "conditional" //Conditional evaluated to decide whether or not to display the altDescText (the feat must be owned in the current save for this to happen, regardless of the conditional)
 */
 setup.feats = {
 	"Meet the Dev": {
@@ -28,7 +30,7 @@ setup.feats = {
 	"Money Maker": {
 		title: "Money Maker",
 		desc: "Have £10,000.",
-		difficulty: 1,
+		difficulty: 2,
 		series: "money",
 		filter: ["All", "General"],
 		softLockable: true,
@@ -36,7 +38,7 @@ setup.feats = {
 	Tycoon: {
 		title: "Tycoon",
 		desc: "Have £100,000.",
-		difficulty: 2,
+		difficulty: 3,
 		series: "money",
 		filter: ["All", "General"],
 		softLockable: true,
@@ -44,7 +46,7 @@ setup.feats = {
 	Millionaire: {
 		title: "Millionaire",
 		desc: "Have £1,000,000.",
-		difficulty: 3,
+		difficulty: 4,
 		series: "money",
 		filter: ["All", "General"],
 		softLockable: true,
@@ -89,24 +91,24 @@ setup.feats = {
 		filter: ["All", "General"],
 	},
 	"Being a Boy": {
-		title: "Being a Boy",
-		desc: "Get to day 50 as a boy.",
+		title: "Hard Times",
+		desc: "Get to day 50 after starting with a penis.",
 		difficulty: 1,
 		series: "",
 		filter: ["All", "General"],
 		softLockable: true,
 	},
 	"Being a Girl": {
-		title: "Being a Girl",
-		desc: "Get to day 50 as a girl.",
+		title: "Tight Squeeze",
+		desc: "Get to day 50 after starting with a vagina.",
 		difficulty: 1,
 		series: "",
 		filter: ["All", "General"],
 		softLockable: true,
 	},
 	"Being a Hermaphrodite": {
-		title: "Being a Hermaphrodite",
-		desc: "Get to day 50 as a hermaphrodite.",
+		title: "Double Trouble",
+		desc: "Get to day 50 after starting with a penis and a vagina.",
 		difficulty: 1,
 		series: "",
 		filter: ["All", "General"],
@@ -328,14 +330,14 @@ setup.feats = {
 	"Most Aware": {
 		title: "Most Aware",
 		desc: "You see things others don't.",
-		difficulty: 1,
+		difficulty: 2,
 		series: "",
 		filter: ["All", "Stats"],
 	},
 	"Most Innocent": {
 		title: "Most Innocent",
 		desc: "Everything is fine.",
-		difficulty: 1,
+		difficulty: 2,
 		series: "",
 		filter: ["All", "Stats"],
 	},
@@ -423,8 +425,8 @@ setup.feats = {
 		difficulty: 3,
 		series: "",
 		filter: ["All", "Stats"],
-		alt: "Degree in Lewdity",
-		altCond: "random(100) is 100",
+		altTitle: "Degree in Lewdity",
+		altTitleCond: "random(100) is 100",
 	},
 	"Perfect Record": {
 		title: "Perfect Record",
@@ -464,7 +466,7 @@ setup.feats = {
 	Merchant: {
 		title: "Merchant",
 		desc: "Dominate the market.",
-		difficulty: 2,
+		difficulty: 3,
 		series: "market",
 		filter: ["All", "Stats"],
 	},
@@ -586,6 +588,8 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
+		altDesc: "You gave your virginity to <<nnpc_him 'Robin'>>.",
+		altDescCond: "true",
 	},
 	"Hungry Orphan": {
 		title: "Hungry Orphan",
@@ -607,6 +611,8 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
+		altDesc: "You gave your virginity to <<nnpc_him 'Whitney'>>.",
+		altDescCond: "true",
 	},
 	"The Bully's Tithe": {
 		title: "The Bully's Tithe",
@@ -642,6 +648,8 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
+		altDesc: "You gave your virginity to <<nnpc_him 'Kylar'>>.",
+		altDescCond: "true",
 	},
 	"Not for Rats": {
 		title: "Not for Rats",
@@ -656,6 +664,8 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
+		altDesc: "You gave your virginity to <<nnpc_him 'Eden'>>.",
+		altDescCond: "true",
 	},
 	"Sweet and Tender": {
 		title: "Sweet and Tender",
@@ -670,6 +680,8 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
+		altDesc: "You gave your virginity to <<nnpc_him 'Avery'>>.",
+		altDescCond: "true",
 	},
 	Kept: {
 		title: "Kept",
@@ -686,6 +698,8 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 		hint: "Hint: Turn the tables on a wealthy patron.",
+		altDesc: "Bound Avery in <<nnpc_his 'Avery'>> dungeon.",
+		altDescCond: "true",
 	},
 	"Most Exclusive": {
 		title: "Most Exclusive",
@@ -716,6 +730,8 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
+		altDesc: "You gave your virginity to <<nnpc_him 'Leighton'>>.",
+		altDescCond: "true",
 	},
 	"Alex the Robust": {
 		title: "Alex the Robust",
@@ -731,6 +747,8 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
+		altDesc: "You gave your virginity to <<nnpc_him 'Alex'>>.",
+		altDescCond: "true",
 	},
 	"Home Cooking": {
 		title: "Home Cooking",
@@ -773,6 +791,8 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
+		altDesc: "You gave your virginity to <<nnpc_him 'Wren'>>.",
+		altDescCond: "true",
 	},
 	"Great Wolf the Alpha": {
 		title: "Black Wolf the Alpha",
@@ -780,6 +800,8 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
+		altDesc: "You gave your virginity to <<if resolveIfNamedBeastIsMonster('blackwolf')>><<nnpc_him 'Black Wolf'>><<else>>it<</if>>.",
+		altDescCond: "true",
 	},
 	"Encroaching Civilisation": {
 		title: "Encroaching Civilisation",
@@ -794,6 +816,8 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
+		altDesc: "<<nnpc_He 'Sydney'>> gave <<nnpc_his 'Sydney'>> virginity to you.",
+		altDescCond: "true",
 	},
 	Communion: {
 		title: "Communion",
@@ -808,6 +832,8 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
+		altDesc: "You gave your virginity to <<nnpc_him 'Harper'>>.",
+		altDescCond: "true",
 	},
 	"Morgan the Lost": {
 		title: "Morgan the Lost",
@@ -829,6 +855,8 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
+		altDesc: "You gave your virginity to <<nnpc_him 'Morgan'>>.",
+		altDescCond: "true",
 	},
 	"Gwylan the Bewitching": {
 		title: "Gwylan the Bewitching",
@@ -837,6 +865,8 @@ setup.feats = {
 		series: "gwylanVirginity",
 		hint: "Hint: Curiosity killed the virgin.",
 		filter: ["All", "Social"],
+		altDesc: "You gave your virginity to <<nnpc_him 'Gwylan'>>.",
+		altDescCond: "true",
 	},
 	"Coven Comforts": {
 		title: "Coven Comforts",
@@ -925,6 +955,8 @@ setup.feats = {
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Social"],
+		altDesc: "Convince Mason to share something <<nnpc_he 'Mason'>>'d rather not.",
+		altDescCond: "true",
 	},
 	"Mason's Shame": {
 		title: "Mason's Shame",
@@ -1075,6 +1107,14 @@ setup.feats = {
 		desc: "Get 2000 impregnation fame.",
 		difficulty: 4,
 		series: "",
+		filter: ["All", "Social"],
+	},
+	"Sancta Vexatio": {
+		title: "Sancta Vexatio",
+		desc: "Sancta Vexatio.",
+		difficulty: 1,
+		series: "",
+		hint: "Hint: Discover the temple's spite.",
 		filter: ["All", "Social"],
 	},
 	"Warmest Winter": {
@@ -1342,7 +1382,7 @@ setup.feats = {
 	"Broodmother Zoologist": {
 		title: "Broodmother Zoologist",
 		desc: "Filled out the parasite notebook.",
-		difficulty: 3,
+		difficulty: 4,
 		series: "",
 		filter: ["All", "Pregnancy"],
 		hint: "Hint: Everything left behind, carefully detailed.",
@@ -1401,7 +1441,7 @@ setup.feats = {
 	"Life Comes in Threes": {
 		title: "Life Comes in Threes",
 		desc: "Gave birth to triplets.",
-		difficulty: 2,
+		difficulty: 3,
 		series: "",
 		filter: ["All", "Pregnancy"],
 		hint: "Hint: Three of a kind.",
@@ -1417,7 +1457,7 @@ setup.feats = {
 		pregnancyLockable: true,
 	},
 	"Life begins when you least expect": {
-		title: "Life begins when you least expect",
+		title: "Life Begins When You Least Expect",
 		desc: "Gave birth to children as a male.",
 		difficulty: 2,
 		series: "",
@@ -1427,7 +1467,7 @@ setup.feats = {
 	"Diversity of Life": {
 		title: "Diversity of Life",
 		desc: "Gave birth to children of many different species.",
-		difficulty: 4,
+		difficulty: 3,
 		series: "",
 		filter: ["All", "Pregnancy"],
 		hint: "Hint: Many forms of existence.",
@@ -1496,6 +1536,8 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Special"],
 		hint: "Hint: Trouble at home.",
+		altDesc: "Made <<nnpc_him 'Bailey'>> cum.",
+		altDescCond: "true",
 	},
 	"Leighton's Nightmare": {
 		title: "Leighton's Nightmare",
@@ -1504,14 +1546,18 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Special"],
 		hint: "Hint: Trouble at school.",
+		altDesc: "Made <<nnpc_him 'Leighton'>> cum.",
+		altDescCond: "true",
 	},
 	"Alex's Partner": {
 		title: "Alex's Partner",
 		desc: "Made them cum.",
-		difficulty: 3,
+		difficulty: 2,
 		series: "",
 		filter: ["All", "Special"],
 		hint: "Hint: A field of fun.",
+		altDesc: "Made <<nnpc_him 'Alex'>> cum.",
+		altDescCond: "true",
 	},
 	"Harper's Bane": {
 		title: "Harper's Bane",
@@ -1520,6 +1566,8 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Special"],
 		hint: "Hint: A taste of their own medicine.",
+		altDesc: "Made Harper drink <<nnpc_his 'Harper'>> serum.",
+		altDescCond: "true",
 	},
 	Laughingstock: {
 		title: "Laughingstock",
@@ -2193,9 +2241,27 @@ setup.feats = {
 		title: "Down Below",
 		desc: "Escaped slavery in the mines.",
 		difficulty: 2,
-		series: "",
+		series: "Mines",
 		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Escape an old industry.",
+		softLockable: true,
+	},
+	"The Time is Now": {
+		title: "The Time is Now",
+		desc: "Put the mines out of commission for good.",
+		difficulty: 3,
+		series: "Mines",
+		filter: ["All", "Discoveries-Other"],
+		hint: "Hint: Strike back against your captors.",
+		softLockable: true,
+	},
+	"Rock Bottom": {
+		title: "Rock Bottom",
+		desc: "Reached the bottom of the mines.",
+		difficulty: 2,
+		series: "Mines",
+		filter: ["All", "Discoveries-Other"],
+		hint: "Hint: Reach the bottom.",
 		softLockable: true,
 	},
 	"Bridging the Past": {
@@ -2421,6 +2487,24 @@ setup.feats = {
 		series: "Flyers",
 		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Work with Niki.",
+		softLockable: true,
+	},
+	"Pumpkin Master": {
+		title: "Pumpkin Master",
+		desc: "Win the Halloween pumpkin carving competition.",
+		difficulty: 1,
+		series: "",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Take part in a Halloween competition.",
+		softLockable: true,
+	},
+	"Nothing Copied": {
+		title: "Nothing Copied",
+		desc: "Became a temple calligrapher.",
+		difficulty: 1,
+		series: "",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Assist the temple scribes.",
 		softLockable: true,
 	},
 	"Max Those Shots": {

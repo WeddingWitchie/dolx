@@ -339,9 +339,10 @@ declare global {
 			kiss: boolean;
 		};
 
-		freckles: boolean;
 		skin: {
 			color: SkinColours;
+			faceFreckles: boolean;
+			bodyFreckles: "none" | "upper" | "full";
 		};
 	}
 

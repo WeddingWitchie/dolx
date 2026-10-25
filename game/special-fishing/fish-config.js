@@ -315,8 +315,7 @@ function initFishingFishConfig() {
 		"bikini bottoms": { weight: 1, locations: ["fishingBeach", "fishingPier", "fishingCoastPath"] },
 		"board shorts": { weight: 1, locations: ["fishingBeach", "fishingPier", "fishingCoastPath"] },
 		"swim shirt": { weight: 1, locations: ["fishingBeach", "fishingPier", "fishingCoastPath"] },
-		"school swim top": { weight: 0.5, locations: ["fishingBeach", "fishingPier", "fishingCoastPath"] },
-		"school swim bottoms": { weight: 0.5, locations: ["fishingBeach", "fishingPier", "fishingCoastPath"] },
+		"foreign school swimsuit": { weight: 0.5, locations: ["fishingBeach", "fishingPier", "fishingCoastPath"] },
 	};
 }
 window.initFishingFishConfig = initFishingFishConfig;

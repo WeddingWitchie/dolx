@@ -232,7 +232,7 @@ Type a name (15 characters max):
 		<br>
 	<</if>>
 
-	<<if $syndromebaileybuild gte 1 and $renttime gt 0>>
+	<<if $syndromebaileybuild gte 1 and $rentTime gt 0>>
 		<<socialiseicon>><<link [[Spend time with Bailey|Bailey Date Menu]]>><</link>>
 		<br>
 	<</if>>
@@ -257,7 +257,7 @@ Type a name (15 characters max):
 		<br>
 	<</if>>
 
-	<<if $renttime lte 0 and $bailey_office_seduced_this_cycle isnot true>>
+	<<if $rentTime lte 0 and $bailey_office_seduced_this_cycle isnot true>>
 		<<ind>><<link [[Seduce Bailey<<if $baileyseduced is 1>> (again)<</if>>|Bailey Office Seduce Mod]]>><</link>><<seductiondifficulty>>
 		<br>
 	<</if>>
@@ -272,11 +272,11 @@ Type a name (15 characters max):
 
 
 :: Bailey Date Waiting Widget [widget]
-<<widget "baileyDateWaiting">><<if $bailey_date_allnight_scheduled is 1 and Time.hour gte 19 and Time.hour lt 20 and $renttime gt 0>><<if $NPCList[0] and $NPCList[0].fullDescription is "Bailey">><<person1>><<else>><<endevent>><<npc Bailey>><<person1>><</if>>Bailey waits for you near the front door. <<He>> checks <<his>> watch.
+<<widget "baileyDateWaiting">><<if $bailey_date_allnight_scheduled is 1 and Time.hour gte 19 and Time.hour lt 20 and $rentTime gt 0>><<if $NPCList[0] and $NPCList[0].fullDescription is "Bailey">><<person1>><<else>><<endevent>><<npc Bailey>><<person1>><</if>>Bailey waits for you near the front door. <<He>> checks <<his>> watch.
 		<br>
 		<img class="icon" src="img/misc/icon/baileys_car.png"><<link [[Date with Bailey|Bailey Date All Night Pickup]]>><</link>>
 <br><br>
-	<<elseif $bailey_date_scheduled is 1 and Time.hour gte 19 and Time.hour lt 20 and $renttime gt 0>><<if $NPCList[0] and $NPCList[0].fullDescription is "Bailey">><<person1>><<else>><<endevent>><<npc Bailey>><<person1>><</if>>Bailey waits for you near the front door. <<He>> checks <<his>> watch.
+	<<elseif $bailey_date_scheduled is 1 and Time.hour gte 19 and Time.hour lt 20 and $rentTime gt 0>><<if $NPCList[0] and $NPCList[0].fullDescription is "Bailey">><<person1>><<else>><<endevent>><<npc Bailey>><<person1>><</if>>Bailey waits for you near the front door. <<He>> checks <<his>> watch.
 		<br>
 		<img class="icon" src="img/misc/icon/baileys_car.png"><<link [[Date with Bailey|Bailey Date Medium Pickup]]>><</link>>
 <br><br>
@@ -512,20 +512,20 @@ Call sites own their own spacing. */
 	<<set _bratBefore to $bailey_brat.points>>
 	<<set $bailey_brat.points to Math.clamp($bailey_brat.points + _args[0], 0, 20)>>
 	<<run $bailey_brat.reasons.pushUnique(_args[1])>>
-	<<set _bratGained to ($bailey_brat.points - _bratBefore) * Math.floor($rentmoney / 10)>>
+	<<set _bratGained to ($bailey_brat.points - _bratBefore) * Math.floor($rentMoney / 10)>>
 	<<gbrattax _bratGained>>
 <</widget>>
 
 /* $bratTax = points * 1/10 of current rent. Call beside <<babyRent>>. */
 <<widget "bratTaxCalc">>
-	<<set $bratTax to (($bailey_brat and $bailey_brat.points) || 0) * Math.floor($rentmoney / 10)>>
+	<<set $bratTax to (($bailey_brat and $bailey_brat.points) || 0) * Math.floor($rentMoney / 10)>>
 <</widget>>
 
 <<widget "baileyOfferSettleRent">>
 	/* Recompute rather than trusting $bratTax: not every path in announces the tax first. */
 	<<bratTaxCalc>>
 	<<set _loanSurcharge to (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0)>>
-	<<set _offerRentDue to $rentmoney + ($babyRent or 0) + ($bratTax or 0) + _loanSurcharge>>
+	<<set _offerRentDue to $rentMoney + ($babyRent or 0) + ($bratTax or 0) + _loanSurcharge>>
 	<<set _offerDeposit to Math.min(Math.max($baileyDeposit or 0, 0), _offerRentDue)>>
 	<<set _offerCashDue to _offerRentDue - _offerDeposit>>
 	<<set _offerCashBefore to $money>>
@@ -545,9 +545,9 @@ Call sites own their own spacing. */
 		<<if $bailey_confiscation>><<run baileyConfiscationRestore()>><</if>>
 		<<if _loanSurcharge gt 0>><<run setup.hbsc.collectLoanFromRent(_loanSurcharge)>><</if>>
 		<<if setup.inflation and setup.inflation.advanceRentPressure>><<run setup.inflation.advanceRentPressure()>><</if>>
-		<<set $rentmoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp($rentstage,1,6)]>>
+		<<set $rentMoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp($rentStage,1,6)]>>
 		<<rentmod>>
-		<<set $rentstage += 1>>
+		<<set $rentStage += 1>>
 	<</if>>
 	<<unset $bailey_encroach>>
 <</widget>>

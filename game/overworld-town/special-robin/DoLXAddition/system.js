@@ -538,7 +538,7 @@ window.robinStandSelfSufficiencyReady = robinStandSelfSufficiencyReady;
 
 /* Robin's weekly rent in £: the player's single rent for the current stage, with the rent setting and economy inflation applied, never below the vanilla £400. */
 function robinStandRent() {
-	let rent = [10000, 30000, 50000, 70000, 100000, 150000, 200000][Math.clamp((V.rentstage || 1) - 1, 0, 6)];
+	let rent = [10000, 30000, 50000, 70000, 100000, 150000, 200000][Math.clamp((V.rentStage || 1) - 1, 0, 6)];
 	if (setup.inflation) rent = setup.inflation.price(Math.floor(rent * setup.inflation.rentSettingModifier()));
 	return Math.max(setup.robinStand.rent, Math.round(rent / 100));
 }
@@ -571,7 +571,7 @@ function robinStandBecomeSelfSufficient() {
 	V.robinfirstrentfight = 0;
 	V.robinmoney = Math.max(V.robinmoney - robinStandRent(), 0);
 	/* Rebuild the current demand without Robin's doubled share. rentpay advances to the next stage later. */
-	V.rentmoney = [10000, 30000, 50000, 70000, 100000, 150000, 200000][Math.clamp(V.rentstage - 1, 0, 6)];
+	V.rentMoney = [10000, 30000, 50000, 70000, 100000, 150000, 200000][Math.clamp(V.rentStage - 1, 0, 6)];
 	wikifier("rentmod");
 	return true;
 }

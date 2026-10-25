@@ -290,6 +290,7 @@ declare global {
 		colourCustom?: string;
 		pattern?: 0 | string;
 		pattern_options?: string[];
+		pattern_name?: string;
 		pattern_caption?: boolean;
 		pattern_layer?: "primary" | "secondary" | "tertiary";
 		accessory: number;
@@ -410,6 +411,8 @@ declare global {
 		 */
 		breast_mask_img?: 0;
 		head_type?: "veil" | "hat";
+		// Modded clothing only
+		modder?: string;
 		// TODO list and document other options
 	}
 

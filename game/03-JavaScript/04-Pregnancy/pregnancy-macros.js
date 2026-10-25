@@ -87,12 +87,9 @@ function conceiveNow(orifice, load, slot = availablePlayerPregnancySlot(orifice)
 		load.location,
 		slot === "vagina2" ? 2 : 1
 	);
-	// Realistic mode keeps the player in the dark. Fetish and silly both tell them at once.
-	if (V.settings.pregnancyType !== "realistic") {
-		setKnowsDonor(pregnancyId, "pc");
-		setKnowsCarrier(pregnancyId, "pc");
-		T.playerIsNowPregnant = load.donor;
-	}
+	setKnowsDonor(pregnancyId, "pc");
+	setKnowsCarrier(pregnancyId, "pc");
+	if (V.settings.pregnancyType !== "realistic") T.playerIsNowPregnant = load.donor;
 	return pregnancyId;
 }
 window.conceiveNow = conceiveNow;

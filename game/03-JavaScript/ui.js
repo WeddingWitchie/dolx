@@ -134,31 +134,7 @@ function zoom(value) {
 	/* The doll popup sizes itself against the zoomed layout, so refit it. No-ops unless it is open. */
 	window.sizeDollOverlayCanvases?.();
 }
-
 window.zoom = zoom;
-
-function beastTogglesCheck() {
-	T.beastVars = [
-		"bestialityEnabled",
-		"swarmsEnabled",
-		"parasitesEnabled",
-		"parasitePregnancyEnabled",
-		"tentaclesEnabled",
-		"slimesEnabled",
-		"earSlimesEnabled",
-		"voreEnabled",
-		"spidersEnabled",
-		"slugsEnabled",
-		"maggotsEnabled",
-		"waspsEnabled",
-		"beesEnabled",
-		"lurkersEnabled",
-		"horsesEnabled",
-		"plantsEnabled",
-	];
-	T.anyBeastOn = T.beastVars.some(x => V.settings[x] === true);
-}
-window.beastTogglesCheck = beastTogglesCheck;
 
 function settingsAsphyxiation() {
 	const updateText = () => {
@@ -641,35 +617,6 @@ window.settingsPlayerBeauty = settingsPlayerBeauty;
 // Run only when settings tab is changed (probably in "displaySettings" widget)
 // data-target is the target element that needs to be clicked for the value to be updated
 // data-disabledif is the conditional statement (e.g. data-disabledif="V.per_npc[T.pNPCId].gender==='f'")
-
-function settingsDisableElement() {
-	$(() => {
-		$("[data-disabledif]").each(function () {
-			const updateButtonsActive = () => {
-				$(() => {
-					try {
-						const evalStr = "'use strict'; return " + disabledif;
-						// eslint-disable-next-line no-new-func
-						const cond = Function(evalStr)();
-						const style = cond ? "var(--500)" : "";
-						orig.css("color", style).children().css("color", style);
-						orig.find("input").prop("disabled", cond);
-						$(document).trigger("rangeslider::update");
-					} catch (e) {
-						console.log(e);
-					}
-				});
-			};
-			const orig = $(this);
-			const disabledif = orig.data("disabledif");
-			[orig.data("target")].flat().forEach(e => $("[name$='" + Util.slugify(e) + "']").on("click", updateButtonsActive));
-			if (disabledif) {
-				updateButtonsActive();
-			}
-		});
-	});
-}
-window.settingsDisableElement = settingsDisableElement;
 
 // Adds event listeners to input on current page
 // mainly used for options overlay
@@ -1291,3 +1238,17 @@ function basicHypnoCss() {
 	return V.options.textAnimsAll && V.options.textAnimsHypno ? "hypno-text hypno" : "hypno-text";
 }
 window.basicHypnoCss = basicHypnoCss;
+
+function toggleRelationCollapse(element) {
+	const box = element.closest(".relation-box");
+	const npcName = box.dataset.npc;
+	const idx = V.collapsedRelationBoxes.indexOf(npcName);
+	if (idx >= 0) {
+		V.collapsedRelationBoxes.splice(idx, 1);
+		box.classList.remove("is-collapsed");
+	} else {
+		V.collapsedRelationBoxes.push(npcName);
+		box.classList.add("is-collapsed");
+	}
+}
+window.toggleRelationCollapse = toggleRelationCollapse;

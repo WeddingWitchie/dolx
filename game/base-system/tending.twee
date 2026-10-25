@@ -118,6 +118,17 @@
 			<<exit>>
 		<</if>>
 	<</if>>
+	<<set _readyBeds to [...new Set($_plotsHere.filter(plot => plot.stage === 0 && plot.till >= 1).map(plot => plot.bed))]>>
+	<<set _brokenSeeds to $plants_known.filter(type => !setup.foodstuff[type])>>
+	<<set _seedsByBed to {}>>
+	<<run _readyBeds.forEach(bed => {
+		_seedsByBed[bed] = V.plants_known.filter(type => {
+			const tending = setup.foodstuff[type]?.tending;
+			if (!tending || tending.planting_bed !== bed) return false;
+			return tending.seasons?.includes(Time.season) || (_location === "garden" && V.alex_greenhouse >= 3);
+		});
+	})>>
+	<<set _blockedSeeds to $plants_known.filter(type => setup.foodstuff[type]?.tending && !_readyBeds.some(bed => _seedsByBed[bed].includes(type)))>>
 
 	<<set $_i to 0>>
 
@@ -188,7 +199,20 @@
 			<<else>>
 				<<if _plantbed.till gte 1>>
 					The soil is ready for planting.
-					<<tendingPlantSeedsOptions _location _plantbed>>
+					<<if $plants_known.length is 0>>
+						<br>
+						Search wild areas for seeds to plant.
+						<br>
+					<<elseif _seedsByBed[_plantbed.bed].length is 0>>
+						<br>
+						<span class="blue">None of your seeds can be planted here right now.</span>
+						<br>
+					<<else>>
+						<details class="journal">
+							<summary class="journal">Plant seeds (<<= _seedsByBed[_plantbed.bed].length>> available)</summary>
+							<<tendingPlantSeedsOptions _location _plantbed `_seedsByBed[_plantbed.bed]`>>
+						</details>
+					<</if>>
 				<<else>>
 					The soil is ready for tilling.
 					<br>
@@ -234,6 +258,21 @@
 			<</if>>
 		<</if>>
 		<br>
+	<</if>>
+	<<if _readyBeds.length gte 1>>
+		<<for _plantType range _brokenSeeds>>
+			<span class="red">Plant type '<<= _plantType>>' not found.</span>
+			<br><br>
+			Please report this.
+			<br>
+		<</for>>
+		<<if _blockedSeeds.length gte 1>>
+			<details class="journal">
+				<summary class="journal">Seeds you can't plant (<<= _blockedSeeds.length>>)</summary>
+				<<tendingUnplantableSeeds _readyBeds `_blockedSeeds`>>
+			</details>
+			<br>
+		<</if>>
 	<</if>>
 
 	<<if _location isnot "water_dragon_lab" and Transformations.chimeraActive("melusine") and ($sciencetrait gte 5 or $danceskill gte 1000) and $daily.melusineRainDance isnot 1>>
@@ -292,10 +331,8 @@
 <<widget "tendingPlantSeedsOptions">>
 	<<set _location to _args[0]>>
 	<<set _plantbed to _args[1]>>
+	<<set _seedList to _args[2]>>
 
-	<<if $plants_known.length is 0>>
-		Search wild areas for seeds to plant.
-	<</if>>
 	<<switch _location>>
 		<<case "farm">> <<set _irrigation to ($farm.irrigation ? $farm.irrigation : 0)>>
 		<<case "garden">> <<set _irrigation to ($farm and $farm.greenhouse ? _plantbed.length : 0)>>
@@ -366,6 +403,25 @@
 				<</if>>
 			<</if>>
 		<</if>>
+		<br>
+	<</for>>
+<</widget>>
+
+<<widget "tendingUnplantableSeeds">>
+	<<set _beds to _args[0]>>
+	<<set _seedList to _args[1]>>
+
+	<<for _plantType range _seedList>>
+		<<set $_plant to setup.foodstuff[_plantType]>>
+		<!-- comparing soil types; a seed the bed can take is only held back by the season -->
+		<<if _beds.includes($_plant.tending.planting_bed)>>
+			<<tending_season_notice _plantType>>
+		<<else>>
+			<<set $_name to $_plant.tending.seed_name ? $_plant.tending.seed_name : $_plant.plural>>
+			<<foodstufficon _plantType>>
+			<span class="blue"><<print $_name.toLocaleUpperFirst()>> only grow<<if $_plant.tending.seed_name>>s<</if>> in <<print $_plant.tending.planting_bed>>.</span>
+		<</if>>
+		<br>
 	<</for>>
 	<<if _shownSeeds is 0 and $plants_known.length gt 0>>
 		<br>
@@ -702,7 +758,7 @@
 	</span>
 <</widget>>
 
-<<widget "updatePlants">>
+<<widget "updateFoodstuff">>
 	<<set $_food_keys to Object.keys(setup.foodstuff)>>
 	<<for _i to 0; _i lt $_food_keys.length; _i++>>
 		<<set $_type to $_food_keys[_i]>>

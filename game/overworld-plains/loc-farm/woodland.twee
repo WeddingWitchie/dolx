@@ -532,7 +532,7 @@ You keep your eyes on the ground while Alex works the saw through the branch. "H
 			<</if>>
 			<br>
 
-			<<if ($settings.bestialityEnabled or $farm_work.pig.monster) and hasSexStat("deviancy", 5)>>
+			<<if beastSexEnabledForType("pig", $farm_work.pig.monster) and hasSexStat("deviancy", 5)>>
 				<<animalicon "pig">><<link [[Reward them with your body|Farm Woodland Forage Reward]]>>
 					<<set $tempRewardType to "body">>
 				<</link>><<deviant5>>
@@ -613,9 +613,9 @@ You keep your eyes on the ground while Alex works the saw through the branch. "H
 		<</if>>
 		<br><br>
 
-		<<if $rentmoney gt $money>>
+		<<if $rentMoney gt $money>>
 			You think about giving them your harvest, but you're barely scraping by. Can you really afford it?
-		<<elseif $rentmoney * 2 gt $money>>
+		<<elseif $rentMoney * 2 gt $money>>
 			You think about giving them your harvest, but money is tight. Can you still make enough for next week?
 		<<else>>
 			You think about giving them your harvest. All things considered, you can afford to lose some
@@ -632,7 +632,7 @@ You keep your eyes on the ground while Alex works the saw through the branch. "H
 		<br>
 
 		<!-- The "body" and "nothing" rewards are disabled when bestiality is disabled and the pigs aren't monsters. -->
-		<<if $settings.bestialityEnabled or $farm_work.pig.monster>>
+		<<if beastSexEnabledForType("pig", $farm_work.pig.monster)>>
 			<<if hasSexStat("deviancy", 5)>>
 				<<animalicon "pig">><<link [[Offer your body (?:??)|Farm Woodland Forage Reward Extreme]]>>
 					<<set $tempRewardType to "body">>
@@ -728,8 +728,7 @@ You keep your eyes on the ground while Alex works the saw through the branch. "H
 			<<set $tempBasket[0] += _tending_amount>>
 		<<else>>
 			<!-- Truffles -->
-			<!-- NOTE: THERE DOES NOT CURRENTLY EXIST A TRUFFLE BASKET SPRITE. SPRITEWORK NEEDED. -->
-			<<wearProp "mushroom basket">>
+			<<wearProp "truffle basket">>
 			<span class="green">You find some <<foodstufficon "truffle">> truffles.</span>
 			<<if $farm.woodland gte 3>>
 				<<tending_pick truffle 10 30>>
@@ -786,7 +785,7 @@ You keep your eyes on the ground while Alex works the saw through the branch. "H
 
 		<<if $tempForageType is "fungi"
 			and (($farm.woodland is 2 and random(1, 2) is 2) or ($farm.woodland is 3 and random(1, 5) lte 4))
-			and ($settings.bestialityEnabled or $farm_work.pig.monster)>>
+			and beastSexEnabledForType("pig", $farm_work.pig.monster)>>
 			<!--
 				The event will be initiated by the PC's hair or clothes catching on a branch. Upon triggering this event, a pig will try to molest them.
 
@@ -1002,14 +1001,14 @@ You keep your eyes on the ground while Alex works the saw through the branch. "H
 
 		The pigs will take 30-40 minutes to return to the farm from where they took the player.
 	-->
-	<<if _pigsUnsatisfied lte 0 or not ($settings.bestialityEnabled or $farm_work.pig.monster)>>
+	<<if _pigsUnsatisfied lte 0 or not beastSexEnabledForType("pig", $farm_work.pig.monster)>>
 		<<set _passTime to random(30, 40)>>
 		<<pass _passTime>>
 
 		<<if _pigsUnsatisfied lte 0>>
 			<<pass 10>>
 			After finishing the last of the food, the <<farm_text_many pig>> settle onto the earth.
-			<<if $settings.bestialityEnabled or $farm_work.pig.monster>>
+			<<if beastSexEnabledForType("pig", $farm_work.pig.monster)>>
 				<<ggrespect>><<farm_pigs 4>>
 			<<else>>
 				<<grespect>><<farm_pigs 1>>
@@ -1040,7 +1039,7 @@ You keep your eyes on the ground while Alex works the saw through the branch. "H
 			<br><br>
 
 			You don't know the way back, so you wait for them to get up. Some <<farm_text_many pig>> approach you during this time, giving you a lick or a nuzzle for the meal.
-			<<if $settings.bestialityEnabled or $farm_work.pig.monster>>
+			<<if beastSexEnabledForType("pig", $farm_work.pig.monster)>>
 				A few of them still look at you with lustful eyes, but the others form a ring of sorts that stops them from approaching.
 			<</if>>
 			<br><br>
@@ -1204,7 +1203,7 @@ You keep your eyes on the ground while Alex works the saw through the branch. "H
 
 <<elseif $tempRewardType is "body">>
 	<!--
-		The PC will satisfy a pig with their body (+1 Pig's Respect). If the PC has good Science and Tending, they will recognize and reward a pig that was particularly helpful (+1 Pig's Respect).
+		The PC will satisfy a pig with their body (+1 Pig's Respect). If the PC has good Science and Tending, they will recognise and reward a pig that was particularly helpful (+1 Pig's Respect).
 	-->
 	<<beastNEWinit 4 pig>>
 	<<set $farm_work.pig.gender to $NPCList[0].gender>>
@@ -1518,7 +1517,7 @@ You keep your eyes on the ground while Alex works the saw through the branch. "H
 <<elseif $tempRewardType is "body">>
 	<!-- Should not be possible to reach this branch without bestiality being enabled or the farm pigs being monsters. -->
 	<!--
-		The PC will satisfy a pig with their body (+1 Pig's Respect). If the PC has good Science and Tending, they will recognize and reward a pig that was particularly helpful (+1 Pig's Respect).
+		The PC will satisfy a pig with their body (+1 Pig's Respect). If the PC has good Science and Tending, they will recognise and reward a pig that was particularly helpful (+1 Pig's Respect).
 	-->
 	<<if $farm.beasts.pigs gte 5>>
 		<<set _pigsUnsatisfied to 1>>
@@ -1651,7 +1650,7 @@ You keep your eyes on the ground while Alex works the saw through the branch. "H
 	<</if>>
 <<else>>
 	<<farm_pigs -3>>
-	<<if $farm.beasts.pigs gte -5 or not ($settings.bestialityEnabled or $farm_work.pig.monster)>>
+	<<if $farm.beasts.pigs gte -5 or not beastSexEnabledForType("pig", $farm_work.pig.monster)>>
 		They consider you, then snort and trot away.
 		<br><br>
 
@@ -3190,7 +3189,7 @@ Alex jerks <<his>> head aside and grips the ladder. "I-I wasn't..."
 	Alex averts <<his>> gaze, then laughs. "You're quite something," <<he>> says. <<He>> clamps <<his>> hands against your <<bottom>>, pulling you against <<him>>. "I'll be good. Let's get back to work." <<He>> plants a kiss on your cheek.
 	<br><br>
 
-	<<link [[Next|Farm Woodland]]>><</link>>
+	<<link [[Next|Farm Woodland]]>><<endevent>><</link>>
 <</if>>
 
 

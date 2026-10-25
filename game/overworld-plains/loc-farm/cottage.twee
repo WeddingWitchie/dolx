@@ -131,7 +131,7 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 <<elseif npcIsPregnant("Alex") and !talkedAboutPregnancy("Alex","pc") and npcBellySize("Alex") gte 1>>
 	<<alex_cottage_pregnancy_reveal>>
 
-<<elseif ($farm_countdown lte 0 or $farm_countdown is undefined) and ($renttime lte -2 or ($renttime lte 0 and Time.hour gte 4 and Time.hour lte 21))>>
+<<elseif ($farm_countdown lte 0 or $farm_countdown is undefined) and ($rentTime lte -2 or ($rentTime lte 0 and Time.hour gte 4 and Time.hour lte 21))>>
 	<<unset $farm_countdown>><<unset $baileyReunionScene>>
 	<span class="red">You hear a knock at the door.</span>
 	<br><br>
@@ -668,6 +668,7 @@ You snuggle under the covers.
 			<br><br>
 		<</if>>
 		<<if !_sleepinterrupt and (Time.hour gt 21 or Time.hour lt 6) and $bus is "farm_alex_room" or $alex_bed is "player" and !_alexWakeNursery>>
+			<br><br>
 			<<switch random(1, 6)>>
 				<<case 1>>
 					<<if Time.hour is 5>>
@@ -697,6 +698,7 @@ You snuggle under the covers.
 	<</if>>
 	<<sleepeffects>>
 	<<if $remywake is 1>>
+		<br><br>
 		<<npc Alex>><<person1>>
 		"Wake up!" Someone shakes your shoulders. It's Alex. <span class="red">"<<nnpc_Hes Remy>> here,"</span> <<he>> says. "Remy. We can do this. Get ready, I'll
 		<<if $farm.tower_guard>>
@@ -719,6 +721,7 @@ You snuggle under the covers.
 		<<link [[Prepare|Farm Assault Wardrobe]]>><<endevent>><<set $phase to 1>><<unset $remywake>><</link>>
 		<br>
 	<<elseif _sleepinterrupt>>
+		<br><br>
 		<<npc Alex>><<person1>>
 		<<if _alexWakeNursery is 1>>
 			You awake to the sound of the staircase to the loft creaking.
@@ -943,7 +946,7 @@ Alex holds your body tighter and begins humping your rear faster.
 	<<else>>
 		Without warning, Alex bucks <<his>> hips against your mouth. <<His>> orgasm covers your face in lewd fluids. You lick your lips. It tastes oddly nice. <<bodyliquid "face" "goo">>
 	<</if>>
-	<<arousal 1500>><<garousal>>
+	<<arousal 1500>><<garousal>><<oralejacstat>><<ejacstat>><<cumswallow "human" null npcSemenMod(C.npc.Alex.penissize)>>
 <<else>> /* Give Alex a hand job */
 	<<if $NPCList[0].penis isnot "none">>
 		<<His>> body convulses in orgasmic bliss, covering your hands in cum. <<arousal 1500 "mouth">><<garousal>><<if random(0,1) is 1>><<bodyliquid "rightarm" "semen">><<else>><<bodyliquid "leftarm" "semen">><</if>>
@@ -959,7 +962,7 @@ Alex holds your body tighter and begins humping your rear faster.
 	<<link [[Next |Farm Alex Somno Orgasm]]>><</link>>
 <<else>>
 	<<if $phase is 0>>
-		The tension leaves <<his>> body, and <<he>> sighs, apparently having climaxed. <<He>> clings to you, and you smile. <<stress -6>><<lstress>>
+		The tension leaves <<his>> body, and <<he>> sighs, apparently having climaxed. <<He>> clings to you, and you smile. <<stress -6>><<lstress>><<npcincr Alex lust -1>><<llust>>
 	<<else>>
 		<<if $NPCList[0].penis isnot "none">>
 			You tuck <<his>> dick back into <<his>> boxers.
@@ -1244,7 +1247,7 @@ Alex groans and then yawns. <<He>> hugs onto you tighter, resting <<his>> head o
 	<<He>> glances between you and <<his>> groin. "How about a night ride?" <<he>> asks, smirking.
 	<br><br>
 
-	<<link [[Accept|Farm Alex Somno Wake Sex]]>><<set $sexstart to 1>><</link>>
+	<<link [[Accept|Farm Alex Somno Wake Sex]]>><<set $sexstart to 1>><</link>><<promiscuous1>>
 	<br>
 	<<link [[Reject|Farm Alex Somno Wake Reject]]>><</link>>
 <<else>>
@@ -1263,6 +1266,8 @@ Alex groans and then yawns. <<He>> hugs onto you tighter, resting <<his>> head o
 	<<maninit>>
 
 	You wrap your arms around Alex. <<He>> pulls you closer, kissing along the side of your neck before biting hard enough to leave a mark. <<arousal 600>><<garousal>>
+	<br><br>
+	<<promiscuity1>>
 	<<set $enemytrust += 100>>
 <</if>>
 
@@ -3631,7 +3636,7 @@ Alex talks on the phone, trying to keep <<his>> voice steady.
 :: Farm Cottage Bailey
 <<effects>>
 <<babyRent>>
-<<set _rentTotal to ($rentmoney + ($babyRent or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
+<<set _rentTotal to ($rentMoney + ($babyRent or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
 <<bratTaxCalc>><<if ($baileyDeposit or 0) gte (_rentTotal + ($bratTax or 0)) or setup.hbsc.canAutoPay("bailey", _rentTotal)>>
 	You open the door. <span class="red">It's Bailey.</span>
 	<br><br>
@@ -3687,7 +3692,7 @@ You open the door. <span class="bailey-red">It's <<baileyTitleNarration>>.</span
 	<<cottage_bailey_options>>
 <</if>>
 <</if>>
-<<set $renttime to 7>><<set $rentday to Time.weekDay>>
+<<set $rentTime to 7>><<set $rentDay to Time.weekDay>>
 
 
 :: Farm Cottage Bailey Confront
@@ -3797,8 +3802,8 @@ property."
 <<effects>>
 <<set $baileypaychain to 0>>
 <<set $baileyRefusedToPay += 1>>
-<<set $baileyRefusedToPayTotal += $rentmoney + ($babyRent || 0)>>
-<<set $baileyRefusedToPayTotalStat += $rentmoney + ($babyRent || 0)>>
+<<set $baileyRefusedToPayTotal += $rentMoney + ($babyRent || 0)>>
+<<set $baileyRefusedToPayTotalStat += $rentMoney + ($babyRent || 0)>>
 
 Alex slams the door.
 <<if $bailey_encroach is undefined>>
@@ -5073,7 +5078,7 @@ The pain becomes too much for you to endure as you continue pushing. Everything 
 <<if $settings.realisticChildbirthEnabled is true>>
 	<<link [[Next (2:00)|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"cottage","partner":"Alone","genital":_farmBirthPregnancy ? _farmBirthPregnancy.orifice : "vagina"}>><<if $phase is 1>><<set $birth.partner to "Alex">><<else>><<set $birth.inlobby to "Alex">><</if>><<endevent>><<pass 120>><</link>>
 <<else>>
-	<<link [[Next (2:00)|Farm PC Birth 5]]>><<run beginPlayerBirth()>><<pass 120>><</link>>
+	<<link [[Next (2:00)|Farm PC Birth 5]]>><<run setPlayerLitterBorn()>><<pass 120>><</link>>
 <</if>>
 
 :: Farm PC Birth 5

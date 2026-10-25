@@ -1481,6 +1481,7 @@ function initLegs() {
 			pattern: 0,
 			pattern_options: ["long", "short"],
 			pattern_layer: "primary",
+			pattern_name: "lengths",
 			type: ["cool"],
 			gender: "m",
 			femininity: -100,
@@ -1899,7 +1900,7 @@ function initLegs() {
 			accessory_colour_options: [],
 			cursed: 0,
 			location: 0,
-			iconFile: "elegantkneehigh.png",
+			iconFile: "elegantsocks.png",
 			accIcon: 0,
 		}),
 		new ClothesItem({

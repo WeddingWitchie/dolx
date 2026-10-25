@@ -1,6 +1,6 @@
 :: Traits [widget]
 <<widget "traits">>
-	<<if $sexStats and $sexStats.pills>>
+	<<if $sexStats?.pills>>
 		<<set _pills to $sexStats.pills.pills>>
 	<</if>>
 	<<set _amcTraitName to (name, stat) => `<mouse class='tooltip green'>${name}<span>
@@ -586,14 +586,14 @@
 								break;
 						}
 						let parasites = [];
-						if ($parasite.breasts and $parasite.breasts.name is "parasite") {
+						if ($parasite.breasts?.name is "parasite") {
 							if ($player.breastsize gte 1) {
 								parasites.push("breasts");
 							} else {
 								parasites.push("chest");
 							}
 						}
-						if (($parasite.clit and $parasite.clit.name is "parasite") or ($parasite.penis and $parasite.penis.name is "parasite")) parasites.push("genitals");
+						if ($parasite.clit?.name is "parasite" or $parasite.penis?.name is "parasite") parasites.push("genitals");
 						if (parasites.length) result += ` Its parasites cover your ${formatList(parasites, "and", true)} like clothing.`;
 						return result;
 					}
@@ -767,6 +767,12 @@
 					text: "You know how to react when stuck in the stuff.",
 				},
 				{
+					name: "Knowledge: Pumpkin Carving",
+					colour: "tangerine",
+					has: ($pumpkin_carving + ($pumpkin_carving_knowledge?.length * 5)) gte 15,
+					text: "You carve pumpkins like a pro.",
+				},
+				{
 					name: "Ancient Arts",
 					colour: "wraith",
 					has: $hc?.wraith,
@@ -784,6 +790,12 @@
 					colour: "green",
 					has: $asylum_tunnels gte 6,
 					text: "Lower allure in the forest at night.",
+				},
+				{
+					name: "Temple Calligrapher",
+					colour: "green",
+					has: $temple_calligraphy gte 11,
+					text: "Cheating on exams is twice as effective.",
 				},
 			],
 		},
@@ -842,7 +854,7 @@
 				},
 				{
 					name: () => {
-						if (V.hallucinations gte 2 || !V.settings.bestialityEnabled) return "Harpy";
+						if (V.hallucinations gte 2 || !isBestialityOnForAnyCreature()) return "Harpy";
 						if (playerFeelsManlike()) return "Birdboy";
 						if (playerFeelsGirllike()) return "Birdgirl";
 						return "Birdkin";
@@ -2448,17 +2460,17 @@
 					textColour: "red",
 				},
 				{
-					name: () => V.settings.bestialityEnabled ? "Stockholm Syndrome: Wolves" : "Stockholm Syndrome: Wolf People",
+					name: () => animalSexEnabledForType("wolf") ? "Stockholm Syndrome: Wolves" : "Stockholm Syndrome: Wolf People",
 					colour: "white",
 					has: $syndromewolves gte 1,
-					text: () => V.settings.bestialityEnabled ? "They're just cute animals." : "They're just cute monsters.",
+					text: () => animalSexEnabledForType("wolf") ? "They're just cute animals." : "They're just cute monsters.",
 					textColour: "red",
 				},
 				{
 					name: "Stockholm Syndrome: Great Hawk",
 					colour: "white",
 					has: $syndromebird gte 1,
-					text: () => V.greathawkmonster === 2 || !V.settings.bestialityEnabled ? "<<nnpc_He 'Great Hawk'>> only wants a mate." : "It only wants a mate.",
+					text: () => resolveIfNamedBeastIsMonster("greathawk") ? "<<nnpc_He 'Great Hawk'>> only wants a mate." : "It only wants a mate.",
 					textColour: "red",
 				},
 				{

@@ -1076,3 +1076,591 @@ You wind between tall shelves, until you find a staircase leading up. You climb,
 
 <<link [[Next|Flats]]>><<endcombat>><<mines_end>><<set $eventskip to 1>><</link>>
 <br>
+
+
+:: Mine Intro
+<<mine_init>>
+<<set $outside to 0>><<effects>><<shackle_feet>>
+<<generate1>><<generate2>><<generate3>>
+
+The stone walls of the tunnels are broken up by wooden supports. Three <<people>> stand in front of a metal gate ahead of you. A <<person1>><<person>> walks up to you, and forces you to turn, giving no regard for your comfort. <<He>> places metal shackles around your ankles. They shut with a click.
+<br><br>
+"From now on you will do what you're told," <<he>> says as <<he>> tries to pull you through the open gate. "Or we will make you."
+
+<br><br>
+<<link [[Follow <<him>>|Mine Intro 2]]>><<set $phase to 0>><</link>>
+<br>
+<<link [[Resist|Mine Intro 2]]>><<set $phase to 1>><</link>>
+
+
+
+:: Mine Intro 2
+<<effects>>
+
+<<if $phase is 1>>
+	You pull against <<him>>, trying to break <<his>> grip on you. <<He>> sighs, pulls out a baton, and bashes it against you. You reel backwards. <<pain 15>><<gggpain>>
+	<br><br>
+	<<He>> pulls you through the gate as the other two guards laugh. You hear it slam and lock behind you.
+<<else>>
+	You follow <<him>> through the gate, you hear it slam and lock behind you.
+<</if>>
+<br><br>
+
+"From now on you will be given a job every day," <<he>> says, pulling you through the tunnels. "If you resist, you will be punished. You try to escape, you'll get punished. Trust me, you do not want to be punished."
+
+<<if Time.hour lte 5 or Time.hour gte 21>>
+	<<He>> pulls you to another metal gate, the guard in front of it opens it up. The <<person>> pushes you through. The gate slams and locks behind you.
+	<br><br>
+	<<link [[Next|Mine Night]]>><</link>>
+<<else>>
+	<<He>> pulls you into a cave with a bunch of other people.
+	<br><br>
+	<<link [[Next|Mine Job Intro]]>><</link>>
+<</if>>
+<<endevent>>
+
+
+
+:: Mine Return
+<<effects>><<set $mine.intro to 1>><<set $outside to 0>>
+
+You approach the metal door leading to the mines. It's covered in police tape. You look around to make sure nobody is watching, then tear it off. You take a deep breath, pull open the door, and walk through. <<stress 2>><<gstress>>
+<br><br>
+You're hit by a familiar stale air as you walk down the staircase.
+<br><br>
+<<endevent>>
+<<link [[Next|Mine]]>><</link>>
+
+
+
+:: Mine
+<<effects>><<set $outside to 0>>
+
+You're in the mines. It's silent.
+
+<<if isPregnancyEnding()>>
+	<<mine_pregnancy>>
+	<<exit>>
+<<elseif $stress gte $stressmax>>
+	<<mine_passout>>
+	<<exit>>
+<</if>>
+
+<<if $arousal gte $arousalmax>>
+	<<mine_orgasm>>
+<</if>>
+
+<br><br>
+<<icon "actions/explore.png">><<link [[Explore (0:30)|Mine Explore]]>><<pass 30>><</link>>
+<<if $mine.tunnel.intro and !$mine.tunnel.diamond>>
+	<<if $mine.tunnel.collapse lte 10>>
+		<br>
+		<<icon "ruins.png">><<link [[Collapsed Tunnel|Mine Collapse]]>><</link>>
+	<<else>>
+		<br>
+		<<icon "ruins.png">><<link [[Flooded Tunnel|Mine Flood]]>><</link>>
+	<</if>>
+<</if>>
+<br>
+<<icon "get-out.png">><<link [[Leave|Barb Street]]>><<set $outside to 1>><</link>>
+
+
+
+:: Mine Explore
+<<effects>>
+
+You explore the winding tunnels. The map you took makes it easy to find your way around.
+
+<<if isPregnancyEnding()>>
+	<<mine_pregnancy>>
+	<<exit>>
+<<elseif $stress gte $stressmax>>
+	<<mine_passout>>
+	<<exit>>
+<</if>>
+
+<<if $arousal gte $arousalmax>>
+	<<mine_orgasm>>
+<</if>>
+
+<<set _relativeWeight to 1>>
+
+<br><br>
+<<cleareventpool>>
+
+<<addinlineevent "nothing">>
+	You don't find anything of note.
+	<br><br>
+	<<mine_links>>
+<</addinlineevent>>
+
+<<addinlineevent "gem">>
+	<<mine_gem>>
+	You find something shiny embedded in the wall of a tunnel.
+	<br><br>
+	<<icon "pickaxe.png">><<link [[Attempt to mine it (0:30)|Mine Gem]]>><<pass 30>><<tiredness 10>><<set $phase to _gem>><</link>><<pickaxedifficulty _gem_diff_min _gem_diff_max>><<ggtiredness>>
+	<br>
+	<<mine_links>>
+<</addinlineevent>>
+
+<<addinlineevent "antique">>
+	<<set $phase to either("shovelhandle","lantern","rustypickaxe")>>
+	You find a
+	<<if $phase is "shovelhandle">>
+		shovel handle
+	<<elseif $phase is "rustypickaxe">>
+		rusty pickaxe
+	<<else>>
+		$phase
+	<</if>>
+	<<print either(
+		"under a rock",
+		"in a pile of rotten wood",
+		"on the ground, you almost tripped on it"
+	)>>.
+	<br><br>
+	<<ind>><<link [[Take it|Mine Antique]]>><</link>>
+	<br>
+	<<mine_links>>
+<</addinlineevent>>
+
+<<if $settings.tentaclesEnabled and $hallucinations gte 2>>
+	<<addinlineevent "tentacles">>
+		You explore the dim tunnel, until you step on something soft. You look down and see a tentacle on the ground. It wraps around your leg.
+		As you try to wrestle free, a slew of other tentacles emerge from the darkness.
+		<br><br>
+		<<link [[Struggle|Mine Tentacle]]>><<set $molestationstart to 1>><</link>>
+	<</addinlineevent>>
+<<else>>
+	<<set _relativeWeight++>>
+<</if>>
+
+<<if $settings.slimesEnabled and $hallucinations gte 1>>
+	<<addinlineevent "slimes">>
+		As you're exploring a damp tunnel, you feel something wet land on your back. You reach to wipe it off, and find a large slime. You look up to see several more about to fall on you.
+		<br><br>
+		<<link [[Struggle|Mine Slime]]>><<set $molestationstart to 1>><</link>>
+	<</addinlineevent>>
+<<else>>
+	<<set _relativeWeight++>>
+<</if>>
+
+<<if !$mine.tunnel.intro>>
+	<<addinlineevent "collapsed">>
+		As you're exploring, you come across a steep decline. It's covered in mud. You step onto it before <span class="red">you slip on the mud and slide down the tunnel.</span>
+		You reach the bottom and land on hard rock. <<pain 10>><<ggpain>>
+		<br><br>
+		<<link [[Recover|Mine Collapse Intro]]>><</link>>
+	<</addinlineevent>>
+<</if>>
+
+<<if $settings.lurkersEnabled>>
+	<<addinlineevent "lurkers">>
+		As you're exploring, you see movement in the corner of your eye. You turn to look, but it's gone. As you're about to continue on, camouflaged creatures fly at you from the wall.
+		<br><br>
+		<<link [[Struggle|Mine Struggle]]>><<set $struggle_start to 1>><</link>>
+	<</addinlineevent>>
+<<else>>
+	<<set _relativeWeight++>>
+<</if>>
+
+<<addinlineevent "creature" _relativeWeight>>
+	<<generateStrangeCreature 1>><<person1>>
+	As you're exploring, you come across a dark tunnel. You venture forward, making your way through, until you hear small rocks fall behind you.
+	You turn to look, but nothing's there. You turn to continue, only to see a shape standing in front of you. It lunges, inhuman arms grabbing your body.
+	<br><br>
+	<<link [[Next|Mine Creature Rape]]>><<set $molestationstart to 1>><</link>>
+<</addinlineevent>>
+
+<<runeventpool>>
+
+
+
+:: Mine Gem
+<<effects>><<wearProp "pickaxe">>
+
+You pick up a pickaxe and try to break the object out of the rock wall.
+<<if $pickaxeSuccess>>
+	<span class="green">You manage to break the object out of the wall without damaging it.</span><<ggpickaxe>>
+	<br><br>
+	It's <<mine_gem_collect $phase>> You take it with you.
+	<<prof pickaxe 2>>
+<<else>>
+	<<prof pickaxe 3>>
+	You hit it instead, and <span class="red">it shatters into a bunch of small pieces that scatter all over the ground.</span><<gggpickaxe>>
+<</if>>
+<br><br>
+<<mine_links>>
+
+
+
+:: Mine Antique
+<<effects>>
+<<set $antiquemoney += 75>>
+<<set _antique to `antique${$phase}`>>
+<<museumAntiqueStatus _antique "found">>
+
+<<if $phase is "shovelhandle">>
+	<<set _antique to "shovel handle">>
+<<elseif $phase is "rustypickaxe">>
+	<<set _antique to "rusty pickaxe">>
+<<elseif $phase is "lantern">>
+	<<set _antique to "lantern">>
+<</if>>
+
+<<set _antique_prop to `antique ${_antique}`>>
+<<wearProp _antique_prop>>
+
+You take the _antique with you.
+
+<br><br>
+<<mine_links>>
+
+
+
+:: Mine Tentacle
+<<effects>>
+
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<set $combat to 1>>
+	<<set $enemytype to "tentacles">>
+	<<molested>>
+	<<controlloss>>
+
+	<<tentaclestart 6 12>>
+
+<</if>>
+
+<<statetentacles>>
+
+<<effects>>
+<<effectstentacles>>
+<<tentacles>>
+<<actionstentacles>>
+
+<<if $tentacles.active lte ($tentacles.max / 2)>>
+	<span id="next"><<link [[Next|Mine Tentacle Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Mine Tentacle]]>><</link>></span><<nexttext>>
+<</if>>
+
+
+
+:: Mine Tentacle Finish
+<<effects>>
+
+The tentacles retreat back into the darkness. <<tearful>> you run until you reach a better-lit tunnel.
+
+<br><br>
+<<clotheson>>
+<<endcombat>>
+<<mine_links>>
+
+
+
+:: Mine Slime
+<<effects>>
+
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<molested>>
+	<<controlloss>>
+	<<set $combat to 1>>
+
+	<<set $enemytype to "swarm">>
+
+	<<swarminit "slimes" "slime mass" "moving towards you" "encircle you" "fend off" 4 2>>
+	<<set $timer to 8>>
+<</if>>
+
+<<swarmeffects>>
+
+<<swarm>>
+
+<<swarmactions>>
+
+<<if $timer lte 0>>
+	<span id="next"><<link [[Next|Mine Slime Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Mine Slime]]>><</link>></span><<nexttext>>
+<</if>>
+
+
+
+:: Mine Slime Finish
+<<effects>>
+
+The slimes retreat. <<tearful>> you run until you reach a drier cave.
+
+<br><br>
+<<clotheson>>
+<<endcombat>>
+<<mine_links>>
+
+
+
+:: Mine Collapse Intro
+<<effects>><<set $mine.tunnel.intro to 1>><<set $mine.tunnel.collapse to 0>>
+
+You take a look at your surroundings. The tunnel leads to a collapsed section. You try to see what's behind it. You can just barely make out a cave behind it.
+
+<br><br>
+<<link [[Next|Mine Collapse]]>><</link>>
+
+
+
+:: Mine Collapse
+<<effects>>
+
+You're at the collapsed tunnel.
+
+<<if isPregnancyEnding()>>
+	<<mine_pregnancy>>
+	<<exit>>
+<<elseif $stress gte $stressmax>>
+	<<mine_passout>>
+	<<exit>>
+<</if>>
+
+<<if $mine.tunnel.collapse lte 3>>
+	<span class="red">An impassable wall of rock stands before you.</span>
+<<elseif $mine.tunnel.collapse lte 6>>
+	<span class="blue">There's still plenty of rock left.</span>
+<<else>>
+	<span class="blue">You can see more tunnel behind the rocks.</span>
+<</if>>
+
+<<if $arousal gte $arousalmax>>
+	<<mine_orgasm>>
+<</if>>
+
+<br><br>
+<<icon "rubble.png">><<link [[Clear the rocks (1:00)|Mine Clear]]>><<pass 60>><<tiredness 20>><</link>><<gggtiredness>>
+<br>
+<<icon "get-out.png">><<link [[Leave|Mine]]>><</link>>
+
+
+
+:: Mine Clear
+<<effects>>
+
+You work on clearing the rocks out of the tunnel. It's exhausting work, <span class="blue">but you're making progress.</span>
+
+<<set $mine.tunnel.collapse += 1>>
+
+<<if $mine.tunnel.collapse lte 4>>
+	<span class="red">An impassable wall of rock stands before you.</span>
+<<elseif $mine.tunnel.collapse lte 7>>
+	<span class="blue">There's still plenty of rock left.</span>
+<<elseif $mine.tunnel.collapse lte 10>>
+	<span class="blue">You can see more tunnel behind the rocks.</span>
+<<else>>
+	<span class="green">There's a big enough gap to go through.</span>
+<</if>>
+
+<<if isPregnancyEnding()>>
+	<<mine_pregnancy>>
+	<<exit>>
+<<elseif $stress gte $stressmax>>
+	<<mine_passout>>
+	<<exit>>
+<</if>>
+
+<<if $mine.tunnel.collapse lte 10>>
+	<br><br>
+	<<icon "rubble.png">><<link [[Clear the rocks (1:00)|Mine Clear]]>><<pass 60>><<tiredness 20>><</link>><<gggtiredness>>
+	<br>
+	<<icon "get-out.png">><<link [[Leave|Mine]]>><</link>>
+<<else>>
+	<br><br>
+	<<link [[Go in|Mine Flood]]>><</link>>
+<</if>>
+
+
+
+:: Mine Flood
+<<effects>>
+
+You follow the tunnel and reach a pool of water. <span class="blue">A section of the tunnel is flooded.</span> It leads even further down.
+
+<<if isPregnancyEnding()>>
+	<<mine_pregnancy>>
+	<<exit>>
+<<elseif $stress gte $stressmax>>
+	<<mine_passout>>
+	<<exit>>
+<</if>>
+
+<<if $arousal gte $arousalmax>>
+	<<mine_orgasm>>
+<</if>>
+
+<br><br>
+<<icon "actions/dive.png">><<link [[Try to swim through|Mine Swim]]>><</link>><<swimmingdifficulty 700 1000>>
+<br>
+<<icon "get-out.png">><<link [[Leave|Mine]]>><</link>>
+
+
+
+:: Mine Swim
+You enter the water. It's warm.
+<br><br>
+<<water>><<effects>>
+You take a deep breath before you dive below the surface. You swim down and follow the tunnel.
+<br><br>
+<<if $swimmingSuccess>>
+	<span class="green">You continue, until you reach an incline and an unflooded section of tunnel.</span>
+	<br><br>
+	<<link [[Follow the tunnel|Mine Diamond]]>><</link>>
+<<else>>
+	<span class="red">You start to run out of breath.</span> You desperately try to return from where you came, but everything starts to go dark. You feel a cold hand grasp your ankle as everything fades to black.
+	<<passout>>
+	<br><br>
+	<<link [[Follow the tunnel|Mine Swim Fail]]>><</link>>
+<</if>>
+
+
+
+:: Mine Swim Fail
+<<effects>>
+
+You awaken with a gasp. You cough up water onto the ground.
+<br><br>
+You look around to see that you're back in the entrance of the mines.
+
+<br><br>
+<<link [[Next|Mine]]>><</link>>
+
+
+
+:: Mine Diamond
+<<effects>>
+
+As you walk down the dark tunnel, you notice a trail of torn clothing. The scraps lead to a crack in the tunnel wall, just large enough to fit in. You take a look inside and see something shining in the center of a cave.
+<br><br>
+You squeeze through the small gap. You shudder as you step onto the soft ground. You look around and see that the cave is covered with a fleshy substance. <<stress 10>><<ggstress>>
+<br><br>
+You approach the center of the cave, wet sounds accompany you. As you get close, you realize it's a <span class="lewd">purple diamond</span> sitting on a pedestal in the center of the cave. As you peer at it, you realize just how beautiful it is. You can't bear to look away.
+<br><br>
+<!-- Duplicate links are intentional -->
+<span class="wraith"><<link [[Take it|Mine Diamond Take]]>><</link>></span>
+<br>
+<span class="wraith"><<link [[Take it|Mine Diamond Take]]>><</link>></span>
+
+
+
+
+:: Mine Diamond Take
+<<effects>><<wearProp "antique purple diamond">><<earnFeat "Rock Bottom">>
+<<set $mine.tunnel.diamond to 1>><<museumAntiqueStatus "antiquepurplediamond" "found">>
+<<set $antiquemoney += 5000>>
+
+You reach out to touch the diamond, as your fingers meet the diamond, a warmth fills you.
+<<orgasm>>
+You recover, then reach back through the crack to grab a scrap of clothing. You wrap the diamond in the clothing scrap and lift it off its pedestal.
+<br><br>
+You return through the crack and continue down the tunnel, until you reach a fork. One of them leads to an incline. You follow it, until the silence is cut by <span class="red">a loud roar from behind you.</span> <<stress 20>><<gggstress>>
+<br><br>
+<<link [[Run|Mine Diamond Escape]]>><</link>>
+
+
+
+:: Mine Diamond Escape
+<<effects>>
+
+You run as fast as you can through the tunnel. The incline gets steeper and steeper. <span class="red">Another loud roar echoes from behind. It's louder than the last.</span>
+<br><br>
+The tunnel levels out. You glimpse light in the tunnel ahead, just as <span class="red">yet another loud roar echoes.</span>
+<br><br>
+You glance around, and see a large monster on your heels. You scramble away, but it swings its arm into one of the wooden supports. The tunnel rumbles. You rush to the light as it begins to collapse.
+<br><br>
+You make it to a small cave, and drop to the ground, trying to cover yourself. The rumbling stops. You look back to see the tunnel has caved in, as though it never existed to begin with. You look around. <span class="green">You're back at the entrance.</span>
+<br><br>
+<<link [[Next|Mine]]>><<endevent>><</link>>
+
+
+
+:: Mine Creature Rape
+
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+	<<npcexpose>>
+	<<set $speechDisable to 1>>
+	<<set $noBodyWriting to 1>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Mine Creature Rape Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Mine Creature Rape]]>><</link>></span><<nexttext>>
+<</if>>
+
+
+
+:: Mine Creature Rape Finish
+<<effects>>
+
+<<if $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>>
+	The <<person>> growls and runs into the darkness.
+<<elseif $enemyhealth lte 0>>
+	You push the creature off and scramble to your feet. You hear it rush back into the darkness.
+<</if>>
+<br><br>
+<<tearful>> you run until you reach a lit-up tunnel.
+<<clotheson>>
+<<endcombat>>
+<<mine_links>>
+
+
+
+:: Mine Struggle
+<<effects>>
+
+<<effects>>
+<<if $struggle_start is 1>>
+	<<struggle_init>>
+	<<set $struggle.creature to "lurker">>
+	<<struggle_creatures 3 4>>
+	<<set $combat to 1>>
+	<<controlloss>>
+	<<violence 1>>
+	<<molested>>
+	<<set $struggle.mouth.creature to "lurker">>
+	<<set $mouthuse to "struggle">><<set $mouthstate to "struggle">><<set $struggle.enemy[0].location to "mouth">>
+	<<unset $struggle_start>>
+<</if>>
+
+<<struggle>>
+
+<<if $struggle.done gte $struggle.number>>
+	<span id="next"><<link [[Next|Mine Struggle Finish]]>><</link>></span>
+	<br>
+<<else>>
+	<span id="next"><<link [[Next|Mine Struggle]]>><</link>></span>
+	<br>
+<</if>>
+
+
+
+:: Mine Struggle Finish
+<<effects>>
+
+The creatures disappear into the tunnels. <<tearful>> you stand up and continue on.
+<br><br>
+<<clotheson>>
+<<endcombat>>
+<<mine_links>>

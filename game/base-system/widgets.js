@@ -732,6 +732,11 @@ function calculateallure() {
 
 	// Allure calculations
 	let allure = attractiveness;
+
+	// Allure changes from Bailey's thugs hunting the PC
+	if (V.rentThug && isBaileyLookingForPlayer()) allure += V.rentThug.anger * 500;
+
+	// Allure changes from the time of day and the PC's exposure. Max increase of 2.1x.
 	/* night mod to base attractiveness. minus one, because it's already included into attractiveness above */
 	const nightMod = Weather.dayState === "night" ? 1.5 : 1;
 	allure += baseattractiveness * (nightMod - 1);

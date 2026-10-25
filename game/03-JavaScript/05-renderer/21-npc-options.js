@@ -572,10 +572,8 @@ class NpcCombatMapper {
 	 * @returns {Partial<CompositeLayerSpec>}
 	 */
 	static getNpcSkinFilter(npc) {
-		// Defensive: sometimes called with missing NPC
 		if (!npc || typeof npc !== "object") return {};
-
-		return setup.colours.getSkinFilter(npc.skincolour === "ghost" ? "ghost" : npc.skincolour === "white" ? "light" : "dark", 0);
+		return setup.colours.getSkinFilter(npc.skinType === "ghost" ? "ghost" : "gyaru", npc.skincolour ?? 70);
 	}
 
 	/**

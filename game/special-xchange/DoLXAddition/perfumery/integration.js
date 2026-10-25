@@ -476,7 +476,7 @@
 		if (!p) return [];
 		const lines = [`Fades in ${Math.ceil(p.remaining)} min, faster in rain.`];
 		if (p.attention * p.strength * 0.2 >= 0.05) lines.push("People in town notice you more.");
-		if (V.settings.bestialityEnabled || V.monster === 1) {
+		if (isBestialityOnForAnyCreature() || V.monster === 1) {
 			const pull = ["wolf", "boar", "bear"].map(animal => wildlifePreview(animal, p, true));
 			if (pull.some(m => m >= 1.05)) lines.push("Forest animals find you more easily.");
 			else if (pull.every(m => m <= 0.95)) lines.push("Forest animals find you less easily.");
@@ -489,7 +489,7 @@
 		return wildlifePreview(category, scent());
 	}
 	function wildlifePreview(category, p, outside = V.outside) {
-		if (!p || !outside || !(V.settings.bestialityEnabled || V.monster === 1)) return 1;
+		if (!p || !outside || !(isBestialityOnForAnyCreature() || V.monster === 1)) return 1;
 		const sensory = p.descriptorStrengths;
 		const interest =
 			category === "bear" ? p.sweet : category === "boar" ? p.animal + (sensory?.savoury || 0) * 0.4 : p.animal - (sensory?.sulfurous || 0) * 0.5;

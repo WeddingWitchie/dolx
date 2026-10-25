@@ -123,6 +123,7 @@ function birthRecordedLitter(pregnancyId, birthLocation, location) {
 	}
 
 	recordDelivery(pregnancyId, location);
+	learnPlayerFatheredBirth(pregnancyId);
 
 	for (const child of litter) {
 		beginRearing(child, location, birthLocation);
@@ -359,11 +360,9 @@ window.offspringSpecies = offspringSpecies;
 function namedNpcPregnancy(carrier, donor, donorInputSpecies, donorKnown = false, awareOf = false) {
 	if (V.settings.nnpcPregnancyEnabled === false) return false; // Named NPC pregnancy disabled
 	const namedNpc = C.npc[carrier];
-	// The carrier conceives in their monster form on the monster-chance roll, or always when locked into it.
-	const monsterForm = lockedFlag => isMonsterHallucinationAllowed() || lockedFlag === 2;
 	let namedNpcType = namedNpc.type;
-	if (carrier === "Black Wolf" && monsterForm(V.blackwolfmonster)) namedNpcType = "wolfgirl";
-	else if (carrier === "Great Hawk" && monsterForm(V.greathawkmonster)) namedNpcType = "harpy";
+	if (carrier === "Black Wolf" && resolveIfNamedBeastIsMonster("blackwolf")) namedNpcType = "wolfgirl";
+	else if (carrier === "Great Hawk" && resolveIfNamedBeastIsMonster("greathawk")) namedNpcType = "harpy";
 	const donorSpecies = offspringSpecies(donorInputSpecies, namedNpcType);
 	if (!donorSpecies) return false;
 
@@ -519,8 +518,9 @@ function randomPregnancyProgress() {
 			record.carrierDescription = V.storedNPCs[npcKey].npc?.fullDescription;
 			const [birthLocation, location] = defaultBirthLocations(record.donorSpecies);
 			birthRecordedLitter(record.pregnancyId, birthLocation, location);
+			record.carrier = V.storedNPCs[npcKey].npc.fullDescription;
 			if (location === "home") {
-				addBabyIntro("Bailey", npcKey, record.pregnancyId, getChildrenOf(record.pregnancyId).length, V.storedNPCs[npcKey].npc?.fullDescription);
+				addBabyIntro("Bailey", record.carrier, record.pregnancyId, getChildrenOf(record.pregnancyId).length);
 				setKnowsPregnancy(record.pregnancyId, "Bailey");
 			} else if (location === "wolf_cave") {
 				setKnowsPregnancy(record.pregnancyId, "Black Wolf");

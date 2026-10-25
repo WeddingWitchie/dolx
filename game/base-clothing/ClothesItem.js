@@ -178,6 +178,9 @@ class ClothesItem {
 	pattern_options;
 
 	/* */
+	pattern_name;
+
+	/* */
 	pattern_layer;
 
 	/* */

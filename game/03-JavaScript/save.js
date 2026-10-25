@@ -557,7 +557,7 @@ window.importSettings = function (data, type) {
 			reader.readAsBinaryString(data[0]);
 			break;
 		case "function":
-			importSettingsData(data);
+			importSettingsData(compatibilityConversion(data));
 			break;
 	}
 };
@@ -571,6 +571,8 @@ function compatibilityConversion(rawData) {
 		return rawData;
 	}
 	if (!processed || typeof processed !== "object" || Array.isArray(processed)) return rawData;
+	if (processed.general === undefined && processed.starting && typeof processed.starting === "object" && !Array.isArray(processed.starting))
+		processed.general = {};
 	if (!processed.general || typeof processed.general !== "object" || Array.isArray(processed.general)) return rawData;
 	if (processed.general.settings != null && (typeof processed.general.settings !== "object" || Array.isArray(processed.general.settings))) return rawData;
 
@@ -674,7 +676,7 @@ function compatibilityConversion(rawData) {
 		delete processed.general[legacyKey];
 	}
 
-	if (!processed.pregnancyChancePercent) {
+	if (!processed.pregnancyChancePercent && !processed.general.settings.beastSettings && processed.general.settings.skinToneMin === undefined) {
 		const settings = processed.general.settings;
 		if (settings.basePlayerPregnancyChance !== undefined) {
 			settings.basePlayerPregnancyChance = legacyPregnancyChanceToPercent(settings.basePlayerPregnancyChance, 100);
@@ -687,6 +689,51 @@ function compatibilityConversion(rawData) {
 	// A settings file exported before NNPC and generic pregnancy became separate toggles carries only
 	// the one flag. It governed both kinds of NPC, so both inherit it.
 	const incoming = processed.general.settings;
+	if (incoming.darkSkinChance !== undefined && incoming.skinToneMin === undefined) {
+		Object.assign(incoming, skinToneSettingsFromDarkChance(incoming.darkSkinChance));
+	}
+	const legacyBeastKeys = {
+		beastMaleChance: "maleChance",
+		beastMaleChanceMale: "maleChanceMale",
+		beastMaleChanceFemale: "maleChanceFemale",
+		beastMaleChanceSplit: "maleChanceSplit",
+		monsterChance: "monsterChance",
+		monsterHallucinationsOnly: "hallucinationsOnly",
+	};
+	if (Object.keys(legacyBeastKeys).some(key => incoming[key] !== undefined) || incoming.bestialityEnabled !== undefined) {
+		incoming.beastSettings ??= {};
+		processed.general.genericBeastSettings ??= {};
+		for (const type of C.beastSettingTypes) {
+			incoming.beastSettings[type] ??= {};
+			for (const [oldKey, key] of Object.entries(legacyBeastKeys)) {
+				if (incoming[oldKey] !== undefined) incoming.beastSettings[type][key] ??= incoming[oldKey];
+			}
+			if (incoming.bestialityEnabled !== undefined)
+				incoming.beastSettings[type].bestiality ??= incoming.bestialityEnabled
+					? "on"
+					: (incoming.monsterChance ?? V.genericBeastSettings.monsterChance) > 0
+					? "monsterOnly"
+					: "off";
+		}
+		for (const oldKey of Object.keys(legacyBeastKeys)) {
+			if (incoming[oldKey] !== undefined) processed.general.genericBeastSettings[oldKey] ??= incoming[oldKey];
+		}
+		if (incoming.bestialityEnabled !== undefined)
+			processed.general.genericBeastSettings.bestiality ??= incoming.bestialityEnabled
+				? "on"
+				: (incoming.monsterChance ?? V.genericBeastSettings.monsterChance) > 0
+				? "monsterOnly"
+				: "off";
+	}
+	for (const beast of C.namedBeasts) {
+		const old = processed.general[beast + "monster"];
+		if (old === undefined) continue;
+		incoming.namedBeasts ??= {};
+		incoming.namedBeasts[beast] ??= {
+			monsterChance: old === 2 ? 100 : old === 0 ? 0 : incoming.monsterChance ?? V.genericBeastSettings.monsterChance,
+			hallucinationsOnly: old === 2 ? false : incoming.monsterHallucinationsOnly ?? V.genericBeastSettings.monsterHallucinationsOnly,
+		};
+	}
 	if (incoming.npcPregnancyEnabled !== undefined && incoming.nnpcPregnancyEnabled === undefined) {
 		incoming.nnpcPregnancyEnabled = incoming.npcPregnancyEnabled;
 	}
@@ -695,6 +742,25 @@ function compatibilityConversion(rawData) {
 	// It governed both kinds of slime, so ear slimes inherit it.
 	if (incoming.slimesEnabled !== undefined && incoming.earSlimesEnabled === undefined) {
 		incoming.earSlimesEnabled = incoming.slimesEnabled;
+	}
+	const player = processed.starting?.player;
+	if (player && typeof player === "object") {
+		player.skin ??= {};
+		if (player.skinColour !== undefined) player.skin.color ??= player.skinColour;
+		if (player.faceFreckles !== undefined) player.skin.faceFreckles ??= player.faceFreckles;
+		if (player.freckles !== undefined) player.skin.faceFreckles ??= player.freckles;
+		if (player.bodyFreckles !== undefined) player.skin.bodyFreckles ??= player.bodyFreckles;
+	}
+	if (processed.npc && typeof processed.npc === "object") {
+		for (const npc of Object.values(processed.npc)) {
+			if (!npc || typeof npc !== "object") continue;
+			if (npc.skincolour === "white") npc.skincolour = 0;
+			else if (npc.skincolour === "black") npc.skincolour = 70;
+			else if (npc.skincolour === "ghost") {
+				npc.skincolour = 0;
+				npc.skinType = "ghost";
+			}
+		}
 	}
 
 	return JSON.stringify(processed);
@@ -2323,6 +2389,64 @@ function settingsObjects(type) {
 				},
 			};
 			break;
+	}
+	if (type === "starting") {
+		result.player.skin.faceFreckles = result.player.freckles;
+		delete result.player.freckles;
+		result.player.skin.bodyFreckles = { strings: ["none", "upper", "full", "random"], displayName: "Body freckles:", randomize: "characterAppearance" };
+	} else if (type === "general") {
+		for (const key of [
+			"beastMaleChance",
+			"beastMaleChanceMale",
+			"beastMaleChanceFemale",
+			"beastMaleChanceSplit",
+			"bestialityEnabled",
+			"monsterChance",
+			"monsterHallucinationsOnly",
+			"darkSkinChance",
+		])
+			delete result.settings[key];
+		for (const beast of C.namedBeasts) delete result[beast + "monster"];
+		result.options.tipdisable = { bool: true, displayName: "Sidebar Tips:" };
+		result.settings.granularBeastControl = { bool: true, displayName: "Granular beast controls:" };
+		for (const key of ["skinToneMin", "skinToneMode", "skinToneMax"]) {
+			result.settings[key] = { min: 0, max: 100, decimals: 0, displayName: `${key}:`, randomize: "encounter" };
+		}
+		result.settings.beastSettings = {};
+		for (const beast of C.beastSettingTypes) {
+			result.settings.beastSettings[beast] = {
+				monsterChance: { min: 0, max: 100, decimals: 0 },
+				hallucinationsOnly: { bool: true },
+				maleChance: { min: 0, max: 100, decimals: 0 },
+				maleChanceMale: { min: 0, max: 100, decimals: 0 },
+				maleChanceFemale: { min: 0, max: 100, decimals: 0 },
+				maleChanceSplit: { bool: true },
+				bestiality: { strings: ["on", "off", "monsterOnly"] },
+				victimsAlwaysMonster: { bool: true },
+			};
+		}
+		result.settings.namedBeasts = Object.fromEntries(
+			C.namedBeasts.map(beast => [
+				beast,
+				{
+					monsterChance: { min: 0, max: 100, decimals: 0 },
+					hallucinationsOnly: { bool: true },
+				},
+			])
+		);
+		result.genericBeastSettings = {
+			beastMaleChance: { min: 0, max: 100, decimals: 0 },
+			beastMaleChanceMale: { min: 0, max: 100, decimals: 0 },
+			beastMaleChanceFemale: { min: 0, max: 100, decimals: 0 },
+			beastMaleChanceSplit: { bool: true },
+			monsterHallucinationsOnly: { bool: true },
+			monsterChance: { min: 0, max: 100, decimals: 0 },
+			bestiality: { strings: ["on", "off", "monsterOnly"] },
+			victimsAlwaysMonster: { bool: true },
+		};
+	} else if (type === "npc") {
+		result.skincolour = { min: 0, max: 100, decimals: 0, displayName: "Skin tone:" };
+		result.skinType = { strings: ["normal", "ghost"], displayName: "Skin type:" };
 	}
 	return result;
 }

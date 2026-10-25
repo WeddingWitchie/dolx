@@ -17,8 +17,7 @@ const events = [
 		text: "<<schoolday>>",
 		// text shown if condition() is still met, but it's past the time to attend
 		failuretext:
-			// eslint-disable-next-line no-template-curly-in-string -- the ${} is SugarCube <<number>> macro syntax, evaluated at runtime
-			"You have missed <<print Object.keys(V.daily.school.attended).length === 4 ? 'a lesson' : `<<number ${5 - Object.keys(V.daily.school.attended).length}>>` + ' lessons'>> today.",
+			"You have missed <<print Object.keys(V.daily.school.attended).length === 4 ? 'a lesson' : ('<<number ' + (5 - Object.keys(V.daily.school.attended).length) + '>> lessons')>> today.",
 	},
 	{
 		// example of a lazy event that will still work
@@ -260,7 +259,7 @@ const events = [
 	{
 		name: "bailey date",
 		condition() {
-			return (V.bailey_date_scheduled === 1 || V.bailey_date_allnight_scheduled === 1) && V.renttime > 0 && V.bailey_date_attended !== 1;
+			return (V.bailey_date_scheduled === 1 || V.bailey_date_allnight_scheduled === 1) && V.rentTime > 0 && V.bailey_date_attended !== 1;
 		},
 		starthour: 19,
 		endhour: 19,

@@ -38,6 +38,14 @@ You are on Domus Street. The orphanage is here. The street is dominated by small
 <</if>>
 <<if $halloween is 1>>
 	Jack-o'-lanterns, skeletons, and spiders decorate the houses.
+	<<if $halloween_domus_pumpkin>>
+		The best jack-o'-lanterns hang from the orphanage, drawing attention from passers-by.
+		<<if Time.dayState is "night">>
+			<<icon "jack-o-lantern-light.png">>
+		<<else>>
+			<<icon "jack-o-lantern.png">>
+		<</if>>
+	<</if>>
 <</if>>
 <<if Weather.isSnow>>
 	Snowmen stand in gardens.
@@ -56,7 +64,7 @@ You are on Domus Street. The orphanage is here. The street is dominated by small
 		<<orgasmstreet>>
 	<</if>>
 <</if>>
-<<if $tutorial is 0 and $debug is 0>><<set $tutorial to 1>>
+<<if $tutorial is 0 and !$debug>><<set $tutorial to 1>>
 	<<generate1>><<person1>>As you leave the orphanage you bump into a <<person>> passing by. <<He>> staggers back and looks at you with anger, but <<his>> rage turns to lechery as <<he>> beholds you. "You're the cutest thing I've seen all week! Come 'ere."
 	<br><br>
 	<<link [[Next|Tutorial]]>><<set $molestationstart to 1>><<set $tutorialExit to "Domus Street">><</link>>
@@ -68,7 +76,7 @@ You are on Domus Street. The orphanage is here. The street is dominated by small
 		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 		<<set _crime to Math.clamp(crimeSumCurrent() / 10, 0, 12000)>>
 		<<run statusCheck("Gwylan")>>
-		<<if $halloween is 1 and Time.monthDay is 31 and Time.hour gte 19 and C.npc.Whitney.state isnot "dungeon" and C.npc.Whitney.init is 1 and $halloween_whitney_proposed isnot 1 and !$possessed and $xchange.pill.clone isnot "Whitney">>
+		<<if $halloween is 1 and Time.monthDay is 31 and Time.hour gte 19 and C.npc.Whitney.state isnot "dungeon" and C.npc.Whitney.init is 1 and $halloween_whitney_proposed isnot 1 and $halloween_kylar_whitney isnot 1 and !$possessed and $xchange.pill.clone isnot "Whitney">>
 			<<set $halloween_whitney_proposed to 1>>
 			<<halloweenwhitney>>
 		<<elseif $averyDismissalScene and $averyDismissalSceneWait isnot 1 and Time.weekDay is 7 and Time.hour is 20>>
@@ -278,7 +286,7 @@ You are on Domus Street. The orphanage is here. The street is dominated by small
 				<br>
 			<</if>>
 
-			<<if $avery_valentines and $avery_valentines.invite and !$avery_valentines.done and Time.monthName is "February" and Time.monthDay is 14 and Time.hour gte 20 and !$avery_mansion>>
+			<<if $avery_valentines?.invite and !$avery_valentines.done and Time.monthName is "February" and Time.monthDay is 14 and Time.hour gte 20 and !$avery_mansion>>
 				Avery waits for you by <<nnpc_his "Avery">> car.
 				<br>
 				<<icon "avery-car.png">><<link [[Valentine's Date|Avery Valentines]]>><</link>>
@@ -322,6 +330,15 @@ You are on Domus Street. The orphanage is here. The street is dominated by small
 			<<if $exposed gte 2 and Time.dayState isnot "night" and hasSexStat("exhibitionism", 5)>>
 				<<dooricon "domus">><<link [[Beg for clothing (0:02)|Domus House Nude]]>><<pass 2>><</link>><<exhibitionist5>>
 				<br>
+			<</if>>
+			<<if $halloween and ($pumpkin_carving + ($pumpkin_carving_knowledge?.length * 5)) gte 15 and !$halloween_domus_pumpkin and $exposed lte 0>>
+				<<if $foodstuff.pumpkin.amount gte 7>>
+					<<icon "pumpkin-carving.png">><<link [[Decorate the orphanage exterior with pumpkins (2:00, 7 pumpkins)|Domus Pumpkins]]>><<pass 120>><<hope 3>><<reb 3>><<set $halloween_domus_pumpkin to 1>><<tending_give "pumpkin" -7>><</link>> | <span class="tangerine">Pumpkin Carver</span> <<gghope>><<ggreb>>
+					<br>
+				<<else>>
+					<<ind>><span class="lblue">You could decorate the orphanage exterior with jack-o'-lanterns if you had seven pumpkins.</span> | <span class="tangerine">Knowledge: Pumpkin Carving</span>
+					<br>
+				<</if>>
 			<</if>>
 			<<if (($exposed is 1 and $uncomfortable.underwearPublic) or ($exposed is 2 and $uncomfortable.nudePublic)) and Time.dayState isnot "night">>
 			<<else>>
@@ -392,6 +409,21 @@ A <<worldFemale 'girl' 'boy'>> with long brown hair sits on a bench at the side 
 <<effects>>
 
 The <<worldFemale 'girl' 'boy'>> smiles again. "Understood. I hope you have a pleasant day." <<worldFemale 'She' 'He'>> takes a bite from a cheese sandwich.
+<br><br>
+
+<<link [[Next|Domus Street]]>><<set $eventskip to 1>><</link>>
+<br>
+
+:: Domus Pumpkins
+<<effects>>
+<<pumpkin_prop>>
+You set up a small table outside the orphanage, in clear view of the street. You're not sure how Bailey will feel about your decorations, but you don't think <<nnpc_he "Bailey">> would take them down. Not if you make enough of a show of putting them up.
+<br><br>
+
+You carve seven faces into seven pumpkins, donating the pulp to some culinary-inclined residents, then hang them from around the street-facing part of the orphanage. They look fitting there, hanging from the old building, as if they could be a permanent fixture.
+<br><br>
+
+Job done, you carry the table back inside. A small crowd has gathered by the time you return, admiring your handiwork.
 <br><br>
 
 <<link [[Next|Domus Street]]>><<set $eventskip to 1>><</link>>

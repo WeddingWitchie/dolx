@@ -146,10 +146,21 @@
 			maleChanceMale: V.settings.maleChanceMale,
 			maleChanceFemale: V.settings.maleChanceFemale,
 			maleVictimChance: V.settings.maleVictimChance,
-			beastMaleChance: V.settings.beastMaleChance,
-			beastMaleChanceSplit: V.settings.beastMaleChanceSplit,
-			beastMaleChanceMale: V.settings.beastMaleChanceMale,
-			beastMaleChanceFemale: V.settings.beastMaleChanceFemale,
+			beastMaleChance: V.genericBeastSettings.beastMaleChance,
+			beastMaleChanceSplit: V.genericBeastSettings.beastMaleChanceSplit,
+			beastMaleChanceMale: V.genericBeastSettings.beastMaleChanceMale,
+			beastMaleChanceFemale: V.genericBeastSettings.beastMaleChanceFemale,
+			beastSettings: Object.fromEntries(
+				C.beastSettingTypes.map(type => [
+					type,
+					{
+						maleChance: V.settings.beastSettings[type].maleChance,
+						maleChanceSplit: V.settings.beastSettings[type].maleChanceSplit,
+						maleChanceMale: V.settings.beastSettings[type].maleChanceMale,
+						maleChanceFemale: V.settings.beastSettings[type].maleChanceFemale,
+					},
+				])
+			),
 		};
 	}
 
@@ -164,10 +175,14 @@
 		V.settings.maleChanceFemale = chance;
 		V.settings.maleVictimChance = chance;
 
-		V.settings.beastMaleChance = chance;
-		V.settings.beastMaleChanceSplit = false;
-		V.settings.beastMaleChanceMale = chance;
-		V.settings.beastMaleChanceFemale = chance;
+		V.genericBeastSettings.beastMaleChance = chance;
+		V.genericBeastSettings.beastMaleChanceSplit = false;
+		V.genericBeastSettings.beastMaleChanceMale = chance;
+		V.genericBeastSettings.beastMaleChanceFemale = chance;
+		setAllBeastsMaleChance(chance);
+		setAllBeastsMaleChanceSplit(false);
+		setAllBeastsMaleChanceMale(chance);
+		setAllBeastsMaleChanceFemale(chance);
 	}
 
 	function restoreChanceState() {
@@ -175,8 +190,17 @@
 		const backup = V.settings.genderOverrideBackup;
 		if (!backup) return;
 		Object.keys(backup).forEach(key => {
-			V.settings[key] = backup[key];
+			if (key.startsWith("beastMaleChance")) V.genericBeastSettings[key] = backup[key];
+			else if (key === "beastSettings") {
+				for (const type of C.beastSettingTypes) Object.assign(V.settings.beastSettings[type], backup.beastSettings[type]);
+			} else V.settings[key] = backup[key];
 		});
+		if (!backup.beastSettings) {
+			setAllBeastsMaleChance(backup.beastMaleChance);
+			setAllBeastsMaleChanceSplit(backup.beastMaleChanceSplit);
+			setAllBeastsMaleChanceMale(backup.beastMaleChanceMale);
+			setAllBeastsMaleChanceFemale(backup.beastMaleChanceFemale);
+		}
 		V.settings.genderOverrideBackup = null;
 	}
 

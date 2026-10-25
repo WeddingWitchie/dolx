@@ -92,7 +92,7 @@
 		combatLightGlow: 0.1,
 		combatLightFlat: 0,
 		combatLightTFColor: 0.2,
-		maxStates: 5,
+		maxStates: 20,
 		historyControls: false,
 		numpad: false,
 		useNarrowMarket: false,
@@ -107,7 +107,7 @@
 		zoom: 100,
 		numberify_enabled: 1,
 		timestyle: "military",
-		tipdisable: "f",
+		tipdisable: false,
 		passageCount: "disabled",
 		playtime: false,
 		showGameVersion: true,
@@ -161,7 +161,7 @@
 			"museumAntiques": 20,
 			"npcClothes": 1,
 			"animations": 1,
-			"foodstuff": 7,
+			"foodstuff": 8,
 			"npcPregnancyGenderChange" : 1,
 			"penisFix" : 1,
 			"pregnancyRecords": 1,
@@ -297,12 +297,34 @@
 	<<set $settings.maleChanceSplit to false>>
 	<<set $settings.maleVictimChance to 50>>
 	<<set $homochance to 4>>
-	<<set $settings.beastMaleChance to 80>>
-	<<set $settings.beastMaleChanceMale to 80>>
-	<<set $settings.beastMaleChanceFemale to 80>>
-	<<set $settings.beastMaleChanceSplit to false>>
-	<<set $settings.monsterHallucinationsOnly to true>>
-	<<set $settings.monsterChance to 50>>
+	<<set $settings.granularBeastControl to false>>
+	/* Not real settings, just the saved generic settings that the granular settings get set to when granular beast setting is turned off and you change the generic beast settings. So these aren't checked in game anywhere, only the granular beast settings are checked. */
+	<<set $genericBeastSettings to {
+		beastMaleChance: 50,
+		beastMaleChanceMale: 50,
+		beastMaleChanceFemale: 50,
+		beastMaleChanceSplit: false,
+		monsterHallucinationsOnly: true,
+		monsterChance: 50,
+		bestiality: "on",
+		victimsAlwaysMonster: false,
+	}>>
+	<<set $settings.beastSettings to {
+		dog: {monsterChance: 50, hallucinationsOnly: true, maleChance: 50, maleChanceMale: 50, maleChanceFemale: 50, maleChanceSplit: false, bestiality: "on", victimsAlwaysMonster: false},
+		cat: {monsterChance: 50, hallucinationsOnly: true, maleChance: 50, maleChanceMale: 50, maleChanceFemale: 50, maleChanceSplit: false, bestiality: "on", victimsAlwaysMonster: false},
+		pig: {monsterChance: 50, hallucinationsOnly: true, maleChance: 50, maleChanceMale: 50, maleChanceFemale: 50, maleChanceSplit: false, bestiality: "on", victimsAlwaysMonster: false},
+		wolf: {monsterChance: 50, hallucinationsOnly: true, maleChance: 50, maleChanceMale: 50, maleChanceFemale: 50, maleChanceSplit: false, bestiality: "on", victimsAlwaysMonster: false},
+		dolphin: {monsterChance: 50, hallucinationsOnly: true, maleChance: 50, maleChanceMale: 50, maleChanceFemale: 50, maleChanceSplit: false, bestiality: "on", victimsAlwaysMonster: false},
+		lizard: {monsterChance: 50, hallucinationsOnly: true, maleChance: 50, maleChanceMale: 50, maleChanceFemale: 50, maleChanceSplit: false, bestiality: "on", victimsAlwaysMonster: false},
+		bear: {monsterChance: 50, hallucinationsOnly: true, maleChance: 50, maleChanceMale: 50, maleChanceFemale: 50, maleChanceSplit: false, bestiality: "on", victimsAlwaysMonster: false},
+		boar: {monsterChance: 50, hallucinationsOnly: true, maleChance: 50, maleChanceMale: 50, maleChanceFemale: 50, maleChanceSplit: false, bestiality: "on", victimsAlwaysMonster: false},
+		horse: {monsterChance: 50, hallucinationsOnly: true, maleChance: 50, maleChanceMale: 50, maleChanceFemale: 50, maleChanceSplit: false, bestiality: "on", victimsAlwaysMonster: false},
+		fox: {monsterChance: 50, hallucinationsOnly: true, maleChance: 50, maleChanceMale: 50, maleChanceFemale: 50, maleChanceSplit: false, bestiality: "on", victimsAlwaysMonster: false},
+		hawk: {monsterChance: 50, hallucinationsOnly: true, maleChance: 50, maleChanceMale: 50, maleChanceFemale: 50, maleChanceSplit: false, bestiality: "on", victimsAlwaysMonster: false},
+		cow: {monsterChance: 50, hallucinationsOnly: true, maleChance: 50, maleChanceMale: 50, maleChanceFemale: 50, maleChanceSplit: false, bestiality: "on", victimsAlwaysMonster: false},
+		spider: {monsterChance: 50, hallucinationsOnly: true, maleChance: 50, maleChanceMale: 50, maleChanceFemale: 50, maleChanceSplit: false, bestiality: "on", victimsAlwaysMonster: false},
+		snake: {monsterChance: 50, hallucinationsOnly: true, maleChance: 50, maleChanceMale: 50, maleChanceFemale: 50, maleChanceSplit: false, bestiality: "on", victimsAlwaysMonster: false},
+	}>>
 	<<set $deviancy to 0>>
 	<<set $baileydefeated to 0>>
 	<<set $baileydefeatedlewd to 0>>
@@ -366,7 +388,13 @@
 	<<set $eden_plot_intro to 1>>
 	<<set $wolf_plot_intro to 1>>
 	<<set $asylum_plot_intro to 1>>
-	<<set $plots to {}>>
+	<<set $plots to {
+		"garden": [],
+		"farm": [],
+		"wolf": [],
+		"eden": [],
+		"asylum": []
+	}>>
 	<<set $tendingvars to {}>>
 	<<set $settings.tendingYieldModifier to 5>>
 	<<set $plants_known to ["green_manure"]>>
@@ -574,9 +602,9 @@
 
 	<<set $beastgenderoverride to 0>>
 
-	<<set $settings.femaleNPCPenisChance to 0>>
-	<<set $settings.maleNPCVaginaChance to 0>>
-	<<set $settings.straponChance to 0>>
+	<<set $settings.femaleNPCPenisChance to 5>>
+	<<set $settings.maleNPCVaginaChance to 5>>
+	<<set $settings.straponChance to 5>>
 	<<set $settings.breastModifier to 0>>
 	<<set $settings.penisModifier to 0>>
 
@@ -1045,6 +1073,9 @@
 	<<if $facevariant is undefined>>
 		<<set $facevariant to "default">>
 	<</if>>
+	<<if $defaultSidebarMouth is undefined>>
+		<<set $defaultSidebarMouth to "smile">>
+	<</if>>
 
 	<<if $makeup is undefined>>
 		<<set $makeup = {}>>
@@ -1149,4 +1180,8 @@
 	<<modupdate>>
 	<<xchange-init>>
 	<<wliInit>><<ccmodInit>>
+
+	<<set $travelSpeed to "normally">>
+
+	<<set $collapsedRelationBoxes to []>>
 <</widget>>

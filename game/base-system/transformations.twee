@@ -236,53 +236,6 @@
 	}, {})>>
 <</widget>>
 
-<<widget "transform">>/*First arg is transformation, second is the intensity of change.*/
-	<<if _args[1]>>
-		<<if $featsBoosts.upgrades.adaptiveGenes gte 1 and _args[1] gte 1>>
-			<<set _args[1] to _args[1] * ($featsBoosts.upgrades.adaptiveGenes + 50) / 50>>
-		<</if>>
-		<<switch _args[0]>>
-			<<case "wolf">>  <<set $wolfbuild  = Math.clamp($wolfbuild  + _args[1], 0, 100)>>
-			<<case "cat">>   <<set $catbuild   = Math.clamp($catbuild   + _args[1], 0, 100)>>
-			<<case "cow">>   <<set $cowbuild   = Math.clamp($cowbuild   + _args[1], 0, 100)>>
-			<<case "waterdragon">>   <<set $waterdragonbuild   = Math.clamp($waterdragonbuild   + _args[1], 0, 100)>>
-			<<case "bear">>  <<set $bearbuild  = Math.clamp($bearbuild  + _args[1], 0, 100)>>
-			<<case "bird">>  <<set $birdbuild  = Math.clamp($birdbuild  + _args[1], 0, 100)>>
-			<<case "fox">>   <<set $foxbuild   = Math.clamp($foxbuild   + _args[1], 0, 100)>>
-			<<case "bunny">> <<set $bunnybuild  = Math.clamp($bunnybuild   + _args[1], 0, 100)>>
-			<<case "angel">> <<set $angelbuild = Math.clamp($angelbuild + _args[1], 0, 100)>>
-			<<case "fallen">> <<set $fallenbuild = Math.clamp($fallenbuild + _args[1], 0, 100)>>
-			<<case "demon">> <<set $demonbuild = Math.clamp($demonbuild + _args[1], 0, 100)>>
-		<</switch>>
-	<</if>>
-	<<if !["angel", "fallen", "demon"].includes(_args[0]) and _args[1] gte 1 and !($worn.neck.name is "familiar collar" and $worn.neck.cursed is 1) and !($auriga_scar gte 1)>>
-		<<if _args[0] isnot "wolf" and $worn.neck.name isnot "spiked collar" and $worn.neck.name isnot "spiked collar with leash">>
-			<<set $wolfbuild = Math.clamp($wolfbuild - _args[1], 0, 100)>>
-		<</if>>
-		<<if _args[0] isnot "cat" and $worn.neck.name isnot "cat bell collar" and $worn.head.name isnot "fish hairpin">>
-			<<set $catbuild  = Math.clamp($catbuild  - _args[1], 0, 100)>>
-		<</if>>
-		<<if _args[0] isnot "cow" and $worn.neck.name isnot "cow bell">>
-			<<set $cowbuild  = Math.clamp($cowbuild  - _args[1], 0, 100)>>
-		<</if>>
-		<<if _args[0] isnot "waterdragon" and $worn.earrings.variable isnot "lilacheadpiece">>
-			<<set $waterdragonbuild = Math.clamp($waterdragonbuild - _args[1], 0, 100)>>
-		<</if>>
-		<<if _args[0] isnot "bear" and $worn.bag.name isnot "honey pouch" and $worn.bag.name isnot "bear backpack" and $worn.head.name isnot "honey hair clip">>
-			<<set $bearbuild  = Math.clamp($bearbuild  - _args[1], 0, 100)>>
-		<</if>>
-		<<if _args[0] isnot "bird" and $worn.head.name isnot "feathered hair clip" and $worn.neck.name isnot "feather necklace">>
-			<<set $birdbuild = Math.clamp($birdbuild - _args[1], 0, 100)>>
-		<</if>>
-		<<if _args[0] isnot "fox" and $worn.head.name isnot "spirit mask" and $worn.neck.name isnot "jasper pendant">>
-			<<set $foxbuild = Math.clamp($foxbuild - _args[1], 0, 100)>>
-		<</if>>
-		<<if _args[0] isnot "bunny" and $worn.head.name isnot "carrot pin">>
-			<<set $bunnybuild = Math.clamp($bunnybuild - _args[1], 0, 100)>>
-		<</if>>
-	<</if>>
-<</widget>>
-
 <<widget "recomputePredatorPrey">>
 	/* Safe to call from anywhere: ensure the containers exist before writing to them. */
 	<<if $transformationParts is undefined>><<set $transformationParts to {}>><</if>>
@@ -513,7 +466,7 @@
 		<</if>>
 
 		/* Avery's ascended dialogue reacts to a fall that actually happened. */
-		<<set $speechfallentransform to 1>>
+		<<set $speechFallenTransform to 1>>
 
 		<<if $angel gt 0>>
 			<<angelTransform 99>>
@@ -539,7 +492,7 @@
 					<<set $fallenangelplustf to 1>>
 					<<set $transformationParts.traits.ironWill to "default">>
 					<<run $timeMessages.pushUnique("fallenAngelWings")>>
-					<<set $transformationParts.fallenAngel.wings to ($transformationParts.fallenAngel.wings is "classic" ? "classicfallenplus" : "fallenplus")>>
+					<<set $transformationParts.fallenAngel.wings to ($transformationParts.fallenAngel.wings is "classic" ? "classic-fallenplus" : "fallenplus")>>
 				<</if>>
 			<<case 98>>
 				<<clearDivineTransformations>>

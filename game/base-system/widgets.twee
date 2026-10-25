@@ -214,11 +214,10 @@
 	<<if _args[0] and (typeof _args[0]) is "number">>
 
 		<<if $consensual isnot 1>>
-			<<if $drunk gt 0>>
-				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
-				<<set $_stress_multiplier to [9,8,6,4,3][$_drunk_level]>>
+			<<if _args[0] gt 0>>
+				<<stress `0.25 * _args[0]`>>
 			<<else>>
-				<<set $_stress_multiplier to 10>>
+				<<stress `0.125 * _args[0]`>>
 			<</if>>
 			<<if $multiOrgasmToggle>>
 				/* Matches the sex widget: a small discount for longer encounters, not half price. */
@@ -274,11 +273,10 @@
 	<!-- For double penetration, the widget is now called twice. Once for each NPC. -->
 	<<if _args[0] and (typeof _args[0]) is "number">>
 		<<if $consensual isnot 1>>
-			<<if $drunk gt 0>>
-				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
-				<<set $_stress_multiplier to [9,8,6,4,3][$_drunk_level]>>
+			<<if _args[0] gt 0>>
+				<<stress `0.25 * _args[0]`>>
 			<<else>>
-				<<set $_stress_multiplier to 10>>
+				<<stress `0.125 * _args[0]`>>
 			<</if>>
 			/* Repeated orgasms reduce rape stress, but never remove it completely.
 			The old formula could reach 0 or become negative, causing incorrect stress values or even reducing stress during rape. */
@@ -292,7 +290,11 @@
 			<<stress _args[0] $_stress_multiplier>>
 			<<combattrauma _args[0]>>
 		<<else>>
-			<<stress _args[0] -10>>
+			<<if _args[0] gt 0>>
+				<<stress `-0.125 * _args[0]`>>
+			<<else>>
+				<<stress `-0.25 * _args[0]`>>
+			<</if>>
 		<</if>>
 		<<set _arousal to 20 * _args[0]>>
 		<<set _enemyarousal to 2 * _args[0]>>
@@ -464,13 +466,14 @@
 		<<set _arousalMod = _args[4] || 1>>
 
 		<<if _violence gt 0 or _violence lt 0>>
-			<<if $drunk gt 0>>
-				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
-				<<set _drunkMod to [9,8,6,4,3][$_drunk_level]>>
+			<<if _violence gt 0>>
+				<!-- Further reduce stress gains if the PC is a masochist. -->
+				<<set _stressChange to 0.25 * _violence * _stressMod * (1 - ($masochism / 1200))>>
 			<<else>>
-				<<set _drunkMod to 10>>
+				<<set _stressChange to 0.125 * _violence * _stressMod>>
 			<</if>>
-			<<set $stress += (_violence * _drunkMod * _stressMod) * (1 - ($masochism / 1200))>>
+			<<stress _stressChange>>
+
 			<<trauma `_violence * _traumaMod`>>
 			<<set $pain += (_violence * _painMod * (1 - ($masochism / 1200)) * (1 - ($sciencetrait / 10)))>>
 			<<set _arousal to (_violence * _arousalMod * (0 + ($masochism / 18)))>>
@@ -501,11 +504,10 @@
 	<!-- args[1] - the NPC to whom PC is submitting (currently unused) -->
 	<<if _args[0]>>
 		<<if $consensual isnot 1>>
-			<<if $drunk gt 0>>
-				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
-				<<set $_stress_multiplier to [9,8,6,4,3][$_drunk_level]>>
+			<<if _args[0] gt 0>>
+				<<stress `0.25 * _args[0]`>>
 			<<else>>
-				<<set $_stress_multiplier to 10>>
+				<<stress `0.125 * _args[0]`>>
 			<</if>>
 			<<set $_stress_multiplier *= ($combatStressGain ?? 100) / 100>>
 			<<stress _args[0] $_stress_multiplier>>
@@ -697,7 +699,7 @@
 				<<run Errors.report("Extra-Illegal crime committed of type; " + _crimeType + " defaulted to thievery")>>
 				<<set _crimeType to "thievery">>
 			<</if>>
-			<<set $_crimemod to Number(_args[0])>>
+			<<set $_crimeMod to Number(_args[0])>>
 			<<set $_crimeMult to 1>>
 			<<if $backgroundTraits.includes("nerd")>>
 				<<set $_crimeMult *= 0.50>>
@@ -721,17 +723,17 @@
 					<<set $_stealthReduce1 to expCurve($_normcrime1, 3.0)>>
 					<!-- First 5k of crime at a curve to 5000 -->
 				*/
-				<<set $_stealthfactor to ( 0.15 * ( 1 - normalise($crime[_crimeType].current, C.crime.max ) ) )>>
+				<<set $_stealthFactor to ( 0.15 * ( 1 - normalise($crime[_crimeType].current, C.crime.max ) ) )>>
 				<!-- Stealth gives 15%, but reduced by existing crime stat down to 0 at C.crime.max -->
 				<!-- At 10k crime of the current type, stealthy equipment is effectively useless - too much evidence -->
 
 				<!-- Filter to all items with type "stealthy" and count them -->
 				<<set $_stealthMult to Object.values($worn).filter(item => item.type.includes("stealthy")).length>>
-				<<set $_crimeMult -= $_stealthfactor * $_stealthMult>>
+				<<set $_crimeMult -= $_stealthFactor * $_stealthMult>>
 
 				<!-- Filter to all items with type "unstealthy" and count them -->
-				<<set $_unstealthMult to Object.values($worn).filter(item => item.type.includes("unstealthy")).length>>
-				<<set $_crimeMult += 0.15 * $_unstealthMult>>
+				<<set $_unstealthyMult to Object.values($worn).filter(item => item.type.includes("unstealthy")).length>>
+				<<set $_crimeMult += 0.15 * $_unstealthyMult>>
 
 				<<if ["thievery", "petty", "trespassing"].includes(_crimeType)>>
 					<!-- For stealthy crimes, player skulduggery skill gives further reduction up to another 15%. 1000 is max skulduggery clamp, replace as needed -->
@@ -742,33 +744,33 @@
 				<<if effectiveTransformationLevel("fox") gte 6>>
 					<<set $_crimeMult *= 0.75>>
 				<</if>>
-				<<set $_crimemod to Math.ceil($_crimemod * $_crimeMult)>>
+				<<set $_crimeMod to Math.ceil($_crimeMod * $_crimeMult)>>
 				<<if ["petty"].includes(_crimeType) and $skulduggery gte 500>>
 					<!-- Petty thievery has extra flat reduction if skulduggery skill above 500 (C+), possibly negating the crime gain entirely -->
-					<<set $_crimemod -= Math.floor($skulduggery / 10)>>
+					<<set $_crimeMod -= Math.floor($skulduggery / 10)>>
 				<</if>>
 			<<elseif effectiveTransformationLevel("fox") gte 6>>
 				<!-- These crime types deliberately ignore normal stealth/background modifiers, but the full fox bonus affects any crime gain. -->
-				<<set $_crimemod to Math.ceil($_crimemod * 0.75)>>
+				<<set $_crimeMod to Math.ceil($_crimeMod * 0.75)>>
 			<</if>>
 
-			<<set $_crimemod to Math.clamp($_crimemod, 0, C.crime.max)>>
+			<<set $_crimeMod to Math.clamp($_crimeMod, 0, C.crime.max)>>
 
-			<<if $_crimemod gt 0>>
+			<<if $_crimeMod gt 0>>
 				<!-- If crime gain is still greater than 0, add to crime daily, history, count, and Avery crimetracker-->
-				<!-- crimemod lte 0 represents a crime the player completely got away with, so nothing is recorded-->
-				<<set C.crime[_crimeType] += $_crimemod>>
-				<<set C.crime[_crimeType + "History"] += $_crimemod>>
-				<<set C.crime[_crimeType + "Daily"] += $_crimemod>>
+				<!-- crimeMod lte 0 represents a crime the player completely got away with, so nothing is recorded-->
+				<<set C.crime[_crimeType] += $_crimeMod>>
+				<<set C.crime[_crimeType + "History"] += $_crimeMod>>
+				<<set C.crime[_crimeType + "Daily"] += $_crimeMod>>
 				<<set C.crime[_crimeType + "Count"] += 1>>
 				<<set C.crime[_crimeType + "CountHistory"] += 1>>
 				<<if $averyCrimeTracker neq null>>
-					<<set $averyCrimeTracker += $_crimemod>>
+					<<set $averyCrimeTracker += $_crimeMod>>
 				<</if>>
 				<<if $exposed gte 1 and _crimeType isnot "exposure">>
-					<<set C.crime.exposure += $_crimemod>>
-					<<set C.crime.exposureHistory += $_crimemod>>
-					<<set C.crime.exposureDaily += $_crimemod>>
+					<<set C.crime.exposure += $_crimeMod>>
+					<<set C.crime.exposureHistory += $_crimeMod>>
+					<<set C.crime.exposureDaily += $_crimeMod>>
 					<<set C.crime.exposureCount += 1>>
 					<<set C.crime.exposureCountHistory += 1>>
 				<</if>>
@@ -781,7 +783,7 @@
 					<!-- Resets daily at 6AM, in dawnCheck, time.js -->
 					<<set $foxCrimeProgress ||= 0>>
 					<<set $foxCrimeLimit ||= 0>>
-					<<set $foxCrimeProgress += $_crimemod>>
+					<<set $foxCrimeProgress += $_crimeMod>>
 					<<set $_foxCrimeRequired = Math.floor(25 * (1 + $foxbuild))>>
 					<<if $foxCrimeProgress gte $_foxCrimeRequired>>
 						<<transform fox 1>>
@@ -798,7 +800,7 @@
 					<<if !setup.crimeDescs[_description]>>
 						<<run Errors.report("Extra-Illegal crime committed of description; " + _description + " crime event not logged")>>
 					<<else>>
-						<<run C.crime.logEvent($_crimemod, _crimeType, _description)>>
+						<<run C.crime.logEvent($_crimeMod, _crimeType, _description)>>
 					<</if>>
 				<</if>>
 			<</if>>
@@ -825,11 +827,11 @@
 				<<run Errors.report("Extra-Illegal crime (flat) committed of type; " + _crimeType + " defaulted to thievery")>>
 				<<set _crimeType to "thievery">>
 			<</if>>
-			<<set $_crimemod to Number(_args[0])>>
+			<<set $_crimeMod to Number(_args[0])>>
 			<<if _args[0] gt 0>>
-				<<set C.crime[_crimeType] += $_crimemod>>
-				<<set C.crime[_crimeType + "History"] += $_crimemod>>
-				<<set C.crime[_crimeType + "Daily"] += $_crimemod>>
+				<<set C.crime[_crimeType] += $_crimeMod>>
+				<<set C.crime[_crimeType + "History"] += $_crimeMod>>
+				<<set C.crime[_crimeType + "Daily"] += $_crimeMod>>
 				<<set C.crime[_crimeType + "Count"] += 1>>
 				<<set C.crime[_crimeType + "CountHistory"] += 1>>
 			<</if>>
@@ -1095,7 +1097,7 @@
 	<</if>>
 <</widget>>
 
-<<widget "schoolskillgeneral">>
+<<widget "schoolSkillGeneral">>
 	<<if $statFreeze isnot true>>
 		<<set $_subject to _args[0]>>
 		<<set $_gain to _args[1] || 1>>
@@ -1136,7 +1138,7 @@
 	<<else>>
 		<<set _args[0] to _args[0] * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
 	<</if>>
-	<<schoolskillgeneral "science" _args[0] _args[1]>>
+	<<schoolSkillGeneral "science" _args[0] _args[1]>>
 <</widget>>
 
 <<widget "mathsskill">>
@@ -1145,7 +1147,7 @@
 	<<else>>
 		<<set _args[0] to _args[0] * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
 	<</if>>
-	<<schoolskillgeneral "maths" `_args[0] * (V.location === "school" ? 1.2 : 1)` _args[1]>>
+	<<schoolSkillGeneral "maths" `_args[0] * (V.location === "school" ? 1.2 : 1)` _args[1]>>
 <</widget>>
 
 <<widget "englishskill">>
@@ -1154,7 +1156,7 @@
 	<<else>>
 		<<set _args[0] to _args[0] * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
 	<</if>>
-	<<schoolskillgeneral "english" _args[0] _args[1]>>
+	<<schoolSkillGeneral "english" _args[0] _args[1]>>
 <</widget>>
 
 <<widget "historyskill">>
@@ -1163,7 +1165,7 @@
 	<<else>>
 		<<set _args[0] to _args[0] * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
 	<</if>>
-	<<schoolskillgeneral "history" _args[0] _args[1]>>
+	<<schoolSkillGeneral "history" _args[0] _args[1]>>
 <</widget>>
 
 <<widget "passiveStudy">>
@@ -1375,6 +1377,7 @@
 <</widget>>
 
 <<widget "physique">>
+	<<if _args[0] lt 0>><<physique_loss -_args[0]>><<exit>><</if>>
 	<<if $statFreeze is true>>
 		<<exit>>
 	<</if>>
@@ -2257,7 +2260,7 @@
 	<<if _args[0]>>
 		<<set $consensualGuaranteed to 1>>
 	<</if>>
-	<<if $npc.length is 1 and ($npc[0] is "Robin" and C.npc.Robin.dom lte 10 and $debug is 1) or ($npc[0] is "Sydney" and C.npc.Sydney.purity gte 50)>>
+	<<if $npc.length is 1 and ($npc[0] is "Robin" and C.npc.Robin.dom lte 10 and $debug) or ($npc[0] is "Sydney" and C.npc.Sydney.purity gte 50)>>
 		<<npc_submissive>>
 	<</if>>
 <</widget>>
@@ -3622,7 +3625,7 @@
 <</widget>>
 
 <<widget "rentday">>
-	<<set $_text_output to ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][$rentday-1]>>
+	<<set $_text_output to ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][$rentDay-1]>>
 	<<print $_text_output>>
 <</widget>>
 
@@ -4013,7 +4016,7 @@
 			<span class="relation-name">Wolf Pack</span>
 		</div>
 		<div class="relation-description">
-			The <<= $settings.monsterChance is 100 ? "wolfgirls and wolfboys" : "wolves">>
+			The <<wolf_cave_plural>>
 			<<if $wolfpackleader gte 1>> view you as <span class="green">the leader of the pack.</span>
 				<<elseif $syndromewolves gte 1>> view you as <span class="green">their <<ppackbrother>>.</span>
 				<<elseif $wolfpacktrust gte 12>> <span class="green">trust you.</span>
@@ -4031,6 +4034,7 @@
 	<<silently>>
 		<<set _npcData = _args[0]>>
 		<<set _npcOverrides = _args[1] || {}>>
+		<<set _isNpcRelationBoxCollapsed = V.collapsedRelationBoxes.includes(_npcData.nam)>>
 
 		<<script>>
 
@@ -4124,9 +4128,7 @@
 			};
 
 			T.getStatConfig = function(stat) {
-				let baseConfig = statDefaults[stat] || {};
-
-				return Object.assign({}, baseConfig, T.npcOverrides[stat]);
+				return Object.assign({}, statDefaults[stat], T.npcOverrides[stat]);
 			};
 			if(V.loveInterest){
 				/* Check if this is a main love interest */
@@ -4161,6 +4163,7 @@
 						<<if _loveInterest>>
 							<img class="love-interest-icon" src="img/ui/love-interest.png" alt="Love Interest" title="Love Interest"/>
 						<</if>>
+						<span class="secondary-relation-collapse-arrow">▾</span>
 					</div>
 					<div class="relation-description">
 						<<if $options.images is 1 and (_rngWraithFace is 1 or $possessed)>>
@@ -4176,17 +4179,23 @@
 							<</if>>
 						<</for>>
 					</div>
+					<<relation-box-collapsed _npcData _npcOverrides>>
 				</div>
 			<<elseif $wraithIntro and $wraith.mimic is _npcData.nam and $wraith.revealed and _npcOverrides and _npcOverrides.important>>
-				<div class="relation-box">
-					<div class="relation-top-line">
+				<div @class="'relation-box' + (_isNpcRelationBoxCollapsed ? ' is-collapsed' : '')" @data-npc="_npcData.nam">
+					<div class="relation-top-line" onclick="toggleRelationCollapse(this)">
 						<span class="relation-name">
 							_npcData.nam?
 							<small class="relation-title black"><i>The _wraithTitle</i></small>
 						</span>
 						<<if _loveInterest>>
-							<img class="love-interest-icon" src="img/ui/love-interest.png" alt="Love Interest" title="Love Interest"/>
+							<<if $options.images>>
+								<img class="love-interest-icon" src="img/ui/love-interest.png" alt="Love Interest" title="Love Interest"/>
+							<<else>>
+								<span class="lewd" alt="Love Interest" title="Love Interest"><b>LI</b></span>
+							<</if>>
 						<</if>>
+						<span class="primary-relation-collapse-arrow">▾</span>
 					</div>
 					<div class="relation-description">
 						<<set _rngWraithLineChance to 1>>
@@ -4194,7 +4203,7 @@
 					</div>
 					<div @class="'relation-stat-list' + ($options.images ? '' : ' no-images')">
 						<<set $_statCount to 0>>
-						<<for _j = 0; _j lt _importantNpcStats.length-2; _j++>>
+						<<for _j = 0; _j lt _importantNpcStats.length; _j++>>
 							<<if _npcData[_importantNpcStats[_j]] gt 0 and _checkRequirements(_importantNpcStats[_j])>>
 								<<set $_statCount++>>
 								<<relation-box-stat _getStatConfig(_importantNpcStats[_j]) true>>
@@ -4204,31 +4213,34 @@
 							<div class="relation-stat-block"></div>
 						<</for>>
 					</div>
+					<<relation-box-collapsed _npcData _npcOverrides>>
 				</div>
 			<<else>>
 			/* Do not display anything */
 			<</if>>
 		<<elseif _npcOverrides and _npcOverrides.important>>
-			<div class="relation-box">
-				<div class="relation-top-line">
+			<div @class="'relation-box' + (_isNpcRelationBoxCollapsed ? ' is-collapsed' : '')" @data-npc="_npcData.nam">
+				<div class="relation-top-line" onclick="toggleRelationCollapse(this)">
 					<span class="relation-name">
 						_npcData.nam
 						<small class="relation-title black"><i>The _npcData.title</i></small>
 						<<npc-xchange-relation-tag _npcData>>
 					</span>
 					<<if _loveInterest>>
-						<img class="love-interest-icon" src="img/ui/love-interest.png" alt="Love Interest" title="Love Interest"/>
+						<<if $options.images>>
+							<img class="love-interest-icon" src="img/ui/love-interest.png" alt="Love Interest" title="Love Interest"/>
+						<<else>>
+							<span class="lewd" alt="Love Interest" title="Love Interest"><b>LI</b></span>
+						<</if>>
 					<</if>>
+					<span class="primary-relation-collapse-arrow">▾</span>
 				</div>
 				<div class="relation-description">
 					<<npcrelationship _npcData.nam>>
 				</div>
 				<div @class="'relation-stat-list' + ($options.images ? '' : ' no-images')">
 					<<set $_statCount to 0>>
-					<<if _importantNPCs[_k].nam is "Black Wolf">><<set _npcStats to _importantNpcStats.length>>
-						<<else>><<set _npcStats to _importantNpcStats.length-2>>
-					<</if>>
-					<<for _j = 0; _j lt _npcStats; _j++>>
+					<<for _j = 0; _j lt _importantNpcStats.length; _j++>>
 						<<if _npcData[_importantNpcStats[_j]] gt 0 and _checkRequirements(_importantNpcStats[_j])>>
 							<<set $_statCount++>>
 							<<relation-box-stat _getStatConfig(_importantNpcStats[_j]) true>>
@@ -4238,6 +4250,7 @@
 						<div class="relation-stat-block"></div>
 					<</for>>
 				</div>
+				<<relation-box-collapsed _npcData _npcOverrides>>
 			</div>
 		<<elseif _npcData.nam is "Luchifen">>
 			/* The Silver Stranger stays hidden: name shown only as a glowing "???", no title, no stat bars. */
@@ -4250,13 +4263,14 @@
 				</div>
 			</div>
 		<<else>>
-			<div class="relation-box">
-				<div class="relation-top-line">
+			<div @class="'relation-box' + (_isNpcRelationBoxCollapsed ? ' is-collapsed' : '')" @data-npc="_npcData.nam">
+				<div class="relation-top-line" onclick="toggleRelationCollapse(this)">
 					<span class="relation-name">
 						_npcData.nam
 						<small class="relation-title black"><i>The _npcData.title</i></small>
 						<<npc-xchange-relation-tag _npcData>>
 					</span>
+					<span class="secondary-relation-collapse-arrow">▾</span>
 				</div>
 				<div class="relation-description">
 					<<npcrelationship _npcData.nam>>
@@ -4268,9 +4282,76 @@
 						<</if>>
 					<</for>>
 				</div>
+				<<relation-box-collapsed _npcData _npcOverrides>>
 			</div>
 		<</if>>
 	<</if>>
+<</widget>>
+
+<<widget "relation-box-collapsed">>
+	<<silently>>
+		<<set _npcData = _args[0]>>
+		<<set _npcOverrides = _args[1]>>
+
+		<<script>>
+			let npcStats;
+			if (T.npcOverrides.important) {
+				npcStats = T.importantNpcStats;
+				T.collapsedStatSlots = 4;
+			} else {
+				npcStats = T.otherNpcStats;
+				T.collapsedStatSlots = 2;
+			}
+
+			T.collapsedVisibleStats = npcStats
+				.filter(function(stat) { return T.npcData[stat] > 0 && T.checkRequirements(stat); })
+				.map(function(stat) {
+					let config = T.getStatConfig(stat);
+					let min = config.minValue || 0;
+					let max = config.maxValue || 100;
+					let icon = config.activeIcon;
+					let name = "";
+					switch (config.name) {
+						case "Respect":
+						case "Affection":
+						case "Interest": name = "Lo"; break;
+						case "Confidence": name = "Cd"; break;
+						case "Corruption": name = "Cr"; break;
+						case "Rage": name = "Rg"; break;
+						case "Yearning": name = "Yr"; break;
+						case "Wolf Pack Harmony": name = "Hm"; break;
+						case "Wolf Pack Ferocity": name = "Fr"; break;
+						default: name = config.name.slice(0, 2);
+					};
+					return {
+						name : (stat === "love" && T.loveInterest ? "<span class='lewd'><b>" + name + "</b></span>" : name),
+						activeIcon : (stat === "love" && T.loveInterest ? "img/ui/love-interest.png" : icon),
+						progress : Math.clamp(Math.round(100*((config.value - min) / (max - min))), 0, 100)
+					};
+				})
+				.slice(0, T.collapsedStatSlots);
+		<</script>>
+	<</silently>>
+	<div class="relation-box-collapsed" onclick="toggleRelationCollapse(this)">
+		<span class="relation-box-collapsed-name">_npcData.nam</span>
+		<span class="relation-box-collapsed-stats">
+			<<for _ci = 0; _ci lt _collapsedStatSlots; _ci++>>
+				<<if _ci lt _collapsedVisibleStats.length>>
+					<span class="relation-box-collapsed-icon-pair">
+						<<if $options.images>>
+							<img class="relation-box-collapsed-icon" @src="_collapsedVisibleStats[_ci].activeIcon">
+							<span>_collapsedVisibleStats[_ci].progress</span>
+						<<else>>
+							<span class="relation-box-collapsed-icon">_collapsedVisibleStats[_ci].name</span>
+							<small>_collapsedVisibleStats[_ci].progress</small>
+						<</if>>
+					</span>
+				<<else>>
+					<span class="relation-box-collapsed-icon-pair"></span>
+				<</if>>
+			<</for>>
+		</span>
+	</div>
 <</widget>>
 
 <<widget "relation-box-stat">>
@@ -4281,9 +4362,8 @@
 		<<set $_min to _config.minValue || 0>>
 		<<set $_max to _config.maxValue || 100>>
 		<<set _config.progress = Math.clamp(Math.round(100*((_config.value - $_min) / ($_max - $_min))), 0, 100)>>
-		<<set _displayProgress = _config.progress>>
 	<</silently>>
-	<div class="relation-stat-block" @style="'--progress: ' + _displayProgress + '%;'">
+	<div class="relation-stat-block" @style="'--progress: ' + _config.progress + '%;'">
 		<<if _important>>
 			<label>_config.name</label>
 		<</if>>
@@ -4302,13 +4382,18 @@
 						<img class="inactive-icon-img outlined" @src="_config.activeIcon">
 					<</if>>
 				</span>
-				<span class="relation-stat-percent black">_displayProgress<small>%</small></span>
+				<span class="relation-stat-percent black">_config.progress<small>%</small></span>
 			</div>
 		<<else>>
-			<<if _important>>
-				<span class="relation-stat-percent black">&nbsp;_displayProgress<small>%</small></span>
+			<div class="relation-stat">
+				<<if !_important>>
+					<span class="relation-stat-name">
+						<small>_config.name</small>
+					</span>
+				<</if>>
+				<span class="relation-stat-percent black">&nbsp;_config.progress<small>%</small></span>
 				<div @class="'progress-bar ' + _config.color + 'bar'"></div>
-			<</if>>
+			</div>
 		<</if>>
 	</div>
 <</widget>>
@@ -4324,7 +4409,7 @@
 	<<takeVirginity _args[0] "oral">><<oralstat>><<oralejacstat>><<ejacstat>><<cumswallow 'human'>>
 <</widget>>
 
-<<widget "relationshipclamp">>
+<<widget "relationshipClamp">>
 	<<set _i to $NPCNameList.indexOf("Robin")>>
 	<<set $NPCName[_i].love = Math.clamp($NPCName[_i].love, 0, 100)>>
 	<<set $NPCName[_i].lust = Math.clamp($NPCName[_i].lust, 0, 100)>>
@@ -4605,9 +4690,17 @@
 <</widget>>
 
 <<widget "breastfed">>
-	<<if _args[0]>>
-		<<set $milk_drank_stat += _args[0]>>
-		<<set $hunger -= _args[0]>><<set $thirst -= _args[0]>>
+	<!-- 1 point of "change" = 1 mL of milk. The PC drinks an average of ~30 mL of milk each time "breastfed" is called. -->
+	<<set _change to _args[0]>>
+
+	<<if _change>>
+		<<set $milk_drank_stat += _change>>
+
+		<!-- 1 mL of milk = -1 point of $hunger. -->
+		<<set $hunger -= _change>>
+
+		<!-- 1 mL of milk = -1 point of $thirst. -->
+		<<set $thirst -= _change>>
 	<<else>>
 		<<set _breastfedNamedFoxTransform to ["Gwylan","Poppy"].includes($NPCList[0].fullDescription)>>
 		<<set $milk_drank_stat += random(1, 5)>>
@@ -4620,35 +4713,89 @@
 				<<transform cat 1>>
 			<</if>>
 		<</if>>
-		<<if $milkdranktrait is 1>><<physique 1>><</if>>
-		<<purity -1>>
-		<<set $hunger -= 200>><<set $thirst -= 200>>
+
+		<!--
+			If they have the "Milk Addict" / "Milk Enthusiast" trait, 3 mL of milk = 1 point of $physique.
+
+			Since physique(1) = 10 $physique, divide "milkDrank" by 30.
+		-->
+		<<if $milkdranktrait is 1>><<physique `(1 / 30) * _milkDrank` "invig">><</if>>
+
+		<!-- 30 mL of milk = -1 points of $purity. -->
+		<<purity `(-1 / 30) * _milkDrank`>>
+
+		<!-- 1 mL of milk = -1 point of $hunger. -->
+		<<set $hunger -= _milkDrank>>
+
+		<!-- 1 mL of milk = -1 point of $thirst. -->
+		<<set $thirst -= _milkDrank>>
 	<</if>>
 <</widget>>
 
 <<widget "nectarfed">>
-	<<set _nectarGain to 0>>
-	<<set _nectarGain += (Math.ceil(_args[0] / 10) + random(0,2))>>
-	<<set $nectar_drank_stat += _nectarGain>>
-	<<set $nectar_addiction += _nectarGain>>
-	<<if _args[0] gte 11>>
-		<<purity -1>>
-	<</if>>
-	<<set $hunger -= (_args[0] * 5)>><<set $thirst -= (_args[0] * 5)>>
-	<<drugs _args[0]>><<set $arousal += _args[0]>>
+	<!-- 1 point of "change" = 1 mL of nectar. The PC drinks an average of ~10 mL of nectar each time "nectarfed" is called. -->
+	<<set _change to _args[0]>>
+
+	<<set $nectar_drank_stat += _change>>
+
+	<!--
+		The PC needs to drink 750 mL of nectar to become an addict.
+
+		Since the PC gains the "Nectar Addict" trait when V.nectar_addiction >= 150, 1 mL of nectar = 0.2 points of nectar addiction.
+	-->
+	<<set $nectar_addiction += 0.2 * _change>>
+
+	<!-- 1 mL of nectar = -1 / 20 points of $purity. The ratio for nectar (1-to-20) is slightly higher than the ratio for milk (1-to-30) because plantpeople are more susceptible to corruption than humans. -->
+	<<purity `(-1 / 20) * _change`>>
+
+	<!-- 1 mL of nectar = -5 points of $hunger. -->
+	<<set $hunger -= (_change * 5)>>
+
+	<!-- 1 mL of nectar = -5 points of $thirst. -->
+	<<set $thirst -= (_change * 5)>>
+
+	<!--
+		Nectar is ~20% ABV, and 1 mL alcohol = 3 points of $drunk.
+
+		1 mL of nectar = 0.2 mL alcohol = 0.6 points of $drunk.
+	-->
+	<<drunk `0.6 * _change`>>
+
+	<!-- 1 mL of nectar = 1 point of $drugged. -->
+	<<drugs _change>>
+
+	<!-- 1 mL of nectar = 1 point of $arousal. -->
+	<<set $arousal += _change>>
+
+	<!-- Print a special message if the nectar source is ejaculating. -->
 	<<if $ejaculating is 1>>
-		<<drunk `(_args[0] * 3)`>>
 		<<bodyliquid "mouth" "nectar">>
 	<</if>>
+
+	<!-- Print text and change the PC's condition if they have the "Dendrophile" / "Plank Lover" trait (Not the "Nectar Addict" trait). -->
 	<<if $backgroundTraits.includes("plantlover")>>
 		<<if $nectar_timer lte 14>>
-			<span class="green">You feel an overwhelming sense of relief.</span> <<stress -12>><<llstress>><<pain -4>><<lpain>>
+			<span class="green">You feel an overwhelming sense of relief.</span>
+			<<pain -4>><<lpain>>
+			<<stress -12>><<llstress>>
 		<<else>>
-			<<set _nectarStress to (-1 * _nectarGain)>>
-			<<physique 1 "invig">><<stress _nectarStress>><<lstress>>
+			<!--
+				1 mL of nectar = 1 point of $physique.
+
+				Since physique(1) = 10 $physique, divide "change" by 10.
+			-->
+			<<physique `(1 / 10) * _change` "invig">>
+			<!--
+				Reduce the PC's stress by the amount of addiction that they've gained.
+
+				1 mL of nectar = 0.2 points of addiction = -16 points of $stress.
+			-->
+			<<stress `(-0.2 * _change)`>><<lstress>>
 		<</if>>
 		<<set $nectar_timer to 21>>
 	<</if>>
+
+	<!-- Clamps for safety. -->
 	<<set $nectar_addiction = Math.clamp($nectar_addiction, 0, 200)>>
 <</widget>>
 
@@ -5241,7 +5388,7 @@
 					A <<person>> walks up to the helpless <<pillory_type>> and displaces all <<his>> lower clothes, fully baring <<his>> <<if $_hasvagina>>pussy<<else>>$pillory.tenant.person.penisdesc<</if>> to the crowd. There is a loud cheer.
 				<</addinlineevent>>
 				<</if>>
-				<<if $settings.bestialityEnabled and ($settings.monsterChance lt 100 or $settings.monsterHallucinationsOnly)>>
+				<<if animalSexEnabledForType("dog") and (monsterChanceForType("dog") lt 100 or monsterHallucinationsOnlyForType("dog"))>>
 				<<addinlineevent "night no dog" 10>>
 					A <<person>> tries to incite a nearby dog to mount the prisoner's naked backside. It
 					<<if $rng % 2>>gives <<the_pillory_person>>'s ass a few tentative sniffs, but
@@ -5301,7 +5448,7 @@
 					A <<person>> walks behind the pillory and $_ly rapes <<the_pillory_person>><<if ($NPCList[1].gender isnot "m" or $NPCList[1].strapon?.state isnot undefined) and $settings.straponChance gt 0>> with a strap-on<</if>>. <<person2>> <<print either("The crowd cheer <<person2>><<him>> on.","The crowd take pictures and cheer <<person2>><<him>> on.","The crowd take pictures.","")>>
 				<</addinlineevent>>
 				<</if>>
-				<<if $settings.bestialityEnabled and ($settings.monsterChance lt 100 or $settings.monsterHallucinationsOnly) and (($_hasvagina and ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.vaginal isnot true)) or ($settings.analEnabled and ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.anal isnot true))) and ((settings.beastMaleChance gt 0 and $settings.maleNPCVaginaChance lt 100) or (settings.beastMaleChance lt 100 and $settings.femaleNPCPenisChance gt 0))>>
+				<<if animalSexEnabledForType("dog") and (monsterChanceForType("dog") lt 100 or monsterHallucinationsOnlyForType("dog")) and (($_hasvagina and ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.vaginal isnot true)) or ($settings.analEnabled and ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.anal isnot true))) and ((beastMaleChanceForType("dog") gt 0 and $settings.maleNPCVaginaChance lt 100) or (beastMaleChanceForType("dog") lt 100 and $settings.femaleNPCPenisChance gt 0))>>
 				<<addinlineevent "night dog" $_dangerhigh1>>
 					<<if $_hasvagina and ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.vaginal isnot true)>><<set $pillory.tenant.genital += 1>><</if>>
 					<<if $settings.analEnabled and ($pillory.tenant.special.name is "" or $pillory.tenant.person.virginity.anal isnot true)>><<set $pillory.tenant.ass += 1>><</if>>
@@ -5473,7 +5620,7 @@
 <</widget>>
 
 <<widget "clear_pillory">>
-	<<if $pillory.tenant and $pillory.tenant.special.name is "Whitney">>
+	<<if $pillory.tenant?.special.name is "Whitney">>
 		<<set C.npc.Whitney.state to "active">>
 	<</if>>
 	<<setup_pillory>>
@@ -5645,9 +5792,9 @@
 
 <<widget "cheatStart">>
 	<<set $cheatsEnabled to true>><<money 500000 "debug">>
-	<<set $rentmoney to 10000>><<rentmod>>
-	<<set $renttime to 7>><<set $rentday to Time.weekDay>>
-	<<set $rentstage to 1>>
+	<<set $rentMoney to 10000>><<rentmod>>
+	<<set $rentTime to 7>><<set $rentDay to Time.weekDay>>
+	<<set $rentStage to 1>>
 <</widget>>
 
 <<widget "cheatAveryMansion">>
@@ -5801,24 +5948,31 @@
 		<<run Errors.report("schoolrep called with bad parameters", _args)>>
 	<<elseif $_val lt 0 and !$daily.crossdressingFameReduction>>
 		<<set $schoolrep[$_rep] to Math.max(0, $schoolrep[$_rep] + $_val)>>
-	<<elseif $_val gt 0 and !$daily.school[$_rep] and !$worn.face.type.includes("mask")>>
+	<<elseif $_val gt 0 and !$daily.school[$_rep] and !$worn.face.type.includes("mask") and $settings.nudeGenderPerception !== 0>> <!-- can only happen if genitals aren't ignored, otherwise people don't care -->
 		<!-- can only get rep once a day, and can't reduce it later that day -->
 		<<set $daily.school[$_rep] to 1>>
 		<<set $daily.crossdressingFameReduction to true>>
 
-		<!-- cap max rep at 5 -->
-		<<set $schoolrep[$_rep] to Math.min($schoolrep[$_rep] + $_val, 5)>>
-
 		<!-- for herm pcs, some students can still assume you're crossdressing if they don't know any better. ensure they know better -->
 		<<set $schoolrep.crossdress to Math.min(5 - $schoolrep.herm, $schoolrep.crossdress)>>
+
+		<!-- messages shouldn't be sent for a rep increase if rep is already 5 -->
+		<<if $schoolrep[$_rep] lt 5>>
+			<!-- cap max rep at 5 -->
+			<<set $schoolrep[$_rep] to Math.min($schoolrep[$_rep] + $_val, 5)>>
+
+			<!-- cue the appropriate rep increase message -->
+			<<if $_rep is "herm">>
+				<<set $school_herm_message to $schoolrep.herm>>
+			<<elseif $rep is "crossdress">>
+				<<set $school_crossdress_message to $schoolrep.crossdress>>
+			<</if>>
+		<</if>>
 
 		<<if $schoolrep[$_rep] is 5>>
 			<!-- now all of china knows you're $_rep -->
 			<<run ["Kylar", "Whitney", "Sydney", "Sirris", "River", "Doren", "Winter", "Mason", "Leighton"].forEach(n => $genderknown.pushUnique(n))>>
 		<</if>>
-
-		<!-- finally, send the message. expands to $school_crossdress_message or $school_herm_message -->
-		<<set V["school_" + $_rep + "_message"] to $schoolrep[$_rep]>>
 	<</if>>
 <</widget>>
 
@@ -6620,6 +6774,8 @@
 	<<set Skin.color.natural to "light">>
 	<<set Skin.color.tan to 0>>
 	<<set $facevariant to "default">>
+	<<set $player.skin.bodyFreckles to "none">>
+	<<set $player.skin.faceFreckles to false>>
 <</widget>>
 
 <<widget "angelBanishUse">>
@@ -6628,4 +6784,87 @@
 
 	<<set _multi to $purity gte 1000 ? 2 : 1>>
 	<<defiance `($purity / 100) * _multi`>>
+<</widget>>
+
+<<widget "travelSpeedInfo">>
+	<<set _travelTimes to {quickly: 5, normally: 10, carefully: 30}>>
+	<<if $worn.feet.type.includes("shackle") and $travelSpeed is "quickly">>
+		<<set $travelSpeed to "normally">>
+	<</if>>
+	<<set _speedNow to $travelSpeed>>
+	<<set _travelTime to _travelTimes[_speedNow]>>
+	<<set _travelTimeString to getTimeString(_travelTime)>>
+<</widget>>
+
+<<widget "travelSpeedOptions">>
+	<<travelSpeedInfo>>
+	How do you want to proceed?
+	<br>
+	<<if $worn.feet.type.includes("shackle")>>
+		<<runicon>><span class="red">Your shackles stop you from running.</span>
+	<<else>>
+		<<runicon>><label><<radiovar "$travelSpeed" "quickly">><<travelSpeedInfo>><<replace ".travelTime">><<print _travelTimeString>><</replace>><</radiovar>> Quickly (<<print getTimeString(_travelTimes.quickly)>>)</label><<gharass>>
+	<</if>>
+	<br>
+	<<walkicon>><label><<radiovar "$travelSpeed" "normally">><<travelSpeedInfo>><<replace ".travelTime">><<print _travelTimeString>><</replace>><</radiovar>> Normally (<<print getTimeString(_travelTimes.normally)>>)</label>
+	<br>
+	<<sneakicon>><label><<radiovar "$travelSpeed" "carefully">><<travelSpeedInfo>><<replace ".travelTime">><<print _travelTimeString>><</replace>><</radiovar>> Carefully (<<print getTimeString(_travelTimes.carefully)>>)</label><<lharass>>
+	<<if $worn.feet.type.includes("heels") and !$possessed and !heelsMastered()>>
+		<br>
+		<span class="red">Your heels only let you hobble, except when searching.</span>
+	<</if>>
+<</widget>>
+
+<<widget "thuganger">>
+	<<if $rentThug>>
+		<<if _args[0] is "passive" and $rentTime lt -1>>
+			<<if $rentThug.anger lt 4 and $rentThug.angerCountdown lte 0>>
+				<<set $rentThug.anger++>>
+				<<switch $rentThug.anger>>
+					<<case 2>>
+						<<set $rentThug.angerCountdown to 1>>
+					<<case 3>>
+						<<set $rentThug.angerCountdown to 2>>
+					<<default>>
+				<</switch>>
+			<<elseif $rentThug.angerCountdown gt 0>>
+				<<set $rentThug.angerCountdown-->>
+			<</if>>
+		<<elseif Number.isInteger(_args[0])>>
+			<<set $rentThug.anger to Math.clamp($rentThug.anger + _args[0], 0, 5)>>
+			<<switch $rentThug.anger>>
+				<<case 1 2>>
+					<<set $rentThug.angerCountdown to 1>>
+				<<case 3>>
+					<<set $rentThug.angerCountdown to 2>>
+				<<default>>
+			<</switch>>
+			<<set $rentThug.traps to []>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "createThugTrap">>
+	<<if $rentThug>>
+		<<set _location to _args[0] or $bus>>
+		/* Deletes existing trap at location */
+		<<if $rentThug.traps.find(trap => trap.location === _location)>>
+			<<set _refreshTrap to true>>
+			<<set $rentThug.traps.deleteAt([$rentThug.traps.findIndex(trap => trap.location === _location)])>>
+		<</if>>
+		/* Sets new trap */
+		<<set $rentThug.traps.push({
+			location: _location,
+			endTime: new DateTime(Time.date).addHours(($rentThug.anger is 5 ? 3 : 2) / (Time.dayState is "night" ? 2 : 1)).timeStamp
+		})>>
+		/* Clears old traps if needed */
+		<<if $rentThug.traps.length gte 4>><<set $rentThug.traps.deleteAt([0])>><</if>>
+
+		<<if _refreshTrap>>
+			<span class="blue"><i>Bailey's thugs are now actively looking for you on <<print _location.toUpperFirst()>> Street. You probably shouldn't return here for some time.</i></span>
+		<<else>>
+			<span class="blue"><i>Since you were seen by Bailey's thugs on <<print _location.toUpperFirst()>> Street, they are likely to be looking for you around here for some time.</i></span>
+		<</if>>
+		<br><br>
+	<</if>>
 <</widget>>

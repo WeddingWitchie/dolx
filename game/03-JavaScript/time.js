@@ -944,7 +944,7 @@ function dayPassed(days) {
 				V.pound.tasks = [];
 			}
 
-			V.rentmoney = [10000, 30000, 50000, 70000, 100000, 150000, 200000][Math.min(Math.max(V.rentstage - 1, 0), 6)];
+			V.rentMoney = [10000, 30000, 50000, 70000, 100000, 150000, 200000][Math.min(Math.max(V.rentStage - 1, 0), 6)];
 			wikifier("rentmod");
 
 			if (V.valentines && Time.monthDay === 13) V.timeMessages.pushUnique("valentinesTomorrow");
@@ -963,43 +963,46 @@ function dayPassed(days) {
 					V.avery_mansion.days_absent++;
 				}
 				if (V.avery_mansion.rage.assess >= 9 || V.avery_mansion.days_absent >= 2) {
-					V.renttime--;
-					if (V.baileyDeposit >= V.rentmoney + (V.babyRent || 0)) {
-						if (V.renttime <= 0) {
-							V.renttime = 7;
-							V.baileyDeposit -= V.rentmoney + (V.babyRent || 0);
-							V.rentstage += 1;
+					V.rentTime--;
+					wikifier("thuganger", "passive");
+					if (V.baileyDeposit >= V.rentMoney + (V.babyRent || 0)) {
+						if (V.rentTime <= 0) {
+							V.rentTime = 7;
+							V.baileyDeposit -= V.rentMoney + (V.babyRent || 0);
+							V.rentStage += 1;
 						}
 					} else {
 						// Not seen bailey for more than 2 weeks, tracks missed rent
-						if (V.renttime < 0 && V.renttime % 7 === 0) {
-							V.baileyRefusedToPayTotal += V.rentmoney + (V.babyRent || 0);
-							V.baileyRefusedToPayTotalStat += V.rentmoney + (V.babyRent || 0);
+						if (V.rentTime < 0 && V.rentTime % 7 === 0) {
+							V.baileyRefusedToPayTotal += V.rentMoney + (V.babyRent || 0);
+							V.baileyRefusedToPayTotalStat += V.rentMoney + (V.babyRent || 0);
 						}
 					}
 				} else {
 					// Avery covers the full amount, including any rent already missed before taking over.
-					if (V.renttime <= 0) V.renttime = 7;
+					if (V.rentTime <= 0) V.rentTime = 7;
 					V.baileyRefusedToPayTotal = 0;
 				}
 			} else {
-				V.renttime--;
+				V.rentTime--;
+				wikifier("thuganger", "passive");
 				/* Let Robin's earned-independence scene happen before an old Bailey deposit silently pays the doubled demand. */
-				if (V.baileyDeposit >= V.rentmoney + (V.babyRent || 0) && !robinStandSelfSufficiencyReady()) {
-					if (V.renttime <= 0) {
-						V.renttime = 7;
-						V.baileyDeposit -= V.rentmoney + (V.babyRent || 0);
-						V.rentstage += 1;
+				if (V.baileyDeposit >= V.rentMoney + (V.babyRent || 0) && !robinStandSelfSufficiencyReady()) {
+					if (V.rentTime <= 0) {
+						V.rentTime = 7;
+						V.baileyDeposit -= V.rentMoney + (V.babyRent || 0);
+						V.rentStage += 1;
 					}
 				} else {
 					// Not seen bailey for more than 2 weeks, tracks missed rent
-					if (V.renttime < 0 && V.renttime % 7 === 0) {
-						V.baileyRefusedToPayTotal += V.rentmoney + (V.babyRent || 0);
-						V.baileyRefusedToPayTotalStat += V.rentmoney + (V.babyRent || 0);
+					if (V.rentTime < 0 && V.rentTime % 7 === 0) {
+						V.baileyRefusedToPayTotal += V.rentMoney + (V.babyRent || 0);
+						V.baileyRefusedToPayTotalStat += V.rentMoney + (V.babyRent || 0);
 					}
 				}
 			}
 			if (hasMansion) V.avery_mansion.study_unlocked = 0;
+			if (V.avery_helicopter?.timer > 0) V.avery_helicopter.timer--;
 
 			if (V.flashbacktown > 0) V.flashbacktown--;
 			if (V.flashbackhome > 0) V.flashbackhome--;
@@ -1334,6 +1337,24 @@ function dayPassed(days) {
 	if (["asylum", "prison"].includes(V.location)) {
 		V.daily.asylumPrison = 1;
 	}
+
+	if (V.mine?.setup.food > 0) V.mine.setup.food--;
+	if (V.mine?.setup.dust > 0) V.mine.setup.dust--;
+	if (V.mine?.distraction.night > 0) {
+		V.mine.distraction.night--;
+	} else if (V.mine?.distraction.night === 0) {
+		delete V.mine.distraction.night;
+	}
+	if (V.mine?.distraction.mining > 0) {
+		V.mine.distraction.mining--;
+	} else if (V.mine?.distraction.mining === 0) {
+		delete V.mine.distraction.mining;
+	}
+	if (V.mine?.distraction.minecarts > 0) {
+		V.mine.distraction.minecarts--;
+	} else if (V.mine?.distraction.minecarts === 0) {
+		delete V.mine.distraction.minecarts;
+	}
 }
 
 /**
@@ -1411,6 +1432,9 @@ function hourPassed(hours, advanceFirst) {
 		if (!V.avery_mansion || ["fallen", "kicked"].includes(V.avery_fate)) {
 			V.hoursGoneFromHome++;
 		}
+
+		// When you view a plot while it is raining, it automatically becomes watered, so we don't need to check frequently if it's raining to water plots. Hourly is good enough.
+		waterPlotsFromRain();
 
 		// Robin autowatering
 		// Include "bath" as a location since bathing is from 17:00-17:29
@@ -1546,6 +1570,11 @@ function minutePassed(minutes) {
 		// To prevent new events from occurring, allowing players to more easily go to the hospital or similar locations
 		V.eventskip = 1;
 		V.stress += Math.floor(minutes * 40);
+	}
+
+	// Thug traps
+	for (let i = 0; i < V.rentThug?.traps.length; i++) {
+		if (Time.date.timeStamp >= V.rentThug.traps[i].endTime) V.rentThug.traps.deleteAt([i]);
 	}
 
 	// Tanning
@@ -1987,6 +2016,7 @@ function dailyNPCEffects() {
 		V.kylar.timer.halls += 10 + C.npc.Kylar.lust / 4;
 		V.kylar.timer.home += 10 + C.npc.Kylar.lust / 4;
 		V.kylar.timer.street += 10 + C.npc.Kylar.lust / 4;
+		if (V.kylar.timer.letter >= 1) V.kylar.timer.letter--;
 		if (V.kylar.riddle === 1) V.kylar.riddle = 2;
 		else V.kylar.riddle = 0;
 		if (V.kylarSeen.includes("fountainIntro") && random(1, 10) >= 2) V.kylar.fountain = 1;
@@ -2000,7 +2030,7 @@ function dailyNPCEffects() {
 		V.averyBodyWritingSeen = false;
 		if (V.averydate && Time.weekDay === 1) {
 			V.averydate = 0;
-			if (V.averydateattended !== 1 && !V.avery_injury) V.averydatemissed = 1;
+			if (V.averydateattended !== 1 && !V.avery_injury && !V.avery_mansion.away_timer > 0) V.averydatemissed = 1;
 			V.averydateattended = 0;
 		}
 		delete V.averydatedone;
@@ -2061,7 +2091,13 @@ function dailyNPCEffects() {
 				}
 			}
 
-			if (V.avery_mansion.rage.dinner_done !== 1 && between(Time.weekDay, 3, 7) && !V.avery_injury && !inRentPausedBadEnd()) {
+			if (
+				V.avery_mansion.rage.dinner_done !== 1 &&
+				between(Time.weekDay, 3, 7) &&
+				!V.avery_injury &&
+				!inRentPausedBadEnd() &&
+				V.avery_mansion.rage.timer !== 30
+			) {
 				if (V.avery_valentines?.done && Time.monthDay === 15 && Time.monthName === "February") {
 					// do not spoil the valentines
 				} else {
@@ -2306,7 +2342,7 @@ function dailyNPCEffects() {
 		if (V.gwylan.timer.petBed && Time.date.dayDifference(new DateTime(V.gwylan.timer.petBed)) <= 0) delete V.gwylan.timer.petBed;
 	}
 
-	wikifier("relationshipclamp");
+	wikifier("relationshipClamp");
 }
 
 function dailyInsanityEffects() {
@@ -2603,7 +2639,11 @@ function dailyPlayerEffects() {
 			}
 			if (key !== "devotion" && V.hypnosisTimers[key].time <= 0) {
 				V.hypnosis_timer_messages ||= [];
-				V.hypnosis_timer_messages.pushUnique(key);
+				if (key === "insight" && V.awareness >= 300) {
+					V.hypnosis_timer_messages.pushUnique("ignorance");
+				} else {
+					V.hypnosis_timer_messages.pushUnique(key);
+				}
 				V.effectsmessage = 1;
 			} else if (key === "devotion" && V.hypnosisTimers.devotion.time <= gwylanHypnoMax("value", V.hypnosis_traits.devotion - 1)) {
 				V.hypnosis_timer_messages ||= [];
@@ -2785,7 +2825,7 @@ function yearlyEventChecks() {
 		}
 	}
 
-	if (Time.monthName === "February" && Time.monthDay <= 14 && !V.avery_valentines && V.avery_mansion) {
+	if (Time.monthName === "February" && Time.monthDay <= 14 && !V.avery_valentines) {
 		V.avery_valentines = {};
 
 		V.avery_valentines.intro = false;
@@ -2838,6 +2878,10 @@ function yearlyEventChecks() {
 		delete V.halloween_kylar_whitney;
 		delete V.halloween_lake;
 		delete V.halloweenWolves;
+		delete V.halloween_pumpkins_bought;
+		delete V.halloween_pumpkin_competition;
+		delete V.halloween_pumpkin_kylar;
+		delete V.halloween_domus_pumpkin;
 	}
 
 	// Christmas
@@ -3721,6 +3765,23 @@ function supermarketWeekly() {
 	});
 }
 DefineMacro("supermarketWeekly", supermarketWeekly);
+
+function isRentDue() {
+	return V.rentTime <= 0 && isAveryPayingBailey() !== 2 && !inRentPausedBadEnd();
+}
+window.isRentDue = isRentDue;
+
+function isBaileyLookingForPlayer() {
+	return (isRentDue() && V.rentTime < 0) || (V.baileyRefusedToPay && isAveryPayingBailey() !== 2);
+}
+window.isBaileyLookingForPlayer = isBaileyLookingForPlayer;
+
+function isAveryPayingBailey() {
+	if (!V.avery_mansion || C.npc.Avery.state === "dismissed") return 0; // Not adopted
+	else if (V.avery_mansion.rage.assess >= 9 || V.avery_mansion.days_absent >= 2) return 1; // Adopted, refusing to pay
+	else return 2; // Adopted, paying
+}
+window.isAveryPayingBailey = isAveryPayingBailey;
 
 function inRentPausedBadEnd() {
 	const badEnd = V.badEndStats?.last();

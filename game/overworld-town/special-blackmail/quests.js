@@ -1,11 +1,11 @@
 /* globals playerMayBeSpiked, blackmailGiveDaisies, blackmailGrantStall, hasSexStat, playerCannotSelfClimax */
 // All quests part from the assumption that PC starts their day at the orphanage
 function blackmailReward(rentShare = 1, scaleIncome = true) {
-	let rent = Number(V.rentmoney) || 0;
+	let rent = Number(V.rentMoney) || 0;
 	// Bailey's added rent pressure, especially the uncapped Relentless version, must not turn Club tasks into an escalating income source.
-	if (setup.inflation?.rentBaseWithModifiers && Number.isFinite(V.rentstage)) {
+	if (setup.inflation?.rentBaseWithModifiers && Number.isFinite(V.rentStage)) {
 		const baseRents = [10000, 30000, 50000, 70000, 100000, 150000, 200000];
-		rent = setup.inflation.rentBaseWithModifiers(baseRents[Math.clamp(Math.floor(V.rentstage) - 1, 0, 6)]);
+		rent = setup.inflation.rentBaseWithModifiers(baseRents[Math.clamp(Math.floor(V.rentStage) - 1, 0, 6)]);
 	}
 	const rewardPercent = scaleIncome && setup.inflation?.setting ? setup.inflation.setting("inflationBlackmailRewardPct") : 100;
 	return Math.round(rent * (Number(rentShare) || 0) * 5 * (rewardPercent / 100));

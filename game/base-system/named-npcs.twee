@@ -33,6 +33,7 @@
 			<<set $NPCList[_ii].lactation to 0>>
 			<<set $NPCList[_ii].intro to 0>>
 			<<set $NPCList[_ii].speechanusescape to 0>>
+			<<set $NPCList[_ii].speechotheranusescape to 0>>
 			<<set $NPCList[_ii].speechpenisescape to 0>>
 			<<set $NPCList[_ii].speechvaginaescape to 0>>
 			<<set $NPCList[_ii].type to 0>>
@@ -229,12 +230,8 @@ Zohar
 
 <<widget "initnpcskinsingle">>
 	<<set _i to _args[0]>>
-	<<if !$NPCName[_i].skincolour or $NPCName[_i].skincolour is "none" or _args[1] is "skincolour">>
-		<<if random(0, 99) lte $settings.darkSkinChance>>
-			<<set $NPCName[_i].skincolour to "black">>
-		<<else>>
-			<<set $NPCName[_i].skincolour to "white">>
-		<</if>>
+	<<if $NPCName[_i].skincolour is undefined or _args[1] is "skincolour">>
+		<<set $NPCName[_i].skincolour to randomSkinTone()>>
 	<</if>>
 <</widget>>
 
@@ -272,7 +269,7 @@ Zohar
 				<<set _override to (_override is "m" ? "f" : "m")>>
 			<</if>>
 		<</if>>
-		<<if ($NPCName[_i].type is "human" and maleChance(_override) lt random(1, 100)) or ($NPCName[_i].type isnot "human" and beastMaleChance(_override) lt random(1, 100))>>
+		<<if maleChance(_override) lt random(1, 100)>>
 			<<set $NPCName[_i].pronoun to "f">>
 		<<else>>
 			<<set $NPCName[_i].pronoun to "m">>
@@ -439,12 +436,8 @@ Zohar
 		<<set $NPCName[_i].corruption to 0>>
 		<<set $NPCName[_i].chastity to {penis:"", vagina:"", anus:""}>>
 		<<set $NPCName[_i].name_known to 1>>
-		<<if !$NPCName[_i].skincolour>>
-			<<if random(1, 100) lte $settings.darkSkinChance>>
-				<<set $NPCName[_i].skincolour to "black">>
-			<<else>>
-				<<set $NPCName[_i].skincolour to "white">>
-			<</if>>
+		<<if $NPCName[_i].skincolour is undefined>>
+			<<set $NPCName[_i].skincolour to randomSkinTone()>>
 		<</if>>
 		<<generatePronouns $NPCName[_i]>>
 		<<initNNPCClothes _nam>>
@@ -522,11 +515,11 @@ Zohar
 				<<set C.npc["Ivory Wraith"].lust to 0>>
 				<<if $wraith.state is "haunt">>
 					<<set C.npc["Ivory Wraith"].lust to 20>>
-					<<if $wraithPrison and $wraithPrison.vision>>
+					<<if $wraithPrison?.vision>>
 						<<set C.npc["Ivory Wraith"].lust -= 5>>
 					<</if>>
 				<</if>>
-				<<set C.npc["Ivory Wraith"].skincolour to "ghost">>
+				<<set C.npc["Ivory Wraith"].skinType to "ghost">>
 			<<case Remy>>
 				<<if $remySeen is undefined>>
 					<<set $remySeen to []>>
@@ -1248,7 +1241,7 @@ Zohar
 	<!-- Most persistent named-NPC records have no combat chest state. Keep the combat-safe zero set above unless a scene/NPC explicitly provides one. -->
 	<<set $NPCList[_npcno].chest to clone($NPCName[_i].chest ?? 0)>>
 
-	<<if $NPCList[_npcno].penis is "none" and $NPCName[_i].strapons and $NPCName[_i].strapons.length gt 0 and random(0,99) lt $settings.straponChance>>
+	<<if $NPCList[_npcno].penis is "none" and $NPCName[_i].strapons?.length gt 0 and random(0,99) lt $settings.straponChance>>
 		<<set $NPCList[_npcno].penis to $NPCList[_npcno].vagina>>
 		<<set $NPCList[_npcno].vagina to "none">>
 		<<set $NPCList[_npcno].gender to "m">>
@@ -1257,6 +1250,7 @@ Zohar
 	<</if>>
 
 	<<set $NPCList[_npcno].skincolour to $NPCName[_i].skincolour>>
+	<<set $NPCList[_npcno].skinType to $NPCName[_i].skinType>>
 
 	<<set $NPCList[_npcno].insecurity to $NPCName[_i].insecurity>>
 	<<set $NPCList[_npcno].description to $NPCName[_i].title>>
@@ -1317,36 +1311,14 @@ Zohar
 		<<set $NPCList[_npcno].lefthand to "none">>
 		<<set $NPCList[_npcno].righthand to "none">>
 		<<set $NPCList[_npcno].stance to "approach">>
-		<<if $daily.bwMonsterRoll isnot undefined and $blackwolfmonster is 1>>
-			<<if $daily.bwMonsterRoll is true>>
-				<<set $NPCList[_npcno].monster to "monster">>
-				<<set $monster to 1>><<set _monsterOverride to true>>
-				<<set $NPCList[_npcno].type to ($NPCList[_npcno].pronoun is "f" ? "wolfgirl" : "wolfboy")>>
-				<<set $NPCList[_npcno].lefthand to 0>>
-				<<set $NPCList[_npcno].righthand to 0>>
-				<<run delete $NPCList[_npcno].claws>>
-			<<else>>
-				<<set $NPCList[_npcno].monster to 0>>
-				<<set $NPCList[_npcno].pronoun to "i">>
-				<<set $NPCList[_npcno].claws to "claws">>
-			<</if>>
-		<<elseif $blackwolfmonster gte 1 or !$settings.bestialityEnabled>>
-			<<if isMonsterHallucinationAllowed($rng) or ($blackwolfmonster is 2) or (!$settings.bestialityEnabled)>>
-				<<set $daily.bwMonsterRoll to true>>
-				<<set $NPCList[_npcno].monster to "monster">>
-				<<set $monster to 1>><<set _monsterOverride to true>>
-				<<set $NPCList[_npcno].type to ($NPCList[_npcno].pronoun is "f" ? "wolfgirl" : "wolfboy")>>
-				<<set $NPCList[_npcno].lefthand to 0>>
-				<<set $NPCList[_npcno].righthand to 0>>
-				<<run delete $NPCList[_npcno].claws>>
-			<<else>>
-				<<set $daily.bwMonsterRoll to false>>
-				<<set $NPCList[_npcno].monster to 0>>
-				<<set $NPCList[_npcno].pronoun to "i">>
-				<<set $NPCList[_npcno].claws to "claws">>
-			<</if>>
+		<<if resolveIfNamedBeastIsMonster("blackwolf")>>
+			<<set $NPCList[_npcno].monster to "monster">>
+			<<set $monster to 1>><<set _monsterOverride to true>>
+			<<set $NPCList[_npcno].type to ($NPCList[_npcno].pronoun is "f" ? "wolfgirl" : "wolfboy")>>
+			<<set $NPCList[_npcno].lefthand to 0>>
+			<<set $NPCList[_npcno].righthand to 0>>
+			<<run delete $NPCList[_npcno].claws>>
 		<<else>>
-			<<set $daily.bwMonsterRoll to false>>
 			<<set $NPCList[_npcno].monster to 0>>
 			<<set $NPCList[_npcno].pronoun to "i">>
 			<<set $NPCList[_npcno].claws to "claws">>
@@ -1359,36 +1331,14 @@ Zohar
 		<<set $NPCList[_npcno].lefthand to "none">>
 		<<set $NPCList[_npcno].righthand to "none">>
 		<<set $NPCList[_npcno].stance to "approach">>
-		<<if $daily.ghMonsterRoll isnot undefined and $greathawkmonster is 1>>
-			<<if $daily.ghMonsterRoll is true>>
-				<<set $NPCList[_npcno].monster to "monster">>
-				<<set $monster to 1>><<set _monsterOverride to true>>
-				<<set $NPCList[_npcno].type to "harpy">>
-				<<set $NPCList[_npcno].lefthand to 0>>
-				<<set $NPCList[_npcno].righthand to 0>>
-				<<run delete $NPCList[_npcno].claws>>
-			<<else>>
-				<<set $NPCList[_npcno].monster to 0>>
-				<<set $NPCList[_npcno].pronoun to "i">>
-				<<set $NPCList[_npcno].claws to "talons">>
-			<</if>>
-		<<elseif $greathawkmonster gte 1 or !$settings.bestialityEnabled>>
-			<<if isMonsterHallucinationAllowed($rng) or ($greathawkmonster is 2) or (!$settings.bestialityEnabled)>>
-				<<set $daily.ghMonsterRoll to true>>
-				<<set $NPCList[_npcno].monster to "monster">>
-				<<set $monster to 1>><<set _monsterOverride to true>>
-				<<set $NPCList[_npcno].type to "harpy">>
-				<<set $NPCList[_npcno].lefthand to 0>>
-				<<set $NPCList[_npcno].righthand to 0>>
-				<<run delete $NPCList[_npcno].claws>>
-			<<else>>
-				<<set $daily.ghMonsterRoll to false>>
-				<<set $NPCList[_npcno].monster to 0>>
-				<<set $NPCList[_npcno].pronoun to "i">>
-				<<set $NPCList[_npcno].claws to "talons">>
-			<</if>>
+		<<if resolveIfNamedBeastIsMonster("greathawk")>>
+			<<set $NPCList[_npcno].monster to "monster">>
+			<<set $monster to 1>><<set _monsterOverride to true>>
+			<<set $NPCList[_npcno].type to "harpy">>
+			<<set $NPCList[_npcno].lefthand to 0>>
+			<<set $NPCList[_npcno].righthand to 0>>
+			<<run delete $NPCList[_npcno].claws>>
 		<<else>>
-			<<set $daily.ghMonsterRoll to false>>
 			<<set $NPCList[_npcno].monster to 0>>
 			<<set $NPCList[_npcno].pronoun to "i">>
 			<<set $NPCList[_npcno].claws to "talons">>
@@ -1401,36 +1351,14 @@ Zohar
 		<<set $NPCList[_npcno].lefthand to "none">>
 		<<set $NPCList[_npcno].righthand to "none">>
 		<<set $NPCList[_npcno].stance to "approach">>
-		<<if $daily.nmMonsterRoll isnot undefined and $nightmonstermonster is 1>>
-			<<if $daily.nmMonsterRoll is true>>
-				<<set $NPCList[_npcno].monster to "monster">>
-				<<set $monster to 1>><<set _monsterOverride to true>>
-				<<set $NPCList[_npcno].type to ($NPCList[_npcno].pronoun is "f" ? "horned woman" : "horned man")>>
-				<<set $NPCList[_npcno].lefthand to 0>>
-				<<set $NPCList[_npcno].righthand to 0>>
-				<<run delete $NPCList[_npcno].claws>>
-			<<else>>
-				<<set $NPCList[_npcno].monster to 0>>
-				<<set $NPCList[_npcno].pronoun to "i">>
-				<<set $NPCList[_npcno].claws to "claws">>
-			<</if>>
-		<<elseif $nightmonstermonster gte 1 or !$settings.bestialityEnabled>>
-			<<if isMonsterHallucinationAllowed($rng) or ($nightmonstermonster is 2) or (!$settings.bestialityEnabled)>>
-				<<set $daily.nmMonsterRoll to true>>
-				<<set $NPCList[_npcno].monster to "monster">>
-				<<set $monster to 1>><<set _monsterOverride to true>>
-				<<set $NPCList[_npcno].type to ($NPCList[_npcno].pronoun is "f" ? "horned woman" : "horned man")>>
-				<<set $NPCList[_npcno].lefthand to 0>>
-				<<set $NPCList[_npcno].righthand to 0>>
-				<<run delete $NPCList[_npcno].claws>>
-			<<else>>
-				<<set $daily.nmMonsterRoll to false>>
-				<<set $NPCList[_npcno].monster to 0>>
-				<<set $NPCList[_npcno].pronoun to "i">>
-				<<set $NPCList[_npcno].claws to "claws">>
-			<</if>>
+		<<if resolveIfNamedBeastIsMonster("nightmonster")>>
+			<<set $NPCList[_npcno].monster to "monster">>
+			<<set $monster to 1>><<set _monsterOverride to true>>
+			<<set $NPCList[_npcno].type to ($NPCList[_npcno].pronoun is "f" ? "horned woman" : "horned man")>>
+			<<set $NPCList[_npcno].lefthand to 0>>
+			<<set $NPCList[_npcno].righthand to 0>>
+			<<run delete $NPCList[_npcno].claws>>
 		<<else>>
-			<<set $daily.nmMonsterRoll to false>>
 			<<set $NPCList[_npcno].monster to 0>>
 			<<set $NPCList[_npcno].pronoun to "i">>
 			<<set $NPCList[_npcno].claws to "claws">>
@@ -1462,6 +1390,9 @@ Zohar
 	<<if _sameNpcInSlot>><<run EventSystem.pop(_npcno)>><</if>>
 	<<run EventSystem.push($passage, _npcno, $timeStamp)>>
 	<<set $index to _npcno>>
+
+	<<unset _strapIgnore>>
+	<<unset _condomIgnore>>
 <</widget>>
 
 <<widget "npcrelationship">>
@@ -1489,7 +1420,7 @@ Zohar
 
 	<!--
 		do NOT change this to reference setup.NPCNameList: this check exists to make sure whenever a new NNPC is added,
-		calling npcincr with them throws an error until the implemented adds clamps to <<relationshipclamp>>
+		calling npcincr with them throws an error until the implemented adds clamps to <<relationshipClamp>>
 		and adds their name to relevant whitelists (and blacklists, if they don't use love or dom) below.
 
 		if you're reading this, there's a decent chance that means you!
@@ -1547,7 +1478,7 @@ Zohar
 		<<if modLISelected("Poppy") and _isPoppy>><<run statusCheck("Poppy")>><</if>>
 		<<set _lustwhitelist to setup.lustWhitelist>>
 		<<if !_lustwhitelist.includes(_nam)>>
-			<<error { message: "<<npcincr>> attempted to modify lust for non-whitelisted npc " + _nam + ". Make sure to add a lust clamp in <<relationshipclamp>> before whitelisting!" }>>
+			<<error { message: "<<npcincr>> attempted to modify lust for non-whitelisted npc " + _nam + ". Make sure to add a lust clamp in <<relationshipClamp>> before whitelisting!" }>>
 		<</if>>
 		<<if $valentines and Time.monthDay is 14 and (setup.loveInterestNpc.includes(_nam) or (modLISelected("Poppy") and _isPoppy))>>
 			<<set _val += _val>>
@@ -1650,7 +1581,7 @@ Zohar
 		<span class="red">NPCINCR error - Unknown variable _var</span>
 		<br><br>
 	<</switch>>
-<<relationshipclamp>>
+<<relationshipClamp>>
 <</widget>>
 
 <<widget "npcset">>
@@ -2097,15 +2028,15 @@ Zohar
 			<<if $syndromebird is 1>>
 				<<if $NPCName[_i].love gte 60>>
 					<<if $NPCName[_i].dom gte 50>>
-						has <span class="lewd">claimed you as <<if $greathawkmonster gte 1>><<nnpc_his "Great Hawk">><<else>>its<</if>> <<wife>></span>.
+						has <span class="lewd">claimed you as <<if resolveIfNamedBeastIsMonster("greathawk")>><<nnpc_his "Great Hawk">><<else>>its<</if>> <<wife>></span>.
 					<<elseif $NPCName[_i].dom gte 20>>
-						thinks you're <span class="lewd"><<if $greathawkmonster gte 1>><<nnpc_his "Great Hawk">><<else>>its<</if>> <<wife>></span>.
+						thinks you're <span class="lewd"><<if resolveIfNamedBeastIsMonster("greathawk")>><<nnpc_his "Great Hawk">><<else>>its<</if>> <<wife>></span>.
 					<<else>>
 						thinks you're <span class="lewd">a good <<wife>></span>.
 					<</if>>
 				<<elseif $NPCName[_i].love gte 20>>
 					<<if $NPCName[_i].dom gte 50>>
-						wants you to <span class="red">return <<if $greathawkmonster gte 1>><<nnpc_his "Great Hawk">><<else>>its<</if>> affections</span>.
+						wants you to <span class="red">return <<if resolveIfNamedBeastIsMonster("greathawk")>><<nnpc_his "Great Hawk">><<else>>its<</if>> affections</span>.
 					<<elseif $NPCName[_i].dom gte 20>>
 						is <span class="red">distraught</span>.
 					<<else>>
@@ -2128,11 +2059,11 @@ Zohar
 			<<if $syndromewolves is 1>>
 				<<if $NPCName[_i].love gte $npclovehigh>>
 					<<if $wolfpackferocity gt $wolfpackharmony>>
-						<<print $blackwolfmonster gte 1 ? "is" : "seems">> <span class="lewd">proud you're <<if $blackwolfmonster gte 1>><<nnpc_his "Black Wolf">><<else>>its<</if>> mate</span>.
+						<<print resolveIfNamedBeastIsMonster("blackwolf") ? "is" : "seems">> <span class="lewd">proud you're <<if resolveIfNamedBeastIsMonster("blackwolf")>><<nnpc_his "Black Wolf">><<else>>its<</if>> mate</span>.
 					<<elseif $wolfpackharmony gt $wolfpackferocity>>
-						<<print $blackwolfmonster gte 1 ? "is" : "seems">> <span class="lewd">glad you're <<if $blackwolfmonster gte 1>><<nnpc_his "Black Wolf">><<else>>its<</if>> mate</span>.
+						<<print resolveIfNamedBeastIsMonster("blackwolf") ? "is" : "seems">> <span class="lewd">glad you're <<if resolveIfNamedBeastIsMonster("blackwolf")>><<nnpc_his "Black Wolf">><<else>>its<</if>> mate</span>.
 					<<else>>
-						thinks of you <span class="lewd">as <<if $blackwolfmonster gte 1>><<nnpc_his "Black Wolf">><<else>>its<</if>> mate</span>.
+						thinks of you <span class="lewd">as <<if resolveIfNamedBeastIsMonster("blackwolf")>><<nnpc_his "Black Wolf">><<else>>its<</if>> mate</span>.
 					<</if>>
 				<<elseif $NPCName[_i].love lte $npclovelow>>
 					<<if $wolfpackferocity gt $wolfpackharmony>>
@@ -2338,13 +2269,13 @@ Zohar
 					is <span class="red">wary of you</span>.
 				<<elseif _gwylanStatus.includes("aroused")>>
 					is <span class="pink">nervous about how close you are becoming</span>.
-				<<elseif _gwylanLovePercent gte 80>>
+				<<elseif _gwylanLovePercent gte 70>>
 					<span class="green">knows there's something special about you</span>.
-				<<elseif _gwylanLovePercent lt 65 and $gwylanTalked?.length gte 6 and !$daily.gwylan.clothesTalk>>
+				<<elseif _gwylanLovePercent lt 55 and $gwylanTalked?.length gte 6 and !$daily.gwylan.clothesTalk>>
 					is <span class="blue">eager to hear more of your stories</span>.
-				<<elseif _gwylanLovePercent gte 60>>
+				<<elseif _gwylanLovePercent gte 50>>
 					<span class="teal">thinks there's something special about you</span>.
-				<<elseif _gwylanLovePercent gte 40>>
+				<<elseif _gwylanLovePercent gte 30>>
 					is <span class="lblue">fascinated by you</span>.
 				<<elseif _gwylanLovePercent gte 20 or $avery_mansion>>
 					is <span class="blue">curious about you</span>.
@@ -2357,7 +2288,7 @@ Zohar
 
 		<<case Bailey>>
 			Bailey
-			<<if $renttime lte 0>>
+			<<if isRentDue() or isBaileyLookingForPlayer()>>
 				is <span class="red">ready to collect</span>.
 			<<elseif $NPCName[_i].love gte 50>>
 				<<if C.npc.Bailey.dom gte 70>>

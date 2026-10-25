@@ -27,6 +27,10 @@ const constants = {
 	// Soft ends that pause Bailey's rent
 	badEndsThatPauseRent: ["Prison", "Asylum", "Underground Farm", "Underground Dungeon"],
 
+	beastSettingTypes: ["dog", "cat", "pig", "wolf", "dolphin", "lizard", "bear", "boar", "horse", "fox", "hawk", "cow", "spider", "snake"],
+
+	namedBeasts: ["blackwolf", "greathawk", "nightmonster"],
+
 	/**
 	 * Determines whether the town considers the player missing based on time since they were last seen by townsfolk.
 	 */

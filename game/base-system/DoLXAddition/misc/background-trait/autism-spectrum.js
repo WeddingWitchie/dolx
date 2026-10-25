@@ -1142,9 +1142,9 @@ function autismObligations() {
 
 	/* Rent counts only when it is close and the money is not already put aside, which is when it starts
 	   occupying the PC rather than simply existing on a calendar. */
-	const due = Number(V.renttime);
-	if (Number.isFinite(due) && due <= autismRentNoticeDays && V.rentday !== undefined) {
-		const owed = (Number(V.rentmoney) || 0) + (Number(V.babyRent) || 0);
+	const due = Number(V.rentTime);
+	if (Number.isFinite(due) && due <= autismRentNoticeDays && V.rentDay !== undefined) {
+		const owed = (Number(V.rentMoney) || 0) + (Number(V.babyRent) || 0);
 		if (owed > 0 && (Number(V.baileyDeposit) || 0) < owed) {
 			list.push({ label: due <= 0 ? "rent overdue" : `rent due in ${due} ${due === 1 ? "day" : "days"}`, weight: autismObligationWeights.rent });
 		}
@@ -1183,7 +1183,7 @@ function autismObligationLabels() {
  * out: this asks whether the money was there to hand over, not what the final bill comes to.
  */
 function autismRentCanPay() {
-	const owed = (Number(V.rentmoney) || 0) + (Number(V.babyRent) || 0);
+	const owed = (Number(V.rentMoney) || 0) + (Number(V.babyRent) || 0);
 	const held = setup.inflation?.rentPayable ? Number(setup.inflation.rentPayable()) : Number(V.money);
 	return (Number.isFinite(held) ? held : 0) >= owed;
 }
