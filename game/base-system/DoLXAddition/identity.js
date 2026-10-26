@@ -1082,6 +1082,8 @@ function mapToLegacyGenderIdentity() {
 				if (!isIdentityMeterCharacteristicSelected(characteristic)) continue;
 				const support = getIdentityMeterSupport(characteristic);
 				if (Math.abs(support) <= 1e-6) continue;
+				/* Rejecting a neutral trait does not express a neutral identity. */
+				if (dir === 0 && support < 0) continue;
 				if (!groups[group]) groups[group] = { sum: 0, weight: 0, included: [] };
 				groups[group].sum += dir * support * weight;
 				groups[group].weight += weight;
@@ -1162,7 +1164,7 @@ function mapToLegacyGenderIdentity() {
 					dysphoria,
 				};
 
-				if (!hasStance) {
+				if (!hasStance || Math.abs(support) <= 1e-6 || (dir === 0 && support < 0)) {
 					breakdown[group].dormant.push(entry);
 				} else if (Math.abs(effect) > 1e-6) {
 					breakdown[group].included.push(entry);
