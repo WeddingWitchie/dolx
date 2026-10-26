@@ -373,6 +373,30 @@ window.updatePronounSummary = updatePronounSummary;
 		return changed;
 	};
 
+	setup.xchangeClearStoredEarSlimeParasites = function () {
+		const pill = State.variables.xchange?.pill;
+		if (!pill) return false;
+		let changed = false;
+		const bodies = [pill.originalBody, pill.changedBody, pill.hermBody, ...Object.values(pill.clonedBody || {})];
+		for (const body of bodies) {
+			const parasite = body?.parasite;
+			if (!parasite) continue;
+			if (parasite.clit?.name === "parasite" && body.sex === "f") {
+				body.penisExist = false;
+				body.penisuse = "none";
+				body.penisstate = "none";
+			}
+			for (const part of ["breasts", "penis", "clit"]) {
+				if (parasite[part]?.name !== "parasite") continue;
+				delete parasite[part].name;
+				delete parasite[part].origin;
+				if (Array.isArray(parasite.parasite)) parasite.parasite = parasite.parasite.filter(value => value !== part);
+				changed = true;
+			}
+		}
+		return changed;
+	};
+
 	// Ear slime is global and must survive body swaps even though other parasites are body-scoped.
 	setup.xchangeCaptureEarParasites = function () {
 		const V = State?.variables;
@@ -530,6 +554,13 @@ window.updatePronounSummary = updatePronounSummary;
 			setup.xchangeEnsureAlphaUsable();
 		} catch (e) {}
 		try {
+			// Released saves can retain slime-grown parasites in a body cached before removal.
+			if (V.earSlime && !numberOfEarSlime(true)) {
+				const stored = setup.xchangeClearStoredEarSlimeParasites();
+				if (stored || V.worn?.genitals?.name === "chastity parasite" || ["breasts", "penis", "clit"].some(part => V.parasite?.[part]?.name === "parasite")) {
+					wikifier("resetEarSlime", true);
+				}
+			}
 			setup.xchangeRepairParasiteDisplayCache();
 		} catch (e) {}
 		try {
