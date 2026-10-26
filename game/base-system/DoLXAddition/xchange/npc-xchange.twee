@@ -363,6 +363,13 @@
 			entrance: "mouthentrance", imminent: "mouthimminent", penetrated: "mouth",
 			kissentrance: "kissentrance", kissimminent: "kissimminent", kiss: "kiss"
 		}[$mouthstate]>>
+		/* Older saves can retain both oral positions after losing only the mouth-use tracker. */
+		<<if $mouthuse is 0 and ["entrance", "imminent", "penetrated"].includes($mouthstate)
+			and Number.isInteger($mouthtarget) and $mouthtarget gte 0 and $mouthtarget lt _xSlotCount
+			and $NPCList[$mouthtarget]?.active is "active" and $NPCList[$mouthtarget].stance isnot "defeated"
+			and $NPCList[$mouthtarget].penis is _xMouthPosition>>
+			<<set $mouthuse to "penis">>
+		<</if>>
 		<<set _xMouthPositionValid to !_xMouthPosition or (
 			$mouthuse is "kiss" ? _xHasPart("mouth", _xMouthPosition) : _xHasPart("penis", _xMouthPosition)
 		)>>
