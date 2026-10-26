@@ -931,7 +931,7 @@ setup.hbsc.ensureLoanState = function () {
 	const loan = V.hbsc.loan;
 	if (!Number.isFinite(loan.owed)) loan.owed = 0;
 	loan.owed = setup.hbsc.roundMoney(loan.owed);
-	if (!Number.isFinite(loan.lastPaymentDay)) loan.lastPaymentDay = Time.days;
+	if (!Number.isFinite(loan.lastPaymentDay) && Number.isFinite(Time.days)) loan.lastPaymentDay = Time.days;
 	if (typeof loan.autoRepay !== "boolean") loan.autoRepay = false;
 	if (typeof loan.baileyAnnouncePending !== "boolean") loan.baileyAnnouncePending = false;
 	if (typeof loan.action !== "string") loan.action = "";
