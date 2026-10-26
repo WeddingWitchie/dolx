@@ -2707,7 +2707,7 @@ Renderer.CanvasModels.main = {
 						? cfg.gender
 						: (nnpcSpriteGender(activeNpc, npcRecord) === "m" ? "male" : "female");
 
-				// Skin: humans follow their actual skin colour (the per-NPC Pale/Dark setting), so the sprite can't be pinned to a stale saved display choice.
+				// Humans follow their real skin tone, not a stale saved display choice; above 50 uses the dark sprites.
 				// The saved choice still decides beast art (human vs monster form) and is the fallback when the actual colour can't be resolved.
 				const skincolour =
 					activeNpc?.skincolour ??
@@ -2719,7 +2719,7 @@ Renderer.CanvasModels.main = {
 				} else if ((activeNpc?.skinType ?? npcRecord?.skinType) === "ghost") {
 					skinChoice = "pale";
 				} else if (Number.isFinite(skincolour)) {
-					skinChoice = skincolour >= 70 ? "dark" : "pale";
+					skinChoice = skincolour > 50 ? "dark" : "pale";
 				} else {
 					skinChoice = cfg.skin || "pale";
 				}

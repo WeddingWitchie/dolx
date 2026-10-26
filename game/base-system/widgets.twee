@@ -1357,7 +1357,21 @@
 <</widget>>
 
 <<widget "physique">>
-	<<if _args[0] lt 0>><<physique_loss -_args[0]>><<exit>><</if>>
+	<<if _args[0] lt 0>>
+		<<if $statFreeze isnot true>>
+			<<set _loss to -_args[0]>>
+			<<if $backgroundTraits.includes("athlete")>>
+				<<set _loss *= 0.25>>
+			<</if>>
+			<<if $backgroundTraits.includesAny("nerd", "insanity")>>
+				<<set _loss *= 1.25>>
+			<</if>>
+			<<set $xchange.baseStats.physique -= 10 * _loss>>
+			<<set $xchange.baseStats.physique = amcClamp($xchange.baseStats.physique, $xchange.baseStats.physiquesize, $AMCTraits.physique)>>
+			<<run updatePhysique()>>
+		<</if>>
+		<<exit>>
+	<</if>>
 	<<if $statFreeze is true>>
 		<<exit>>
 	<</if>>
@@ -1460,17 +1474,7 @@
 <</widget>>
 
 <<widget "physique_loss">>
-	<<if _args[0] and $statFreeze isnot true>>
-		<<if $backgroundTraits.includes("athlete")>>
-			<<set _args[0] *= 0.25>>
-		<</if>>
-		<<if $backgroundTraits.includesAny("nerd", "insanity")>>
-			<<set _args[0] *= 1.25>>
-		<</if>>
-		<<set $xchange.baseStats.physique -= 10 * _args[0]>>
-		<<set $xchange.baseStats.physique = amcClamp($xchange.baseStats.physique, $xchange.baseStats.physiquesize, $AMCTraits.physique)>>
-		<<run updatePhysique()>>
-	<</if>>
+	<<if _args[0]>><<physique `-_args[0]`>><</if>>
 <</widget>>
 
 <<widget "bruise">>

@@ -1495,7 +1495,15 @@ function settingsObjects(type) {
 					breastModifier: { min: -12, max: 12, decimals: 0, displayName: "Average size of women's breasts:", randomize: "encounter" },
 					// DoLX keeps the wider rent range for its inflation economy; the pregnancy chances are
 					// now straight percentages on vanilla's rewritten conception model.
-					rentCostModifier: { min: 0.1, max: 10, decimals: 1, displayName: "Bailey's rent:", randomize: "gameplay" },
+					rentCostModifier: {
+						min: 0.1,
+						max: 10,
+						decimals: 1,
+						/* Vanilla randomises rent between x0.1 and x3; the slider still allows up to x10. */
+						randomNumbers: Array.from({ length: 30 }, (_, i) => (i + 1) / 10),
+						displayName: "Bailey's rent:",
+						randomize: "gameplay",
+					},
 					baseNpcPregnancyChance: { min: 0, max: 100, decimals: 0, displayName: "Base NPC pregnancy chance:", randomize: "gameplay" },
 					basePlayerPregnancyChance: { min: 0, max: 100, decimals: 0, displayName: "Base player pregnancy chance:", randomize: "gameplay" },
 					beastMaleChanceSplit: { bool: true, displayName: "Beast attraction split by gender appearance:" },
@@ -2417,9 +2425,9 @@ function settingsObjects(type) {
 		for (const beast of C.namedBeasts) delete result[beast + "monster"];
 		result.options.tipdisable = { bool: true, displayName: "Sidebar Tips:" };
 		result.settings.granularBeastControl = { bool: true, displayName: "Granular beast controls:" };
-		for (const key of ["skinToneMin", "skinToneMode", "skinToneMax"]) {
-			result.settings[key] = { min: 0, max: 100, decimals: 0, displayName: `${key}:`, randomize: "encounter" };
-		}
+		result.settings.skinToneMin = { min: 0, max: 100, decimals: 0, displayName: "Lightest NPC skin:", randomize: "encounter" };
+		result.settings.skinToneMode = { min: 0, max: 100, decimals: 0, displayName: "Most common NPC skin:", randomize: "encounter" };
+		result.settings.skinToneMax = { min: 0, max: 100, decimals: 0, displayName: "Darkest NPC skin:", randomize: "encounter" };
 		result.settings.beastSettings = {};
 		for (const beast of C.beastSettingTypes) {
 			result.settings.beastSettings[beast] = {
@@ -2437,20 +2445,26 @@ function settingsObjects(type) {
 			C.namedBeasts.map(beast => [
 				beast,
 				{
-					monsterChance: { min: 0, max: 100, decimals: 0 },
-					hallucinationsOnly: { bool: true },
+					monsterChance: { min: 0, max: 100, decimals: 0, displayName: `${beast} monster chance:`, randomize: "encounter" },
+					hallucinationsOnly: { bool: true, displayName: `${beast} only a monster while hallucinating:`, randomize: "encounter" },
 				},
 			])
 		);
 		result.genericBeastSettings = {
-			beastMaleChance: { min: 0, max: 100, decimals: 0 },
-			beastMaleChanceMale: { min: 0, max: 100, decimals: 0 },
-			beastMaleChanceFemale: { min: 0, max: 100, decimals: 0 },
-			beastMaleChanceSplit: { bool: true },
-			monsterHallucinationsOnly: { bool: true },
-			monsterChance: { min: 0, max: 100, decimals: 0 },
-			bestiality: { strings: ["on", "off", "monsterOnly"] },
-			victimsAlwaysMonster: { bool: true },
+			beastMaleChance: { min: 0, max: 100, decimals: 0, displayName: "Percentage of beasts attracted to you that are male:", randomize: "encounter" },
+			beastMaleChanceMale: { min: 0, max: 100, decimals: 0, displayName: "Beasts who are attracted to men:", randomize: "encounter" },
+			beastMaleChanceFemale: { min: 0, max: 100, decimals: 0, displayName: "Beasts who are attracted to women:", randomize: "encounter" },
+			beastMaleChanceSplit: { bool: true, displayName: "Beast attraction split by gender appearance:" },
+			monsterHallucinationsOnly: { bool: true, displayName: "Only replace beasts with monsters while hallucinating:", randomize: "encounter" },
+			monsterChance: {
+				min: 0,
+				max: 100,
+				decimals: 0,
+				displayName: "Percentage of beasts that are replaced with monster girls or boys:",
+				randomize: "encounter",
+			},
+			bestiality: { strings: ["on", "off", "monsterOnly"], displayName: "Bestiality:" },
+			victimsAlwaysMonster: { bool: true, displayName: "Beast victims are always monsters:", randomize: "encounter" },
 		};
 	} else if (type === "npc") {
 		result.skincolour = { min: 0, max: 100, decimals: 0, displayName: "Skin tone:" };
@@ -2613,6 +2627,47 @@ function resolveRandomizedBodySizes(general, starting) {
 }
 
 /**
+ * The three NPC skin tone settings are rolled independently, so put them back in order: lightest <= most common <= darkest.
+ *
+ * @param {object} general Randomised general settings
+ */
+function resolveRandomizedSkinTones(general) {
+	const settings = general?.settings;
+	if (!settings) return;
+	const keys = ["skinToneMin", "skinToneMode", "skinToneMax"];
+	const rolled = keys.filter(key => settings[key] != null);
+	if (!rolled.length) return;
+	const tones = keys.map(key => settings[key] ?? V.settings[key]).sort((a, b) => a - b);
+	keys.forEach((key, i) => (settings[key] = tones[i]));
+}
+
+/**
+ * Randomised generic beast settings apply to every beast type, the same way the settings menu's "all beasts" controls do.
+ *
+ * @param {object} general Randomised general settings
+ */
+function resolveRandomizedBeasts(general) {
+	const generic = general?.genericBeastSettings;
+	if (!generic) return;
+	const map = {
+		beastMaleChance: "maleChance",
+		beastMaleChanceMale: "maleChanceMale",
+		beastMaleChanceFemale: "maleChanceFemale",
+		monsterChance: "monsterChance",
+		monsterHallucinationsOnly: "hallucinationsOnly",
+		victimsAlwaysMonster: "victimsAlwaysMonster",
+	};
+	general.settings ??= {};
+	general.settings.beastSettings ??= {};
+	for (const type of C.beastSettingTypes) {
+		const target = (general.settings.beastSettings[type] ??= {});
+		for (const [from, to] of Object.entries(map)) {
+			if (generic[from] != null) target[to] = generic[from];
+		}
+	}
+}
+
+/**
  * @param {string} filter
  * @returns {string}
  */
@@ -2653,6 +2708,8 @@ function randomizeSettings(filter) {
 	result.general = randomizeSettingsWalk(settingsObjects("general"));
 	resolveRandomizedTalents(result.general, result.starting);
 	resolveRandomizedBodySizes(result.general, result.starting);
+	resolveRandomizedSkinTones(result.general);
+	resolveRandomizedBeasts(result.general);
 
 	return JSON.stringify(result);
 }

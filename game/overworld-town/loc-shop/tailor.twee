@@ -4,7 +4,7 @@
 You are in the tailor shop. It has cloth of various colours hanging on racks.
 <br><br>
 
-<<if $sewingKit isnot 1 and $debug>>
+<<if $sewingKit isnot 1 and $DoLPSpools isnot undefined>>
 	Looks like the shop has a new machine for sale in the display.
 	<br><br>
 <</if>>
@@ -248,7 +248,7 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 			<<elseif $tailorMonthlyService is undefined>>
 				The tailor catches you looking at the small crate beside <<him>>. "Ah, you're in luck if you need our weekly service. We have a spot free as long as it's somewhere local."
 				<br>
-				/*<<link [[Ask how much they offer for old clothes|Tailor Monthly Discard]]>><</link>>*/
+				<<socialiseicon "ask">><<link [[Ask how much they offer for old clothes|Tailor Monthly Discard]]>><</link>>
 				<br>
 				<<socialiseicon "ask">><<link [[Ask how much they charge to repair all clothes|Tailor Monthly Repair]]>><</link>>
 			<<elseif $tailorMonthlyService is "repair">>
@@ -266,7 +266,7 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 				<br><br>
 			<</if>>
 
-			<<if $sewingKit isnot 1 and $debug>>
+			<<if $sewingKit isnot 1 and $DoLPSpools isnot undefined>>
 				<<ind>><<link [[Approach the display cabinet|Tailor Shop Sewing Machine]]>><</link>>
 				<br><br>
 			<</if>>
@@ -356,24 +356,18 @@ You approach the display, inside it lies a sewing machine. An advertisement post
 		<<if setup.clothes[_label][clothesIndex(_label,_items[_i])].shop.length is 0>>
 			<<continue>>
 		<</if>>
-		<<if _items[_i].outfitSecondary isnot undefined>>
+		<<if !setup.clothingLayer.all.includes(_label)>>
 			<<continue>>
 		<</if>>
-		<<set _value += Math.floor(getClothingCost(_items[_i]) * (_items[_i].integrity / clothingData(_label,_items[_i],'integrity_max')) / 3,_label)>>
+		<<set _value += Math.floor(tailorClothingCost(_items[_i], _label) * 0.2)>>
 	<</for>>
 <</for>>
-You think it will earn you <<printmoney `_value + 5000`>> currently after getting the deposit back.
+You think it will earn you <<printmoney _value>>.
 
 <br><br>
-<<if setup.inflation.canAfford(5000, "tailorDeposit")>>
-	<<shopicon "tailor">><<link [[Confirm the sale and pay the £50 deposit|Tailor Monthly Driver]]>>
-		<<money -5000 "tailorDeposit">>
-		<<set $tailorMonthlyService to "discard">>
-	<</link>>
-<<else>>
-	You can't afford the deposit.
-	<br>
-<</if>>
+<<shopicon "tailor">><<link [[Confirm the sale|Tailor Monthly Driver]]>>
+	<<set $tailorMonthlyService to "discard">>
+<</link>>
 <br>
 <<getouticon>><<link [[Back out of the sale|Tailor Shop]]>><<endevent>><</link>>
 

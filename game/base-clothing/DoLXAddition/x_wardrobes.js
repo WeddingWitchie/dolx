@@ -142,6 +142,7 @@ window.getWardrobeItemCount = getWardrobeItemCount;
 
 function discardWardrobeSlot(wardrobe, slot) {
 	if (!setup.clothes_all_slots.includes(slot) || !Array.isArray(wardrobe[slot])) return;
+	if (V.DoLPSpools !== undefined) V.DoLPSpools += wardrobe[slot].length;
 	wardrobe[slot].length = 0;
 	for (const otherSlot of setup.clothes_all_slots) {
 		for (const item of wardrobe[otherSlot] || []) {

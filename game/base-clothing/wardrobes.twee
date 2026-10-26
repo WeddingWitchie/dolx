@@ -282,6 +282,11 @@
 				<<set _selectedWardrobe[$_outfitSlot].deleteAt($_outfitId)>>
 			<</for>>
 			You discard the <<print _item.name>>.
+			<<if $DoLPSpools isnot undefined>>
+				<<set _spoolsGained to 1 + Object.keys(_outfitPieceIds).length>>
+				<<set $DoLPSpools += _spoolsGained>>
+				You salvage <span class="green"><<print _spoolsGained>> <<print _spoolsGained is 1 ? "spool" : "spools">></span> from it.
+			<</if>>
 			<<set _selectedWardrobe[_slot].deleteAt(_wearId)>>
 			<br>
 		<<elseif $wardrobeOption is "repair" and _item.repairable isnot false and !_item.altDamage>>
@@ -2754,16 +2759,16 @@ to the crate and send them to be sold? Might be best to go shopping shortly afte
 		<<if setup.clothes[_label][clothesIndex(_label,_items[_i])].shop.length is 0>>
 			<<continue>>
 		<</if>>
-		<<if _items[_i].outfitSecondary isnot undefined>>
+		<<if !setup.clothingLayer.all.includes(_label)>>
 			<<continue>>
 		<</if>>
 		<<if _items[_i].outfitPrimary is undefined and $crateContents is "outfits">>
 			<<continue>>
 		<</if>>
-		<<set _value += Math.floor(getClothingCost(_items[_i], _label) * (_items[_i].integrity / clothingData(_label,_items[_i],'integrity_max')) / 3)>>
+		<<set _value += Math.floor(tailorClothingCost(_items[_i], _label) * 0.2)>>
 	<</for>>
 <</for>>
-It will earn you <<printmoney `_value + 5000`>>.
+It will earn you <<printmoney _value>>.
 <br><br>
 <<link [[Yes|Wardrobe Sale Crate Result]]>><</link>>
 <br>
@@ -2786,7 +2791,7 @@ It will earn you <<printmoney `_value + 5000`>>.
 		<<if $wardrobe[_equip[_eIndex]][_iIndex].outfitPrimary is undefined and $crateContents is "outfits">>
 			<<continue>>
 		<</if>>
-		<<set _value += Math.floor(tailorClothingCost($wardrobe[_equip[_eIndex]][_iIndex],_equip[_eIndex]) * ($wardrobe[_equip[_eIndex]][_iIndex].integrity / clothingData(_equip[_eIndex],$wardrobe[_equip[_eIndex]][_iIndex],'integrity_max')) / 3)>>
+		<<set _value += Math.floor(tailorClothingCost($wardrobe[_equip[_eIndex]][_iIndex],_equip[_eIndex]) * 0.2)>>
 		<<run _toDelete.push(clone(_iIndex))>>
 	<</for>>
 	<<for _iIndex to $wardrobe[_equip[_eIndex]].length; _iIndex gte 0; _iIndex-->>
@@ -2795,7 +2800,7 @@ It will earn you <<printmoney `_value + 5000`>>.
 		<</if>>
 	<</for>>
 <</for>>
-The driver takes the crate away, leaving <<income `Math.floor(_value + 5000)` "tailor">> in its place.
+The driver takes the crate away, leaving <<income _value "tailor">> in its place.
 <br><br>
 <<link [[Continue|$wardrobeReturnLink]]>>
 	<<unset $wardrobeReturnLink>>

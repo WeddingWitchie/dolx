@@ -1,3 +1,4 @@
+/* globals validateValue, settingsObjects */
 // eslint-disable-next-line no-var, no-unused-vars
 var ThemeManager = (() => {
 	/** @typedef {"dark" | "light" | "system-default"} ColorPreference */
