@@ -913,7 +913,8 @@ Renderer.CanvasModels.main = {
 
 		// A sleeveless coat has no arm layer to hide the skin behind, so the arms stay with the top underneath.
 		if (options.worn.over_upper.index && options.worn.over_upper.setup.sleeve_img === 1) {
-			options.zarms = ZIndices.over_upper_arms - 0.1;
+			// Keep the shoulder skin and writing beneath the coat torso as well as its sleeves.
+			options.zarms = ZIndices.over_upper - 0.1;
 		} else if (options.worn.upper.index) {
 			if (options.arm_left === "cover") {
 				if (options.upper_tucked) {
@@ -3126,6 +3127,7 @@ Renderer.CanvasModels.main = {
 		},
 		"writing_left_shoulder": {
 			animation: "idle",
+			z: ZIndices.skin,
 
 			srcfn(options) {
 				if (V.tattoo_bodypart == "left_shoulder" && V.passage == "Tattoo Choice") return getWritingImgPath('left_shoulder', setup.bodywriting[V.tattoo_choice]);
@@ -3134,13 +3136,25 @@ Renderer.CanvasModels.main = {
 			showfn(options) {
 				return options.show_writings && !!options.writing_left_shoulder || (V.tattoo_bodypart == "left_shoulder" && V.passage == "Tattoo Choice");
 			},
+		},
+		"writing_left_shoulder_arm": {
+			animation: "idle",
+			srcfn(options) {
+				return Renderer.CanvasModels.main.layers.writing_left_shoulder.srcfn(options);
+			},
+			masksrcfn(options) {
+				return options.mannequin ? "img/body/mannequin/left-arm-idle.png" : "img/body/left-arm-cover.png";
+			},
+			showfn(options) {
+				return options.arm_left === "cover" && Renderer.CanvasModels.main.layers.writing_left_shoulder.showfn(options);
+			},
 			zfn(options) {
-				if (["cover", "hold"].includes(options.arm_left)) return ZIndices.left_cover_arm + 0.5;
-				return ZIndices.breasts + 0.5;
+				return options.zreacharmleft + 0.01;
 			},
 		},
 		"writing_right_shoulder": {
 			animation: "idle",
+			z: ZIndices.skin,
 
 			srcfn(options) {
 				if (V.tattoo_bodypart == "right_shoulder" && V.passage == "Tattoo Choice") return getWritingImgPath('right_shoulder', setup.bodywriting[V.tattoo_choice]);
@@ -3152,10 +3166,6 @@ Renderer.CanvasModels.main = {
 			dxfn(options) {
 				if (["none", "cover"].includes(options.arm_right)) return 4;
 				return 0;
-			},
-			zfn(options) {
-				/* Always at skin level, under the torso clothes. The copy on a raised arm is writing_right_shoulder_arm. */
-				return V.rightArmPosition == "above" ? ZIndices.under_upper_arm_right - 0.2 : options.zarms + 0.01;
 			},
 		},
 		/* A raised (cover/hold) arm is drawn above the torso clothes. Only the part of the writing that lies on the arm may follow it
@@ -3180,7 +3190,7 @@ Renderer.CanvasModels.main = {
 				return options.arm_right === "cover" ? 4 : 0;
 			},
 			zfn(options) {
-				return ZIndices.right_cover_arm + 0.5;
+				return options.zreacharmright + 0.01;
 			},
 		},
 		"writing_pubic": {

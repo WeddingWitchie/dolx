@@ -1633,15 +1633,8 @@
 
 	/* One-time heal for saves corrupted by the old migration that forced Poppy's pregnancy.type to "human".
 	   Runs regardless of the gates above, since corrupted saves already have poppyLIData set to 2. */
-	<<if $objectVersion.poppyPhantomPregnancyFix is undefined>>
-		<<set _poppyFixIndex to (Array.isArray($NPCNameList) ? $NPCNameList.indexOf("Poppy") : -1)>>
-		<<if _poppyFixIndex gte 0 and $NPCName[_poppyFixIndex] and $NPCName[_poppyFixIndex].pregnancy and typeof $NPCName[_poppyFixIndex].pregnancy is "object" and !Array.isArray($NPCName[_poppyFixIndex].pregnancy)>>
-			<<set _poppyFixPreg to $NPCName[_poppyFixIndex].pregnancy>>
-			<<if !Array.isArray(_poppyFixPreg.fetus)>><<set _poppyFixPreg.fetus to []>><</if>>
-			<<if _poppyFixPreg.type is "none">><<set _poppyFixPreg.type to null>>
-			<<elseif _poppyFixPreg.type and !_poppyFixPreg.fetus.length and !Number.isFinite(Number(_poppyFixPreg.timerEnd))>><<set _poppyFixPreg.type to null>><</if>>
-		<</if>>
-		<<set $objectVersion.poppyPhantomPregnancyFix to 1>> /* delete later */
+	<<if $objectVersion.poppyPhantomPregnancyFix isnot undefined>>
+		<<unset $objectVersion.poppyPhantomPregnancyFix>> /* delete later */
 	<</if>>
 
 	<<run pruneNPCName()>>
