@@ -1679,6 +1679,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			}
 			break;
 		case "danceskill":
+			if (V.transformationParts.traits.strongFeet !== "disabled") result = Math.floor(result * 1.05);
 			if (V.danceStudio?.training?.masteryUntil > V.timeStamp) {
 				result = Math.floor(result * 1.1);
 			}
@@ -1783,6 +1784,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 				}
 			}
 			if (V.transformationParts.traits.chase !== "disabled") result = Math.floor(result * 1.1);
+			if (V.transformationParts.traits.strongFeet !== "disabled") result = Math.floor(result * 1.05);
 			if (V.worn.feet.type.includes("shackle")) result /= 10;
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
 				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
@@ -2005,13 +2007,13 @@ function combatExtendedSkillValue(skill) {
 window.combatExtendedSkillValue = combatExtendedSkillValue;
 
 /**
- * True once the PC's feet skill reaches 1800 (just past SS), near the top grade.
+ * True at SSS footwork or once the PC's effective feet skill reaches 1800.
  * At this mastery, high heels impose no movement disadvantages so the PC can run, walk and sneak in heels anywhere.
  *
  * @returns {boolean}
  */
 function heelsMastered() {
-	return currentSkillValue("feetskill") >= 1800;
+	return window.masteryCombatSkillMaxed("footwork") || currentSkillValue("feetskill") >= 1800;
 }
 window.heelsMastered = heelsMastered;
 

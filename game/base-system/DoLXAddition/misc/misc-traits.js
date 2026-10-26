@@ -35,6 +35,7 @@ function masterySkillMaxed(skill) {
 function masteryCombatSkillMaxed(skill) {
 	return (Number(V.combatExtended?.[skill]) || 0) >= MASTERY_GRADE;
 }
+window.masteryCombatSkillMaxed = masteryCombatSkillMaxed;
 
 /**
  * Physique has no letter grade, it is measured against the body's own ceiling instead.
