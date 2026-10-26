@@ -1,0 +1,1041 @@
+:: Arcology Widgets [widget]
+/* State for the island across the water ($xchange.arcology), created on first use:
+   invited      Luchifen has made the first offer (accepted or postponed)
+   arrived      registration is done: handle, implant and name reveal never repeat
+   handle       the player's island username; island systems and island NPCs use it, nothing else does
+   implant      the basic interface fitted on arrival. No bonuses yet; later upgrades read .model
+   clearance    city-map clearance. "guest" until a later milestone grants more
+   cipher       island currency balance. Town money is not accepted on the island
+   guest        room authorization: status "sponsored" | "paid" | "expired" | "revoked", sponsor, until (timestamp), room (paid stays only; Luchifen's guests use 1207)
+   party        the ballroom: status "" | "invited" | "attending" | "done" | "failed", at/end (timestamps), xchanged (went in a changed body), why (failure reason), seen (party conversations done), stepIn
+   outcome      "" | "success" | "failed": how the latest invitation ended
+   recognizable identity exposure on the island; weights targeted scan events
+   danger       current public threat: kind, area, return passage, NPC initialized, resolution and one-time losses
+   dangerChecked timestamp of the last exploration check; navigation without time cannot reroll it
+   recovery     one collapse's outcome and return route; consumed when recovery ends
+   debt         Stack debt left unpaid after running away: amount, runs; paid at the pier booth, or the pier scanner sends the player back
+   stack        the Stack bad end (debt labour under the island): debt, suspicion, band (0-10 loosened), route (0-5 patrols learned); removed by <<arcologyStackEnd>>
+   umbrella     the player has seen Luchifen's umbrella holder; cleared when the holder steps in to protect them, or by the hint at the docks
+   trouble      optional retaliation: source, return passage, resolved; security encounters preserve a pending dispute
+   shun         after a failure: day (Time.days of the expulsion), rollDay (last day the silence was rolled), ready
+   redeem       stage "" | "silent" | "arena" | "invited" | "done", boutWon (Luchifen's arranged bout), sponsored
+   voyage       the trip in progress: to "arcology" | "town", arriveAt, hours, escort "luchifen" | "crew" | "loyalists", next, plus one-time activity flags and consoleOpen (a console session whose crossing time is not yet counted)
+   trips        completed crossings; the first one is told in more detail
+   lastSync     when the implant last reached the city network; offline Holo data is "cached" as of this time */
+<<widget "arcologyInit">>
+	<<if !$xchange.arcology or typeof $xchange.arcology isnot "object" or Array.isArray($xchange.arcology)>>
+		<<set $xchange.arcology to { invited: false, arrived: false, handle: "", implant: null, clearance: "guest", cipherScale: 1000 }>>
+	<</if>>
+	<<if $xchange.arcology.guest is undefined>>
+		<<set $xchange.arcology.cipher to 0>>
+		<<set $xchange.arcology.guest to { status: "", sponsor: "", until: 0 }>>
+		<<set $xchange.arcology.party to { status: "", at: 0, end: 0 }>>
+		<<set $xchange.arcology.outcome to "">>
+		<<set $xchange.arcology.recognizable to 0>>
+		<<set $xchange.arcology.redeem to { stage: "" }>>
+	<</if>>
+<</widget>>
+
+/* Luchifen in narration: "the silver figure" until their name is known. <<LuName>> starts a sentence. */
+<<widget "luName">><<print $xchange.silverStranger and $xchange.silverStranger.nameKnown ? "Luchifen" : "the silver figure">><</widget>>
+<<widget "LuName">><<print $xchange.silverStranger and $xchange.silverStranger.nameKnown ? "Luchifen" : "The silver figure">><</widget>>
+
+/* Sets _arcologyInvite. The first offer needs at least £5 million total net wealth, love above 5 and every fame category below 400 on its own.
+Fame only gates this first offer: after arrival, nothing here locks the player out. */
+<<widget "arcologyInviteCheck">>
+	<<arcologyInit>>
+	<<set _arcologyQuiet to Object.values($fame).every(v => typeof v !== "number" || v < 400)>>
+	<<set _arcologyInvite to !$xchange.arcology.arrived and setup.inflation.totalWealth() gte 500000000 and C.npc.Luchifen and C.npc.Luchifen.love gt 5 and _arcologyQuiet>>
+<</widget>>
+
+/* Called from the Silver Stranger hub: the first invitation, then the redemption steps once the silence is over. */
+<<widget "arcologyInviteHub">>
+	<<arcologyInviteCheck>>
+	<<if _arcologyInvite and !$xchange.arcology.invited>>
+		<span class="purple">They look at you a little longer than usual.</span>
+		<br>
+		<<socialiseicon "ask">><<link [[Ask what they're thinking about|Arcology Invite]]>><</link>>
+		<br><br>
+	<<elseif _arcologyInvite>>
+		<<icon "mark.gif">><<link [[Accept the offer to cross the water|Arcology Invite Accept]]>><</link>>
+		<br><br>
+	<<elseif $xchange.arcology.invited and !$xchange.arcology.arrived and !_arcologyQuiet>>
+		"You've been busy," they say, without saying with what. "<span class="purple">Too many people know your face right now.</span> The offer stands once they forget it a little."
+		<br><br>
+	<<elseif $xchange.arcology.redeem.stage is "arena">>
+		<<if setup.arcology.arenaQualified()>>
+			<<icon "mark.gif">><<link [[Tell them about the arena|Arcology Redeem Report]]>><</link>>
+			<br><br>
+		<<elseif setup.arcology.arenaBlocked() and !$xchange.arcology.redeem.sponsored>>
+			<<socialiseicon "ask">><<link [[Say the arena won't make you champion|Arcology Redeem Blocked]]>><</link>>
+			<br><br>
+		<<else>>
+			<span class="purple">They haven't forgotten what they asked of you.</span> <<if $xchange.arcology.redeem.sponsored>>The bout they arranged is still waiting at the Colosseum desk.<<else>>Champion of the underground arena, and nothing less.<</if>>
+			<br><br>
+		<</if>>
+	<<elseif $xchange.arcology.redeem.stage is "invited">>
+		<<icon "mark.gif">><<link [[Go with them to the island|Arcology Return Board]]>><</link>>
+		<br><br>
+	<</if>>
+<</widget>>
+
+/* The silence after a failed invitation. Sets _arcologyShun while Luchifen refuses to speak.
+   The decision to speak again is rolled at most once per day after a week (40%), and is certain after two weeks. */
+<<widget "arcologyShunCheck">>
+	<<arcologyInit>>
+	<<set _arcologyShun to $xchange.arcology.redeem.stage is "silent">>
+	<<if _arcologyShun and !$xchange.arcology.shun.ready and Time.days gte $xchange.arcology.shun.day + 7 and $xchange.arcology.shun.rollDay isnot Time.days>>
+		<<set $xchange.arcology.shun.rollDay to Time.days>>
+		<<if Time.days gte $xchange.arcology.shun.day + 14 or random(1, 100) lte 40>>
+			<<set $xchange.arcology.shun.ready to true>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+/* Docks link back to the island. Open after a successful visit or a renewed invitation, never while revoked. */
+<<widget "arcologyDocksLink">>
+	<<if $xchange.arcology.arrived and $xchange.arcology.outcome is "success">>
+		<<set _arcologyCrossingHours to setup.arcology.voyageHours()>>
+		<<capture _arcologyCrossingHours>><<arcologyicon "ship">><<link [["Board the launch to the island (about " + _arcologyCrossingHours + " hours)"|Arcology Voyage Board]]>><<set $xchange.arcology.voyage to { to: "arcology", escort: "crew", next: "Arcology Pier", hours: _arcologyCrossingHours }>><<pass 3>><</link>><</capture>>
+		<br><br>
+	<</if>>
+<</widget>>
+
+/* One line about the dome over the city, from where the player stands: "pier", "street" or "room".
+   The weather outside is visible but never reaches the streets. The infrastructure detail changes with the hour, so a refresh shows the same line. */
+<<widget "arcologyDome">>
+	<<set _domeView to _args[0]>>
+	<<if Weather.precipitation is "rain">>
+		<<if _domeView is "room">>Rain is running down the outside of the dome high above the window, in long silver lines that never reach the street.<<else>>High overhead, rain is running down the outside of the dome.<</if>>
+	<<elseif Weather.precipitation is "snow">>
+		<<if _domeView is "room">>Snow gathers on the metal supports of the dome above the towers before sliding down its outside surface.<<else>>Snow gathers on the metal supports high above you, but down on the street it is warm and dry.<</if>>
+	<<elseif Time.dayState is "night">>
+		<<switch Time.hour % 3>>
+			<<case 0>>
+				Small lights are attached to the metal beams that support the dome. You can see the beams curving high above the city, with lights showing where each one goes.
+			<<case 1>>
+				Small maintenance drones move slowly along the metal beams of the dome, checking them as they go. Their white lights are easy to see from the city below.
+			<<default>>
+				The sky outside the transparent dome is completely dark, but the buildings and streets inside are still brightly lit.
+		<</switch>>
+	<<else>>
+		<<switch Time.hour % 4>>
+			<<case 0>>
+				You can see the pale blue sky through the transparent dome. High above the buildings, large grey metal beams curve across the inside of the dome, helping to support it.
+			<<case 1>>
+				Cool air blows out of a vent in the pavement near your feet, but stops after a few seconds. You hear a large fan somewhere nearby changing speed, which also changes the noise it makes.
+			<<case 2>>
+				The lights <<if _domeView is "pier">>along the pier<<elseif _domeView is "room">>in the room<<else>>along the street<</if>> become less bright for a second before returning to normal. You look around, but nobody else seems to have noticed.
+			<<default>>
+				A small repair drone moves along one of the metal beams supporting the dome. It stops beside each panel to check it before moving on to the next one.
+		<</switch>>
+	<</if>>
+<</widget>>
+
+/* Party summons, collapse and enforcers interrupt any street. Sets _arcologyHalt when one of them takes over the page. */
+<<widget "arcologyStreetHazards">>
+	<<set _arcologyHalt to true>>
+	<<arcologyPartyNotice>>
+	<<if _arcologyPartyMissed>>
+		<<link [[Wait|Arcology Party Failed]]>><<set $xchange.arcology.party.why to "missed">><</link>>
+		<br>
+	<<elseif $stress gte $stressmax and !$possessed>>
+		<span class="red">You've pushed yourself too much.</span> You pass out.
+		<br><br>
+		<<passout_arcology>>
+	<<elseif $xchange.arcology.trouble>>
+		As you walk past a parked car, two people get out. One steps in front of you and looks at your face.
+		<br><br>
+		The first one checks a small screen on one wrist, then looks at your face again. The second person moves around behind you and stops in the way you came.
+		<br><br>
+		<<link [[Wait|Arcology Enforcers]]>><<endevent>><<arcologyNPC 0 "under" "enforcer">><<arcologyNPC 1 "under" "enforcer">><</link>>
+		<br>
+	<<else>>
+		<<set _arcologyHalt to false>>
+		<<set _newsLine to setup.arcologyNews.streetLine($xchange.arcology.district)>>
+		<<if _newsLine>>_newsLine<br><br><</if>>
+		<<arcologyThreatReact "street">>
+	<</if>>
+<</widget>>
+
+/* One line of how people react to the player's notoriety. _args[0]: "street", "civilian", "criminal" or "security". Civilian, criminal and security lines use <<person1>>. */
+<<widget "arcologyThreatReact">>
+	<<set _atBand to setup.arcology.threatBand()>><<set _atGuard to setup.arcology.guarded()>>
+	<<switch _args[0]>>
+	<<case "street">>
+		<<if _arcologyPassedOver>>
+			A person wearing a wrist scanner walks towards you through the crowd. Halfway there, <<print either("the scanner beeps", "the screen turns on")>>. One look at it is enough, and the person with the scanner turns to follow someone else instead.
+			<br><br>
+		<<elseif _atBand gte 2 and random(1, 3) is 1>>
+			<<if _atGuard>>
+				<<if random(1, 2) is 1>>
+					Two people walking towards you see the sponsor mark on your guest ID. They look down and walk past without speaking.
+				<<else>>
+					Someone starts walking towards you, then stops at the sight of the sponsor mark on your guest ID and goes another way.
+				<</if>>
+			<<elseif _atBand is 2>>
+				<<if random(1, 2) is 1>>
+					Two people walking towards you step apart to give you room. One passes on your left, the other on your right.
+				<<else>>
+					A worker at a small street shop looks up as you approach, sees your face, and looks straight back down at the screen on the counter until you have passed.
+				<</if>>
+			<<elseif _atBand is 3>>
+				<<if random(1, 2) is 1>>
+					People standing near a food stall stop talking when they see you. They watch you walk past. They start talking again after you move farther away.
+				<<else>>
+					A group waiting to cross the road sees you coming. They step back from the edge and leave the space in front of them empty.
+				<</if>>
+			<<else>>
+				<<if random(1, 2) is 1>>
+					A shop worker sees you coming and starts pulling down the metal cover over the shop entrance. By the time you reach the shop, the cover is halfway down. Farther down the street, a parent scoops up a child and crosses the road to avoid you.
+				<<else>>
+					Someone walking ahead of you raises a wrist screen, points it at your face to take a picture, then hurries off in the other direction.
+				<</if>>
+			<</if>>
+			<br><br>
+		<</if>>
+	<<case "civilian">>
+		<<if _atBand gte 3 and _atGuard>>
+			<<He>> sees the sponsor mark on your guest ID. <<He>> stays seated, sits up straight, and puts both hands flat on the table. <<He>> keeps glancing at you.
+		<<elseif _atBand gte 3>>
+			<<He>> sees the light behind your ear. <<He>> sets <<his>> glass on the table and tells you <<hes>> supposed to meet someone. <<He>> gets up and leaves before you can answer.
+		<<elseif _atBand is 2>>
+			<<He>> looks at the light behind your ear, then at your face. <<He>> leans back in <<his>> chair, away from you.
+		<</if>>
+	<<case "criminal">>
+		<<if _atBand gte 2 and _atGuard>>
+			<<He>> sees the sponsor mark on your guest ID and slows down. <<He>> looks past you to check if anyone is with you.
+		<<elseif _atBand gte 2>>
+			<<switch random(1, 3)>>
+			<<case 1>>
+				<<He>> checks the screen on <<his>> wrist, then looks at you and grins. "So you're the one people talk about. Let's see if it's true."
+			<<case 2>>
+				<<He>> checks <<his>> wrist screen, then slides one hand inside <<his>> jacket. <<He>> leaves it there, out of sight.
+			<<default>>
+				<<He>> checks <<his>> wrist screen, then looks at your face, then checks the screen again. <<His>> friends spread out, so you cannot watch all of them at once.
+			<</switch>>
+		<</if>>
+	<<case "security">>
+		<<if _atBand gte 4>>
+			The two enforcers stay far enough apart that you can't easily reach either of them. The second one already has a baton out, held low and ready.
+		<<elseif _atBand gte 2>>
+			<<He>> keeps one hand on the baton on <<his>> belt while <<he>> talks to you.
+		<</if>>
+	<</switch>>
+<</widget>>
+
+/* The skill an island check uses, with the odds unreadable: implants, training and reputation on the other side change them. */
+<<widget "arcologySkill">>
+	<<if !$settings.blindStatsEnabled>>
+		| <span class="orange">_args[0]</span><<if $settings.skillCheckStyle isnot "skillname">>: <span class="luchifen-name" data-text="???" aria-label="unknown odds">???</span><</if>>
+	<</if>>
+<</widget>>
+
+/* Explains why the player failed an island check, based on the NPC's equipment or abilities. */
+<<widget "arcologyCounterLine">>
+	<<set _acl to $xchange.arcology.danger and $xchange.arcology.danger.counter>>
+	<<if _acl and $NPCList[_acl.slot] and $NPCList[_acl.slot].pronoun>>
+		<<personselect _acl.slot>>
+		<<set _aclTalk to _acl.check is "talk">>
+		<<switch _acl.kind>>
+		<<case "vision">>
+			<<set _aclPart to setup.arcology.cyberPart(_acl.slot, "vision")>>
+			<<set _aclNoun to ({ eyesRed: "red artificial eyes", eyesCamera: "camera eye", eyesGrey: "grey artificial eyes", eyesGlass: "glass eyes", accVisor: "visor" })[_aclPart] or "artificial eyes">>
+			<<if _aclPart is "accVisor">>
+				<<His>> visor turns with you, tracking your movement.
+			<<else>>
+				<<He>> follows your movement with <<his>> <<print _aclNoun>>.
+			<</if>>
+		<<case "legs">>
+			<<set _aclLeg to $NPCList[_acl.slot].cyber.mods.find(m => m.startsWith("leg"))>>
+			<<if _aclLeg is "legBrace">>
+				The brace on <<his>> leg moves smoothly as <<he>> accelerates after you.
+			<<else>>
+				<<His>> artificial legs carry <<him>> after you with startling speed.
+			<</if>>
+		<<case "group">>
+			The others spread out to cover the gaps between them.
+		<<case "processor">>
+			<<He>> raises a hand to stop you before you finish. "That doesn't match," <<he>> says, and taps <<his>> implant.
+		<<case "dampener">>
+			<<if _aclTalk>><<He>> listens without any change in <<his>> expression, then repeats the demand.<<else>><<He>> keeps the screen angled away from you, showing no sign of concern at your questions.<</if>>
+		<<case "known">>
+			<<if _aclTalk>>
+				<<He>> listens, then shakes <<his>> head. "They warned us you would try that."
+			<<elseif _acl.check is "run">>
+				<<He>> is already watching the route you turn towards. Someone has warned <<him>> about you.
+			<<else>>
+				<<He>> doesn't look surprised. Someone has warned <<him>> about you.
+			<</if>>
+		<<case "lock">>
+			<<if setup.arcology.threatBand() gte 2>>
+				The release is protected by a second lock.
+			<</if>>
+		<<case "grade">>
+			<<if _aclTalk>>
+				<<He>> lets you finish. Then <<he>> shakes <<his>> head. Your explanation has not changed <<his>> answer.
+			<<elseif _acl.check is "run">>
+				<<He>> reacts as soon as you move, keeping pace with you.
+			<</if>>
+		<</switch>>
+		<<person1>>
+	<</if>>
+<</widget>>
+
+/* The Travel group of an Arcology street: the streets next to district _args[0], its shuttle stop, and loitering.
+   Crown Avenue and Stillwater Court only show from inside the elite district. */
+<<widget "arcologyStreets">>
+	<<set _asHere to _args[0]>>
+	<<if arcologyNav.target() is _asHere>>
+		<span class="arc-gps-arrived"><span class="arc-gps" aria-hidden="true"></span>City Map: you have reached <<print setup.arcology.districts[_asHere].name>>. Route cleared.</span>
+		<br><br>
+		<<run arcologyNav.clear()>>
+	<</if>>
+	<<set _asNext to arcologyNav.next(_asHere)>>
+	Travel
+	<br>
+	<<for _asId range setup.arcology.neighbours(_asHere)>>
+		<<set _asD to setup.arcology.districts[_asId]>>
+		<<if _asD.hidden and !["crown", "stillwater"].includes(_asHere) and _asId isnot "crown">><<continue>><</if>>
+		<<if _asId is "stillwater" and !setup.arcology.eliteAccess()>><<continue>><</if>>
+		<<set _asLabel to _asD.name + " (0:" + String(_asD.time).padStart(2, "0") + ")">>
+		<<capture _asD _asLabel>><<arcologyicon _asD.icon>><<link _asLabel _asD.passage>><<pass _asD.time>><<endevent>><</link>><</capture>><<if _asNext.includes(_asId)>> <span class="arc-gps" title="On your City Map route" aria-label="On your City Map route"></span><</if>>
+		<br>
+	<</for>>
+	<<if setup.arcology.districts[_asHere].bus and $exposed lte 0>>
+		<<if setup.arcologyNews.stopClosed(_asHere)>>
+			<span class="blue">The shuttle stop here is out of service.</span>
+		<<else>>
+			<<capture _asHere>><<arcologyicon "bus">><<link [[Wait for a shuttle (0:02)|Arcology Shuttle Stop]]>><<pass 2>><<set $xchange.arcology.shuttleFrom to _asHere>><</link>><</capture>>
+		<</if>>
+		<br>
+	<</if>>
+	<<if setup.arcology.dangerAreas[setup.arcology.districts[_asHere].area].mod gt 0>>
+		<<icon "arcology/loiter.gif">><<link [[Loiter|Arcology Loiter]]>><<set $xchange.arcology.loiterBack to passage()>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+/* Navigation icons for Arcology places: "pier", "hotel", "street", "glasshouse". */
+<<widget "arcologyicon">><<icon `"arcology/" + _args[0] + ".png"`>><</widget>>
+
+/* How island systems and island NPCs address the player. Never used outside the island. */
+<<widget "arcologyHandle">><<print $xchange.arcology.handle or "Guest">><</widget>>
+
+/* Island currency. */
+<<widget "arcologyCipher">><<print setup.arcology.cx($xchange.arcology.cipher)>><</widget>>
+
+/* Under a priced item: staff correcting an old price, a bargain from an old list, and a way to ask about an unusual price.
+   _args[0]: a quote from setup.arcologyPrice.quote. */
+<<widget "arcologyPriceNote">>
+	<<set _pnP to _args[0]>>
+	<<if _pnP and _pnP.ok>>
+		<<if _pnP.corrected>>
+			<br><span class="blue">The <<print _pnP.v.who>> checks the exchange rate and changes the price before you can pay.</span>
+		<<elseif _pnP.cheap is "accept">>
+			<br><span class="green">The price list hasn't changed since Cipher fell. The <<print _pnP.v.who>> notices, shrugs, and doesn't change it. Any sale is better than none this week.</span>
+		<<elseif _pnP.cheap is "honour">>
+			<br><span class="green">The posted price hasn't caught up with the exchange rate yet.</span>
+		<</if>>
+		<<if _pnP.high or _pnP.pounds or _pnP.corrected>>
+			<<capture _pnP>><br><<socialiseicon "ask">><<link `_pnP.pounds ? "Why only pounds?" : _pnP.corrected ? "Why did the price change?" : "Why is it so expensive?"` "Arcology Price Ask">><<set $xchange.arcology.priceAsk to { id: _pnP.id, back: passage() }>><</link>><</capture>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+/* Guest registration screen, shown at the hotel desk and on the room door. */
+<<widget "arcologyGuestPanel">>
+	<<set _arcologyGuest to $xchange.arcology.guest>>
+	<<holo "MERIDIAN / GUEST AUTHORIZATION" `setup.arcology.hasRoom() ? "ok" : "denied"`>>
+		<<holoRow "USER" `$xchange.arcology.handle or "Guest"`>>
+		<<holoRow "CLEARANCE" `($xchange.arcology.clearance or "guest").toUpperCase()`>>
+		<<holoRow "SPONSOR" `_arcologyGuest.sponsor ? _arcologyGuest.sponsor.toUpperCase() : "NONE"`>>
+		<<if setup.arcology.hasRoom()>>
+			<<holoRow "ROOM" `setup.arcology.roomNumber() + ", AUTHORIZED"`>>
+			<<holoRow "VALID UNTIL" `setup.arcology.when(_arcologyGuest.until).toUpperCase()`>>
+			<<holoRow "PAYMENT" `_arcologyGuest.status is "sponsored" ? "COVERED BY SPONSOR" : "SETTLED"`>>
+		<<else>>
+			<<holoRow "ROOM" "NONE">>
+			<<holoRow "BALANCE" `setup.arcology.cxU(($xchange.arcology.cipher or 0))`>>
+			<<holoLine `_arcologyGuest.status is "revoked" ? "AUTHORIZATION REVOKED" : "AUTHORIZATION EXPIRED"` "denied">>
+		<</if>>
+	<</holo>>
+<</widget>>
+
+/* Ballroom notices on island locations. The schedule itself lives in the Holo tab.
+This shows once when the ballroom opens, and sets _arcologyPartyMissed when the doors have closed with the player still out. */
+<<widget "arcologyPartyNotice">>
+	<<set _arcologyPartyMissed to setup.arcology.partyMissed()>>
+	<<if _arcologyPartyMissed>>
+		<<holo "INCOMING / LUCHIFEN" "denied">>
+			<<holoLine "THE BALLROOM DOORS ARE CLOSED." "denied">>
+			<<holoLine "WAIT WHERE YOU ARE." "denied">>
+		<</holo>>
+	<<elseif setup.arcology.partyOpen() and !$xchange.arcology.party.openNotified>>
+		<<set $xchange.arcology.party.openNotified to true>>
+		<<holoNotice "GLASSHOUSE" "THE BALLROOM IS OPEN. LUCHIFEN IS WAITING AT THE LIFT ON RELAY STREET." "warn">>
+		<br>
+	<</if>>
+<</widget>>
+
+/* The transit screen at the top of the launch passage. Reads _vs from setup.arcology.voyageStatus(). */
+<<widget "arcologyTransitPanel">>
+	<<set _tv to $xchange.arcology.voyage>>
+	<div class="holo transit" data-compose="lines" @data-state="_tv.escort is 'loyalists' ? 'denied' : 'pending'">
+		<div class="holo-head">ARCOLOGY TRANSIT NETWORK</div>
+		<div class="holo-body">
+			<<if _tv.escort is "loyalists">>
+				<<holoRow "TRANSFER STATUS" "MANDATORY">>
+				<<holoRow "DESTINATION" "TOWN DOCKS">>
+				<<holoRow "CLEARANCE" "REVOKED">>
+				<<holoRow "ROUTE CONTROL" "SECURITY AUTHORITY">>
+			<<else>>
+				<<holoRow "DESTINATION" `_tv.to is "arcology" ? "ARCOLOGY" : "MER STREET DOCKS"`>>
+				<<holoRow "ROUTE" `_tv.to is "arcology" ? "ENCRYPTED" : "OPEN"`>>
+				<<holoRow "NAVIGATION" "ACTIVE">>
+			<</if>>
+			<div class="transit-bar" role="progressbar" aria-label="Journey progress" aria-valuemin="0" aria-valuemax="100" @aria-valuenow="_vs.pct"><span class="transit-fill" @style="'width: ' + _vs.pct + '%'"></span></div>
+			<<holoRow "JOURNEY PROGRESS" `_vs.pct + "%"`>>
+			<<holoRow "ELAPSED" `setup.arcology.duration(_vs.elapsed)`>>
+			<<holoRow "REMAINING" `setup.arcology.duration(_vs.remaining)`>>
+			<<holoRow "TOTAL CROSSING" `setup.arcology.duration(_vs.total)`>>
+			<<holoLine _vs.line "ok">>
+		</div>
+	</div>
+	<<if _tv.escort isnot "loyalists" and !setup.arcology.instantTransitAllowed()>>
+		<div class="holo transit-locked" data-compose="none" data-state="denied">
+			<div class="holo-head">INSTANT TRANSIT</div>
+			<div class="holo-body">
+				<button type="button" class="transit-locked-btn" disabled aria-describedby="transitLockReason">[ ENCRYPTED ]</button>
+				<div class="holo-line" data-tone="denied" id="transitLockReason">AUTHORIZATION REQUIRED. INSUFFICIENT RANK.</div>
+			</div>
+		</div>
+	<</if>>
+<</widget>>
+
+/* Luchifen's umbrella holder is a man, unless World Gender Override makes the world female. */
+<<widget "arcologyVictorPronouns">>
+	<<if typeof worldGenderOverrideForcedGender is "function" and worldGenderOverrideForcedGender() is "f">>
+		<<set _vhe to "she">><<set _vHe to "She">><<set _vhis to "her">><<set _vHis to "Her">><<set _vhim to "her">><<set _vman to "woman">>
+	<<else>>
+		<<set _vhe to "he">><<set _vHe to "He">><<set _vhis to "his">><<set _vHis to "His">><<set _vhim to "him">><<set _vman to "man">>
+	<</if>>
+<</widget>>
+
+/* The cybernetics rolled for a generated NPC by setup.arcology.cyberise. Arg: NPC slot (0-5). Call <<personN>> first. */
+<<widget "arcologySceneCheck">>
+	<<set _arcologyScene to false>>
+	<<if $xchange.arcology.party and $xchange.arcology.party.status is "attending" and $location is "arcology_glasshouse">><<exit>><</if>>
+	<<if $xchange.arcology.scene and $xchange.arcology.scene.back is passage()>>
+		<<set _arcologyScene to $xchange.arcology.scene.where>>
+	<<elseif $eventskip is 1 or _arcologyDangerSkipped>>
+		<<set $eventskip to 0>>
+	<<elseif $exposed lt 1 and !$combat and !$xchange.arcology.danger and !$xchange.arcology.trouble and !(setup.arcology.partyPending() and setup.arcology.partyMissed()) and Object.keys($daily.arcologyAmbient or {}).filter(k => k.startsWith("arcology_" + _args[0] + "_")).length lt 6>>
+		<<set _sceneDelay to _args[0] is "ship" ? 1800 : 300>>
+		<<if $xchange.arcology.sceneChecked is undefined>><<set $xchange.arcology.sceneChecked to Time.date.timeStamp>><</if>>
+		<<if Time.date.timeStamp - $xchange.arcology.sceneChecked gte _sceneDelay>>
+			<<set $xchange.arcology.sceneChecked to Time.date.timeStamp>>
+			<<if random(1, 100) lte (_args[0] is "ship" ? 10 : 20)>>
+				<<set _arcologyScene to _args[0]>>
+				<<set $xchange.arcology.scene to { where: _args[0], back: passage() }>>
+			<</if>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "arcologyCyberLook">>
+	<<set _cy to $NPCList[_args[0]] and $NPCList[_args[0]].cyber>>
+	<<if !_cy or _cy.mods.length is 0>>
+		<<if _cy and _cy.style is "vip">>
+			You can't see any obvious implants on <<him>>. In a city where almost everyone has them, looking completely natural must be expensive.
+		<<else>>
+			<<He>> looks fairly normal, apart from a small glowing light behind <<his>> ear. You've noticed the same thing on nearly everyone here.
+		<</if>>
+	<<else>>
+		<<for _cyMod range _cy.mods>>
+			<<switch _cyMod>>
+			<<case "eyesGold">>
+				Each of <<his>> eyes has a thin golden ring around the pupil. The rings slowly turn when <<he>> looks around.
+			<<case "eyesViolet">>
+				<<His>> eyes glow violet, becoming slightly brighter whenever <<he>> blinks.
+			<<case "eyesGrey">>
+				<<His>> eyes are an unusual shade of grey, and <<he>> hardly seems to blink.
+			<<case "eyesGlass">>
+				<<His>> eyes have clear artificial lenses instead of normal pupils. You can see tiny lights moving inside them.
+			<<case "eyesRed">>
+				One of <<his>> eyes has been replaced with a cheap-looking red lens. The lens moves slightly whenever <<he>> looks at something.
+			<<case "eyesCamera">>
+				One of <<his>> eyes has been replaced with a small camera. The lens moves on its own as <<he>> looks at you.
+			<<case "armBlack">>
+				<<His>> left hand is made of black metal, with visible joints where the fingers bend. <<He>> makes no effort to hide it.
+			<<case "armChrome">>
+				<<His>> arm is made of shiny silver metal from the elbow down, reflecting the lights around you.
+			<<case "armGlass">>
+				One of <<his>> arms is transparent from the shoulder down. You can see thin lines of light inside it, which become brighter whenever <<he>> moves <<his>> fingers.
+			<<case "armIndustrial">>
+				<<His>> right arm is made of heavy metal, with moving parts visible around the elbow. Much of the paint has worn away, especially around the knuckles.
+			<<case "armPatched">>
+				Two of <<his>> fingers are made from a different kind of metal, making them stand out from the rest of <<his>> artificial hand.
+			<<case "legQuiet">>
+				When <<he>> moves <<his>> leg, you hear a small noise coming from the artificial parts inside <<his>> knee.
+			<<case "legBrace">>
+				A steel support is attached to <<his>> leg just below the knee. <<He>> seems used to standing with most of <<his>> weight on that leg.
+			<<case "neuralJade">>
+				Behind <<his>> ear is a smooth, green jade disc instead of the usual glowing light. You haven't seen anything like it on the other people here.
+			<<case "neuralStuds">>
+				Several small silver implants are fitted along the side of <<his>> neck, each with a tiny light in the centre.
+			<<case "neuralBadge">>
+				A small grey device is attached to the side of <<his>> forehead, with an official service symbol printed on it.
+			<<case "neuralCrown">>
+				You can see lines of light beneath the skin on <<his>> head. They become brighter whenever <<he>> speaks.
+			<<case "neuralScar">>
+				There is a long scar behind <<his>> ear where an implant has been removed.
+			<<case "neuralRaw">>
+				There is an uncovered implant socket at the back of <<his>> head, just above <<his>> neck. The skin around it looks red and sore.
+			<<case "skinFlawless">>
+				<<His>> face looks unusually smooth. Along <<his>> jaw, you can see a thin line where the artificial skin meets <<his>> real skin.
+			<<case "skinPearl">>
+				<<His>> skin has a pale, shiny appearance, and the colour changes slightly when <<he>> turns under the lights.
+			<<case "skinPatch">>
+				Part of <<his>> cheek is covered with artificial skin that's a slightly different colour from the rest of <<his>> face.
+			<<case "faceSymmetric">>
+				Both sides of <<his>> face look exactly the same, including the shape of <<his>> eyebrows and eyelashes. Once you notice it, <<his>> appearance seems a little strange.
+			<<case "facePlate">>
+				Part of <<his>> jaw is covered by a metal plate. You can see the screws in it, along with an empty hole where one screw is missing.
+			<<case "faceSeams">>
+				Several pink scars are visible along <<his>> collarbone, where implants have been fitted beneath <<his>> skin.
+			<<case "accVisor">>
+				<<He>> wears a thin screen across <<his>> eyes. Small lines of text appear on it while you talk.
+			<<case "accRings">>
+				Each of <<his>> fingertips has a small glowing ring. The rings change colour as <<his>> expression changes.
+			<<case "accCable">>
+				A bright cable connects <<his>> ear to a socket on <<his>> neck.
+			<</switch>><<print " ">>
+		<</for>>
+	<</if>>
+<</widget>>
+
+/* A generated island NPC with a fixed role. Args: slot (0-5), cyber style, role. Call <<personN>> after. */
+/* Names for implants that matter in a fight, matching arcologyCyberLook. Arg: part id. Sets _cyNoun. */
+<<widget "arcologyCyberNoun">>
+	<<switch _args[0]>>
+		<<case "eyesRed">><<set _cyNoun to "red lens">>
+		<<case "eyesCamera">><<set _cyNoun to "camera eye">>
+		<<case "eyesGrey">><<set _cyNoun to "unblinking grey eyes">>
+		<<case "eyesGlass">><<set _cyNoun to "glass lenses">>
+		<<case "accVisor">><<set _cyNoun to "visor">>
+		<<case "armIndustrial">><<set _cyNoun to "heavy metal arm">>
+		<<case "armChrome">><<set _cyNoun to "silver forearm">>
+		<<case "armBlack">><<set _cyNoun to "black metal hand">>
+		<<case "armPatched">><<set _cyNoun to "metal fingers">>
+		<<case "legBrace">><<set _cyNoun to "leg brace">>
+		<<case "legQuiet">><<set _cyNoun to "artificial leg">>
+		<<case "neuralJade">><<set _cyNoun to "jade disc">>
+		<<case "neuralCrown">><<set _cyNoun to "scalp lights">>
+		<<case "neuralStuds">><<set _cyNoun to "neck implants">>
+		<<default>><<set _cyNoun to "">>
+	<</switch>>
+<</widget>>
+
+/* What an implant did to a transformation ability, said once as it happens. Args: kind, NPC slot. */
+<<widget "arcologyCyberReact">>
+	<<set _cyKind to _args[0]>><<set _cySlot to _args[1]>>
+	<<if _cySlot is undefined or _cySlot lt 0 or !$NPCList[_cySlot]>><<exit>><</if>>
+	<<personselect _cySlot>>
+	<<switch _cyKind>>
+		<<case "seduce">>
+			<<arcologyCyberNoun `setup.arcology.cyberPart(_cySlot, "dampener")`>>
+			The <<persons>> _cyNoun activates for a moment. <<if ["elite", "exceptional"].includes(setup.arcology.cyberOf(_cySlot).grade)>>The redness quickly disappears from <<his>> face.<<else>>The redness in <<his>> face fades much faster than normal.<</if>>
+		<<case "forgive">>
+			<<arcologyCyberNoun `setup.arcology.cyberPart(_cySlot, "dampener")`>>
+			The <<persons>> _cyNoun activates for a moment. <<He>> looks a little less angry, but <<he>> hasn't completely calmed down.
+		<<case "mock">>
+			<<arcologyCyberNoun `setup.arcology.cyberPart(_cySlot, "dampener")`>>
+			The <<persons>> _cyNoun activates for a moment. You expect <<him>> to get upset by what you said, but <<he>> barely reacts.
+		<<case "illomen">>
+			The <<person>> jerks a few times, unable to control <<his>> body for a moment. Then <<he>> moves normally again.
+		<<case "spray">>
+			<<run setup.arcology.wear(_cySlot, $NPCList[_cySlot].healthmax * 0.3, "vision")>>
+			<<arcologyCyberNoun `setup.arcology.cyberPart(_cySlot, "vision")`>>
+			<span class="blue">The spray hits the <<persons>> _cyNoun, but most of it slides off.</span> <<He>> coughs and turns <<his>> head away, but continues watching you.
+		<<case "knockout">>
+			<span class="red">The <<person>> stumbles when you hit <<him>>, but <<he>> doesn't fall.</span> Something hard under <<his>> skin seems to have protected <<him>> from the hit.
+	<</switch>>
+<</widget>>
+
+/* Show one cybernetic reaction during combat, if there is one. */
+<<widget "arcologyCombatNotes">>
+	<<set _cyN to _cyberNote>>
+	<<if !_cyN or !$NPCList[_cyN.slot]>><<exit>><</if>>
+	<<personselect _cyN.slot>>
+	<<switch _cyN.kind>>
+		<<case "armour">>
+			You hit the <<person>>, but something hard under <<his>> skin protects <<him>> from your attack. <<He>> hardly reacts.
+		<<case "block">>
+			<<arcologyCyberNoun `setup.arcology.cyberPart(_cyN.slot, "limbs")`>>
+			The <<person>> blocks your attack with <<his>> _cyNoun. Your strike hits metal, protecting <<him>> from most of the damage.
+		<<case "feint">>
+			<<arcologyCyberNoun `setup.arcology.cyberPart(_cyN.slot, "vision")`>>
+			You try to trick the <<person>> with a fake attack, but <<he>> watches your movements with <<his>> _cyNoun and doesn't fall for it.
+		<<case "dodge">>
+			<<arcologyCyberNoun `setup.arcology.cyberPart(_cyN.slot, "vision")`>>
+			The <<person>> sees your attack coming with <<his>> _cyNoun and moves out of the way before you can hit <<him>>.
+		<<case "counter">>
+			The <<person>> reacts before you finish your attack and moves to stop you. <<He>> seems to know what you're about to do.
+	<</switch>>
+	<br><br>
+	<<person1>>
+<</widget>>
+
+/* Show the effects of damaged cybernetic parts first. Then show whether the enemy was fooled by the player's fake attack.
+   After that, resolve attacks prepared on the previous turn and show warnings for attacks being prepared next. */
+<<widget "arcologyCyberTurn">>
+	<<if _combatend or $combat isnot 1>><<exit>><</if>>
+	<<if _cyberWorn and $NPCList[_cyberWorn.slot]>>
+		<<personselect _cyberWorn.slot>>
+		<<arcologyCyberNoun `setup.arcology.cyberPart(_cyberWorn.slot, _cyberWorn.part)`>>
+		<<switch _cyberWorn.part>>
+		<<case "vision">>
+			<<if _cyberWorn.state is "offline">>
+				The light on the <<persons>> _cyNoun flashes a few times, then switches off. <<He>> now has to turn <<his>> head to keep watching you.
+			<<else>>
+				Your hit knocks the <<persons>> _cyNoun slightly out of place, making <<him>> slower to follow your movements.
+			<</if>>
+		<<case "limbs">>
+			<<if _cyberWorn.state is "offline">>
+				You hear a loud crack from the <<persons>> _cyNoun. <<He>> tries to move the arm, but the joints no longer work.
+			<<else>>
+				The <<persons>> _cyNoun makes a loud, rough noise whenever <<he>> moves it. <<He>> is now slower to raise the arm to block your attacks.
+			<</if>>
+		<<case "legs">>
+			<<if _cyberWorn.state is "offline">>
+				The <<persons>> _cyNoun makes a loud clicking sound and stops working.
+			<<else>>
+				The <<persons>> _cyNoun makes a strange noise every time <<he>> jerks back.
+			<</if>>
+		<<case "skeleton">>
+			<<if _cyberWorn.state is "offline">>
+				You feel something break beneath the <<persons>> skin when you hit <<him>>. The protective metal plates under <<his>> skin can no longer stop your attacks.
+			<<else>>
+				You hit the <<person>> hard enough to damage the protective metal plates beneath <<his>> skin. <<He>> moves back from the impact.
+			<</if>>
+		<<default>>
+			<<if _cyberWorn.state is "offline">>
+				The <<person>> shakes <<his>> head and blinks several times. <<He>> has trouble following your movements and reacts more slowly.
+			<<else>>
+				The <<person>> blinks repeatedly and takes longer to react when you move.
+			<</if>>
+		<</switch>>
+		<br><br>
+	<</if>>
+	<<if _cyberFocusBroken isnot undefined and $NPCList[_cyberFocusBroken]>>
+		<<personselect _cyberFocusBroken>>
+		You pretend to attack, and the <<person>> looks in the wrong direction. <<He>> loses track of you for a moment before looking back.
+		<br><br>
+	<</if>>
+	<<for _ctCue range setup.arcology.cyberTurn()>>
+		<<personselect _ctCue.slot>>
+		<<switch _ctCue.kind>>
+		<<case "grip-hit">>
+			<<arcologyCyberNoun `setup.arcology.cyberPart(_ctCue.slot, "limbs")`>>
+			<span class="red">The <<person>> grabs your arm with <<his>> _cyNoun and squeezes tightly.</span>
+			<<combatExtendedStability -45>><<violence 3>>
+		<<case "grip-miss">>
+			The <<person>> tries to grab your arm with <<his>> metal hand, but you pull away before <<he>> can catch you.
+		<<case "grip">>
+			<<arcologyCyberNoun `setup.arcology.cyberPart(_ctCue.slot, "limbs")`>>
+			The <<person>> raises <<his>> _cyNoun and opens <<his>> hand, <span class="purple">getting ready to grab your arm.</span>
+		<<case "brace">>
+			The <<person>> bends <<his>> knees and holds both arms in front of <<his>> body, <span class="purple">ready to block a strong attack.</span>
+		<<case "burst">>
+			<<arcologyCyberNoun `setup.arcology.cyberPart(_ctCue.slot, "legs")`>>
+			The <<person>> bends <<his>> knees and leans forward, using <<his>> _cyNoun to <span class="purple">get ready to rush towards you.</span>
+		<<case "target">>
+			<<arcologyCyberNoun `setup.arcology.cyberPart(_ctCue.slot, "vision")`>>
+			The <<person>> uses <<his>> _cyNoun to watch your hands and feet, <span class="purple">trying to predict your next move.</span>
+		<<case "counter">>
+			The <<person>> watches your hands closely,<span class="purple"> ready to stop you if you try the same attack again.</span>
+		<</switch>>
+		<br><br>
+	<</for>>
+	<<person1>>
+<</widget>>
+
+<<widget "arcologyNPC">>
+	<<set _anSlot to _args[0]>><<set _anStyle to _args[1]>>
+	<<generateRole _anSlot 0 _args[2]>>
+	<<run setup.arcology.cyberise($NPCList[_anSlot], _anStyle, _args[2])>>
+<</widget>>
+
+/* Shower choices and personal care for an island bathroom. Arg: the shower passage. */
+<<widget "arcologyBathroomOptions">>
+	<<set _abShower to _args[0]>>
+	<<bathroomicon "shower">><<link [[Shower (0:20)|_abShower]]>><<set $phase to "warm">><<if pcAreArmsBound("both")>><<water>><<else>><<strip>><</if>><<pass 20>><<if setup.arcology.relief("shower")>><<stress -6>><</if>><<set $hygiene to 0>><</link>><<if setup.arcology.reliefLeft("shower")>><<lstress>><</if>>
+	<br>
+	<<bathroomicon "shower">><<link [[Take a cold shower (0:15)|_abShower]]>><<set $phase to "cold">><<if pcAreArmsBound("both")>><<water>><<else>><<strip>><</if>><<pass 15>><<run Weather.BodyTemperature.update(10,30)>><<stress 75>><<arousal -5000>><<set $hygiene to 0>><</link>><<lllarousal>><<ggstress>>
+	<br>
+	<<bathroomicon "shower">><<link [[Scrub yourself hard (0:40)|_abShower]]>><<set $phase to "scrub">><<if pcAreArmsBound("both")>><<water>><<else>><<strip>><</if>><<pass 40>><<if setup.arcology.relief("shower")>><<stress -3>><</if>><<set $hygiene to 0>><<if !$daily.arcologyScrub>><<set $daily.arcologyScrub to true>><<trauma -2>><</if>><</link>><<if setup.arcology.reliefLeft("shower")>><<lstress>><</if>><<if !$daily.arcologyScrub>><<ltrauma>><</if>>
+	<br>
+	<<personalUpkeep>>
+	<br>
+<</widget>>
+
+/* After a shower: what the player wore, a towel, a bathrobe, or nothing. Arg: the bathroom passage. */
+<<widget "arcologyAfterShower">>
+	<<set _abRoom to _args[0]>>
+	<<switch $phase>>
+		<<case "cold">>
+			The water is freezing cold, but you force yourself to stay under it. After a while, your skin starts to hurt from the cold. You finally turn off the shower and step out, still shaking as you try to warm yourself up.
+		<<case "scrub">>
+			You take the rough brush from the shelf and begin washing yourself with soap. You scrub your body several times, rubbing harder even after your skin starts to hurt. By the time you finish, your skin is red and sore, and the only thing you can smell on yourself is soap.
+		<<default>>
+			You stand under the hot water until you feel clean.
+	<</switch>>
+	<<set $phase to 0>>
+	<br><br>
+	<<if pcAreArmsBound("both")>>
+		Water drips from you onto the floor. With your arms bound, you can't change your clothes.
+		<br><br>
+		<<link [[Next|_abRoom]]>><</link>>
+	<<else>>
+		<<dressasyouwereicon>><<link [[Dress as you were|_abRoom]]>><<clotheson>><</link>>
+		<br>
+		<<towelicon>><<link [[Wrap yourself in a towel|_abRoom]]>>
+			<<if $player.gender is "f" or $player.breastsize gt 0>><<set $wear_upper to "large_towel">><<else>><<set $wear_lower to "towel">><</if>>
+			<<returnCarried>><<wardrobewear>>
+		<</link>>
+		<<if $wardrobe.upper.findIndex(x => x.name is "bathrobe") gte 0 or $carried.upper.name is "bathrobe">>
+			<br>
+			<<bathroomicon "robe">><<link [[Put on a bathrobe|_abRoom]]>><<returnCarried>><<set $wardrobeOption to "wear">><<set $wear_upper to $wardrobe.upper.findIndex(x => x.name is "bathrobe")>><<wardrobewear>><</link>>
+		<</if>>
+		<br>
+		<<bathroomicon>><<link [[Stay naked|_abRoom]]>><<returnCarried>><</link>>
+	<</if>>
+	<br>
+<</widget>>
+
+/* Return link from a party scene; the first time the player has pried twice, the guests push back first. Args: passage, label. */
+<<widget "arcologyPartyBack">>
+	<<set _pbTarget to _args[0]>>
+	<<if $xchange.arcology.party.nosy gte 2 and !$xchange.arcology.party.seen.includes("bothered")>>
+		<<set $xchange.arcology.party.back to _pbTarget>><<set _pbTarget to "Arcology Party Bothered">>
+	<</if>>
+	<<link _args[1] _pbTarget>><<clearsinglenpc 1>><<clearsinglenpc 2>><</link>>
+	<br>
+<</widget>>
+
+/* What the current citizen looks like. */
+<<widget "arcologyCitizenLook">><<arcologyCyberLook 0>><</widget>>
+
+/* How the current citizen treats a stranger. */
+<<widget "arcologyCitizenManner">>
+	<<switch $xchange.arcology.citizen.mood>>
+		<<case "friendly">>
+			<<He>> smiles when you start talking and seems happy to have some company. <<He>> listens to what you say and takes an interest in the conversation.
+		<<case "flirty">>
+			<<He>> looks at your face, then takes a closer look at your body and clothes. When you notice, <<he>> smiles at you instead of looking away.
+		<<case "suspicious">>
+			<<He>> gives short answers to your questions and doesn't seem interested in talking much. While you speak, <<he>> keeps looking at the small light behind your ear.
+		<<case "arrogant">>
+			Before answering you, <<he>> snaps at a passing member of staff to clear a nearby table. <<He>> speaks to you just as rudely, interrupting before you have finished introducing yourself. <<He>> doesn't bother asking for your username and seems more interested in talking about <<himself>>.
+		<<case "secretive">>
+			<<Hes>> polite when answering your questions, but whenever you ask something about <<his>> personal life, <<he>> quickly changes the subject.
+		<<case "manipulative">>
+			<<He>> acts very friendly towards you, even though you've only just started talking. <<He>> seems especially interested in where you're staying, asking more questions about it than you expected.
+		<<case "nervous">>
+			<<He>> keeps looking towards the door while you talk, occasionally checking who is coming in.
+		<<default>>
+			<<He>> speaks quietly and doesn't say much unless you ask <<him>> something. <<Hes>> sitting with <<his>> back to the wall, and none of the other guests have chosen to sit near <<him>>.
+	<</switch>>
+<</widget>>
+
+/* One line of the island's other business, the same for the whole hour. _args[0]: "ship" or "hotel". */
+<<widget "arcologyUnderworld">>
+	<<if !$xchange.arcology.scene>><<set $xchange.arcology.scene to { where: _args[0], back: passage() }>><</if>>
+	<<cleareventpool>>
+	<<if _args[0] is "ship">>
+		<<addinlineevent "arcology_ship_0">>
+			Two stewards walk past you with a passenger between them. Each steward holds one of the passenger's arms, leading the passenger towards a door marked for crew only.
+			<br><br>
+			The passenger follows without arguing, while the other passengers continue talking or looking at their screens.
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_ship_1">>
+			A screen beside the stairs shows an advert for a clinic on the island. It promises to change your appearance and give you a new identity in a single day.
+			<br><br>
+			<span class="blue">NEW FACE, NEW RECORD, SAME DAY</span>
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_ship_2">>
+			<<if !$xchange.arcology.scene.rendered>><<arcologyNPC 0 "guest" "passenger">><</if>><<person1>>
+			A <<person>> nearby is talking to someone through <<his>> wrist screen.
+			<br><br>
+			"No, don't send the blue boxes today. Those are supposed to arrive next week!" <<he>> says.
+			<br><br>
+			<<He>> listens to the reply, then turns away from the other passengers and continues speaking more quietly.
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_ship_3">>
+			As you walk past a door without a sign, someone opens it from the inside. You briefly see three people sitting around a table, counting small items into separate piles.
+			<br><br>
+			One of them notices you looking inside and quickly closes the door before you can see what they are counting.
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_ship_4">>
+			As you walk past the stairs, a camera on the ceiling turns towards you. It follows your movements for several steps before turning back towards the stairs.
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_ship_5">>
+			At a nearby table, you overhear a passenger talking about a former business partner.
+			"That maggot went for a swim last month," the passenger says with a laugh.
+			<br><br>
+			The others at the table laugh too, although nobody says what actually happened to the business partner.
+			<br><br>
+		<</addinlineevent>>
+	<<elseif _args[0] is "street">>
+		<<addinlineevent "arcology_street_0">>
+			<<if !$xchange.arcology.scene.rendered>><<arcologyNPC 0 "guest" "guest">><</if>><<person1>>
+			Near a clinic, a <<person>> wearing a long coat walks through a security scanner. A red light comes on, and an officer stops <<him>> from entering.
+			<br><br>
+			The <<person>> touches the small light behind <<his>> ear and tries the scanner again, but it still shows red.
+			"My sponsor paid this morning," <<he>> says, showing the officer <<his>> wrist screen.
+			<br><br>
+			The officer refuses to look at it. When another officer approaches, the <<person>> stops arguing and follows the second officer away from the main street.
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_street_1">>
+			Two people meet beside a vending machine and shake hands. They hold each other's hands for several seconds before letting go.
+			<br><br>
+			One of them checks a message on a wrist screen and gives the other a small nod. The second person buys a drink from the machine but leaves it in the tray before walking away.
+			<br><br>
+			The first person soon leaves in the opposite direction.
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_street_2">>
+			<<if !$xchange.arcology.scene.rendered>><<arcologyNPC 0 "worker" "worker">><</if>><<person1>>
+			As a security patrol approaches, a <<person>> with a metal forearm quickly pulls <<his>> sleeve down to hide the small connections on <<his>> arm.
+			<br><br>
+			<<He>> turns towards a nearby menu screen and pretends to read it while the officers walk past.
+			<br><br>
+			Once they are gone, <<he>> rolls <<his>> sleeve back up and returns to work at the nearby stall.
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_street_3">>
+			<<if !$xchange.arcology.scene.rendered>><<arcologyNPC 0 "vip" "guest">><</if>><<person1>>
+			A courier accidentally hits a stall while carrying a crate. The crate falls onto the road, scattering replacement mechanical fingers across the ground.
+			<br><br>
+			People walk around the scattered fingers without stopping to help. A well-dressed <<person>> eventually crouches beside the courier and picks one up.
+			<br><br>
+			Instead of putting it back, <<he>> checks the number printed on its metal joint and slips it into <<his>> pocket. <<He>> then helps the courier collect the remaining fingers.
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_street_4">>
+			<<if !$xchange.arcology.scene.rendered>><<arcologyNPC 0 "worker" "repairer">><</if>><<person1>>
+			At a nearby repair stall, a <<persons>> fixing a customer's artificial arm when <<he>> receives a call through <<his>> implant.
+			<br><br>
+			After listening for a few seconds, <<he>> suddenly stops working. <<He>> closes the cover on the customer's arm and disconnects the battery cable.
+			"Come back tomorrow," <<he>> tells the customer.
+			<br><br>
+			The customer starts arguing, but stops when a black car pulls up on the other side of the street. After looking at the car, the customer leaves without saying anything else.
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_street_5">>
+			<<if !$xchange.arcology.scene.rendered>><<arcologyNPC 0 "under" "host">><</if>><<person1>>
+			Outside a bar, a smiling <<person>> offers free drinks to people who have just arrived on the island.
+			<br><br>
+			Most people ignore <<him>>, but one tourist accepts the offer. <<He>> smiles and places a hand on the tourist's back, guiding the tourist through the entrance.
+			<br><br>
+			About a minute later, <<he>> comes back outside alone. After checking <<his>> wrist screen, <<he>> turns towards another group of new arrivals.
+			<br><br>
+		<</addinlineevent>>
+	<<elseif _args[0] is "hotel">>
+		<<addinlineevent "arcology_hotel_0">>
+			<<if !$xchange.arcology.scene.rendered>><<arcologyNPC 0 "guest" "guest">><</if>><<person1>>
+			Two hotel security guards in grey uniforms escort a <<person>> through the lobby, with one guard walking on each side.
+			<br><br>
+			The guest is still holding a drink and keeps insisting that there has been a mistake with <<his>> room booking. Neither guard answers.
+			<br><br>
+			When they reach a side door, one of the guards takes the glass from the guest's hand and puts it on a nearby table. They then lead <<him>> through the door.
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_hotel_1">>
+			<<if !$xchange.arcology.scene.rendered>><<arcologyNPC 0 "staff" "clerk">><</if>><<person1>>
+			The desk clerk is speaking to a guest when <<he>> suddenly stops and touches the small light behind <<his>> ear.
+			<br><br>
+			After listening for a few seconds, <<he>> straightens up and asks the guest to wait. <<He>> then hurries towards the lifts.
+			<br><br>
+			<<He>> stands beside the lift doors with <<his>> hands folded, waiting until one of them opens. From where you are standing, you can't see who is inside, but the clerk immediately steps forward to greet whoever it is.
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_hotel_2">>
+			A guest approaches the reception desk and asks for "the quiet floor".
+			<br><br>
+			The clerk checks the booking screen before handing over a black key card instead of the usual white one.
+			<br><br>
+			Before leaving, the guest slides a folded note across the counter. The clerk takes it and puts it away without opening it.
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_hotel_3">>
+			<<if !$xchange.arcology.scene.rendered>><<arcologyNPC 0 "guest" "guest">><</if>><<if !$xchange.arcology.scene.rendered>><<arcologyNPC 1 "vip" "guest">><</if>><<person1>>
+			Near the fountain, a <<person>> raises <<his>> voice at the hotel staff. <<He>> claims someone has stolen money from <<his>> digital wallet through <<his>> implant and demands that the hotel do something about it.
+			<br><br>
+			<<person2>>A wealthy <<person>> sitting on a nearby sofa laughs at the complaint.
+			"You shouldn't have let anyone get near your ear," <<he>> says, taking another drink.
+			<br><br>
+			<<person1>>The angry <<person>> tries to continue arguing, but two members of staff approach and lead <<him>> towards a side door.
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_hotel_4">>
+			Two guests are talking quietly beside the fountain. "That debt finally got paid," one of them says. "Took long enough, but everyone pays eventually."
+			<br><br>
+			The other guest nods before tapping a few buttons on a wrist screen. After checking the screen, the first guest smiles and puts the drink down.
+			<br><br>
+		<</addinlineevent>>
+		<<addinlineevent "arcology_hotel_5">>
+			<<if !$xchange.arcology.scene.rendered>><<arcologyNPC 0 "vip" "guest">><</if>><<person1>>
+			A small security drone flies above the hotel entrance, checking the faces of everyone who enters.
+			<br><br>
+			When a <<person>> wearing a silver suit approaches, the drone turns away without scanning <<his>> face.
+			The doorman also seems to recognise the guest and bows slightly as the <<person>> enters the hotel.
+			<br><br>
+		<</addinlineevent>>
+	<</if>>
+	<<set $daily.arcologyAmbient to $daily.arcologyAmbient or {}>>
+	<<run _eventpool = _eventpool.filter(event => event.name === V.xchange.arcology.scene?.id || !V.daily.arcologyAmbient[event.name])>>
+	<<if _eventpool.length>>
+		<<if !$xchange.arcology.scene.id>><<set $xchange.arcology.scene.id to rollWeightedRandomFromArray(_eventpool).name>><</if>>
+		<<set $daily.arcologyAmbient[$xchange.arcology.scene.id] to true>>
+		<<set $eventPoolOverride to $xchange.arcology.scene.id>><<runeventpool>>
+		<<set $xchange.arcology.scene.rendered to true>>
+	<</if>>
+<</widget>>
+
+/* Game settings and attitudes, as in the orphanage bedroom. */
+<<widget "arcologyRoomSettings">>
+	<<ind>><<link [[Gameplay Settings|Settings]]>><<set $settingsExitPassage to passage()>><</link>>
+	<br>
+	<<attitudesControlCheck>>
+	<<if $attitudesControl.showGoldLink is true>>
+		<<ind>><span class="goldLink"><<link [[Attitudes]]>><<set $attitudesExitPassage to passage()>><</link>></span> <span class="red">!!</span>
+	<<else>>
+		<<ind>><<link [[Attitudes]]>><<set $attitudesExitPassage to passage()>><</link>>
+	<</if>>
+	<br>
+<</widget>>
+
+/* Compact transit gauge for the ship's rooms; the lounge shows the full panel. Reads _vs. */
+<<widget "arcologyTransitStrip">>
+	<div class="holo transit-strip" data-compose="lines" data-state="pending">
+		<span class="holo-label">TRANSIT</span>
+		<div class="transit-bar" role="progressbar" aria-label="Journey progress" aria-valuemin="0" aria-valuemax="100" @aria-valuenow="_vs.pct"><span class="transit-fill" @style="'width: ' + _vs.pct + '%'"></span></div>
+		<span class="holo-value"><<print _vs.pct>>% · <<print setup.arcology.duration(_vs.remaining)>> LEFT</span>
+	</div>
+<</widget>>
+
+/* Shared state for a ship room: _vs, _forced, _withLu, _shipArrived. */
+<<widget "arcologyShipStatus">>
+	<<set _vs to setup.arcology.voyageStatus()>>
+	<<set _forced to $xchange.arcology.voyage.escort is "loyalists">>
+	<<set _withLu to $xchange.arcology.voyage.escort is "luchifen">>
+	<<set _shipArrived to _vs.remaining lte 0>>
+<</widget>>
+
+/* Once the crossing is over, a room offers nothing but the way off the ship. */
+<<widget "arcologyShipArrival">>
+	<<if _forced>>
+		The launch slows down as it approaches the dock.
+		<br><br>
+		You hear one of the crew members calling to someone waiting outside. The person shouts back from the dock while the crew gets ready to open the door so you can leave.
+	<<else>>
+		The ship slows as it approaches the end of the crossing.
+		<br><br>
+		A quiet bell rings inside. A crew member comes over and asks you to make your way to the boarding door, where a launch will take you ashore.
+	<</if>>
+	<br><br>
+	<<link [[Go to the boarding door|Arcology Voyage Land]]>><<pass 3>><</link>>
+	<br>
+<</widget>>
+
+/* Waiting: two hours at a time, or straight to landfall once it is close. */
+<<widget "arcologyShipWait">>
+	<<icon "furniture/armchair-egg.png">>
+	<<if _vs.remaining gt 30 * 3600>>
+		<<link `_forced ? "Wait (6:00)" : "Wait in the lounge (6:00)"` "Arcology Voyage">><<pass 360>><</link>>
+	<<elseif _vs.remaining gt 6 * 3600>>
+		<<link `_forced ? "Wait (2:00)" : "Wait in the lounge (2:00)"` "Arcology Voyage">><<pass 120>><</link>>
+	<<else>>
+		<<link `(_forced ? "Wait for landfall (" : "Wait in the lounge until landfall (") + setup.arcology.duration(_vs.remaining).toLowerCase() + ")"` "Arcology Voyage">><<pass `Math.ceil(($xchange.arcology.voyage.arriveAt - Time.date.timeStamp) / 60)`>><<if setup.arcology.relief("wait")>><<stress -2>><</if>><</link>>
+	<</if>>
+	<br>
+<</widget>>
+
+<<widget "passout_arcology">>
+	<<if isPregnancyEnding()>>
+		<<pregnancyPassout "arcology">>
+	<<else>>
+		<<link [[Everything fades to black...|Arcology Passout]]>>
+			<<set _apGuard to setup.arcology.guarded()>>
+			<<set _apShip to ["arcology_launch", "arcology_leisure", "arcology_deck"].includes($location)>>
+			<<set _apPrivate to (passage().startsWith("Arcology Hotel") and !["Arcology Hotel", "Arcology Hotel Lounge", "Arcology Hotel Desk"].includes(passage()) and setup.arcology.hasRoom()) or (_apShip and ["Arcology Ship Cabin", "Arcology Ship Bathroom", "Arcology Voyage Bed"].includes(passage()))>>
+			<<set _apArea to _apShip ? ($location is "arcology_deck" ? "deck" : "ship") : $location is "arcology_glasshouse" ? "glass" : $location is "arcology_hotel" ? "hotel" : $location is "arcology_pier" ? "pier" : $location is "arcology" ? "street" : setup.arcology.districts[$xchange.arcology.district] ? setup.arcology.districts[$xchange.arcology.district].area : "street">>
+			<<set _apOutcome to setup.arcology.passoutOutcome(_apArea, _apGuard, _apPrivate, _apShip)>>
+			<<passout `_apGuard or _apPrivate or _apShip`>><<endevent>>
+			<<unset $xchange.arcology.danger, $xchange.arcology.citizen, $xchange.arcology.eventBack, $xchange.arcology.courier, $xchange.arcology.scene>>
+			<<set $xchange.arcology.recovery to { outcome: _apOutcome, ship: _apShip, back: _apShip ? "Arcology Voyage" : "Arcology Pier" }>>
+			<<pass 1 hour>>
+			<<set $stress to Math.min($stress, $stressmax - 1000)>>
+			<<set $xchange.arcology.dangerChecked to Time.date.timeStamp>>
+		<</link>>
+	<</if>>
+<</widget>>
+
+:: Arcology Danger Widgets [widget]
+/* Hubs call this after effects; encounters own the page until their return link clears them. */
+<<widget "arcologyDangerCheck">>
+	<<set _arcologyDangerActive to false>>
+	<<set _arcologyDangerSkipped to false>>
+	<<if $xchange.arcology.party and $xchange.arcology.party.status is "attending" and $location is "arcology_glasshouse">><<exit>><</if>>
+	<<set _arcologyClimax to false>>
+	<<set _arcologyLoiter to $xchange.arcology.loiter>><<run delete $xchange.arcology.loiter>>
+	<<if !$xchange.arcology.danger and !$combat and $pleasure gte $pleasuremax and ($stress lt $stressmax or $possessed)>>
+		<<orgasm>><<set $orgasmcurrent to 0>>
+		<<if _args[0] isnot "room">>
+			People nearby turn towards you. You steady yourself, but a few keep watching after the others look away.
+			<<fameexhibitionism 10>><<stress 3>>
+			<<set _arcologyClimax to true>>
+		<</if>>
+		<br><br>
+	<</if>>
+	<<if setup.arcology.partyPending() and setup.arcology.partyMissed() and !$xchange.arcology.danger>>
+		/* Let the existing missed-invitation route run first. */
+	<<elseif $stress gte $stressmax and !$possessed>>
+		You've pushed yourself too much. You pass out.
+		<br><br>
+		<<set _arcologyDangerActive to true>>
+		<<passout_arcology>>
+	<<elseif $eventskip is 1 and !$xchange.arcology.danger>>
+		<<set $eventskip to 0>><<set _arcologyDangerSkipped to true>>
+		/* Keep a quiet period set by the event that just ended. */
+		<<set $xchange.arcology.dangerChecked to Math.max($xchange.arcology.dangerChecked or 0, Time.date.timeStamp)>>
+	<<elseif setup.arcology.rollDanger(_args[0], passage(), _arcologyClimax or _arcologyLoiter gte 10)>>
+		<<if (!$xchange.arcology.danger.npc or !$NPCList[0].fullDescription) and !setup.arcology.criminalPassages[$xchange.arcology.danger.kind]>>
+			<<endevent>>
+			<<arcologyNPC 0 `['hotel', 'glass', 'ship', 'exchange', 'commerce', 'civic', 'signal', 'skyline', 'crown'].includes($xchange.arcology.danger.where) ? 'vip' : 'under'` "stranger">>
+			<<set $xchange.arcology.danger.npc to true>>
+		<</if>>
+		<<set _arcologyDangerActive to true>>
+		<<include "Arcology Danger">>
+	<</if>>
+	<<if _arcologyLoiter and !_arcologyDangerActive>>
+		You spend a while loitering, watching the people who pass.
+		<br><br>
+	<</if>>
+<</widget>>
+
+<<widget "arcologyDangerReturn">>
+	<<set _dangerBack to $xchange.arcology.danger.back>>
+	<<capture _dangerBack>><<link [[Leave|_dangerBack]]>>
+		<<endevent>><<unset $xchange.arcology.danger>>
+		<<set $xchange.arcology.dangerChecked to Time.date.timeStamp + 2400>><<set $eventskip to 1>>
+	<</link>><</capture>>
+<</widget>>

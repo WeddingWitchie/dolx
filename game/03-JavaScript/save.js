@@ -2276,6 +2276,7 @@ function settingsObjects(type) {
 				"textAnimsDrunk",
 				"textAnimsHeat",
 				"textAnimsHypno",
+				"textAnimsGlitch",
 				"weatherUpdate",
 				"reflections",
 				"topdownBreastjob",

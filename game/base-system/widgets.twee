@@ -233,7 +233,7 @@
 <<widget "enemyarousal">>
 	<<set _sexModifier to _enemies gt 1 or $NPCList[0].gender is "m" or $timer? 2 : 1>>
 	<<if $demonseduce is 1>>
-		<<set $enemyarousal += _args[0] * 2 * _sexModifier>>
+		<<set $enemyarousal += _args[0] * setup.arcology.seduceMult() * _sexModifier>>
 	<<else>>
 		<<set $enemyarousal += _args[0] * _sexModifier>>
 	<</if>>
@@ -360,9 +360,13 @@
 				<<set _enemyDamageMult to 100>>
 			<</if>>
 			<<set _violence *= Math.clamp(_enemyDamageMult, 25, 300) / 100>>
-			/* Set by the Colosseum cage bout passage. */
-			<<if _colosseumPainMult gt 0>>
-				<<set _painMod *= _colosseumPainMult>>
+			/* Set by fight passages whose enemies hit harder than usual (Colosseum cage, island security). */
+			<<if _scenePainMult gt 0>>
+				<<set _painMod *= _scenePainMult>>
+			<</if>>
+			/* Island fighters' hits keep part of their force through physique and masochism. */
+			<<if _scenePainFloor gt 0>>
+				<<set _painMod *= setup.arcology.painFloorMult(_scenePainFloor)>>
 			<</if>>
 		<</if>>
 
@@ -499,9 +503,9 @@
 		<<set _arousal to 20 * _args[0]>>
 		<<arousal _arousal>>
 		<<if $demonseduce is 1>>
-			<<set $enemyarousal += (3 * _args[0]) * 2>>
+			<<set $enemyarousal += (3 * _args[0]) * setup.arcology.seduceMult()>>
 			<<set $enemyarousal to Math.clamp($enemyarousal, 0, $enemyarousalmax ?? Infinity)>>
-			<<enemypleasure `(2 * 3 * _args[0])`>>
+			<<enemypleasure `(setup.arcology.seduceMult() * 3 * _args[0])`>>
 		<<else>>
 			<<set $enemyarousal += 3 * _args[0]>>
 			<<set $enemyarousal to Math.clamp($enemyarousal, 0, $enemyarousalmax ?? Infinity)>>
@@ -576,6 +580,12 @@
 			<<set _damageCapShare to _damageCapShare * 0.85>>
 		<</if>>
 		<<set _damageCapPool to (Number.isFinite($enemyhealthmax) and $enemyhealthmax gt 0 ? $enemyhealthmax : 200)>>
+		<<set _cyTgt to (_args[1] isnot undefined ? _args[1] : ($enemyno lte 1 ? 0 : -1))>>
+		/* An island fighter is measured against their own body rather than the whole group, and trained bodies stay up through a larger share of hits. */
+		<<if setup.arcology.cyberOf(_cyTgt) and $NPCList[_cyTgt].healthmax gt 0>>
+			<<set _damageCapPool to $NPCList[_cyTgt].healthmax>>
+			<<set _damageCapShare *= setup.arcology.gradeStats[setup.arcology.cyberOf(_cyTgt).grade].endure>>
+		<</if>>
 		<<set _thedamage to Math.min(_thedamage, _damageCapPool * _damageCapShare)>>
 		/* Mastery traits apply after the cap, on purpose.
 		The players who earn them are already hitting the cap, so a bonus folded in beforehand would be invisible to them. */
@@ -587,9 +597,21 @@
 			<<set _thedamage to _thedamage * masteryDamageMultiplier("feint")>>
 		<</if>>
 		<<if $combatExtended.enemyBlockingActive is 1 and $NPCList[_args[1]]>>
-			<<set _reduction to Math.clamp($NPCList[_args[1]].dodgeChance * 2, 0, 75)>>
+			<<set _reduction to Math.clamp($NPCList[_args[1]].dodgeChance * 2 + (setup.arcology.cyberHas(_args[1], "limbs") ? 15 : 0), 0, 75)>>
 			<<if !Number.isFinite(_reduction)>><<set _reduction to 0>><</if>>
 			<<set _thedamage to _thedamage * (1 - (_reduction / 100))>>
+			<<if setup.arcology.cyberPart(_args[1], "limbs")>><<run setup.arcology.cyberNote(_args[1], "block")>><</if>>
+		<</if>>
+		/* Island implants: bone plating and subdermal reinforcement soak part of a landed blow. */
+		<<set _cyArmour to setup.arcology.armourShare(_cyTgt)>>
+		<<if _cyArmour gt 0 and _thedamage gt 0>>
+			<<set _thedamage to _thedamage * (1 - _cyArmour)>>
+			<<if setup.arcology.cyberHas(_cyTgt, "skeleton")>><<run setup.arcology.cyberNote(_cyTgt, "armour")>><</if>>
+		<</if>>
+		/* A landed blow can damage the target's implants; a blocked one lands on the metal arm. */
+		<<if _cyTgt gte 0 and _thedamage gt 0>>
+			<<set _cyWorn to setup.arcology.wear(_cyTgt, _thedamage, $combatExtended.enemyBlockingActive is 1 ? "limbs" : null)>>
+			<<if _cyWorn>><<set _cyberWorn to Object.assign({ slot: _cyTgt }, _cyWorn)>><</if>>
 		<</if>>
 		/* NaN-proof the damage before it touches health. */
 		<<if !Number.isFinite(_thedamage) or _thedamage lt 0>>
@@ -3422,10 +3444,10 @@
 	<<set $stress -= 5000>>
 	<<set $passoutstat += 1>>
 	<<set $passoutTimeStat to Time.date.timeStamp>>
-	<<if playerChastity() and $worn.genitals.chastityKey is "player" and random(1, 100) lte npcChastityChance(13)>>
+	<<if !_args[0] and playerChastity() and $worn.genitals.chastityKey is "player" and random(1, 100) lte npcChastityChance(13)>>
 		<<loseChastityControl "stolen" undefined "chastity">>
 		<<set $chastityControlLostMessage to "key">>
-	<<elseif playerHasVibratorRemote() and random(1, 100) lte 15>>
+	<<elseif !_args[0] and playerHasVibratorRemote() and random(1, 100) lte 15>>
 		<<loseChastityControl "stolen" undefined "vibrator">>
 		<<set $chastityControlLostMessage to "remote">>
 	<</if>>
@@ -4237,7 +4259,8 @@
 				<<relation-box-collapsed _npcData _npcOverrides>>
 			</div>
 		<<elseif _npcData.nam is "Luchifen">>
-			/* The Silver Stranger stays hidden: name shown only as a glowing "???", no title, no stat bars. */
+			/* Before the island reveal: a glowing "???" with no title and no stat bars.
+			   After it: the plain name and their love shown as Favor. Still no title. */
 			<div class="relation-box">
 				<div class="relation-top-line">
 					<span class="relation-name"><<silverName>></span>
@@ -4245,6 +4268,11 @@
 				<div class="relation-description">
 					<<npcrelationship "Luchifen">>
 				</div>
+				<<if $xchange.silverStranger and $xchange.silverStranger.nameKnown and _npcData.love gt 0>>
+					<div class="full-width quick-stats relation-stat-list">
+						<<relation-box-stat _getStatConfig("love")>>
+					</div>
+				<</if>>
 			</div>
 		<<else>>
 			<div @class="'relation-box' + (_isNpcRelationBoxCollapsed ? ' is-collapsed' : '')" @data-npc="_npcData.nam">

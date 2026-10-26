@@ -1,0 +1,1288 @@
+:: Arcology Danger
+<<if setup.arcology.criminalPassages[$xchange.arcology.danger.kind]>>
+	<<arcologyCriminalInit>>
+	<<include `setup.arcology.criminalPassages[$xchange.arcology.danger.kind]`>>
+	<<exit>>
+<</if>>
+<<person1>><<set _ad to $xchange.arcology.danger>>
+<<if _ad.price is undefined>><<set _ad.price to setup.arcologyPrice.demand(random(2, 5))>><</if>>
+<<switch _ad.kind>>
+<<case "robbery">>
+	<<A $NPCList[0].fullDescription>> steps in front of you, blocking your way. <<He>> raises an arm to show you a small screen attached to <<his>> wrist.
+	<br><br>
+	"<<print setup.arcology.cx(_ad.price)>>. Send it over," <<he>> demands. <<arcologyCyberLook 0>>
+	<br><br>
+	You try to walk around <<him>>, but <<he>> grabs your forearm and pulls you back. Before you can get away, <<he>> pushes you towards the nearby wall and holds the screen in front of you.
+	<br><br>
+	The payment request waits for your authorisation. When you draw your wrist back, <<his>> fingers tighten on your forearm, keeping you against the wall while <<he>> holds the amount where you can see it.
+<<case "abduction">>
+	<<A $NPCList[0].fullDescription>> stands beside an open service door, holding a large box. <<He>> asks whether you can help carry it into the room. <<arcologyCyberLook 0>>
+	<br><br>
+	As you approach, you notice several restraints hanging inside the room. You stop walking, suddenly unsure about going any closer.
+	<br><br>
+	The stranger notices your hesitation and quickly puts the box down. Before you can move away, <<he>> grabs your arm and tries to drag you through the doorway.
+	"Get inside!" <<he>> orders, pulling harder when you resist.<<pain 2>><<gpain>>
+<<case "clinic">>
+	<<A $NPCList[0].fullDescription>> approaches you with a packet of X-Change, offering it to you while showing you the label. <<arcologyCyberLook 0>>
+	<br><br>
+	At first, the packet looks unopened, but you notice that someone has already cut the seal. When you point this out, the stranger quickly puts it away.
+	<br><br>
+	Before you can leave, <<he>> grabs your wrist and tries to pull you closer.
+	"Fine. If you won't buy it, you're coming to the clinic instead." <<He>> laughs as <<he>> turns your wrist, trying to make you follow. "They pay well for live donors. Better than I get for selling these."
+<<case "scan">>
+	<<A $NPCList[0].fullDescription>> comes up beside you, holding a small scanner near your head as <<he>> walks alongside you. <<arcologyCyberLook 0>>
+	<br><br>
+	<<if playerHasXChangeBody()>>
+		You notice a different face appearing on <<his>> screen, even though <<hes>> scanning you. The stranger frowns at the result before reaching towards your implant.
+		"Hold still. I need to find your original records."
+	<<else>>
+		Your face appears on the screen, along with information about you from the mainland. When you try to read it, the stranger quickly turns the screen away.
+		"Someone might pay a lot for this information. Let's find out."
+	<</if>>
+	<br><br>
+	You move away from <<him>>, but <<he>> follows and reaches for your shoulder, trying to stop you from leaving.
+<<case "contract">>
+	A well-dressed <<person>> approaches you and offers to arrange a private meeting with someone who wants to make a deal. <<arcologyCyberLook 0>>
+	<br><br>
+	<<He>> shows you a contract. The first page says you'll receive money, but when you read further, you discover that signing it would give the buyer control over your implant. The contract would also allow the buyer to send you somewhere else without asking for your permission.
+	<br><br>
+	You close the contract, unwilling to agree to those terms. The <<person>> takes hold of your elbow before you can walk away and starts pulling you towards a nearby staff door.
+	<br><br>
+	"We can discuss the details inside," <<he>> says, continuing to lead you towards the door.
+<<case "security">>
+	<<A $NPCList[0].fullDescription>> wearing a private security badge blocks your path. <<arcologyCyberLook 0>>
+	<br><br>
+	"Identity inspection." <<He>> opens a payment request instead of a registry page. You glance at the amount on the screen.
+	<<speechresolve>><br><br>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
+		"Could I see an official receipt first, please?" you ask.
+	<<case "shy">>
+		"I, um... could I see an official receipt?" you ask.
+	<<case "polite">>
+		"Could you show me an official receipt for the inspection, please?" you ask.
+	<<case "neutral">>
+		"Where's the official receipt?" you ask.
+	<<case "confident">>
+		"Show me an official receipt before I pay anything," you say.
+	<<case "bratty">>
+		"You expect me to pay that without a receipt?" you ask.
+	<<case "docile">>
+		"Could I have a receipt before I pay?" you ask quietly.
+	<<case "flamboyant">>
+		"Could you show me an official receipt for the inspection, please?" you ask.
+	<<case "cruel">>
+		"You call this an inspection? Show me the official receipt," you say.
+	<</switch>>
+	<br><br>
+	Instead of answering, <<he>> grips your arm. "You can pay here, or come downstairs for questioning."
+<</switch>>
+<br><br>
+<<if setup.arcology.guarded()>>
+	<<link [[Next|Arcology Danger Intercept]]>><</link>>
+<<else>>
+	<<link [[Resist|Arcology Danger Fight]]>><<set $fightstart to 1>><</link>>
+	<br>
+	<<link [[Break away and run|Arcology Danger Result]]>><<set $xchange.arcology.danger.stage to setup.arcology.escape("run", "athletics", 300, 1000) ? "escaped" : "caught">><<pass 2>><</link>><<arcologySkill "Athletics">>
+	<br>
+	<<if ["robbery", "security"].includes(_ad.kind)>>
+		<<if $xchange.arcology.cipher gte _ad.price>>
+			<<link [[Authorise the payment|Arcology Danger Result]]>><<set $xchange.arcology.danger.stage to "paid">><</link>>
+		<<else>>
+			<<link [[Show your empty balance|Arcology Danger Fight]]>><<set $molestationstart to 1>><<set $xchange.arcology.danger.stage to "broke">><</link>>
+		<</if>>
+	<<elseif _ad.kind is "scan">>
+		<<link [[Let the scan finish|Arcology Danger Result]]>><<set $xchange.arcology.danger.stage to "scanned">><</link>>
+	<<else>>
+		<<link [[Go with the stranger|Arcology Danger Captive]]>><</link>>
+	<</if>>
+<</if>>
+<br>
+
+:: Arcology Danger Intercept
+<<effects>><<person1>><<arcologyVictorPronouns>>
+<<if $xchange.arcology.danger.kind is "security">>
+	A message suddenly appears on the small screen attached to the guard's wrist. <<He>> stops to read it, then looks behind <<him>> before checking the message again.
+	<br><br>
+	Without another word, <<he>> lets go of you and pulls <<his>> jacket straight.
+	"The inspection is complete," <<he>> says, closing the request for payment on <<his>> screen.
+	<br><br>
+	<<He>> steps aside, allowing you to leave. Behind <<him>>, you notice a tall <<print _vman>> wearing a dark coat, putting a small device into <<print _vhis>> pocket.
+<<elseif $xchange.arcology.danger.kind is "scan">>
+	Before the stranger can do anything else with the scanner, someone wearing a glove grabs the device. The stranger tries to pull it away, but stops when <<he>> sees a tall <<print _vman>> in a dark coat standing beside <<him>>.
+	<br><br>
+	The stranger looks between the attendant and the scanner, then uses <<his>> free hand to open the record <<he>> just saved.
+	The attendant watches while <<he>> deletes it. Once the record is gone, the attendant lets go of the scanner, allowing the stranger to take it back.
+	<br><br>
+	The stranger quickly puts the device away and leaves without speaking to you.
+<<else>>
+	The stranger starts pulling you away, but someone suddenly grabs <<his>> wrist from behind. <<He>> lets go of you as a tall <<print _vman>> in a dark coat twists <<his>> arm, forcing <<him>> to bend <<his>> knees to ease the pain.
+	<br><br>
+	The stranger quickly nods, and the attendant lets go of <<his>> wrist before stepping between you.
+	<br><br>
+	Rubbing <<his>> sore wrist, the stranger backs away from you both. <<He>> takes another look at the attendant, then hurries through the nearest doorway.
+<</if>>
+<br><br>
+The attendant stays nearby until you're steady on your feet, but turns to leave before you can ask any questions.
+<br><br>
+As <<print _vman>> walks away, you notice a small silver pin shaped like half a mask attached to <<print _vhis>> coat collar.
+<br><br>
+<<arcologyDangerReturn>>
+
+:: Arcology Danger Result
+<<effects>><<person1>>
+<<set _ad to $xchange.arcology.danger>>
+<<if !_ad.resolved and _ad.stage isnot "caught">>
+	<<set _ad.resolved to true>>
+	<<if _ad.stage is "paid">>
+		<<set _ad.loss to Math.min($xchange.arcology.cipher, _ad.price)>><<set $xchange.arcology.cipher -= _ad.loss>>
+	<<elseif _ad.stage is "scanned">>
+		<<run setup.arcology.expose(playerHasXChangeBody() ? 1 : 3)>>
+		<<set $xchange.arcology.trouble to { source: "identity" }>>
+	<</if>>
+<</if>>
+<<switch _ad.stage>>
+<<case "caught">>
+	<<arcologyCounterLine>>
+	You manage to pull away and run towards a nearby doorway, but the stranger grabs your clothing before you can reach it.
+	<br><br>
+	<<He>> pulls you back towards <<him>>, and grabs your arm, stopping you from running away.
+	<br><br>
+	<<link [[Struggle|Arcology Danger Fight]]>><<set $fightstart to 1>><</link>>
+	<br>
+	<<link [[Give in|Arcology Danger Fight]]>><<set $fightstart to 1>><<set _ad.stage to "surrender">><</link>>
+<<case "paid">>
+	The screen confirms that you've sent <<print setup.arcology.cx(_ad.loss)>>. The stranger checks the payment, making sure the amount is correct before finally letting go of you.
+	<br><br>
+	You quickly move away while <<hes>> still looking at the screen, relieved that <<he>> isn't trying to stop you.
+	<br><br>
+	<<arcologyDangerReturn>>
+<<case "scanned">>
+	The stranger holds the scanner close to your implant until it makes a sound. Your personal record appears on <<his>> screen, and <<he>> looks through the information before stepping aside to let you leave.
+	<br><br>
+	As you walk away, you glance back and notice <<him>> sending a copy of your record to someone else. You have no idea who is receiving it, or what will be done with your information.
+	<br><br>
+	<span class="red">Someone on the island is looking for you now.</span>
+	<br><br>
+	<<arcologyDangerReturn>>
+<<default>>
+	You manage to pull away from the stranger and run between two groups of people walking past. <<He>> tries to follow, but has trouble getting through the crowd, giving you time to reach a nearby entrance where several staff members are working.
+	<br><br>
+	When the staff look up and notice what's happening, the stranger stops following you. You stay beside the staff until <<he>> turns away, then return to the walkway.
+	<br><br>
+	<<arcologyDangerReturn>>
+<</switch>>
+
+:: Arcology Danger Fight
+<<if $xchange.arcology.danger.price is undefined>><<set $xchange.arcology.danger.price to setup.arcologyPrice.demand(random(2, 5))>><</if>>
+<<if setup.arcology.guarded()>>
+	<<set $fightstart to 0>><<set $molestationstart to 0>><<unset $combatGiveUp>><<include "Arcology Danger Intercept">><<exit>>
+<</if>>
+<<if $fightstart is 1 or $molestationstart is 1>>
+	<<if $molestationstart is 1>><<controlloss>><<violence 1>><<molested>><</if>>
+	<<set $fightstart to 0>><<set $molestationstart to 0>><<neutral 1>><<maninit>><<npcidlegenitals>>
+	<<set $enemytrust -= 100>><<set $enemyanger += 150>>
+<</if>>
+<<if $xchange.arcology.danger.stage is "broke">>
+	<<set $xchange.arcology.danger.stage to "surrendered">>
+	<<person1>>The stranger stares at the empty balance, then tightens <<his>> grip on your arm. "Then you'll pay me another way."
+	<br><br>
+<</if>>
+<<if $xchange.arcology.danger.stage is "surrender">>
+	<<set $xchange.arcology.danger.stage to "surrendered">><<submission 5>><<combatcontrol -25>>
+	You stop struggling, but the stranger doesn't let go of you.
+	<br><br>
+<</if>>
+<<set _scenePainMult to setup.arcology.fightPainMult()>><<set _scenePainFloor to setup.arcology.fightPainFloor()>>
+<<effects>><<arcologyCombatNotes>><<effectsman>><<man>><<arcologyCyberTurn>><<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|Arcology Danger Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Danger Fight]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Danger Finish
+<<effects>>
+<<set _ad to $xchange.arcology.danger>>
+<<if !_ad.resolved>>
+	<<person1>>
+	<<set _ad.pronoun to $pronoun>>
+	<<set _ad.resolved to true>>
+	<<set _ad.won to $enemyhealth lte 0 or $enemypleasure gte $enemypleasuremax or ($alarm is 1 and $rescue gte 1)>>
+	<<if $enemyhealth lte 0>><<run setup.arcology.noteWin()>><</if>>
+	<<if $enemypleasure gte $enemypleasuremax>><<ejaculation>><</if>>
+	<<if !_ad.won>>
+		<<if $finish is 1>><<encounterEndViolence>><</if>>
+		<<if ["robbery", "scan", "dealer"].includes(_ad.kind)>>
+			<<set _ad.loss to Math.min($xchange.arcology.cipher, $xchange.arcology.danger.price)>><<set $xchange.arcology.cipher -= _ad.loss>>
+			<<if _ad.kind is "scan">><<run setup.arcology.expose(playerHasXChangeBody() ? 1 : 3)>><<set $xchange.arcology.trouble to { source: "identity" }>><</if>>
+		<</if>>
+	<</if>>
+	<<if _ad.won and _ad.kind is "dealer">><<pain -25>><<stress -3>><</if>>
+	<<clotheson>><<endcombat>>
+<</if>>
+<<set $pronoun to _ad.pronoun>>
+<<if _ad.won>>
+	You manage to pull free of the stranger's grip. Before <<he>> can grab you again, you push past <<him>> and hurry away.
+	<<if _ad.kind is "dealer">>You still have the patch. Once you're clear, you press it against your wrist, and the ache in your body fades.<</if>>
+	<br><br>
+	<<arcologyDangerReturn>>
+<<elseif ["robbery", "scan", "dealer"].includes(_ad.kind) and !_ad.loss>>
+	The stranger checks your balance one more time, finds it still empty, and shoves you away. You gather your clothing and hurry towards a nearby entrance where you can see staff working.
+	<br><br>
+	<<arcologyDangerReturn>>
+<<elseif ["robbery", "scan", "dealer"].includes(_ad.kind)>>
+	The stranger grabs your wrist and forces it against the payment reader, taking <<print setup.arcology.cx(_ad.loss)>> from you. <<He>> refuses to let go until the transfer is complete.
+	<br><br>
+	Once <<he>> releases you, you get back on your feet. You quickly head towards a nearby entrance where you can see staff working, hoping the stranger won't follow you.
+	<br><br>
+	<<arcologyDangerReturn>>
+<<else>>
+	The stranger grabs both your arms and pulls them behind your back, making it difficult for you to fight back. <<He>> forces you towards a nearby service door and pushes you inside.
+	<br><br>
+	The stranger keeps hold of your arm and shuts the door behind you, cutting you off from the street.
+	<br><br>
+	<<link [[Next|Arcology Danger Captive]]>><</link>>
+<</if>>
+<br>
+
+:: Arcology Danger Captive
+<<effects>>
+<<if $NPCList[0] and $NPCList[0].pronoun>><<person1>><<elseif $xchange.arcology.danger.pronoun>><<set $pronoun to $xchange.arcology.danger.pronoun>><</if>>
+<<if $xchange.arcology.danger.price is undefined>><<set $xchange.arcology.danger.price to setup.arcologyPrice.demand(random(2, 5))>><</if>>
+<<if setup.arcology.guarded()>>
+	<<include "Arcology Danger Intercept">>
+	<<exit>>
+<</if>>
+<<if ["ship", "deck"].includes($xchange.arcology.danger.where)>>
+	<<if !$xchange.arcology.danger.confined>>
+		<<set $xchange.arcology.danger.confined to true>>
+		<<set $xchange.arcology.danger.loss to Math.min($xchange.arcology.cipher, $xchange.arcology.danger.price)>>
+		<<set $xchange.arcology.cipher -= $xchange.arcology.danger.loss>>
+	<</if>>
+	The stranger pushes you into a storage room and grabs your wrist before you can pull away. <<He>> forces your wrist against a payment reader, taking <<print setup.arcology.cx($xchange.arcology.danger.loss)>> from your account.
+	<br><br>
+	Once the payment goes through, <<he>> hurries outside and shuts the door. You hear something heavy being moved in the corridor.
+	You grab the door handle and try to open it, but something is blocking the door from outside. You shout for help and keep banging until you hear footsteps approaching.
+	<br><br>
+	A steward hears you and comes over to investigate. After calling out to check whether you're all right, the steward moves whatever is blocking the door and lets you out.
+	<br><br>
+	You explain what happened, but when the steward looks along the corridor, the stranger is nowhere to be seen.
+	<br><br>
+	<<arcologyDangerReturn>><<exit>>
+<</if>>
+The stranger keeps a firm grip on your arm as <<he>> takes you through the service corridor into a lift meant for workers, refusing to let go when you try to slow down.
+<br><br>
+The lift takes you to one of the lower floors. When the doors open, <<he>> pulls you through a corridor and into a room with a desk, where a clerk is working.
+Behind the clerk is a large window looking into another room. Several workers are sorting through piles of used implants under orange lights.
+<br><br>
+The clerk looks up and asks who gave permission to bring you here. Instead of answering, the stranger places a payment token on the desk.
+<br><br>
+The clerk looks at the token, then quietly pockets it. Without asking any more questions, the clerk opens a registration form and begins entering your details.
+<br><br>
+<<link [[Next|Arcology Stack Intro]]>><<arcologyStackStart "arcologyAbduction">><<unset $xchange.arcology.danger>><</link>>
+<br>
+
+:: Arcology Salon Offer
+<<person1>><<set _ad to $xchange.arcology.danger>>
+<<A $NPCList[0].fullDescription>> stands near a private seating area. "How long have you had your current body?" <<he>> asks. <<arcologyCyberLook 0>>
+<br><br>
+Behind <<him>>, two attendants sit at a table, looking through pictures on a screen.
+<br><br>
+"Portraits for a private collection," <<he>> explains, indicating the attendants' screen with a wave of <<his>> hand. "I can pay you <<print setup.arcology.cx(_ad.price)>> to sit for one. Only a few minutes of your time, and the collector gets a face they haven't seen before."
+<br><br>
+<<He>> turns the screen towards you to show you some examples. Most of the pictures are of people who have changed bodies, with their usernames written below each portrait instead of their real names.
+<br><br>
+Before you can take part, <<he>> offers to check whether you qualify. <<He>> shows you a small electronic reader. The screen says the check requires your implant record and a photograph.
+<<He>> hasn't connected the reader to your implant yet, so you can still refuse.
+<br><br>
+<<link [[Show your record|Arcology Body Reception]]>><</link>>
+<br>
+<<arcologyDangerDecline>>
+
+:: Arcology Market Offer
+<<person1>>
+<<A $NPCList[0].fullDescription>> behind a narrow counter calls you over. <<arcologyCyberLook 0>> Two assistants are working nearby. One is cleaning the metal parts of a small reader, while the other arranges several sealed cases on a shelf.
+<br><br>
+<<He>> points to a price list beside the counter.
+"A connection test costs <<print setup.arcology.cx($xchange.arcology.danger.price)>> if you've changed bodies. I'll need to check your current body's record first, though. That's how I know you qualify for the lower price."
+<br><br>
+There are already several customers waiting, but the dealer offers to serve you first.
+<br><br>
+"People who change bodies usually want to keep their old identities private," <<he>> adds. "I prefer customers who understand that."
+<br><br>
+You notice that the reader on the counter has no civic service mark. The dealer picks it up and waits for your permission to check your record before continuing.
+<br><br>
+<<link [[Let the dealer check your record|Arcology Body Reception]]>><</link>>
+<br>
+<<arcologyDangerDecline>>
+
+:: Arcology Body Reception
+<<effects>><<person1>>
+<<set _ad to $xchange.arcology.danger>>
+<<if !_ad.result>><<set _ad.result to playerHasXChangeBody() ? "favored" : "targeted">><</if>>
+<<if _ad.result is "favored">>
+	<<if _ad.kind is "salon">>
+		The host checks your records, comparing the earlier picture with the face in front of <<him>>. <<He>> looks up with a smile. "You've changed your appearance. I'd like a portrait of this one, before you decide to try another."
+		<br><br>
+		<<He>> asks an attendant to clear the best chair for you, then invites you to sit down.
+		The host offers you <<print setup.arcology.cx(_ad.price)>> in exchange for one photograph. The photo will use your island username, and you can read the full agreement before signing anything.
+		<br><br>
+		<<He>> brings over the camera, but waits for you to agree before taking the picture.
+		<br><br>
+		<<link [[Pose (0:15)|Arcology Body Favor]]>><<pass 15>><</link>>
+	<<else>>
+		The dealer checks your earlier record and compares it with your current body. After noticing the differences, <<he>> closes the record without saving a copy.
+		"The test costs <<print setup.arcology.cx(_ad.price)>>," <<he>> says, placing a small device on the counter.
+		<br><br>
+		<<He>> explains that the device can check your implant for connection problems. It can't change anything inside your implant or copy your identity information.
+		<br><br>
+		You can look through the test details before paying. The dealer disconnects the device while you decide whether to use it.
+		<br><br>
+		<<if $xchange.arcology.cipher gte _ad.price>>
+			<<link `"Pay " + setup.arcology.cx(_ad.price)` "Arcology Body Favor">><<pass 5>><</link>>
+		<<else>>
+			<span class="blue">You can't afford the test.</span> The dealer puts the device away.
+		<</if>>
+	<</if>>
+	<br>
+	<<arcologyDangerReturn>>
+<<else>>
+	<<if setup.arcology.guarded()>><<include "Arcology Criminal Intercept">><<exit>><</if>>
+	<<if _ad.kind is "salon">>
+		The host looks through the photographs on the reader until <<he>> finds an older picture of you. <<He>> compares it with how you look now.
+		"You still have your original body. Some buyers are interested in that," <<he>> says before putting the reader down.
+		<br><br>
+		<<He>> tells the two attendants to close the doors to the seating area.
+		You step back as the attendants approach, but one of them grabs your arms before you can get away. The other starts pulling at your clothes, trying to remove them while you're being held.
+		<br><br>
+		"Stop! Let me go!" you shout, struggling to free your arms.
+		<br><br>
+		Neither attendant listens. The host picks up the camera and comes closer, preparing to take pictures of you while the attendants continue holding you.
+	<<else>>
+		The dealer checks your record, then looks at you.
+		"You haven't changed since your last measurements. The same sizes should still fit," <<he>> says.
+		<br><br>
+		<<He>> signals to the assistant who was cleaning the reader. The assistant puts it down and moves in front of the entrance, blocking your way out.
+		You try to get past the assistant, but the dealer grabs your wrist and presses it against the counter, stopping you from leaving.
+		<br><br>
+		While you're trying to pull your arm free, the other assistant leaves the shelf, comes up behind you and reaches under your clothes. You immediately try to move away, but the dealer keeps holding your wrist.
+		<br><br>
+		You tell them to stop, but the assistant keeps touching you while talking to the dealer about your body and the measurements in your record.
+	<</if>>
+	<br><br>
+	<<link [[Struggle|Arcology Criminal Fight]]>><<set $fightstart to 0>><<set $molestationstart to 1>><</link>>
+	<br>
+	<<link [[Give in|Arcology Criminal Fight]]>><<set $fightstart to 0>><<set $molestationstart to 1>><<set _ad.action to "surrender">><</link>>
+<</if>>
+<br>
+
+:: Arcology Body Favor
+<<effects>><<person1>>
+<<set _ad to $xchange.arcology.danger>>
+<<if _ad.result isnot "favored">><<include "Arcology Body Reception">><<exit>><</if>>
+<<if !_ad.settled>>
+	<<set _ad.settled to true>>
+	<<if _ad.kind is "salon">><<set $xchange.arcology.cipher += _ad.price>><<else>><<set $xchange.arcology.cipher -= _ad.price>><</if>>
+	<<stress -2>>
+<</if>>
+<<if _ad.kind is "salon">>
+	The host takes the portrait you agreed to and shows you the finished picture. Once you're happy with it, <<he>> sends <<print setup.arcology.cx(_ad.price)>> to your account while you watch.
+	<br><br>
+	One of the attendants brings you a glass of water while you check the payment.
+	<br><br>
+	Before you leave, the host gives you a copy of the picture. It's labelled with your island username, without mentioning your real name.
+<<else>>
+	The dealer cleans the connection point on the outside of your implant, asking you to keep your head turned while <<he>> attaches a small device to test it.
+	<br><br>
+	<<He>> runs the test while you watch, showing you the results and explaining whether the connection is working properly.
+	<br><br>
+	Once the test is finished, <<he>> confirms the charge of <<print setup.arcology.cx(_ad.price)>> and removes the testing device. <<He>> wipes the connection point again before letting you turn your head. Your implant remains unchanged, with no parts added or removed.
+<</if>>
+<br><br>
+<<arcologyDangerReturn>>
+
+:: Arcology Criminal Widgets [widget]
+<<widget "arcologyCriminalInit">>
+	<<set _ad to $xchange.arcology.danger>>
+	<<if !_ad.npc or !$NPCList[0].fullDescription>>
+		<<endevent>>
+		<<switch _ad.kind>>
+		<<case "clinicOffer">>
+			<<arcologyNPC 0 "staff" "technician">><<arcologyNPC 1 "worker" "assistant">><<arcologyNPC 2 "under" "guard">>
+			<<set _ad.deal to random(1, 3)>>
+		<<case "blackmail">>
+			<<arcologyNPC 0 "vip" "broker">><<arcologyNPC 1 "staff" "bodyguard">><<arcologyNPC 2 "staff" "bodyguard">>
+			<<set _ad.evidence to !playerHasXChangeBody() or ($xchange.arcology.recognizable or 0) gte 2>>
+		<<case "transport">>
+			<<arcologyNPC 0 "worker" "dispatcher">><<arcologyNPC 1 "under" "driver">><<arcologyNPC 2 "under" "loader">>
+		<<case "salon">>
+			<<arcologyNPC 0 "vip" "host">><<arcologyNPC 1 "staff" "bodyguard">><<arcologyNPC 2 "staff" "bodyguard">>
+		<<case "partsMarket">>
+			<<arcologyNPC 0 "worker" "dealer">><<arcologyNPC 1 "under" "assistant">><<arcologyNPC 2 "under" "collector">>
+		<<case "raid">>
+			<<if setup.arcology.lawful(_ad.where)>><<arcologyNPC 0 "staff" "security officer">><<else>><<arcologyNPC 0 "under" "raider">><<arcologyNPC 1 "under" "raider">><</if>>
+		<<case "fraud">>
+			<<arcologyNPC 0 `setup.arcology.lawful(_ad.where) ? "staff" : "under"` "scammer">><<arcologyNPC 1 "under" "accomplice">><<arcologyNPC 2 "under" "accomplice">>
+		<<default>>
+			<<arcologyNPC 0 "vip" "gang leader">><<arcologyNPC 1 "under" "lookout">><<arcologyNPC 2 "under" "enforcer">>
+		<</switch>>
+		<<set _ad.npc to true>><<set _ad.price to setup.arcologyPrice.demand(random(2, 5))>>
+	<</if>>
+	<<person1>>
+<</widget>>
+
+/* endcombat clears NPCList. Keep the same captors for the scene after the fight. */
+<<widget "arcologyCriminalEndCombat">>
+	<<for _acSlot to 0; _acSlot lt 3; _acSlot++>><<saveNPC _acSlot `"arcology_threat_" + _acSlot`>><</for>>
+	<<clotheson>><<endcombat>>
+	<<for _acSlot to 0; _acSlot lt 3; _acSlot++>><<loadNPC _acSlot `"arcology_threat_" + _acSlot`>><<clearNPC `"arcology_threat_" + _acSlot`>><</for>>
+<</widget>>
+
+<<widget "arcologyDangerDecline">>
+	<<if $xchange.arcology.danger.declined>>
+		The group steps closer together until there is no clear space between them. <span class="blue">They block your path</span>, so the only way through is to move close to one of them.
+		<br>
+	<<else>>
+		<<link [[Walk away|Arcology Criminal Attempt]]>><<set $xchange.arcology.danger.declined to true>><<set $xchange.arcology.danger.action to "decline">><<set $xchange.arcology.danger.check to setup.arcology.escape("run", "athletics", 200, 900)>><</link>><<arcologySkill "Athletics">>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "arcologyCriminalChoices">>
+	<<link [[Resist the group|Arcology Criminal Fight]]>><<set $fightstart to 1>><</link>>
+	<br>
+	<<if !$xchange.arcology.danger.ran and $feetuse isnot "bound">>
+		<<link [[Run|Arcology Criminal Attempt]]>><<set $xchange.arcology.danger.ran to true>><<set $xchange.arcology.danger.action to "run">><<set $xchange.arcology.danger.check to setup.arcology.escape("run", "athletics", 400, 1200)>><<pass 1>><</link>><<arcologySkill "Athletics">>
+		<br>
+	<</if>>
+	<<link [[Stop resisting|Arcology Criminal Seized]]>><</link>>
+	<br>
+<</widget>>
+
+:: Arcology Gang Approach
+<<person1>>
+<<A $NPCList[0].fullDescription>> is leaning against a closed shop and waves you over. <<arcologyCyberLook 0>> Two other people are standing nearby. They stop talking when they notice you.
+<br><br>
+<<if setup.arcology.threatBand() gte 2>><<arcologyThreatReact "criminal">><br><br><</if>>
+One looks at your face and checks something on a screen strapped to one wrist, while the other pushes a crate aside to clear a narrow passage beside the shop.
+<<person2>><<arcologyCyberLook 1>><<person1>>
+<br><br>
+"Looking for somewhere? We know this area. There's a shortcut through here if you don't want to walk all the way around."
+<<He>> points towards the passage where the crate was moved.
+<br><br>
+While <<he>> talks, the person with the wrist screen moves around towards your other side.
+<br><br>
+<<link [[Walk on|Arcology Criminal Attempt]]>><<set $xchange.arcology.danger.action to "avoid">><<set $xchange.arcology.danger.check to setup.arcology.escape("run", "athletics", 100, 700)>><</link>><<arcologySkill "Athletics">>
+<br>
+<<link [[Ask what they want|Arcology Gang Demand]]>><</link>>
+<br>
+
+:: Arcology Gang Demand
+<<effects>><<person1>>
+One of the three strangers steps directly in front of you, blocking your way. The leader walks over, looking around to check whether anyone else is nearby.
+<br><br>
+Once <<he>> reaches you, <<he>> raises <<his>> wrist and shows you a payment request on the screen.
+"That'll be <<print setup.arcology.cx($xchange.arcology.danger.price)>>. Escort fee. Everyone pays."
+<<speechresolve>>
+<<switch _speechAttitudeResolved>>
+	<<case "meek">>
+		"I didn't ask for an escort," you say nervously. "I just want to leave."
+	<<case "shy">>
+		"I wasn't asking for an escort," you say, looking towards the way out.
+	<<case "polite">>
+		"Thank you, but I didn't ask for an escort," you say. "I'd rather leave."
+	<<case "confident">>
+		"I didn't agree to any escort, so I'm not paying for one," you say.
+	<<case "bratty">>
+		"You call blocking my way an escort? I never asked you for anything," you say.
+	<<case "docile">>
+		"I didn't ask for help," you say quietly. "Please let me leave."
+	<<case "flamboyant">>
+		"Thank you, but I didn't ask for an escort," you say. "I'd rather leave."
+	<<case "cruel">>
+		"You're trying to charge me for getting in my way? I didn't ask for your help," you say.
+	<<default>>
+		"I never asked for an escort," you say.
+<</switch>>
+<br><br>
+The leader ignores your answer and leaves the payment request on the screen, waiting for you to pay. Behind <<him>>, you notice <<person3>>the third member taking a metal tool out of <<his>> pocket.
+<br><br>
+<<He>> quickly hides it inside <<his>> sleeve, but you've already seen it.<<person1>>
+<br><br>
+"Short on Cipher?" the leader adds. "There's a delivery crew round the back that always needs another pair of hands. Work the fee off, and we're square."
+<br><br>
+<<if $xchange.arcology.cipher gte $xchange.arcology.danger.price>>
+	<<link `"Pay " + setup.arcology.cx($xchange.arcology.danger.price)` "Arcology Criminal Aftermath">><<set $xchange.arcology.danger.result to "paid">><</link>><br>
+<<else>>
+	<<link [[Show your empty balance|Arcology Criminal Fight]]>><<set $fightstart to 0>><<set $molestationstart to 1>><<set $xchange.arcology.danger.action to "broke">><</link>><br>
+<</if>>
+<<if !$xchange.arcology.danger.bluffed>>
+	<<link [[Say you're late for work|Arcology Criminal Attempt]]>><<set $xchange.arcology.danger.bluffed to true>><<set $xchange.arcology.danger.action to "bluff">><<set $xchange.arcology.danger.check to setup.arcology.escape("talk", "english", 400, 1100)>><</link>><<arcologySkill "English">><br>
+<</if>>
+<<link [[Refuse the payment|Arcology Criminal Threat]]>><</link>>
+<br>
+<<link [[Offer to work it off|Arcology Transport Board]]>><<set $xchange.arcology.danger.isolated to true>><<pass 5>><</link>>
+
+:: Arcology Clinic Offer
+<<person1>>
+<<A $NPCList[0].fullDescription>> wearing a clean service jacket approaches you and offers to check your implant. <<arcologyCyberLook 0>>
+<br><br>
+<<He>> opens a case containing some equipment and shows you its screen. The interface looks the same as the one shown in your journal, and a clinic licence is displayed in one corner.
+"Cleaning your implant and checking its connection will cost <<print setup.arcology.cx($xchange.arcology.danger.price)>>. Or, if you'd rather earn some money, we're looking for people to take part in a paid trial!"
+<br><br>
+<<He>> points towards a window, showing you a small treatment room on the other side. An assistant is preparing some tools, taking them out of their packaging and placing them on a table. Another person sits near the door, looking out towards the walkway instead of helping with the preparations.
+<br><br>
+The stranger shows you a price list for the implant services. You also notice a folded consent form for the paid trial behind it, although you can only read part of the form. The last page is hidden, so you can't see everything you would be agreeing to.
+<br><br>
+<<if !$xchange.arcology.danger.inspected>>
+	<<link [[Check the licence|Arcology Clinic Inspect]]>><<set $xchange.arcology.danger.inspected to true>><<set $xchange.arcology.danger.check to setup.arcology.escape("read", "skulduggery", 300, 900)>><<pass 5>><</link>><<arcologySkill "Skulduggery">><br>
+<</if>>
+<<link [[Go into the treatment room|Arcology Clinic Inside]]>><<pass 2>><</link>>
+<br>
+<<arcologyDangerDecline>>
+
+:: Arcology Clinic Inspect
+<<effects>><<person1>>
+<<if $xchange.arcology.danger.check>>
+	<<switch $xchange.arcology.danger.deal>>
+	<<case 1>>
+		You check the clinic's licence and compare its number with the one printed on the equipment case. Both numbers match.
+		<br><br>
+		The document says the <<print setup.arcology.cx($xchange.arcology.danger.price)>> treatment only involves cleaning the connections on the outside of your implant and checking that everything works properly. It doesn't give the clinic permission to perform surgery or send your personal records anywhere.
+	<<case 2>>
+		You notice that the address on the clinic's licence is different from the address of this building.
+		<br><br>
+		Looking further down the document, you find a section giving the clinic permission to copy your personal information. You also notice that the payment they promised you for joining the trial has been crossed out. According to the new terms, you'll be charged instead.
+	<<case 3>>
+		You turn to the last page of the document and find something worrying. The clinic considers the trial a loan, which you're expected to repay through work in the future.
+		Another section says the clinic can send you to a different facility without asking for your permission.
+		<br><br>
+		You look into the examination room again and notice several straps tucked beneath the chair. They appear to be there to hold someone in place.
+	<</switch>>
+<<else>>
+	You try to enlarge the clinic's licence so you can read it properly, but the document disappears from the screen.
+	<br><br>
+	Before you can look at it again, the technician opens another document containing several pages of information. <<He>> starts explaining the equipment while quickly scrolling through the text, giving you little time to read anything.
+	<br><br>
+	You haven't even reached the last page when <<he>> asks whether you'd like to come inside.
+<</if>>
+<br><br>
+<<link [[Go into the treatment room|Arcology Clinic Inside]]>><<pass 2>><</link>>
+<br>
+<<arcologyDangerDecline>>
+
+:: Arcology Clinic Inside
+<<set $outside to 0>><<effects>><<person1>>
+<<set _ad to $xchange.arcology.danger>>
+The assistant moves the examination chair away from the wall, making room for you to sit down. The technician approaches with a small reader and holds it close to your ear, but doesn't touch your implant yet.
+<br><br>
+<<He>> turns the screen towards you, showing what you would be agreeing to before the examination begins.
+<br><br>
+<<if _ad.deal is 3>>
+	The screen shows an admission fee of <<print setup.arcology.cx(_ad.price)>> and assigns you to the paid trial, although you haven't agreed to join it.
+	<br><br>
+	You ask the technician about the money, but <<he>> ignores your question and asks how you're feeling instead. Before you can get an answer, the person sitting near the door gets up and closes it.
+	"We've already registered you," the technician says. "Sit down. We'll arrange your transfer shortly."
+	<br><br>
+	While <<he>> speaks, the assistant bends down and reaches for the straps underneath the examination chair. You realise you're about to be strapped into it.
+	<br><br>
+	<<link [[Refuse|Arcology Criminal Threat]]>><<set _ad.isolated to true>><</link>>
+	<br>
+	<<link [[Accept transfer|Arcology Criminal Seized]]>><<set _ad.isolated to true>><</link>>
+<<else>>
+	<<if _ad.deal is 2>>
+		The reader asks for permission to access your full identity record. The technician points to the approval button on the screen.
+		<br><br>
+		"It's part of the examination," <<he>> explains, waiting for you to agree.
+	<<else>>
+		The reader asks for permission to test the connection to your implant. The screen shows that the examination will cost <<print setup.arcology.cx(_ad.price)>>.
+	<</if>>
+	<br><br>
+	<<if $xchange.arcology.cipher gte _ad.price>>
+		<<link `"Pay " + setup.arcology.cx(_ad.price)` "Arcology Criminal Aftermath">><<set _ad.result to _ad.deal is 1 ? "treated" : "scammed">><<pass 15>><</link>><br>
+		<<if _ad.deal is 2>>
+			<<link [[Refuse|Arcology Criminal Threat]]>><<set _ad.isolated to true>><</link>>
+		<<else>>
+			<<arcologyDangerReturn>>
+		<</if>>
+	<<elseif _ad.deal is 2>>
+		You check how much Cipher you have left, but <span class="red">you don't have enough</span> to pay for the examination.
+		<br><br>
+		The technician keeps the reader where it is and nods towards the door. Someone closes it. "Then you'll stay until we've been paid."
+		<br><br>
+		<<link [[Next|Arcology Criminal Threat]]>><<set _ad.isolated to true>><</link>>
+	<<else>>
+		You check how much Cipher you have left, but <span class="red">you don't have enough</span> to pay for the examination. The technician takes the reader away and puts it back on its stand.
+		<br>
+		<<arcologyDangerReturn>>
+	<</if>>
+<</if>>
+<br>
+
+:: Arcology Blackmail Offer
+<<person1>>
+A well-dressed <<person>> sits at a table beside the walkway. As you pass, <<he>> turns a small screen towards you, showing the username you use in Arcology. <<arcologyCyberLook 0>>
+<br><br>
+"That's your username, isn't it?" <<he>> asks with a smile.
+Before you can answer, <<he>> opens another page. This one contains personal information about your identity on the mainland, including a photograph with part of the face hidden. <<if playerHasXChangeBody()>>The photograph shows someone who looks nothing like your current body.<<else>>You can recognise your own face in the part of the photograph that is still visible.<</if>>
+<br><br>
+You look from your username to the personal information beneath it, realising that <<he>> has somehow connected your two identities. Two people sitting nearby have stopped talking and are now watching your conversation.
+<br><br>
+"I can make sure nobody finds out who you really are," <<he>> says, showing you the price on the screen. "Just pay me <<print setup.arcology.cx($xchange.arcology.danger.price)>>, and I'll delete the information connecting your Arcology username to your mainland identity."
+<br><br>
+<<He>> opens a list of people who might be interested in buying that information.
+"Otherwise, I know plenty of people who would pay to find out who's behind that username."
+<br><br>
+When you lean closer to look at the photograph, <<he>> quickly hides it from the screen.
+<br><br>
+<<arcologyPoliceHint>>
+<<if !$xchange.arcology.danger.inspected>>
+	<<link [[Examine the evidence|Arcology Blackmail Evidence]]>><<set $xchange.arcology.danger.inspected to true>><<set $xchange.arcology.danger.check to setup.arcology.escape("read", "skulduggery", 200, 800)>><</link>><<arcologySkill "Skulduggery">><br>
+<</if>>
+<<link [[Discuss the demand|Arcology Blackmail Demand]]>><</link>>
+<br>
+<<if setup.arcology.policeLeft() gt 0>>
+	/* Victor's people step in before any call is placed, so a guarded player never spends one. */
+	<<link [[Call Enforcement|Arcology Criminal Attempt]]>><<set $xchange.arcology.danger.action to "help">><<if !setup.arcology.guarded()>><<run setup.arcology.policeCall($xchange.arcology.danger.where)>><</if>><<set $xchange.arcology.danger.check to $xchange.arcology.danger.police is "arrive" and setup.arcology.escape("help", "english", 300, 900)>><</link>><<arcologySkill "English">> (<<print setup.arcology.policeLeft()>> left today)
+	<br>
+<</if>>
+
+:: Arcology Blackmail Evidence
+<<effects>><<person1>>
+<<if $xchange.arcology.danger.check>>
+	<<if $xchange.arcology.danger.evidence>>
+		You ask the broker to show you the date on the record, leaving the person's face hidden. <<He>> lets you see it, and you recognise the date from your island registration.
+		<br><br>
+		Looking further down the screen, you find something more worrying. Your island username is connected to an identity check made before you registered. Someone has managed to connect your current identity to your past.
+		<br><br>
+		The broker really does have information about you, although you still don't know whether <<he>> has shared it with anyone else.
+	<<else>>
+		You ask the broker to show you the date on the record, leaving the person's face hidden. <<He>> lets you see it, but something doesn't seem right.
+		<br><br>
+		The record was created before you registered on the island, and the body measurements don't match what your body looked like when you arrived.
+		<br><br>
+		You can't tell whether the record really belongs to you. The broker has placed it beside your island username, hoping you'll say something that confirms the connection.
+	<</if>>
+<<else>>
+	You try to read the other information on the broker's screen, but <<he>> keeps turning it away whenever you get a closer look.
+	<br><br>
+	You can see your island username, but <<he>> won't show you anything proving that the other record belongs to you. While you're trying to read it, you notice the two people accompanying <<him>> moving closer to your table.
+<</if>>
+<br><br>
+<<link [[Answer the demand|Arcology Blackmail Demand]]>><</link>>
+
+:: Arcology Blackmail Demand
+<<effects>><<person1>>
+<<set _ad to $xchange.arcology.danger>>
+The broker leaves the list of names on the screen, showing you who <<he>> could send the information to. <<if _ad.bargained or _ad.bluffed>>One of <<his>> associates remains beside your chair.<<else>>One of <<his>> associates pulls out a chair for you and waits while you sit, then stays beside it.<</if>> The other watches the nearby door where a member of staff is working.
+<br><br>
+"Send the money, and we'll leave you alone," the broker says.
+<br><br>
+<<if $xchange.arcology.cipher gte _ad.price>>
+	<<link `"Pay " + setup.arcology.cx(_ad.price)` "Arcology Criminal Aftermath">><<set _ad.result to "paid">><</link>><br>
+<</if>>
+<<if !_ad.bargained>>
+	<<link [[Negotiate|Arcology Criminal Attempt]]>><<set _ad.bargained to true>><<set _ad.action to "bargain">><<set _ad.check to setup.arcology.escape("talk", "english", 400, 1100)>><<if _ad.check>><<set _ad.price to Math.max(1, Math.floor(_ad.price * 0.8))>><</if>><</link>><<arcologySkill "English">><br>
+<</if>>
+<<if !_ad.bluffed>>
+	<<link [[Challenge the record|Arcology Criminal Attempt]]>><<set _ad.bluffed to true>><<set _ad.action to "bluff">><<set _ad.check to _ad.evidence ? setup.arcology.escape("talk", "english", 600, 1200) : setup.arcology.escape("proof", "english", 0, 500)>><</link>><<arcologySkill "English">><br>
+<</if>>
+<<link [[Refuse payment|Arcology Criminal Aftermath]]>><<set _ad.result to "published">><</link>>
+<br>
+<<link [[Grab the broker's screen|Arcology Criminal Threat]]>><</link>>
+<br>
+
+:: Arcology Transport Offer
+<<person1>>
+<<A $NPCList[0].fullDescription>> stands beside a small delivery shuttle and offers you <<print setup.arcology.cx($xchange.arcology.danger.price)>> to help with a delivery. Through the open cargo door, you can see a stack of sealed medical cases. Each case is small enough to carry in one hand.
+<br><br>
+"The delivery is below the pier, about ten minutes from here," <<he>> explains. "We need someone to travel with the cases and sign for them when we arrive. That's all."
+<br><br>
+<<He>> offers you a passenger badge. You look inside the shuttle and see a bench attached to the wall, with enough room for someone to sit beside the cargo. The driver is already waiting at the front, separated from the cargo area by a wall, while another worker checks that the back door can be closed securely.
+<br><br>
+You look at both sides of the passenger badge, expecting to find the delivery address, but there isn't one. When you ask exactly where you're supposed to be going, <<he>> tells you that the route will only be shown after you board the shuttle.
+<br><br>
+<<if !$xchange.arcology.danger.inspected>>
+	<<link [[Check the manifest|Arcology Transport Inspect]]>><<set $xchange.arcology.danger.inspected to true>><<set $xchange.arcology.danger.check to setup.arcology.escape("read", "skulduggery", 300, 900)>><</link>><<arcologySkill "Skulduggery">>
+	<br>
+<</if>>
+<<link [[Take the job|Arcology Transport Board]]>><<pass 5>><</link>>
+<br>
+<<arcologyDangerDecline>>
+
+:: Arcology Transport Inspect
+<<effects>><<person1>>
+<<if $xchange.arcology.danger.check>>
+	You check the information on the badge. It lists a person's weight, the type of implant they have, and a price for transferring them. There is no address showing where that person is supposed to be taken.
+	<br><br>
+	When you look up, the dispatcher is watching your face instead of checking the badge.
+<<else>>
+	You try to read the information on the badge, but the form disappears before you can see what it says.
+	<br><br>
+	The dispatcher points to the case beside <<him>>. "Whoever receives the case will deal with the paperwork. We just deliver it."
+	<br><br>
+	Another worker stands beside the back door with one hand on the door handle, waiting for the dispatcher.
+<</if>>
+<br><br>
+<<link [[Go aboard anyway|Arcology Transport Board]]>><<pass 5>><</link>>
+<br>
+<<arcologyDangerDecline>>
+
+:: Arcology Transport Board
+<<set $outside to 0>><<effects>><<person1>>
+<<if $xchange.arcology.danger.kind is "gang" and $xchange.arcology.danger.stage isnot "transport">>
+	The leader walks you round the back of the shop to a service gate, where a delivery shuttle is waiting. <<He>> takes charge of dispatching the delivery, checking a list on <<his>> screen while the lookout climbs into the driver's cab. The third gang member goes to the rear door to act as loader. All three are staying with you.
+	<br><br>
+<</if>>
+<<set $xchange.arcology.danger.stage to "transport">>
+The dispatcher hands you a passenger badge and leads you to the shuttle's open cargo door. You step inside and find a bench against one wall. There are no windows in the back, and a worker points to the bench before reaching for the door to close it.
+<br><br>
+You ask if you can sit beside the driver instead, but the driver shuts and locks the door separating the front seats from the back without answering.
+<br><br>
+The dispatcher takes hold of your sleeve and points towards the bench. "Sit down. We're late."
+<br><br>
+<<link [[Step back|Arcology Criminal Attempt]]>><<set $xchange.arcology.danger.action to "run">><<set $xchange.arcology.danger.check to setup.arcology.escape("run", "athletics", 200, 900)>><<set $xchange.arcology.danger.ran to true>><</link>><<arcologySkill "Athletics">>
+<br>
+<<link [[Sit on the bench|Arcology Transport Moving]]>><<set $xchange.arcology.danger.isolated to true>><<pass 3>><</link>>
+<br>
+
+:: Arcology Transport Moving
+<<set $outside to 0>><<effects>><<person1>>
+<<if setup.arcology.guarded()>><<include "Arcology Criminal Intercept">><<exit>><</if>>
+<<set _ad to $xchange.arcology.danger>>
+<<if _ad.hatchTried or _ad.bashTried>>The shuttle keeps moving. The rear door is still locked, and the medical cases rattle against the wall beside the bench.<<else>>The dispatcher releases your sleeve and steps out. The loader follows, pressing a button beside the cargo door before heading towards the cab. You catch a glimpse of them climbing into the front before the rear door closes and locks. You're still sitting on the bench when the shuttle starts moving. Several medical cases have been left loose on the floor, and they slide towards you, hitting your legs.<</if>>
+<br><br>
+<<if !_ad.hatchTried and !_ad.bashTried>>You push the cases aside and stand up, then try using your passenger badge on the reader beside the door. The screen shows an inventory number instead of your passenger details, and you can't find any way to unlock the door.<<else>>The passenger badge still brings up only an inventory number on the reader. You look for another way out.<</if>>
+<br><br>
+<<if !_ad.hatchTried and !_ad.bashTried>>A wall separates you from the driver, but you can still hear the driver talking over the radio. The dispatcher asks whether the room at your destination is ready.
+<br><br>
+The driver confirms that it is, then says the radio stays off until the shuttle has passed the public checkpoint.<<else>>You call towards the cab, but nobody answers you.<</if>>
+<br><br>
+<<if !_ad.hatchTried and !pcAreArmsBound("both")>>
+	<<link [[Search for a hatch|Arcology Criminal Attempt]]>><<set _ad.hatchTried to true>><<set _ad.action to "hatch">><<set _ad.check to setup.arcology.escape("force", "skulduggery", 500, 1100)>><<pass 5>><</link>><<arcologySkill "Skulduggery">><br>
+<</if>>
+<<if !_ad.bashTried>>
+	<<link [[Force the door|Arcology Criminal Attempt]]>><<set _ad.bashTried to true>><<set _ad.action to "bash">><<set _ad.check to setup.arcology.escape("force", "physique", 6000, 18000)>><<pass 5>><</link>><<arcologySkill "Physique">><br>
+<</if>>
+<<link [[Wait for arrival|Arcology Transport Arrival]]>><<pass 15>><</link>>
+<br>
+
+:: Arcology Transport Arrival
+<<set $outside to 0>><<effects>><<person1>>
+<<if setup.arcology.guarded()>><<include "Arcology Criminal Intercept">><<exit>><</if>>
+The shuttle slows down as it enters an unloading area beneath the public district. Once it stops, the loader opens the back door, allowing you to see outside. A metal fence separates the unloading area from the rest of the building.
+<br><br>
+The dispatcher is waiting outside. The dispatcher checks your passenger badge, then looks at a form attached to the wall. You notice your username written on it, under the words <i>transfer received</i>.
+"Out," the loader orders, pointing towards the unloading area.
+<br><br>
+The driver leaves the shuttle and joins the others waiting beside the open door. Further inside the building, you can see a room with a locked door and a lift with orange lights above it.
+<br><br>
+You still haven't been told anything about your wages. When you ask, the dispatcher ignores you and orders the others to bring you inside. The loader reaches for your arm. Beyond the open cargo door, a gap between two parked carts leads towards the delivery exit.
+<br><br>
+<<if !$xchange.arcology.danger.workerTried>>
+	<<link [[Claim you work here|Arcology Criminal Attempt]]>><<set $xchange.arcology.danger.workerTried to true>><<set $xchange.arcology.danger.action to "worker">><<set $xchange.arcology.danger.check to setup.arcology.escape("talk", "english", playerHasXChangeBody() ? 300 : 600, 1200)>><</link>><<arcologySkill "English">><br>
+<</if>>
+<<arcologyCriminalChoices>>
+
+:: Arcology Criminal Threat
+<<effects>><<person1>>
+<<if setup.arcology.guarded()>><<include "Arcology Criminal Intercept">><<exit>><</if>>
+<<switch $xchange.arcology.danger.stage is "transport" ? "transport" : $xchange.arcology.danger.kind>>
+<<case "raid" "fraud">>
+	<<He>> grabs your arm before you can get clear.
+	<br><br>
+	<<arcologyUnrestChoices>>
+	<<exit>>
+<<case "gang">>
+	As you turn to leave, the leader closes the payment screen and grabs your shoulder. The lookout grabs your other arm, allowing the third gang member to start searching your pockets.
+	<br><br>
+	"Then you'll pay us downstairs," the leader says.
+	<br><br>
+	You try to pull away, but the two gang members keep hold of your arms while their friend searches for anything valuable.
+<<case "clinicOffer">>
+	<<if $xchange.arcology.danger.isolated>>The technician steps away from the examination chair and gestures towards the others.<<else>>The technician closes the equipment case and calls the assistant out of the treatment room. The person by the door gets up and follows.<</if>> One of them approaches you and tries to grab your wrist, while another blocks the way back to the public walkway.
+	<br><br>
+	"You still owe us the admission fee, even if you've changed your mind," the technician says. <<if !$xchange.arcology.danger.isolated>>"You asked for our time."<</if>>
+	<br><br>
+	You try to move away from the person reaching for you, but with someone blocking your route, you have little room to get past them.
+<<case "salon">>
+	The host gets up from the table and tells the two attendants to stop you. One catches your arm while the other moves between you and the walkway.
+	<br><br>
+	"I only need a few pictures," the host says. "Bring <<phim>> inside."
+<<case "partsMarket">>
+	The dealer reaches across the counter and catches your wrist. The two assistants stop working and move round the counter to block your way.
+	<br><br>
+	"I haven't checked your record yet," the dealer says. "You're not leaving until I have."
+<<case "blackmail">>
+	You reach across the table for the screen, but the broker pulls it back towards <<him>> first. Before you can try again, one of <<his>> associates grabs your arm. The other moves behind you, standing between you and the door.
+	<br><br>
+	"We'll talk somewhere private," the broker says, getting up from the table.
+	<br><br>
+	You try to pull your arm free, but the associate refuses to let go. The broker begins walking towards the door, expecting the others to bring you along.
+<<default>>
+	<<if $xchange.arcology.danger.action is "worker">>
+		The loader steps in front of the exit, blocking your way out of the unloading bay. You try to get past the loader, but the dispatcher grabs your sleeve and pulls you back.
+		<br><br>
+		You try to free your arm as the driver comes over to help the others stop you from leaving.
+	<<else>>
+		The dispatcher tries to push you further inside the shuttle while the loader grabs your arm to stop you pulling away.
+		<br><br>
+		You press one hand against the door frame, trying to stop them pushing you any further. The driver notices the struggle, climbs out of the cab and comes over to help the others.
+	<</if>>
+<</switch>>
+<br><br>
+<<arcologyCriminalChoices>>
+
+:: Arcology Criminal Attempt
+<<effects>><<person1>>
+<<set _ad to $xchange.arcology.danger>>
+<<if setup.arcology.guarded() and ["run", "hatch", "bash", "help"].includes(_ad.action)>>
+	<<include "Arcology Criminal Intercept">><<exit>>
+<</if>>
+<<if _ad.action is "bargain">>
+	<<if _ad.check>>
+		You explain that selling the information to you now would be quicker than waiting for another buyer.
+		<br><br>
+		The broker looks at the payment screen, closes two of the open message windows, and changes the price to <<print setup.arcology.cx(_ad.price)>>.
+	<<else>>
+		<<arcologyCounterLine>>
+		The broker listens to your offer but doesn't seem interested. When you finish speaking, <<he>> turns the payment screen towards you again. The price hasn't changed.
+		<br><br>
+		"I'm already giving you the first chance to buy it," <<he>> says.
+	<</if>>
+	<br><br>
+	<<link [[Answer|Arcology Blackmail Demand]]>><</link>>
+<<elseif _ad.check>>
+	<<switch _ad.action>>
+		<<case "decline">>
+			You say you're not interested and turn back towards the walkway, keeping to where other people can see you. Someone calls after you, but you're already in the crowd before anyone can catch up.
+		<<case "avoid">>
+			You notice the lookout coming towards you and hurry away before the lookout can get close. As you reach the next junction, a delivery cart passes between you and the group, forcing them to wait for it to move.
+			<br><br>
+			You use the chance to reach the main walkway, where other people are passing by. The leader shouts after you from outside the shop, but doesn't try to follow you any further.
+		<<case "bluff">>
+			<<if _ad.kind is "blackmail">>
+				<<if _ad.evidence>>You insist that the file proves nothing about your current identity, keeping your voice steady and giving the broker no new information.<<else>>You point out several details in the file that don't match, making sure you don't tell the broker anything about your real identity.<</if>>
+				<br><br>
+				The broker checks the information again before closing the file. <<He>> tells the others to move away from you.
+				"I'll take it up with the seller."
+			<<else>>
+				You mention the entrance to a nearby workplace and complain that they're making you late. You tell them the delay will be recorded in your work report.
+				<br><br>
+				The leader looks towards the lookout, who shrugs. After a short discussion, they move the payment screen aside and let you leave.
+			<</if>>
+		<<case "help">>
+			You manage to send an emergency message through your implant without the broker seeing. Before the criminals can take you anywhere, a security drone arrives and moves towards the group.
+			<br><br>
+			An operator speaks through the drone, ordering them to let you go. Its camera records your username and the people surrounding you.<<if !_ad.helpLogged>><<set _ad.helpLogged to true>><<run setup.arcology.expose()>><</if>>
+			<br><br>
+			The criminals back away from you, although they immediately start complaining that there's been a mistake.
+		<<case "worker">>
+			You give the dispatcher a shift number and insist that the delivery has been sent to the wrong loading area.
+			<br><br>
+			The driver checks the paperwork while the dispatcher argues that the mistake isn't <<his>> responsibility. They soon start arguing about who will have to pay for it.
+			<br><br>
+			While they're distracted, you walk past the open shuttle and leave through the delivery exit.
+		<<case "hatch">>
+			You lift a loose panel in the shuttle floor and find a cable connected to a small hatch underneath. Pulling the cable opens the hatch, leaving a gap just large enough for you to get through.
+			<br><br>
+			You wait until the shuttle stops before lowering yourself through the opening. Once your feet reach the road, you crouch down and crawl away from the shuttle, getting clear before the driver starts moving again.
+		<<case "bash">>
+			You plant your feet firmly against the floor and repeatedly hit the door beside its lock whenever the shuttle slows down.
+			<br><br>
+			As the shuttle slows at a junction, the metal holding the lock finally breaks. You push the damaged door open and climb out, quickly moving behind a nearby barrier.
+			<br><br>
+			By the time the driver notices the warning light showing that the door is open, you're already out of sight.
+		<<case "lock">>
+			You remove the cover from the door's electronic lock and find the two metal contacts that control its release. After connecting them, the door opens.
+			<br><br>
+			Nobody outside has noticed the warning light yet, giving you time to slip outside. You move between two delivery carts in the loading area and follow the signs until you reach the public walkway.
+		<<default>>
+			You notice a delivery cart passing close to you and quickly move around its side, putting it between yourself and the group.
+			<br><br>
+			They have to go around the cart to follow you, giving you time to run towards a nearby entrance where staff are working.
+			<br><br>
+			You stop beside the entrance, where a security camera can clearly see you. The group notices where you're standing and eventually gives up following you.
+	<</switch>>
+	<br><br>
+	<<arcologyDangerReturn>>
+<<else>>
+	<<if _ad.action is "help" and _ad.police and _ad.police isnot "arrive">>You call Enforcement through your implant while the broker is talking. <<print setup.arcology.policeText(_ad.police)>><br><br><<else>><<arcologyCounterLine>><</if>>
+	<<if _ad.action is "bluff" and _ad.kind is "blackmail">>
+	<<if _ad.evidence>>
+		After you explain, the broker checks the registration date on the screen.
+		"This record belongs to you. To change it, you need a better reason."
+	<<else>>
+		You explain that the body measurements in the record do not match your actual body.
+		<br><br>
+		The broker shrugs. "My buyers only care about the username. They do not check whether the body measurements are correct."
+	<</if>>
+		<br><br>
+	<</if>>
+	<<if _ad.action is "decline">>
+		You say you are not interested, then turn to walk back to the main street. The others step in front of you and close off the path.
+		<br><br>
+		You look around for help, checking the nearby shops and pavements, but no one is close enough to notice.
+		<br><br>
+		<<link [[Next|Arcology Criminal Threat]]>><</link>>
+		<br>
+	<<elseif _ad.action is "avoid">>
+		You try to leave before the group can surround you, but the lookout notices and hurries ahead. By the time you reach the walkway, the lookout is already standing in your way.
+		<br><br>
+		The leader walks over with a smile while the third member moves behind you, leaving you surrounded.
+		<br><br>
+		<<link [[Face the group|Arcology Gang Demand]]>><</link>>
+	<<elseif ["hatch", "bash"].includes(_ad.action)>>
+		<<if _ad.action is "bash">>
+			<<if !_ad.bashHurt>><<pain 6>><<set _ad.bashHurt to true>><</if>>
+			You hit the door beside its lock, but it doesn't break. You lose your balance and fall backwards against one of the cases, hurting your shoulder.
+			<br><br>
+			The driver hears the noise and bangs on the wall separating the front of the shuttle from the back, but doesn't stop driving.
+		<<else>>
+			You find the panel in the floor and try to open the hatch underneath, but someone has welded the release shut. No matter how hard you pull, it won't move.
+			<br><br>
+			You hear someone moving in the driver's cab, apparently disturbed by the noise you're making. You stop pulling at the hatch before anyone comes to investigate.
+		<</if>>
+		<br><br>
+		<<link [[Try something else|Arcology Transport Moving]]>><</link>>
+	<<elseif _ad.action is "lock">>
+		You manage to remove the cover from the electronic lock, but the part that opens the door is hidden behind the wall, where you can't reach it.
+		<br><br>
+		Before you can try anything else, you hear someone approaching. You quickly put the cover back and move away from the door, knowing you won't have another chance to examine it without being noticed.
+		<br><br>
+		<<link [[Step back|Arcology Criminal Holding]]>><</link>>
+	<<elseif _ad.action is "run" and _ad.kind is "gang" and _ad.stage isnot "transport">>
+		You make a run for the exit, but the lookout catches your clothing and pulls you back before you can get away.
+		<br><br>
+		One of the others grabs your arms and holds them behind you while another reaches beneath your clothes. You try to twist away, but the leader steps in front of you, blocking the only clear path towards the exit.
+		<br><br>
+		"Hold <<phim>> still," the leader tells the others.
+		<br><br>
+		<<link [[Struggle|Arcology Criminal Fight]]>><<set $fightstart to 0>><<set $molestationstart to 1>><</link>>
+		<br>
+		<<link [[Give in|Arcology Criminal Fight]]>><<set $fightstart to 0>><<set $molestationstart to 1>><<set _ad.action to "surrender">><</link>>
+	<<else>>
+		<<switch _ad.stage is "transport" ? "transport" : _ad.kind>>
+			<<case "raid" "fraud">>
+				You get a few steps before <<he>> catches the back of your clothes and drags you round to face <<him>>.
+			<<case "blackmail">>
+			<<if _ad.action is "help">>You describe the threat to the dispatcher, but the broker hears you. <<if _ad.police is "arrive">>The dispatcher confirms that help is coming. The broker moves before it reaches you. <</if>><<else>>The broker cuts off your objections and calls the others over. <</if>>The associates close in.
+				<br><br>
+				One of them moves between you and the public walkway, cutting off your way out. Before you can move in another direction, the second person grabs your arm and pulls you back towards the table.
+			<<case "clinicOffer">>
+				The technician notices you trying to leave and calls to the people waiting near the door.
+				<br><br>
+				One of them moves in front of the exit while the other approaches from the side. As you try to get past, the second one grabs your arm and starts pulling you back towards the examination chair.
+			<<case "transport">>
+				You try to leave, but the loader steps in front of you and refuses to move.
+				<br><br>
+				When you attempt to get past, the dispatcher grabs your sleeve and calls for the driver to come over. You pull against the dispatcher's grip, but the loader is still blocking your way out.
+			<<default>>
+				The leader tells the others to stop you from leaving. One moves behind you while the lookout approaches from the front.
+				<br><br>
+				Before you can get past them, the lookout grabs your arm and pulls you away from the main walkway.
+		<</switch>>
+		<br><br>
+		<<if ["raid", "fraud"].includes(_ad.kind)>>
+			<<arcologyUnrestChoices>>
+		<<else>>
+			<<link [[Pull away|Arcology Criminal Threat]]>><</link>>
+		<</if>>
+	<</if>>
+<</if>>
+<br>
+
+:: Arcology Criminal Fight
+<<if setup.arcology.guarded()>><<set $fightstart to 0>><<set $molestationstart to 0>><<unset $combatGiveUp>><<include "Arcology Criminal Intercept">><<exit>><</if>>
+<<if $fightstart is 1 or $molestationstart is 1>>
+	<<if $xchange.arcology.danger.action is "holdingFight">>
+		<<person1>>The lock clicks as the captors open the door to collect you. You drive your shoulder into the first one and push into the corridor. The others turn to stop you.
+		<br><br>
+		<<unset $xchange.arcology.danger.action>>
+	<</if>>
+	<<if $molestationstart is 1>>
+		<<set $molestationstart to 0>><<set $fightstart to 0>>
+		<<controlloss>><<violence 1>><<neutral 1>><<molested>>
+	<<else>>
+		<<set $fightstart to 0>><<neutral 1>>
+	<</if>>
+	<<maninit>><<npcidlegenitals>>
+	<<set $enemytrust -= 100>><<set $enemyanger += 150>>
+	<<set $rescue to 0>><<set $alarm to 0>>
+<</if>>
+<<if $xchange.arcology.danger.action is "surrender">>
+	<<unset $xchange.arcology.danger.action>><<submission 5>><<combatcontrol -25>>
+	You stop pulling away and let the group surround you. They take advantage of it before you can change your mind.
+	<br><br>
+<<elseif $xchange.arcology.danger.action is "broke">>
+	<<unset $xchange.arcology.danger.action>>
+	<<person1>>The <<person>> looks at your empty balance and laughs. "Nothing? Then we'll take something else." The others close in around you.
+	<br><br>
+<</if>>
+<<set _scenePainMult to setup.arcology.fightPainMult()>><<set _scenePainFloor to setup.arcology.fightPainFloor()>>
+<<effects>><<arcologyCombatNotes>><<effectsman>>
+<<if $alarm is 1 and !$xchange.arcology.danger.isolated and (Time.dayState isnot "night" or ["hotel", "glass", "ship", "deck"].includes($xchange.arcology.danger.where))>>
+	<<run setup.arcology.policeCall($xchange.arcology.danger.where)>>
+	<<set $rescue to $xchange.arcology.danger.police is "arrive" ? 1 : 0>>
+<</if>>
+<<alarmstate>><<man>><<arcologyCyberTurn>><<stateman>>
+<br><br><<actionsman>>
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|Arcology Criminal Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Criminal Fight]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Criminal Finish
+<<effects>>
+<<set _ad to $xchange.arcology.danger>>
+<<if !_ad.combatResolved>>
+	<<set _ad.combatResolved to true>>
+	<<set _ad.combatResult to ($alarm is 1 and $rescue gte 1) ? "rescued" : ($enemyhealth lte 0 or $enemypleasure gte $enemypleasuremax) ? "won" : "lost">>
+	<<if _ad.combatResult is "won" and $enemyhealth lte 0>><<run setup.arcology.noteWin()>><</if>>
+	<<if $enemypleasure gte $enemypleasuremax>><<ejaculation>><</if>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	<<arcologyCriminalEndCombat>>
+<</if>>
+<<if _ad.combatResult is "rescued">>
+	A security drone flies towards the group, recording what is happening with its camera. A security worker follows behind it and orders the attackers to let you go.
+	<br><br>
+	The attackers release you when they realise they've been caught. While the worker questions them about what happened, you move away from the group and collect your clothing. The drone stays nearby as you get dressed.
+	<br><br>
+	<<arcologyDangerReturn>>
+<<elseif _ad.combatResult is "won">>
+	You manage to break free from the attackers and run before they can recover. One of them tries to follow, but gives up after a few steps.
+	<br><br>
+	You keep walking until you reach a busier part of the city. With other people nearby, you finally have some distance between yourself and the attackers.
+	<br><br>
+	<<arcologyDangerReturn>>
+<<elseif _ad.kind is "blackmail">>
+	The broker's associates force you down onto the floor and hold your arms in place. While you're unable to move, the broker grabs your hand and presses it against the payment reader, taking as much money as <<he>> can.
+	<br><br>
+	Even after receiving your payment, <<he>> sends the record anyway. You protest, but the associates keep holding you down until the broker finishes.
+	<br><br>
+	Once they're done, they release you beside a service door and walk away. You are left to pick yourself up and collect your clothing.
+	<br><br>
+	<<link [[Next|Arcology Criminal Aftermath]]>><<set _ad.result to "robbed">><</link>>
+<<elseif ["raid", "fraud"].includes(_ad.kind)>>
+	<<if !_ad.robbed>><<set _ad.robbed to true>><<set _ad.loss to Math.min($xchange.arcology.cipher or 0, _ad.price)>><<set $xchange.arcology.cipher -= _ad.loss>><</if>>
+	They hold you down on the ground and go through your pockets. One of them presses your wrist against a payment reader<<if _ad.loss>> and takes <<print setup.arcology.cx(_ad.loss)>><<else>>, finds your wallet empty and swears at you<</if>>. Then they let go and walk off, and by the time you've got back up, they've gone.
+	<br><br>
+	<<arcologyDangerReturn>>
+<<else>>
+	One attacker grabs your arms and holds them behind your back while another opens a nearby service door. You try to pull away, but they keep a firm grip on you as they force you towards the doorway.
+	<br><br>
+	They make you bend forward before pushing you through the door, preventing you from looking ahead. You struggle to see where they're taking you as they continue forcing you further inside.
+	<br><br>
+	<<link [[Next|Arcology Criminal Seized]]>><</link>>
+<</if>>
+<br>
+
+:: Arcology Criminal Seized
+<<set $outside to 0>><<effects>><<person1>>
+<<if setup.arcology.guarded()>><<include "Arcology Criminal Intercept">><<exit>><</if>>
+<<set $xchange.arcology.danger.isolated to true>>
+Two of them hold your arms, one on each side, as they take you down a corridor towards a large lift. You try to move away, but they keep you between them. When the lift arrives, they bring you inside, standing in front of the buttons while another member of the group chooses a lower floor.
+<br><br>
+After the lift stops, they take you down another corridor towards a small room. One of them opens the door while another speaks to someone over a call. You hear <<him>> mention the username you use on the island, followed by an amount of money. It sounds like they're discussing how much someone might pay for you.
+<br><br>
+They push you into the room and shut the door. There is a bench against one wall and a drain in the middle of the floor. Beside the door, you notice a device used to unlock it, with part of its plastic cover missing.
+<br><br>
+You look through the small window in the door and see one of the people who brought you here. <<Hes>> checking <<his>> screen, apparently waiting for a reply from the person on the call.
+<br><br>
+<<link [[Next|Arcology Criminal Holding]]>><<pass 5>><</link>>
+<br>
+
+:: Arcology Criminal Holding
+<<set $outside to 0>><<effects>><<person1>>
+<<set _ad to $xchange.arcology.danger>>
+<<if setup.arcology.guarded()>><<include "Arcology Criminal Intercept">><<exit>><</if>>
+<<if $stress gte $stressmax and !$possessed>><<passout_arcology>><<exit>><</if>>
+Through the window, you can see the person who brought you here.
+<br><br>
+<<switch _ad.stage is "transport" ? "transport" : _ad.kind>>
+<<case "gang">>
+	The gang leader is standing nearby, reading a message on the screen attached to <<his>> wrist.
+<<case "clinicOffer">>
+	The technician is talking to someone through a screen while looking over the papers from the clinic.
+<<case "blackmail">>
+	The broker is checking the same device <<he>> used earlier to show you your identity record.
+<<case "salon">>
+	The host is talking to an attendant while looking through your records.
+<<case "partsMarket">>
+	The dealer is checking information on a reader while <<his>> assistants wait nearby.
+<<default>>
+	The dispatcher is looking over the form used to register you when you were brought here.
+<</switch>>
+<br><br>
+Behind <<him>>, several workers are moving around a large loading area under orange lights. Beside the lift used to move cargo, a screen shows a list of people waiting to be sent to the Stack. You notice your username at the bottom.
+<br><br>
+<<He>> turns towards you. "Pay me <<print setup.arcology.cx(_ad.price)>>, and I'll mark you as rejected," <<he>> says from the other side of the door. "That'll stop them sending you to the Stack. Otherwise, the next shift will come and take you there."
+<br><br>
+<<if !_ad.lockTried and !pcAreArmsBound("both")>>
+	<<link [[Tamper with the lock|Arcology Criminal Attempt]]>><<set _ad.lockTried to true>><<set _ad.action to "lock">><<set _ad.check to setup.arcology.escape("lock", "skulduggery", 550, 1150)>><<pass 5>><</link>><<arcologySkill "Skulduggery">><br>
+<</if>>
+<<if $xchange.arcology.cipher gte _ad.price>>
+	<<link `"Pay " + setup.arcology.cx(_ad.price)` "Arcology Criminal Aftermath">><<set _ad.result to "paid">><</link>><br>
+<</if>>
+<<if !_ad.captureFight and ($pain lt 90 or $willpowerpain gt 0)>>
+	<<link [[Fight your way out when the door opens|Arcology Criminal Fight]]>><<set _ad.captureFight to true>><<set _ad.action to "holdingFight">><<unset _ad.combatResolved>><<set $fightstart to 1>><</link>><br>
+<</if>>
+<<link [[Wait for transfer|Arcology Criminal Transfer]]>><<pass 15>><</link>>
+<br>
+
+:: Arcology Criminal Transfer
+<<effects>><<person1>>
+<<if setup.arcology.guarded()>><<include "Arcology Criminal Intercept">><<exit>><</if>>
+A guard arrives at the holding room with a list of people being transferred. The guard checks your implant information on a small screen, then compares it with the list. Once the check is finished, the person who captured you unlocks the door.
+<br><br>
+You ask if you can leave, but the guard shows you the screen instead. Your username is on it, along with a processing fee that you now have to pay.
+<br><br>
+The guard takes you by the arm and leads you towards the lift to the Stack. Meanwhile, the person who captured you stays behind to make sure <<he>> receives <<his>> payment for handing you over.
+<br><br>
+<<link [[Next|Arcology Stack Intro]]>><<arcologyStackStart "arcologyAbduction">><<unset $xchange.arcology.danger>><</link>>
+<br>
+
+:: Arcology Criminal Aftermath
+<<effects>><<person1>>
+<<set _ad to $xchange.arcology.danger>>
+<<if !_ad.settled>>
+	<<if setup.arcology.guarded() and _ad.result isnot "treated">><<include "Arcology Criminal Intercept">><<exit>><</if>>
+	<<set _ad.settled to true>>
+	<<switch _ad.result>>
+	<<case "paid">><<set _ad.loss to Math.min($xchange.arcology.cipher, _ad.price)>><<set $xchange.arcology.cipher -= _ad.loss>><<stress 3>>
+	<<case "treated">><<set $xchange.arcology.cipher -= _ad.price>><<stress -2>>
+	<<case "scammed">><<set $xchange.arcology.cipher -= _ad.price>><<run setup.arcology.expose()>><<stress 6>>
+	<<case "published" "robbed">>
+		<<if _ad.result is "robbed">><<set _ad.loss to Math.min($xchange.arcology.cipher, _ad.price)>><<set $xchange.arcology.cipher -= _ad.loss>><</if>>
+		<<run setup.arcology.expose(playerHasXChangeBody() ? 1 : 3)>><<stress 8>><<trauma 3>>
+		<<set $xchange.arcology.trouble to { source: "identity" }>><<run setup.arcologyNews.report("leak")>>
+	<</switch>>
+<</if>>
+<<switch _ad.result>>
+<<case "paid">>
+	The payment reader confirms that you've sent <<print setup.arcology.cx(_ad.loss)>>.
+	<br><br>
+	<<if _ad.isolated>>
+		The <<person>> checks the payment, then unlocks the door and steps aside. Nobody stops you as you find your way back to the public walkways.
+	<<elseif _ad.kind is "blackmail">>
+		The broker checks the payment, then closes the list of people <<he>> threatened to contact. <<He>> deletes the file <<he>> showed you, letting you watch as it disappears from the screen.
+		<br><br>
+		Once the payment is complete, the two associates move away from your chair. You get up and leave before the broker can ask you for anything else.
+	<<else>>
+		The <<person>> checks the payment and moves away from the exit. You wait until there's room to get past <<him>>, then leave without speaking further.
+	<</if>>
+<<case "treated">>
+	The technician cleans the connection point before running the test you agreed to. Once it's finished, <<he>> shows you the results so you can see what was checked.
+	<br><br>
+	No new parts have been added, and nothing has been removed.
+	<br><br>
+	The payment reader charges you <<print setup.arcology.cx(_ad.price)>> for the service. The technician disconnects the equipment when everything is finished, allowing you to leave.
+<<case "scammed">>
+	The payment reader charges you <<print setup.arcology.cx(_ad.price)>> and copies your identity details.
+	<br><br>
+	You wait for the technician to start checking your connection, but <<he>> disconnects the equipment without running any tests.
+	<br><br>
+	When you complain, <<he>> points to the consent form you agreed to earlier, refusing to give you your money back.
+	You leave the clinic, but when you turn back to complain again, the service window has already been closed.
+<<case "published">>
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek">>
+			"I won't pay you," you say nervously. "Please don't send it to anyone."
+		<<case "shy">>
+			"I... I'm not paying," you say quietly, uncomfortable with the associates standing so close. "Please don't send it."
+		<<case "polite">>
+			"I'm sorry, but I'm not paying you," you say. "Please delete the file."
+		<<case "neutral">>
+			"I'm not paying you," you say.
+		<<case "confident">>
+			"I'm not paying for this. Delete the file," you tell <<him>>.
+		<<case "bratty">>
+			"You can fuck off if you think I'm paying you," you say.
+		<<case "docile">>
+			"I won't pay," you say quietly. "Please just leave me alone."
+		<<case "flamboyant">>
+			"I'm sorry, but I'm not paying you," you say. "Please delete the file."
+		<<case "cruel">>
+			"Keep your bloody threats. You're not getting a penny from me," you say.
+	<</switch>>
+	<br><br>
+	<<if _ad.evidence>>
+		The broker sends the file to everyone on the list. You watch several people confirm that they've received it, while <<he>> checks their replies.
+		<br><br>
+		The file contains information connecting your identity to your island username. Everyone who received it can now see that connection.
+		<br><br>
+		The broker gets up from <<his>> chair, and the two associates follow <<him>> out, leaving you with the list of people who have received your information.
+	<<else>>
+		The broker sends a mainland identity record with your island username attached to it.
+		<br><br>
+		The details don't match your real identity, and two of the people who receive the file quickly reply, asking for better proof.
+		<br><br>
+		Your real identity is still hidden, but those people now know your island username. They could use it to try finding out more about you.
+	<</if>>
+<<case "robbed">>
+	Your wallet shows that <<print setup.arcology.cx(_ad.loss)>> has been taken without your permission.
+	<br><br>
+	A notification on your implant names the broker's file and your island username. Someone who received it is already trying to contact you. The money is gone, and the file has reached its recipients.
+	<br><br>
+	You straighten your clothes before leaving through the service entrance.
+<<default>>
+	The conversation comes to an end, and you leave the area to return to the public walkway.
+<</switch>>
+<br><br>
+<<arcologyDangerReturn>>
+
+:: Arcology Criminal Intercept
+<<if $combat is 1>><<enable_rescue>><<set $alarm to 1>><<arcologyCriminalEndCombat>><</if>>
+<<person1>><<arcologyVictorPronouns>>
+<<switch $xchange.arcology.danger.stage is "transport" ? "transport" : $xchange.arcology.danger.kind>>
+<<case "raid" "fraud">>
+	<<He>> reaches for you, but a gloved hand closes round <<his>> wrist first. A tall <<print _vman>> in a dark coat holds up a small screen for <<him>> to read.
+	<br><br>
+	<<He>> reads it twice, then backs away with both hands open. <<if $xchange.arcology.danger.kind is "raid">>The other raider follows<<else>>The others follow<</if>> <<him>> without a word.
+<<case "salon">>
+	The host calls two attendants over, but before they can approach you, a tall <<print _vman>> wearing a dark coat walks up to the table. The host notices a small silver half-mask pin on <<print _vhis>> coat and immediately lowers the scanner.
+	<br><br>
+	The stranger walks over to the door and opens it for you. The two attendants move their chairs aside, leaving you a clear path to the exit. As you pass the host's table, you notice that your invitation has disappeared from the screen.
+<<case "partsMarket">>
+	The dealer reaches across the counter towards you, but someone grabs <<his>> wrist before <<he>> can touch you. You turn and see a tall attendant wearing gloves.
+	<br><br>
+	With <<print _vhis>> free hand, the attendant turns the reader towards the dealer, showing <<him>> something on the screen. The dealer quickly closes your record and unplugs the cable without arguing.
+	<br><br>
+	The other two people move away from the counter, giving you room to leave. The attendant keeps hold of the dealer's wrist while you step back into the main walkway. When you check your implant, you find that no money has been taken and none of your records have been sent.
+<<case "gang">>
+	The lookout reaches towards you, but stops short. A message appears on the small display behind the leader's ear, making <<him>> turn towards the entrance.
+	<br><br>
+	You look behind you and see a tall <<print _vman>> wearing a dark coat. <<print _vHe>> holds up a small screen for the leader to read, waiting while <<he>> looks over the message.
+	<br><br>
+	The leader immediately cancels the payment request. The others begin moving away from you, taking their crate with them and leaving the walkway clear.
+<<case "clinicOffer">>
+	A warning sound comes from the technician's service case. <<He>> checks the message on its screen, then looks towards the door before telling the assistant to put the reader away.
+	<br><br>
+	The admission charge disappears from the screen before any money can be taken from your account. When the door opens, you see a tall attendant in a dark coat waiting outside.
+	<br><br>
+	The technician shows <<print _vhim>> that the reader has been disconnected and your record has been closed. After checking both, the attendant moves away from the doorway so you can leave.
+<<case "blackmail">>
+	Before the broker can send the messages, someone wearing gloves reaches over the table and closes the terminal. The broker starts to complain, but quickly stops when <<he>> sees a tall attendant standing beside <<him>>.
+	<br><br>
+	The attendant places a small screen on the table for the broker to read. After looking at it, the broker opens the list of people who were supposed to receive the messages and deletes everything before it can be sent.
+	<br><br>
+	Your payment request is cancelled as well. The two people accompanying the broker move away from the table, while the attendant stays nearby until the broker has left.
+<<default>>
+	The loader tries to close the shuttle door, but someone outside is holding it open. Through the gap, you can see a gloved hand gripping the edge of the door.
+	<br><br>
+	The dispatcher walks over to complain, but stops when <<he>> notices the tall attendant standing beside the shuttle.
+	<br><br>
+	The attendant opens the door wider, giving you room to climb out. When the dispatcher reaches for your passenger badge, <<print _vhe>> grabs <<his>> wrist and prevents <<him>> from taking it.
+	<br><br>
+	The dispatcher drops the badge, and the attendant lets go of <<his>> wrist. The driver watches what happens before switching off the engine without saying anything.
+<</switch>>
+<br><br>
+The person who helped you waits until you've moved away from the others. As you pass <<print _vhim>>, you notice a small silver half-mask pin attached to <<print _vhis>> dark coat.
+You turn towards <<print _vhim>>, wanting to ask how <<print _vhe>> knew where to find you, but <<print _vhe>> is already walking away.
+<br><br>
+<<arcologyDangerReturn>>

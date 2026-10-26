@@ -30,7 +30,22 @@ setup.Locations = {
 		return "town";
 	},
 	UBM: () => "estate_cottage",
-	seaspray_hotel: () => "office",
+	arcology: () => "arcology",
+	/* The Stack's areas share one location; the passage says which part of it the player is in. */
+	arcology_stack: () => {
+		const p = State.passage;
+		if (/^Arcology Stack (Reclamation|Tech)/.test(p)) return "arcology_stack_reclamation";
+		if (/^Arcology Stack Loading/.test(p)) return "arcology_stack_loading";
+		if (/^Arcology Stack Swim/.test(p)) return "arcology_stack_hull";
+		if (/^Arcology Stack (Bunks?|Sleep|Talk|Flirt|Eavesdrop|Fixer|Rewire|Grope|Ration|Water|Overall|Way Out|Patrols|Band|Passout|Revolt)/.test(p))
+			return "arcology_stack_bunks";
+		if (/^Arcology Stack (Punishment|Pod|Recondition|Compactor|Buyer)/.test(p)) return "arcology_stack_cells";
+		return "arcology_stack";
+	},
+	arcology_launch: () => {
+		if (V.sublocation === "arcology_deck" || V.xchange?.arcology?.voyage?.escort === "loyalists") return "arcology_ship_deck";
+		return V.sublocation === "arcology_leisure" ? "arcology_ship_leisure" : "arcology_ship";
+	},
 	lake: () => (["fishingForestLake", "lakefishingrock"].includes(V.bus) ? "lake-rock" : "lake"),
 	estate: () => (V.bus === "estate_cottage" ? "estate_cottage" : "estate"),
 	farm: () => (["farmroad6", "farm"].includes(V.bus) ? "farm" : "underground_farm"),
@@ -672,6 +687,95 @@ setup.LocationImages = {
 					top: 7,
 					bottom: 0,
 				},
+			},
+		},
+	},
+	mma_gym: {
+		folder: "mma-gym",
+		base: {
+			default: {
+				condition: () => !Weather.isSnow,
+				image: "base.png",
+			},
+			snow: {
+				condition: () => Weather.isSnow,
+				image: "snow.png",
+			},
+		},
+		emissive: {
+			image: "emissive.png",
+			condition: () => Weather.lightsOn,
+			color: "#deae66",
+			size: 4,
+		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+			groundBounds: {
+				splashes: { top: 2, bottom: 0 },
+				fog: { top: 7, bottom: 0 },
+			},
+		},
+	},
+	// The underground colosseum: fully indoor, like the Arcology interiors.
+	colosseum: {
+		folder: "colosseum",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ffffff",
+				size: 2,
+			},
+			crowd: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "crowd.png",
+				color: "#ffffff",
+				size: 1,
+				animation: {
+					frameDelay: 400,
+				},
+			},
+			crowdStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "crowd.png",
+				color: "#ffffff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	seaspray_hotel: {
+		folder: "seaspray-hotel",
+		base: {
+			default: {
+				condition: () => !Weather.isSnow,
+				image: "base.png",
+			},
+			snow: {
+				condition: () => Weather.isSnow,
+				image: "snow.png",
+			},
+		},
+		emissive: {
+			image: "emissive.png",
+			condition: () => Weather.lightsOn,
+			color: "#deae66",
+			size: 4,
+		},
+		weather: {
+			fogDistributionCurve: 1,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+			groundBounds: {
+				splashes: { top: 3, bottom: 0 },
+				fog: { top: 8, bottom: 0 },
 			},
 		},
 	},
@@ -3027,6 +3131,2483 @@ setup.LocationImages = {
 				},
 				fog: {
 					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Inside the Arcology dome: no rain, snow, fog, or snow cover.
+	// Each animated layer has a still twin, shown when setup.arcology.sceneMotion() is off (reduced motion or the Glitch effects setting).
+	arcology: {
+		folder: "arcology",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			windows: {
+				condition: () => Weather.lightsOn,
+				image: "windows.png",
+				color: "#7fe9ff",
+				size: 1,
+			},
+			signs: {
+				condition: () => Weather.lightsOn,
+				image: "emissive.png",
+				color: "#ff4fd6",
+				size: 2,
+				intensity: 1.2,
+			},
+			holo: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "holo.png",
+				color: "#7fe9ff",
+				size: 3,
+				animation: {
+					frameDelay: 400,
+				},
+			},
+			holoStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "holo.png",
+				color: "#7fe9ff",
+				size: 3,
+				frame: () => 0,
+			},
+			beams: {
+				condition: () => Weather.lightsOn && setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#b9a6ff",
+				size: 2,
+				animation: {
+					frameDelay: 350,
+				},
+			},
+			beamsStill: {
+				condition: () => Weather.lightsOn && !setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#b9a6ff",
+				size: 2,
+				frame: () => 0,
+			},
+			flicker: {
+				condition: () => Weather.lightsOn && setup.arcology.sceneMotion(),
+				image: "flicker.png",
+				color: "#ffd36b",
+				size: 1,
+				animation: {
+					frameDelay: 100,
+					cycleDelay: () => random(2500, 6000),
+				},
+			},
+			flickerStill: {
+				condition: () => Weather.lightsOn && !setup.arcology.sceneMotion(),
+				image: "flicker.png",
+				color: "#ffd36b",
+				size: 1,
+				frame: () => 0,
+			},
+			tram: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "tram.png",
+				color: "#7fe9ff",
+				size: 1,
+				animation: {
+					frameDelay: 250,
+					cycleDelay: () => 4000,
+				},
+			},
+			tramStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "tram.png",
+				color: "#7fe9ff",
+				size: 1,
+				frame: () => 3,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// The Stack: debt labour in the rock under the island.
+	arcology_stack: {
+		folder: "arcology-stack",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ff9a3c",
+				size: 2,
+			},
+			drones: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "drones.png",
+				color: "#ff3c46",
+				size: 1,
+				animation: {
+					frameDelay: 500,
+				},
+			},
+			dronesStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "drones.png",
+				color: "#ff3c46",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	arcology_stack_reclamation: {
+		folder: "arcology-stack-reclamation",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			image: "emissive.png",
+			color: "#e6f0ff",
+			size: 2,
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: { top: 8, bottom: 0 },
+				fog: { top: 11, bottom: 0 },
+			},
+		},
+	},
+	arcology_stack_loading: {
+		folder: "arcology-stack-loading",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			image: "emissive.png",
+			color: "#ff9a3c",
+			size: 1,
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: { top: 8, bottom: 0 },
+				fog: { top: 11, bottom: 0 },
+			},
+		},
+	},
+	arcology_stack_bunks: {
+		folder: "arcology-stack-bunks",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			image: "emissive.png",
+			color: "#ffc878",
+			size: 1,
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: { top: 8, bottom: 0 },
+				fog: { top: 11, bottom: 0 },
+			},
+		},
+	},
+	arcology_stack_cells: {
+		folder: "arcology-stack-cells",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			image: "emissive.png",
+			color: "#ff3c46",
+			size: 1,
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: { top: 8, bottom: 0 },
+				fog: { top: 11, bottom: 0 },
+			},
+		},
+	},
+	arcology_stack_hull: {
+		folder: "arcology-stack-hull",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			image: "emissive.png",
+			color: "#c8e6ff",
+			size: 2,
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: { top: 8, bottom: 0 },
+				fog: { top: 11, bottom: 0 },
+			},
+		},
+	},
+	// Breakwater Road: the seawall and the dome's edge over the sea.
+	arcology_coast: {
+		folder: "arcology-coast",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#fff0c8",
+				size: 2,
+			},
+			waves: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "waves.png",
+				color: "#c8f0ff",
+				size: 1,
+				animation: {
+					frameDelay: 450,
+				},
+			},
+			wavesStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "waves.png",
+				color: "#c8f0ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// The foot of the dome at the end of Breakwater Road.
+	arcology_domeedge: {
+		folder: "arcology-domeedge",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#fff0c8",
+				size: 2,
+			},
+			waves: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "waves.png",
+				color: "#c8f0ff",
+				size: 1,
+				animation: {
+					frameDelay: 450,
+				},
+			},
+			wavesStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "waves.png",
+				color: "#c8f0ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// The X-Change Station on Relay Street.
+	arcology_xstation: {
+		folder: "arcology-xstation",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ff8cd2",
+				size: 2,
+			},
+			holo: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "holo.png",
+				color: "#ff8cd2",
+				size: 1,
+				animation: {
+					frameDelay: 250,
+				},
+			},
+			holoStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "holo.png",
+				color: "#ff8cd2",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The Glasshouse private lift lobby.
+	arcology_glassdoor: {
+		folder: "arcology-glassdoor",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#7fe9ff",
+				size: 2,
+			},
+			scan: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "scan.png",
+				color: "#7fe9ff",
+				size: 1,
+				animation: {
+					frameDelay: 300,
+				},
+			},
+			scanStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "scan.png",
+				color: "#7fe9ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// Afterimage, the cafe on Relay Street.
+	arcology_cafe: {
+		folder: "arcology-cafe",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ffffff",
+				size: 2,
+			},
+			steam: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "steam.png",
+				color: "#ffffff",
+				size: 1,
+				animation: {
+					frameDelay: 400,
+				},
+			},
+			steamStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "steam.png",
+				color: "#ffffff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// Unit Exchange and Halden Trust.
+	arcology_bank: {
+		folder: "arcology-bank",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#78ffaa",
+				size: 2,
+			},
+			rates: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "rates.png",
+				color: "#78ffaa",
+				size: 1,
+				animation: {
+					frameDelay: 250,
+				},
+			},
+			ratesStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "rates.png",
+				color: "#78ffaa",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// Kessler Arms.
+	arcology_arms: {
+		folder: "arcology-arms",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ff3240",
+				size: 2,
+			},
+			reader: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "reader.png",
+				color: "#ff3240",
+				size: 1,
+				animation: {
+					frameDelay: 500,
+				},
+			},
+			readerStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "reader.png",
+				color: "#ff3240",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The Printworks.
+	arcology_print: {
+		folder: "arcology-print",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ffaa50",
+				size: 2,
+			},
+			nozzles: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "nozzles.png",
+				color: "#ffaa50",
+				size: 1,
+				animation: {
+					frameDelay: 300,
+				},
+			},
+			nozzlesStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "nozzles.png",
+				color: "#ffaa50",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The calibration station.
+	arcology_calib: {
+		folder: "arcology-calib",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#7fe9ff",
+				size: 2,
+			},
+			scan: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "scan.png",
+				color: "#7fe9ff",
+				size: 1,
+				animation: {
+					frameDelay: 300,
+				},
+			},
+			scanStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "scan.png",
+				color: "#7fe9ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// Island bars: The Ballast, Halcyon, The Static Room.
+	arcology_bar: {
+		folder: "arcology-bar",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ff4fd6",
+				size: 2,
+			},
+			sign: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "sign.png",
+				color: "#ff4fd6",
+				size: 1,
+				animation: {
+					frameDelay: 250,
+				},
+			},
+			signStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "sign.png",
+				color: "#ff4fd6",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// Pulse.
+	arcology_club: {
+		folder: "arcology-club",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#b478ff",
+				size: 2,
+			},
+			floor: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "floor.png",
+				color: "#b478ff",
+				size: 1,
+				animation: {
+					frameDelay: 350,
+				},
+			},
+			floorStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "floor.png",
+				color: "#b478ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// Lumen Clinic, Second Skin and the health shop.
+	arcology_clinic: {
+		folder: "arcology-clinic",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#a0ffdc",
+				size: 2,
+			},
+			scan: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "scan.png",
+				color: "#a0ffdc",
+				size: 1,
+				animation: {
+					frameDelay: 300,
+				},
+			},
+			scanStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "scan.png",
+				color: "#a0ffdc",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The Civic Registry.
+	arcology_registry: {
+		folder: "arcology-registry",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#7fe9ff",
+				size: 2,
+			},
+			queue: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "queue.png",
+				color: "#7fe9ff",
+				size: 1,
+				animation: {
+					frameDelay: 400,
+				},
+			},
+			queueStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "queue.png",
+				color: "#7fe9ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// Enforcement headquarters.
+	arcology_enforcement: {
+		folder: "arcology-enforcement",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ff3c50",
+				size: 2,
+			},
+			alert: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "alert.png",
+				color: "#ff3c50",
+				size: 1,
+				animation: {
+					frameDelay: 500,
+				},
+			},
+			alertStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "alert.png",
+				color: "#ff3c50",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The contract office.
+	arcology_contracts: {
+		folder: "arcology-contracts",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ffa05a",
+				size: 2,
+			},
+			posting: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "posting.png",
+				color: "#ffa05a",
+				size: 1,
+				animation: {
+					frameDelay: 500,
+				},
+			},
+			postingStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "posting.png",
+				color: "#ffa05a",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// Dome Broadcast studio.
+	arcology_broadcast: {
+		folder: "arcology-broadcast",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ffd36b",
+				size: 2,
+			},
+			ticker: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "ticker.png",
+				color: "#ffd36b",
+				size: 1,
+				animation: {
+					frameDelay: 250,
+				},
+			},
+			tickerStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "ticker.png",
+				color: "#ffd36b",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The Intelligence Division.
+	arcology_intel: {
+		folder: "arcology-intel",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#78ffaa",
+				size: 2,
+			},
+			marker: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "marker.png",
+				color: "#78ffaa",
+				size: 1,
+				animation: {
+					frameDelay: 400,
+				},
+			},
+			markerStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "marker.png",
+				color: "#78ffaa",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// Skyline Residences lobby.
+	arcology_residences: {
+		folder: "arcology-residences",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ffdc96",
+				size: 2,
+			},
+			lift: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "lift.png",
+				color: "#ffdc96",
+				size: 1,
+				animation: {
+					frameDelay: 500,
+				},
+			},
+			liftStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "lift.png",
+				color: "#ffdc96",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The training hall.
+	arcology_training: {
+		folder: "arcology-training",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#b48cff",
+				size: 2,
+			},
+			stream: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "stream.png",
+				color: "#b48cff",
+				size: 1,
+				animation: {
+					frameDelay: 250,
+				},
+			},
+			streamStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "stream.png",
+				color: "#b48cff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The compute floor.
+	arcology_compute: {
+		folder: "arcology-compute",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#78ffaa",
+				size: 2,
+			},
+			racks: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "racks.png",
+				color: "#78ffaa",
+				size: 1,
+				animation: {
+					frameDelay: 300,
+				},
+			},
+			racksStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "racks.png",
+				color: "#78ffaa",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The holo studio.
+	arcology_studio: {
+		folder: "arcology-studio",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ff4fd6",
+				size: 2,
+			},
+			avatar: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "avatar.png",
+				color: "#ff4fd6",
+				size: 1,
+				animation: {
+					frameDelay: 300,
+				},
+			},
+			avatarStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "avatar.png",
+				color: "#ff4fd6",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// Inside the seawall.
+	arcology_hatch: {
+		folder: "arcology-hatch",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ff9628",
+				size: 2,
+			},
+			beacon: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "beacon.png",
+				color: "#ff9628",
+				size: 1,
+				animation: {
+					frameDelay: 400,
+				},
+			},
+			beaconStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "beacon.png",
+				color: "#ff9628",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// A Dockside Flats stairwell.
+	arcology_stairwell: {
+		folder: "arcology-stairwell",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ffc88c",
+				size: 2,
+			},
+			flicker: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "flicker.png",
+				color: "#ffc88c",
+				size: 1,
+				animation: {
+					frameDelay: 200,
+				},
+			},
+			flickerStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "flicker.png",
+				color: "#ffc88c",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The foundry floor.
+	arcology_foundry: {
+		folder: "arcology-foundry",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ffb450",
+				size: 2,
+			},
+			pour: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "pour.png",
+				color: "#ffb450",
+				size: 1,
+				animation: {
+					frameDelay: 200,
+				},
+			},
+			pourStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "pour.png",
+				color: "#ffb450",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The trading post.
+	arcology_tradingpost: {
+		folder: "arcology-tradingpost",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#7fe9ff",
+				size: 2,
+			},
+			price: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "price.png",
+				color: "#7fe9ff",
+				size: 1,
+				animation: {
+					frameDelay: 400,
+				},
+			},
+			priceStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "price.png",
+				color: "#7fe9ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The black market.
+	arcology_blackmarket: {
+		folder: "arcology-blackmarket",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ff788c",
+				size: 2,
+			},
+			lamp: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "lamp.png",
+				color: "#ff788c",
+				size: 1,
+				animation: {
+					frameDelay: 400,
+				},
+			},
+			lampStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "lamp.png",
+				color: "#ff788c",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The chip cutter.
+	arcology_cutter: {
+		folder: "arcology-cutter",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ff3c50",
+				size: 2,
+			},
+			laser: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "laser.png",
+				color: "#ff3c50",
+				size: 1,
+				animation: {
+					frameDelay: 250,
+				},
+			},
+			laserStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "laser.png",
+				color: "#ff3c50",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The Unit Exchange hall.
+	arcology_exchangehall: {
+		folder: "arcology-exchangehall",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#78ffaa",
+				size: 2,
+			},
+			rates: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "rates.png",
+				color: "#78ffaa",
+				size: 1,
+				animation: {
+					frameDelay: 300,
+				},
+			},
+			ratesStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "rates.png",
+				color: "#78ffaa",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// Halcyon, the window bar on Neon Strip.
+	arcology_halcyon: {
+		folder: "arcology-halcyon",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#7fe9ff",
+				size: 2,
+			},
+			drone: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "drone.png",
+				color: "#7fe9ff",
+				size: 1,
+				animation: {
+					frameDelay: 300,
+				},
+			},
+			droneStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "drone.png",
+				color: "#7fe9ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The Static Room.
+	arcology_gambling: {
+		folder: "arcology-gambling",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ffd36b",
+				size: 2,
+			},
+			reels: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "reels.png",
+				color: "#ffd36b",
+				size: 1,
+				animation: {
+					frameDelay: 200,
+				},
+			},
+			reelsStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "reels.png",
+				color: "#ffd36b",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// Second Skin augmentation parlour.
+	arcology_augment: {
+		folder: "arcology-augment",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#7fe9ff",
+				size: 2,
+			},
+			joints: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "joints.png",
+				color: "#7fe9ff",
+				size: 1,
+				animation: {
+					frameDelay: 300,
+				},
+			},
+			jointsStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "joints.png",
+				color: "#7fe9ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// The sky terrace on Skyline Avenue.
+	arcology_terrace: {
+		folder: "arcology-terrace",
+		weather: { precipitationEnabled: false },
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ffffff",
+				size: 2,
+			},
+			traffic: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "traffic.png",
+				color: "#ffffff",
+				size: 1,
+				animation: {
+					frameDelay: 400,
+				},
+			},
+			trafficStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "traffic.png",
+				color: "#ffffff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+	},
+	// Dockside Flats: the island's slum housing.
+	arcology_flats: {
+		folder: "arcology-flats",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ffb060",
+				size: 2,
+			},
+			flicker: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "flicker.png",
+				color: "#ffdca0",
+				size: 1,
+				animation: {
+					frameDelay: 300,
+				},
+			},
+			flickerStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "flicker.png",
+				color: "#ffdca0",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Exchange Square and Commerce Walk.
+	arcology_exchange: {
+		folder: "arcology-exchange",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			beams: {
+				condition: () => Weather.lightsOn && setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#7fe9ff",
+				size: 2,
+				animation: {
+					frameDelay: 400,
+				},
+			},
+			beamsStill: {
+				condition: () => Weather.lightsOn && !setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#7fe9ff",
+				size: 2,
+				frame: () => 0,
+			},
+			lights: {
+				image: "emissive.png",
+				color: "#7fe9ff",
+				size: 2,
+			},
+			column: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "column.png",
+				color: "#e6ffff",
+				size: 1,
+				animation: {
+					frameDelay: 250,
+				},
+			},
+			columnStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "column.png",
+				color: "#e6ffff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Market Street.
+	arcology_market: {
+		folder: "arcology-market",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			beams: {
+				condition: () => Weather.lightsOn && setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#ff4fd6",
+				size: 2,
+				animation: {
+					frameDelay: 400,
+				},
+			},
+			beamsStill: {
+				condition: () => Weather.lightsOn && !setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#ff4fd6",
+				size: 2,
+				frame: () => 1,
+			},
+			lights: {
+				image: "emissive.png",
+				color: "#7fe9ff",
+				size: 2,
+			},
+			bulbs: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "bulbs.png",
+				color: "#ffc86e",
+				size: 1,
+				animation: {
+					frameDelay: 400,
+				},
+			},
+			bulbsStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "bulbs.png",
+				color: "#ffc86e",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Neon Strip: bars, clubs and gambling.
+	arcology_neon: {
+		folder: "arcology-neon",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			beams: {
+				condition: () => Weather.lightsOn && setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#ff4fd6",
+				size: 2,
+				animation: {
+					frameDelay: 350,
+				},
+			},
+			beamsStill: {
+				condition: () => Weather.lightsOn && !setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#ff4fd6",
+				size: 2,
+				frame: () => 1,
+			},
+			lights: {
+				image: "emissive.png",
+				color: "#ff4fd6",
+				size: 2,
+			},
+			signs: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "signs.png",
+				color: "#7fe9ff",
+				size: 1,
+				animation: {
+					frameDelay: 200,
+				},
+			},
+			signsStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "signs.png",
+				color: "#7fe9ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Underpass and the Stronghold Quarter, under the main platform.
+	arcology_underpass: {
+		folder: "arcology-underpass",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ff8c3c",
+				size: 2,
+			},
+			fire: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "fire.png",
+				color: "#ffa050",
+				size: 1,
+				animation: {
+					frameDelay: 150,
+				},
+			},
+			fireStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "fire.png",
+				color: "#ffa050",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Forge Lane and the Ironworks.
+	arcology_forge: {
+		folder: "arcology-forge",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ff7828",
+				size: 2,
+			},
+			sparks: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "sparks.png",
+				color: "#ffdc78",
+				size: 1,
+				animation: {
+					frameDelay: 200,
+				},
+			},
+			sparksStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "sparks.png",
+				color: "#ffdc78",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Civic Boulevard and Signal Avenue.
+	arcology_civic: {
+		folder: "arcology-civic",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			beams: {
+				condition: () => Weather.lightsOn && setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#7fe9ff",
+				size: 1,
+				animation: {
+					frameDelay: 300,
+				},
+			},
+			beamsStill: {
+				condition: () => Weather.lightsOn && !setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#7fe9ff",
+				size: 1,
+				frame: () => 3,
+			},
+			lights: {
+				image: "emissive.png",
+				color: "#dcf0ff",
+				size: 2,
+			},
+			drone: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "drone.png",
+				color: "#7fe9ff",
+				size: 1,
+				animation: {
+					frameDelay: 350,
+				},
+			},
+			droneStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "drone.png",
+				color: "#7fe9ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Commerce Walk.
+	arcology_commerce: {
+		folder: "arcology-commerce",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			beams: {
+				condition: () => Weather.lightsOn && setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#ffd36b",
+				size: 2,
+				animation: {
+					frameDelay: 450,
+				},
+			},
+			beamsStill: {
+				condition: () => Weather.lightsOn && !setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#ffd36b",
+				size: 2,
+				frame: () => 1,
+			},
+			lights: {
+				image: "emissive.png",
+				color: "#dcf0ff",
+				size: 2,
+			},
+			ribbon: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "ribbon.png",
+				color: "#7fe9ff",
+				size: 1,
+				animation: {
+					frameDelay: 350,
+				},
+			},
+			ribbonStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "ribbon.png",
+				color: "#7fe9ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Signal Avenue.
+	arcology_signal: {
+		folder: "arcology-signal",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#dcf0ff",
+				size: 2,
+			},
+			pulse: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "pulse.png",
+				color: "#7fe9ff",
+				size: 1,
+				animation: {
+					frameDelay: 350,
+				},
+			},
+			pulseStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "pulse.png",
+				color: "#7fe9ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Ironworks.
+	arcology_ironworks: {
+		folder: "arcology-ironworks",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#dcf0ff",
+				size: 2,
+			},
+			slab: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "slab.png",
+				color: "#ffa040",
+				size: 1,
+				animation: {
+					frameDelay: 350,
+				},
+			},
+			slabStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "slab.png",
+				color: "#ffa040",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Stronghold Quarter.
+	arcology_stronghold: {
+		folder: "arcology-stronghold",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#dcf0ff",
+				size: 2,
+			},
+			eye: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "eye.png",
+				color: "#ff2840",
+				size: 1,
+				animation: {
+					frameDelay: 350,
+				},
+			},
+			eyeStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "eye.png",
+				color: "#ff2840",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Medtech Street.
+	arcology_medtech: {
+		folder: "arcology-medtech",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#78ffdc",
+				size: 2,
+			},
+			face: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "face.png",
+				color: "#c8a0ff",
+				size: 1,
+				animation: {
+					frameDelay: 900,
+				},
+			},
+			faceStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "face.png",
+				color: "#c8a0ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Skyline Avenue: wealthy residential towers.
+	arcology_skyline: {
+		folder: "arcology-skyline",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			beams: {
+				condition: () => Weather.lightsOn && setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#d8f4ff",
+				size: 1,
+				animation: {
+					frameDelay: 400,
+				},
+			},
+			beamsStill: {
+				condition: () => Weather.lightsOn && !setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#d8f4ff",
+				size: 1,
+				frame: () => 0,
+			},
+			lights: {
+				image: "emissive.png",
+				color: "#ffecbe",
+				size: 2,
+			},
+			balconies: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "balconies.png",
+				color: "#ffecbe",
+				size: 1,
+				animation: {
+					frameDelay: 900,
+				},
+			},
+			balconiesStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "balconies.png",
+				color: "#ffecbe",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Crown Avenue: the elite compounds.
+	arcology_crown: {
+		folder: "arcology-crown",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			beams: {
+				condition: () => Weather.lightsOn && setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#ffd88c",
+				size: 1,
+				animation: {
+					frameDelay: 500,
+				},
+			},
+			beamsStill: {
+				condition: () => Weather.lightsOn && !setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#ffd88c",
+				size: 1,
+				frame: () => 2,
+			},
+			lights: {
+				image: "emissive.png",
+				color: "#ffdc8c",
+				size: 2,
+			},
+			gleam: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "gleam.png",
+				color: "#fff0c8",
+				size: 1,
+				animation: {
+					frameDelay: 600,
+				},
+			},
+			gleamStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "gleam.png",
+				color: "#fff0c8",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Stillwater Court: Luchifen's residence.
+	arcology_stillwater: {
+		folder: "arcology-stillwater",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			beams: {
+				condition: () => Weather.lightsOn && setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#d8c4ff",
+				size: 1,
+				animation: {
+					frameDelay: 600,
+				},
+			},
+			beamsStill: {
+				condition: () => Weather.lightsOn && !setup.arcology.sceneMotion(),
+				image: "beams.png",
+				color: "#d8c4ff",
+				size: 1,
+				frame: () => 2,
+			},
+			lights: {
+				image: "emissive.png",
+				color: "#7fe9ff",
+				size: 2,
+			},
+			ripples: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "ripples.png",
+				color: "#c8f0ff",
+				size: 1,
+				animation: {
+					frameDelay: 500,
+				},
+			},
+			ripplesStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "ripples.png",
+				color: "#c8f0ff",
+				size: 1,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// The white pier and the guest gate.
+	arcology_pier: {
+		folder: "arcology-pier",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#9fe8ff",
+				size: 2,
+			},
+			scan: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "scan.png",
+				color: "#7fe9ff",
+				size: 2,
+				animation: {
+					frameDelay: 300,
+					cycleDelay: () => 2500,
+				},
+			},
+			scanStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "scan.png",
+				color: "#7fe9ff",
+				size: 2,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// The Glasshouse ballroom on top of the tallest tower.
+	arcology_glasshouse: {
+		folder: "arcology-glasshouse",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#d9a8ff",
+				size: 2,
+			},
+			chandelier: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "chandelier.png",
+				color: "#7fe9ff",
+				size: 2,
+				animation: {
+					frameDelay: 400,
+				},
+			},
+			chandelierStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "chandelier.png",
+				color: "#7fe9ff",
+				size: 2,
+				frame: () => 0,
+			},
+			floor: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "floor.png",
+				color: "#ff7ad9",
+				size: 2,
+				animation: {
+					frameDelay: 700,
+				},
+			},
+			floorStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "floor.png",
+				color: "#ff7ad9",
+				size: 2,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Hotel Meridian: lobby, corridor and guest room share one interior over the city.
+	arcology_hotel: {
+		folder: "arcology-hotel",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ffcf8a",
+				size: 2,
+			},
+			panel: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "panel.png",
+				color: "#7fe9ff",
+				size: 2,
+				animation: {
+					frameDelay: 600,
+				},
+			},
+			panelStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "panel.png",
+				color: "#7fe9ff",
+				size: 2,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// The Arcology ship. Rooms are enclosed: the window shows the sky but no rain or snow falls in the room.
+	arcology_ship: {
+		folder: "arcology-ship",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#e0b8ff",
+				size: 2,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// Bar, VIP lounge and pool.
+	arcology_ship_leisure: {
+		folder: "arcology-ship-leisure",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			lights: {
+				image: "emissive.png",
+				color: "#ffcf7a",
+				size: 2,
+			},
+			pool: {
+				condition: () => setup.arcology.sceneMotion(),
+				image: "pool.png",
+				color: "#b48cff",
+				size: 3,
+				animation: {
+					frameDelay: 450,
+				},
+			},
+			poolStill: {
+				condition: () => !setup.arcology.sceneMotion(),
+				image: "pool.png",
+				color: "#b48cff",
+				size: 3,
+				frame: () => 0,
+			},
+		},
+		weather: {
+			precipitationEnabled: false,
+			fogDistributionCurve: 1,
+			rainSplashEnabled: false,
+			fogEnabled: false,
+			groundBounds: {
+				splashes: {
+					top: 8,
+					bottom: 0,
+				},
+				fog: {
+					top: 11,
+					bottom: 0,
+				},
+			},
+		},
+	},
+	// The open deck, and the sea from the locked cabin on a forced transfer. Outdoor weather applies.
+	arcology_ship_deck: {
+		folder: "arcology-ship-deck",
+		base: {
+			default: {
+				image: "base.png",
+			},
+		},
+		emissive: {
+			navigation: {
+				condition: () => Weather.lightsOn,
+				image: "emissive.png",
+				color: "#ff5a6e",
+				size: 2,
+			},
+		},
+		weather: {
+			fogDistributionCurve: 1.5,
+			rainSplashEnabled: true,
+			fogEnabled: true,
+			groundBounds: {
+				splashes: {
+					top: 6,
+					bottom: 0,
+				},
+				fog: {
+					top: 14,
 					bottom: 0,
 				},
 			},

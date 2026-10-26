@@ -40,7 +40,7 @@
 		<</for>>
 
 		/* Update BGM */
-		<<set _npcWithTheme to ["Ivory Wraith", "Eden", "Avery", "Bailey", "Wren", "Gwylan", "Whitney", "Zephyr", "Kylar", "Robin", "Sydney", "Poppy"]>>
+		<<set _npcWithTheme to ["Ivory Wraith", "Eden", "Avery", "Bailey", "Wren", "Gwylan", "Whitney", "Zephyr", "Kylar", "Robin", "Sydney", "Poppy", "Luchifen"]>>
 		<<set _npcDescriptions to $NPCList.flatMap((n)=> n.fullDescription)>>
 		<<for _name range _npcWithTheme>>
 			<<if _npcDescriptions.includes(_name)>>
@@ -56,6 +56,8 @@
 			<</if>>
 		<<elseif $possessed>>
 			<<bgm-intermission "IvoryWraith">>
+		<<elseif setup.arcology.inEncounter()>>
+			<<bgm-intermission "arcology-battle">>
 		<<elseif $combat is 1 and $consensual isnot 1>>
 			<<bgm-intermission "encounter-noncon">>
 		<<elseif _npcFound is 1>>
@@ -65,6 +67,8 @@
 		<<elseif setup.consoleMusic and setup.consoleMusic[passage()]>>
 			/* A Home Console minigame's theme, played over the paused room theme. */
 			<<bgm-intermission setup.consoleMusic[passage()]>>
+		<<elseif setup.arcology.inCity()>>
+			<<bgm `setup.arcology.cityTheme()`>>
 		<<else>>
 			<<switch $location>>
 				<<case "town" "alley" "canals" "canal" "police_station" "market" "spa" "chalets" "home" "museum" "docks" "avery_mansion" "landfill" "compound" "factory" "pound" "townhall" "kylarmanor_outside" "kylarmanor_grounds" "industrial">>
@@ -99,7 +103,7 @@
 					<</if>>
 				<<case "forest" "lake" "bog" "wolf_cave" "churchyard" "lake_ruin" "cabin" "lake_office">>
 					<<bgm "forest">>
-				<<case "sea" "seabeach" "searocks" "seacliffs" "pirate_ship" "prison_beach">>
+				<<case "sea" "seabeach" "searocks" "seacliffs" "pirate_ship" "prison_beach" "arcology_launch" "arcology_leisure" "arcology_deck">>
 					<<bgm "sea">>
 				<<case "old_temple">>
 					<<if ["cell","guardhouse"].includes($bus)>>
@@ -257,8 +261,7 @@
 			<<set setup.bgmCurrentPlaylist to _args[0]>>
 			<<set setup.bgmPausedPlaylist to "none">>
 			<<init-playlist setup.bgmCurrentPlaylist>>
-			<<playlist setup.bgmCurrentPlaylist volume $options.bgm_volume>>
-			<<if $options.bgm_volume gt 0>><<playlist setup.bgmCurrentPlaylist play loop shuffle>><</if>>
+			<<bgm-start>>
 		<</if>>
 	<<elseif _args[0] isnot "stop" and $options.bgm_volume gt 0 and !SimpleAudio.lists.get(setup.bgmCurrentPlaylist).isPlaying()>>
 		/* The selected theme may have failed to start or been interrupted by the browser. */
@@ -267,6 +270,18 @@
 		<</if>>
 		<<playlist setup.bgmCurrentPlaylist play loop>>
 	<</if>>	
+<</widget>>
+
+/* Starts the current BGM playlist. Island themes fade in briefly instead of starting at full volume. */
+<<widget "bgm-start">>
+	<<if $options.bgm_volume gt 0 and (setup.bgmCurrentPlaylist.startsWith("arcology") or setup.bgmCurrentPlaylist is "Luchifen")>>
+		<<playlist setup.bgmCurrentPlaylist volume 0>>
+		<<playlist setup.bgmCurrentPlaylist play loop shuffle>>
+		<<playlist setup.bgmCurrentPlaylist fadeoverto 1.5 $options.bgm_volume>>
+	<<else>>
+		<<playlist setup.bgmCurrentPlaylist volume $options.bgm_volume>>
+		<<if $options.bgm_volume gt 0>><<playlist setup.bgmCurrentPlaylist play loop shuffle>><</if>>
+	<</if>>
 <</widget>>
 
 <<widget "bgm-intermission">>
@@ -291,8 +306,7 @@
 		/* Start playing the intermission BGM playlist */
 		<<set setup.bgmCurrentPlaylist to _args[0]>>
 		<<init-playlist setup.bgmCurrentPlaylist>>
-		<<playlist setup.bgmCurrentPlaylist volume $options.bgm_volume>>
-		<<if $options.bgm_volume gt 0>><<playlist setup.bgmCurrentPlaylist play loop shuffle>><</if>>
+		<<bgm-start>>
 	<<elseif $options.bgm_volume gt 0 and !SimpleAudio.lists.get(setup.bgmCurrentPlaylist).isPlaying()>>
 		<<if SimpleAudio.lists.get(setup.bgmCurrentPlaylist).tracks.some(entry => entry.track.isUnavailable())>>
 			<<playlist setup.bgmCurrentPlaylist load>>

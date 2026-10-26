@@ -135,6 +135,7 @@ function initSpecialClothes() {
 
 		{ name: "islander mask", 				sets: ["mask", "islander"] },
 		{ name: "fox mask", 					sets: ["mask", "fox", "fox_mask"] },
+		{ name: "white half-mask", 				sets: ["mask", "luchifen_mask"] },
 
 		{ name: "fedora", 						sets: ["fedora"] },
 
@@ -674,6 +675,16 @@ function initSpecialClothes() {
 			feat: true,
 			featCost: 5,
 			icon: "clothes/fox_mask.png",
+		},
+		luchifen_mask: {
+			text: "white half-mask",
+			requirements: () => V.xchange?.arcology?.outcome === "success" || !!V.xchange?.arcology?.party?.seen?.includes("mask"),
+			hint: "attend a masquerade far from the mainland",
+			shop: ["forest"],
+			subsetOf: ["mask"],
+			feat: true,
+			featCost: 5,
+			icon: "clothes/luchifen-mask.png",
 		},
 		fedora: {
 			text: "fedora",

@@ -46,6 +46,7 @@ interface EmissiveSetting {
 	blur?: number;
 	strength?: number;
 	intensity?: LocationImageNumericValue;
+	frame?: number | (() => number);
 }
 
 interface ReflectiveSetting {
@@ -102,6 +103,7 @@ interface WeatherLocationSettings {
 	rainSplashEnabled?: boolean;
 	fogEnabled?: boolean;
 	fogOpacity?: number | (() => number);
+	precipitationEnabled?: boolean;
 	groundBounds?: GroundBounds;
 }
 

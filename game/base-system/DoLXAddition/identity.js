@@ -953,9 +953,10 @@ window.npcAddressPronoun = npcAddressPronoun;
  *
  * @param {string} pronoun The player's pronoun ("m", "f" or "n").
  */
-const misgenderCounted = { turn: -1, seen: new Set() };
+const misgenderCounted = { turn: null, seen: new Set() };
 function misgenderShouldCount(pronoun) {
-	const turn = State.turns;
+	/* Count once per active history moment, including after undo or loading a save. */
+	const turn = State.active;
 	if (misgenderCounted.turn !== turn) {
 		misgenderCounted.turn = turn;
 		misgenderCounted.seen = new Set();

@@ -1,0 +1,815 @@
+/* SORTING BELT */
+:: Arcology Stack Belt Intro
+<<effects>>
+<<set $xchange.arcology.stack.seenJobs to ($xchange.arcology.stack.seenJobs or []).concat("belt")>>
+You are assigned a place beside a moving sorting belt, between two other workers. A large opening high above the room drops broken cybernetic parts onto the belt. You see metal arms, artificial eyes, cables and damaged cases mixed with pieces you cannot identify.
+<br><br>
+Several bins stand beside your station. A screen above the belt shows where each kind of part belongs. As you start sorting, a drone moves over the workers and checks what has been placed in each bin.
+<br><br>
+<<link [[Next|Arcology Stack Belt]]>><</link>>
+<br>
+
+:: Arcology Stack Belt
+<<location "arcology_stack">><<set $outside to 0>><<effects>>
+You stand beside the sorting belt while broken parts move past you. Orange lights illuminate the work area, and drones move above the stations, stopping to check the bins.
+<<if $exposed gte 1>>
+	The worker beside you looks at your <<lewdness>> before turning back to the parts on the belt.
+<</if>>
+<br><br>
+<<arcologyStackShiftGate>>
+<<if !_sjBusy>>
+	<<arcologyStackWatch>>
+	<br><br>
+	<<arcologyStackWorkLinks "Arcology Stack Belt Events">>
+<</if>>
+
+:: Arcology Stack Belt Events
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+<<if $phase is 0>>
+	<<print either(
+		"You pick up the cables one at a time, check their colours and put them into separate bins. More arrive before you can finish the pile in front of you.",
+		"You remove artificial eyes from the other scrap and place them in a separate bin. Some of the eyes move when you pick them up, making you check that they are switched off.",
+		"You pull the damaged cases apart, separate the metal from the plastic and put each piece in the bin shown on the screen.",
+		"A bundle of wires becomes caught along the edge of the belt. You pull it free before it reaches the next worker, then separate the wires into the correct bins.",
+		"You find several artificial fingers mixed with the scrap, including a few broken ones. You collect them and put them in the bin marked RECLAIM."
+	)>>
+<</if>>
+<<arcologyStackHour>>
+<br><br>
+<<cleareventpool>>
+
+<<addinlineevent "quiet" 4>>
+	You spend the rest of the hour sorting the parts as they arrive. No one stops you, and the drones continue their checks.
+	<br><br>
+	<<link [[Next|Arcology Stack Belt]]>><</link>>
+<</addinlineevent>>
+
+<<addinlineevent "ring">>
+	A detached arm comes down the belt. It has a tattoo on the forearm and a wedding ring on one finger. The workers beside you continue sorting without looking over.
+	<br><br>
+	<<link [[Hand the ring to the supervisor|Arcology Stack Belt Ring]]>><<set $phase to "give">><</link>>
+	<br>
+	<<link [[Pocket the ring|Arcology Stack Belt Ring]]>><<set $phase to setup.arcology.escape("stack", "skulduggery", 200, 900) ? "kept" : "caught">><</link>><<arcologySkill "Skulduggery">>
+	<br>
+<</addinlineevent>>
+
+<<if !$daily.arcologyStackChip>>
+	<<addinlineevent "chip" 2>>
+		As you move a damaged case aside, you notice a memory chip underneath it. A small green light on the chip shows that it still has power.
+		<br><br>
+		<<link [[Pocket the chip|Arcology Stack Chip]]>><<set $daily.arcologyStackChip to true>><<set $phase to setup.arcology.escape("stack", "skulduggery", 200, 900) ? 1 : 0>><</link>><<arcologySkill "Skulduggery">>
+		<br>
+		<<link [[Leave it|Arcology Stack Belt]]>><<set $daily.arcologyStackChip to true>><</link>>
+		<br>
+	<</addinlineevent>>
+<</if>>
+
+<<addinlineevent "crate">>
+	A sealed crate marked NEW IMPLANTS arrives among the broken parts. The worker beside you notices the label, but continues sorting without saying anything.
+	<br><br>
+	<<link [[Prise out a part|Arcology Stack Belt Crate]]>><<set $phase to setup.arcology.escape("stack", "skulduggery", 300, 1000) ? 1 : 0>><</link>><<arcologySkill "Skulduggery">>
+	<br>
+	<<link [[Let it go|Arcology Stack Belt Crate]]>><<set $phase to 2>><</link>>
+	<br>
+<</addinlineevent>>
+
+<<addinlineevent "collapse">>
+	<<arcologyNPC 0 "worker" "worker">><<person1>>
+	Two stations away, a <<person>> stops sorting. <<He>> puts both hands on the edge of the moving belt and struggles to remain standing. A drone moves down in front of <<him>>, close enough to block <<his>> view.
+	<br><br>
+	<<link [[Go and help|Arcology Stack Belt Collapse]]>><<set $phase to 0>><</link>>
+	<br>
+	<<link [[Keep working|Arcology Stack Belt Collapse]]>><<set $phase to 1>><</link>>
+	<br>
+<</addinlineevent>>
+
+<<if !_st.buyerSeen>>
+	<<addinlineevent "visitor">>
+		<<set _st.buyerSeen to true>>
+		<<arcologyNPC 0 "vip" "visitor">><<saveNPC 0 "stack_buyer">><<person1>>
+		A visitor wearing a clean coat steps out of the lift with a guard. <<arcologyCyberLook 0>> The visitor walks past the other stations, then stops in front of you. <<He>> looks closely at your face before turning to the supervisor and asking a question in a quiet voice.
+		<br><br>
+		You hear the visitor ask whether the supervisors let workers leave their stations for private appointments. "After the shift, if you pay for the time," the supervisor answers. The visitor looks at you again, then follows the guard towards the next station. <<stress 4>><<gstress>>
+		<br><br>
+		<<link [[Next|Arcology Stack Belt]]>><<endevent>><</link>>
+	<</addinlineevent>>
+<</if>>
+
+<<if _st.fixer and _st.fixer.task is "drone">>
+	<<addinlineevent "drone" 3>>
+		A sorting drone returns to the charging station at the end of the belt. It lowers itself onto the charger, leaving the connection on its side within reach. You still have the small piece of copper the fixer gave you.
+		<br><br>
+		<<link [[Touch it to the charging port|Arcology Stack Belt Drone]]>><<set $phase to setup.arcology.escape("stack", "skulduggery", 300, 1000) ? 1 : 0>><</link>><<arcologySkill "Skulduggery">>
+		<br>
+		<<link [[Not now|Arcology Stack Belt]]>><</link>>
+		<br>
+	<</addinlineevent>>
+<</if>>
+
+<<addinlineevent "grope">>
+	<<arcologyNPC 0 "staff" "supervisor">><<person1>>
+	A <<person>> from the supervisors' office comes to your station. <<arcologyCyberLook 0>> <<He>> stands behind you to inspect the bins, then puts <<his>> hand on your waist while you work.
+	<br><br>
+	"Keep sorting," <<he>> says.
+	<br><br>
+	<<link [[Keep sorting|Arcology Stack Belt Grope]]>><<set $phase to 0>><<stress 4>><</link>><<gstress>>
+	<br>
+	<<link [[Pull away|Arcology Stack Belt Grope]]>><<set $phase to setup.arcology.escape("force", "physique", 2000, 16000) ? 1 : 2>><</link>><<arcologySkill "Physique">>
+	<br>
+<</addinlineevent>>
+
+<<if !$daily.arcologyStackOffer and _st.debt gt 0>>
+	<<addinlineevent "offer">>
+		<<set $daily.arcologyStackOffer to true>>
+		<<arcologyNPC 0 "staff" "supervisor">><<person1>>
+		<<arcologyStackFavorOffer "Arcology Stack Belt">>
+	<</addinlineevent>>
+<</if>>
+
+<<runeventpool>>
+<br>
+
+:: Arcology Stack Belt Ring
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+<<switch $phase>>
+<<case "give">>
+	You hold the ring above the moving scrap and call the supervisor over. The supervisor takes it from your hand and turns it over to examine it.
+	<br><br>
+	"Hand in anything else you find," the supervisor says, making a note beside your handle before returning to the office. <<set _st.favor++>><<arcologyStackSuspicion -10>>
+	<br><br>
+	<span class="green">The supervisor will remember that.</span>
+<<case "kept">>
+	While the other workers are occupied, you pull the ring off the finger and hide it inside your sleeve. At the end of the hour, you meet a worker from the next belt. The worker takes the ring and gives you a credit note without asking any questions. <<arcologyStackPay 2500>>
+<<default>>
+	You have just pulled the ring off the finger when a drone moves down beside you. Its red light falls on the ring in your hand. The supervisor comes over, takes the ring and makes a note of what happened. <<arcologyStackCharge 1500>> <<arcologyStackSuspicion 15>><<stress 4>><<gstress>>
+<</switch>>
+<<set $phase to 0>>
+<br><br>
+<<link [[Next|Arcology Stack Belt]]>><</link>>
+<br>
+
+:: Arcology Stack Chip
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+<<if $phase is 1>>
+	You keep the chip inside your closed hand while pushing the other scrap into its bin. The drone passes your station without stopping.
+	<br><br>
+	At the end of the hour, you can offer it to a worker from the next belt in exchange for a credit note, or hide it under your sleeping mat for later.
+	<br><br>
+	<<link [[Trade it for credit|Arcology Stack Belt]]>><<set $phase to 0>><<arcologyStackPay `random(1500, 3500)`>><</link>>
+	<br>
+	<<link [[Keep it|Arcology Stack Belt]]>><<set $phase to 0>><<set _st.chips++>><</link>>
+	<br>
+<<else>>
+	As you try to put the chip in your pocket, a drone moves down beside your station. Its red light falls on your hand before you can hide the chip. The supervisor takes it from you and records the incident on a handheld screen.
+	<br><br>
+	The supervisor orders you to keep sorting. The drone remains beside your station for a while, checking each bin as you fill it. <<arcologyStackCharge 1500>> <<arcologyStackSuspicion 15>><<stress 4>><<gstress>>
+	<br><br>
+	<<link [[Next|Arcology Stack Belt]]>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Stack Belt Crate
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+<<switch $phase>>
+<<case 1>>
+	You push the edge of a metal case under the crate's seal and pull until it comes loose. Before the crate reaches the next worker, you reach inside and take a small processor. <span class="green">The chip is still in its wrapper and appears undamaged.</span> <<set _st.chips++>>
+	<br><br>
+	A drone collects the crate before it reaches the end of the belt. The supervisor watches the drone carry it away without opening the crate to check its contents.
+<<case 0>>
+	You are trying to open the seal when a nearby drone turns towards you. Its red light falls on your hands, and you stop before you can take anything. <span class="red">The supervisor sees what you were doing and makes a note on the tablet.</span> <<arcologyStackSuspicion 20>><<stress 4>><<gstress>>
+<<default>>
+	You leave the crate closed and continue sorting the other parts. A drone comes down to collect the crate before it reaches the end of the belt.
+<</switch>>
+<<set $phase to 0>>
+<br><br>
+<<link [[Next|Arcology Stack Belt]]>><</link>>
+<br>
+
+:: Arcology Stack Belt Collapse
+<<effects>><<person1>>
+<<if $phase is 0>>
+	You leave your station when you see the <<person>> start to fall towards the belt. You reach <<him>> in time to put your arms under <<his>> shoulders and keep <<him>> standing. <<His>> hands are shaking, and sweat has soaked through <<his>> work clothes. The drone moves closer while you support <<him>>.
+	<br><br>
+	"Return to your station," the drone orders. When you stay beside the worker, it repeats the command at a louder volume.
+	<br><br>
+	The supervisor arrives, gestures for the drone to move back and points you towards your bin. The <<person>> grips your arm briefly before letting go. <<arcologyStackCrew 4>><<arcologyStackSuspicion 5>>
+<<else>>
+	You stay at your station and continue sorting. The supervisor walks over to the unsteady worker and speaks to <<him>> too quietly for you to hear. After a moment, the <<person>> returns to work.
+	<br><br>
+	Then, you see that the debt shown on <<his>> ankle band has increased.
+<</if>>
+<<set $phase to 0>>
+<br><br>
+<<link [[Next|Arcology Stack Belt]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Stack Belt Drone
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+<<if $phase is 1>>
+	You reach towards the charger while pretending to remove scrap caught beside it. When the workers are occupied, you press the copper against the drone's charging port. The light on the drone changes from red to white before turning red again. It lifts off the charger and flies towards the wrong end of the belt.
+	<br><br>
+	Across the belt, the fixer watches the drone fly past. When the supervisor turns away, the fixer catches your eye and points to the disabled charger, then mouths, "I owe you."
+	<<set _st.fixer.task to "">><<set _st.fixer.owed to true>><<arcologyStackCrew 4>>
+<<else>>
+	You bring the copper close to the charging port, but the drone turns towards your hand before you can touch it. You pull your hand back and hide the copper in your sleeve before returning to sorting.
+	<br><br>
+	<span class="red">The drone spends the rest of the hour checking your station.</span> <<arcologyStackSuspicion 15>>
+<</if>>
+<<set $phase to 0>>
+<br><br>
+<<link [[Next|Arcology Stack Belt]]>><</link>>
+<br>
+
+:: Arcology Stack Belt Grope
+<<effects>><<person1>>
+<<if $phase is 0>>
+	You try to keep up with the moving belt as <<his>> hand moves down from your waist. <<He>> reaches beneath your clothes and stands close behind you, making it difficult to move away. <<stress 3>><<arousal 250>><<gstress>><<garousal>>
+	<br><br>
+	<<link [[Next|Arcology Stack Belt Grope Rape]]>><<set $molestationstart to 1>><</link>>
+<<elseif $phase is 1>>
+	You move to the side and pull away from <<his>> hand. <span class="green"><<He>> notices the nearby drones and the workers looking towards your station.
+	<br><br>
+	After a moment, <<he>> returns to the office.</span> <<arcologyStackSuspicion 5>>
+	<br><br>
+	<<link [[Next|Arcology Stack Belt]]>><<set $phase to 0>><<endevent>><</link>>
+<<else>>
+	You try to move to the side, but <<he>> grabs you before you can get away. <span class="red"><<He>> pushes you against the edge of the belt, preventing you from leaving.</span>
+	<br><br>
+	<<link [[Next|Arcology Stack Belt Grope Rape]]>><<set $molestationstart to 1>><<set $phase to 0>><</link>>
+<</if>>
+<br>
+
+:: Arcology Stack Belt Grope Rape
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+<</if>>
+<<set _scenePainMult to setup.arcology.fightPainMult()>><<set _scenePainFloor to setup.arcology.fightPainFloor()>>
+<<effects>><<arcologyCombatNotes>><<effectsman>><<man>><<arcologyCyberTurn>><<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Arcology Stack Belt Grope Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Stack Belt Grope Rape]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Stack Belt Grope Finish
+<<effects>>
+<<if $enemyhealth lte 0>>
+	<<tearful>> you push <<him>> away until <<his>> back strikes the metal barrier beside the belt. <<He>> steps away, adjusts <<his>> clothes and records something on <<his>> tablet before leaving. <<arcologyStackSuspicion 15>>
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	<<He>> steps away from you, adjusts <<his>> clothes and returns to the office. <<tearful>> you face the moving belt again and resume sorting.
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	<<He>> finally steps away and returns to the office. <<tearful>> you remain beside the belt for a moment before returning to work.
+<</if>>
+<br><br>
+<<clotheson>>
+<<endcombat>>
+<<link [[Next|Arcology Stack Belt]]>><</link>>
+<br>
+
+/* RECLAMATION BAY */
+:: Arcology Stack Reclamation Intro
+<<effects>>
+<<set $xchange.arcology.stack.seenJobs to ($xchange.arcology.stack.seenJobs or []).concat("reclamation")>>
+The reclamation bay is colder than the sorting area. Rows of steel tables stand beneath bright lamps, each holding parts too large to sort on a moving belt. You see complete artificial limbs, metal frames from artificial spines and a torso made from plastic and wires.
+<br><br>
+A worker hands you a set of screwdrivers and places an artificial arm on the table. The worker demonstrates how to loosen the screws and remove the outer plates without touching the sharp metal edges.
+<br><br>
+"Put anything with a working light in the green bin," the worker says. "If a part starts moving on its own, call a guard."
+<br><br>
+<<link [[Next|Arcology Stack Reclamation]]>><</link>>
+<br>
+
+:: Arcology Stack Reclamation
+<<location "arcology_stack">><<set $outside to 0>><<effects>>
+You work at a steel table in the reclamation bay. At nearby tables, workers remove metal plates, cables and reusable components from discarded cybernetic bodies, putting the separated parts into bins.
+<<if $exposed gte 1>>
+	The guard beside the door looks directly at your <<lewdness>> while you work.
+<</if>>
+<br><br>
+<<arcologyStackShiftGate>>
+<<if !_sjBusy>>
+	<<arcologyStackWatch>>
+	<br><br>
+	<<arcologyStackWorkLinks "Arcology Stack Reclamation Events">>
+<</if>>
+
+:: Arcology Stack Reclamation Events
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+<<if $phase is 0>>
+	<<print either(
+		"You remove the plates from an artificial arm and loosen its joints. After taking out the small motors inside, you place them in a row for inspection.",
+		"You remove the outer metal plates from an artificial leg, then pull the exposed cables out of their connections one at a time.",
+		"You use a small tool to remove the lenses from two artificial eyes. After checking both lenses for damage, you put them in the green bin.",
+		"You open the drain on a metal spine and hold it over a container beneath the table until the cooling liquid stops coming out."
+	)>>
+<</if>>
+<<arcologyStackHour>>
+<br><br>
+<<cleareventpool>>
+
+<<addinlineevent "quiet" 4>>
+	You keep taking the discarded parts apart until the hour ends. No part starts moving unexpectedly, and the guard leaves you to work.
+	<br><br>
+	<<link [[Next|Arcology Stack Reclamation]]>><</link>>
+<</addinlineevent>>
+
+<<addinlineevent "grip">>
+	While loosening the screws around an artificial wrist, you feel its fingers close around your hand. The detached arm is still connected to a power cell, and the fingers begin squeezing harder.
+	<br><br>
+	<<link [[Pull free|Arcology Stack Reclamation Grip]]>><<set $phase to setup.arcology.escape("force", "physique", 2000, 16000) ? 1 : 0>><</link>><<arcologySkill "Physique">>
+	<br>
+	<<link [[Call a guard|Arcology Stack Reclamation Grip]]>><<set $phase to 2>><</link>>
+	<br>
+<</addinlineevent>>
+
+<<addinlineevent "memory">>
+	You remove the outer plate from an artificial head and discover a memory core inside. When your fingers touch its exposed connections, your own implant displays a short recording. You see a kitchen window, hear a child laughing and watch someone reach for a cup on a table.
+	<br><br>
+	The recording stops before you can see anything more. You pull your hand away from the core and put down your screwdriver. After a moment, you pick it up again and return to work. <<trauma 4>><<gtrauma>><<stress 4>><<gstress>>
+	<br><br>
+	<<link [[Next|Arcology Stack Reclamation]]>><</link>>
+<</addinlineevent>>
+
+<<if !_st.revolt.lights and _st.revolt.plan>>
+	<<addinlineevent "lights" 2>>
+		The electrical box beside your table has been left open. You can see the wires connected to the lights and security cameras. If you loosen the right connection, the lights and cameras will lose power together.
+		<br><br>
+		<<link [[Loosen the wire|Arcology Stack Reclamation Lights]]>><<set $phase to setup.arcology.escape("stack", "science", 200, 800) ? 1 : 0>><</link>><<arcologySkill "Science">>
+		<br>
+		<<link [[Leave it|Arcology Stack Reclamation]]>><</link>>
+		<br>
+	<</addinlineevent>>
+<</if>>
+
+<<addinlineevent "core">>
+	A damaged drone has been placed on your table. Its outer case is broken, but the central control unit is still inside. You recognise the part from the drones that watch the sorting belts.
+	<br><br>
+	<<link [[Slip the core out|Arcology Stack Reclamation Core]]>><<set $phase to setup.arcology.escape("stack", "skulduggery", 300, 1000) ? 1 : 0>><</link>><<arcologySkill "Skulduggery">>
+	<br>
+	<<link [[Bin it|Arcology Stack Reclamation]]>><</link>>
+	<br>
+<</addinlineevent>>
+
+<<addinlineevent "tech">>
+	<<arcologyNPC 0 "worker" "technician">><<person1>>
+	The <<person>> at the next table waits until the guard turns away, then leans closer to speak to you. <<arcologyCyberLook 0>>
+	<br><br>
+	"I've got a working chip I don't need," <<he>> says quietly. "You can have it if you come with me. There's a storeroom without a camera, and the door locks."
+	<br><br>
+	<<link [[Follow the technician|Arcology Stack Tech Sex]]>><<set $sexstart to 1>><</link>><<promiscuous2>>
+	<br>
+	<<link [[Say no|Arcology Stack Reclamation]]>><<endevent>><</link>>
+	<br>
+<</addinlineevent>>
+
+<<addinlineevent "assault">>
+	<<arcologyNPC 0 "staff" "guard">><<person1>>
+	The guard near the door keeps looking towards your table while you work. When the worker beside you leaves to empty a bin, the guard comes over and grabs your wrist. <<arcologyCyberLook 0>>
+	<br><br>
+	"Come to the storeroom," <<he>> orders. "Now."
+	<br><br>
+	<<link [[Go quietly|Arcology Stack Reclamation Assault]]>><<set $phase to 0>><<stress 4>><</link>><<gstress>>
+	<br>
+	<<link [[Twist away|Arcology Stack Reclamation Assault]]>><<set $phase to setup.arcology.escape("run", "athletics", 200, 900) ? 1 : 2>><</link>><<arcologySkill "Athletics">>
+	<br>
+<</addinlineevent>>
+
+<<if !$daily.arcologyStackOffer and _st.debt gt 0>>
+	<<addinlineevent "offer">>
+		<<set $daily.arcologyStackOffer to true>>
+		<<arcologyNPC 0 "staff" "supervisor">><<person1>>
+		<<arcologyStackFavorOffer "Arcology Stack Reclamation">>
+	<</addinlineevent>>
+<</if>>
+
+<<runeventpool>>
+<br>
+
+:: Arcology Stack Reclamation Grip
+<<effects>>
+<<switch $phase>>
+<<case 1>>
+	You put one foot against the bottom of the table and pull as hard as you can. Your hand slips free just before <span class="green">the metal fingers close completely.</span> You then disconnect the power cell from the wrist so the hand cannot grab you again.
+<<case 2>>
+	You call for help, but the guard stays by the door for several moments before coming over. The mechanical hand continues squeezing yours until the guard disconnects its power cell. Your fingers hurt when you finally pull them free. <<pain 8>><<gpain>>
+<<default>>
+	You pull against the mechanical fingers, but <span class="red">the hand squeezes harder and you feel a sharp pain in your own fingers.</span> A worker from the next table reaches over, disconnects the power cell and helps you pull free. <<pain 15>><<ggpain>><<stress 4>><<gstress>>
+<</switch>>
+<<set $phase to 0>>
+<br><br>
+<<link [[Next|Arcology Stack Reclamation]]>><</link>>
+<br>
+
+:: Arcology Stack Reclamation Lights
+<<effects>>
+<<if $phase is 1>>
+	You loosen the wire connected to the lights and cameras, leaving it barely attached before closing the electrical box. It remains connected for now. You connect it to a relay switch that you can activate with the revolt signal. <span class="green">The lights and cameras will then lose power.</span>
+	<<set $xchange.arcology.stack.revolt.lights to true>>
+<<else>>
+	As you touch the connection, electricity passes through your fingers and makes you pull your hand away. The lamps briefly switch off and on again. <span class="red">Several workers turn towards the electrical box, and the guard notices you beside it.</span> You close the box and return to your table. <<pain 6>><<gpain>><<arcologyStackSuspicion 15>>
+<</if>>
+<<set $phase to 0>>
+<br><br>
+<<link [[Next|Arcology Stack Reclamation]]>><</link>>
+<br>
+
+:: Arcology Stack Reclamation Core
+<<effects>>
+<<if $phase is 1>>
+	You disconnect the drone's control unit and hide it beneath the metal plates of an artificial leg in the green bin. At the end of the hour, you pass the bin again and take the unit.
+	<br><br>
+	<span class="green">Inside are two working memory chips you can use in the drone network.</span> <<set $xchange.arcology.stack.chips += 2>>
+<<else>>
+	You have partly removed the control unit when the guard calls out your assigned name. You push it back into the drone, place the damaged drone in its bin and return to your work.
+	<br><br>
+	<span class="red">The guard records what you were doing.</span> <<arcologyStackSuspicion 15>>
+<</if>>
+<<set $phase to 0>>
+<br><br>
+<<link [[Next|Arcology Stack Reclamation]]>><</link>>
+<br>
+
+:: Arcology Stack Tech Sex
+<<if $sexstart is 1>>
+	<<person1>>You follow the <<person>> into a storeroom lined with shelves of spare parts. Once you are inside, <<he>> closes the door, locks it and steps towards you.
+	<br><br>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<promiscuity2>>
+	<<maninit>>
+	<<set $enemytrust += 100>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Arcology Stack Tech Sex Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Stack Tech Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Stack Tech Sex Finish
+<<effects>>
+<<person1>>
+<<if $enemyhealth lte 0>>
+	You push the <<person>> away and <<he>> stumbles against a shelf. You reach the door and unlock it before <<he>> can stop you. <<tearful>> you return to your table without the chip.
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	The <<person>> rests against a shelf for a moment, then takes a chip from <<his>> pocket and gives it to you. A green light is visible on its side.
+	<br><br>
+	"Here's the chip I promised," <<he>> says. <<set $xchange.arcology.stack.chips++>>
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	"Forget it," the <<person>> says before unlocking the storeroom door. <<tearful>> you leave and return to your table without the chip.
+<</if>>
+<br><br>
+<<clotheson>><<endcombat>>
+<<link [[Next|Arcology Stack Reclamation]]>><</link>>
+<br>
+
+:: Arcology Stack Reclamation Assault
+<<effects>><<person1>>
+<<if $phase is 0>>
+	You follow <<him>> to the storeroom, where <<he>> pulls you inside. Once you are through the doorway, <<he>> shuts the door with <<his>> foot and pushes you against a shelf. <<stress 3>><<gstress>>
+	<br><br>
+	<<link [[Next|Arcology Stack Reclamation Rape]]>><<set $molestationstart to 1>><</link>>
+<<elseif $phase is 1>>
+	You pull your wrist out of <<his>> hand and move behind a table where several workers are standing. <span class="green">The guard stops when the workers look towards you.</span>
+	<br><br>
+	<<He>> returns to the door, looking back at your table several times. <<arcologyStackSuspicion 10>>
+	<br><br>
+	<<link [[Next|Arcology Stack Reclamation]]>><<set $phase to 0>><<endevent>><</link>>
+<<else>>
+	You try to turn away and pull your wrist free, but <span class="red">the guard holds on and pulls you towards the storeroom.</span> <<He>> pushes you through the doorway and shuts the door behind you.
+	<br><br>
+	<<link [[Next|Arcology Stack Reclamation Rape]]>><<set $molestationstart to 1>><<set $phase to 0>><</link>>
+<</if>>
+<br>
+
+:: Arcology Stack Reclamation Rape
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+<</if>>
+<<set _scenePainMult to setup.arcology.fightPainMult()>><<set _scenePainFloor to setup.arcology.fightPainFloor()>>
+<<effects>><<arcologyCombatNotes>><<effectsman>><<man>><<arcologyCyberTurn>><<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Arcology Stack Reclamation Rape Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Stack Reclamation Rape]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Stack Reclamation Rape Finish
+<<effects>>
+<<if $enemyhealth lte 0>>
+	<<tearful>> you push <<him>> against the shelves, then run to the storeroom door and pull it open. <<He>> is still getting back up when you leave, but <<he>> watches you return to the work area. <<arcologyStackSuspicion 20>>
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	<<He>> adjusts <<his>> clothes and leaves the storeroom. <<tearful>> you make your way back through the door and return to your table.
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	<<He>> finally steps away and leaves the storeroom. <<tearful>> you wait until <<he>> has gone before returning to your table.
+<</if>>
+<br><br>
+<<clotheson>><<endcombat>>
+<<link [[Next|Arcology Stack Reclamation]]>><</link>>
+<br>
+
+/* SEA DOOR LOADING */
+:: Arcology Stack Loading Intro
+<<effects>>
+<<set $xchange.arcology.stack.seenJobs to ($xchange.arcology.stack.seenJobs or []).concat("loading")>>
+You follow a ramp down to the Stack's loading area, where a large door in the city's outer wall opens towards the sea. The door is partly open, allowing cold air to enter from outside. Workers use cranes to lift large blocks of compressed scrap onto a platform near the opening.
+<br><br>
+A worker wearing a painted helmet hands you a long pole with a hook at the end. The worker shows you how to use it to stop a hanging block from turning while the crane moves it.
+<br><br>
+"Don't stand under the blocks," the worker warns. "The crane won't stop because you're in the way."
+<br><br>
+<<link [[Next|Arcology Stack Loading]]>><</link>>
+<br>
+
+:: Arcology Stack Loading
+<<location "arcology_stack">><<set $outside to 0>><<effects>>
+You stand on the loading platform near the sea door. Cranes lift scrap from the floor and move it towards the opening. Through the partly open door, you can see the grey sea beyond the city.
+<<if $exposed gte 1>>
+	Cold air blows through the open door and reaches your <<lewdness>>, making it harder to ignore how exposed you are.
+<</if>>
+<br><br>
+<<arcologyStackShiftGate>>
+<<if !_sjBusy>>
+	<<arcologyStackWatch>>
+	<br><br>
+	<<arcologyStackWorkLinks "Arcology Stack Loading Events">>
+<</if>>
+
+:: Arcology Stack Loading Events
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+<<if $phase is 0>>
+	<<print either(
+		"You hold the hooked pole against the side of a hanging scrap block to stop it turning as the crane lowers it onto the platform.",
+		"You pass a chain around two scrap blocks, fasten it securely and step back before the crane begins to lift them.",
+		"You use a broom to push loose pieces of metal away from the moving door, clearing enough space for the next load.",
+		"You count each block as the crane lowers it onto the platform, then call the updated total to the operator above you."
+	)>>
+<</if>>
+<<arcologyStackHour>>
+<br><br>
+<<cleareventpool>>
+
+<<addinlineevent "quiet" 4>>
+	You continue helping load scrap until the hour ends. Each time the crane lowers another block, you guide it onto the platform and move back before the next load arrives.
+	<br><br>
+	<<link [[Next|Arcology Stack Loading]]>><</link>>
+<</addinlineevent>>
+
+<<if _st.route lt (_st.routeMax or 5)>>
+	<<addinlineevent "schedule" 2>>
+		You see two papers taped inside the crane operator's cabin. One lists the night barge's loading times; the other shows when security drones patrol the sea door. When the operator turns away, you step closer and read part of the patrol schedule.
+		<<set _st.route++>>
+		<br><br>
+		<span class="green">You now know <<print _st.route>> of <<print _st.routeMax or 5>> patrols</span> between the bunks and the sea door.
+		<br><br>
+		<<link [[Next|Arcology Stack Loading]]>><</link>>
+	<</addinlineevent>>
+<</if>>
+
+<<addinlineevent "crane">>
+	One of the hanging scrap blocks slips sideways as the crane moves it. The heavy block begins swinging towards the part of the platform where you are standing.
+	<br><br>
+	<<link [[Next|Arcology Stack Loading Crane]]>><<set $phase to setup.arcology.escape("stack", "athletics", 200, 900) ? 1 : 0>><</link>>
+	<br>
+<</addinlineevent>>
+
+<<addinlineevent "swimmer">>
+	The barge crew pull a net full of scrap onto the loading platform. Among the metal pieces is a motionless worker wearing grey overalls and an ankle band. The band's red numbers are no longer lit.
+	<br><br>
+	One crew member cuts the worker free from the net, while another helps lift the body to the edge of the platform. The crew drop the body back into the water and return to unloading.
+	<br><br>
+	The supervisor continues looking at the tablet without coming over. <<trauma 6>><<gtrauma>><<stress 6>><<gstress>>
+	<br><br>
+	<<link [[Next|Arcology Stack Loading]]>><</link>>
+<</addinlineevent>>
+
+<<if !_st.revolt.decoy and _st.revolt.plan>>
+	<<addinlineevent "decoy" 2>>
+		An open crate beside the platform contains emergency flares used by the barge crew. Several have receivers for remote ignition.
+		<br><br>
+		If you hide one beside the sea door and connect its receiver to the drone relay, your escape signal could ignite it and draw guards away from the lift.
+		<br><br>
+		<<link [[Hide a flare in the scrap|Arcology Stack Loading Decoy]]>><<set $phase to setup.arcology.escape("stack", "skulduggery", 300, 1000) ? 1 : 0>><</link>><<arcologySkill "Skulduggery">>
+		<br>
+		<<link [[Leave the flares alone|Arcology Stack Loading]]>><</link>>
+		<br>
+	<</addinlineevent>>
+<</if>>
+
+<<if _st.fixer and _st.fixer.task is "message">>
+	<<addinlineevent "message" 3>>
+		<<arcologyNPC 0 "worker" "crane operator">><<person1>>
+		The crane operator wearing the painted helmet climbs down from the cabin to take a break. You still have the folded label the fixer asked you to deliver.
+		<br><br>
+		<<link [[Hand it over|Arcology Stack Loading Message]]>><</link>>
+		<br>
+		<<link [[Not now|Arcology Stack Loading]]>><<endevent>><</link>>
+		<br>
+	<</addinlineevent>>
+<</if>>
+
+<<if !_st.smuggler and _st.chips gte 2>>
+	<<addinlineevent "smuggler">>
+		<<arcologyNPC 0 "under" "loader">><<person1>>
+		A member of the barge crew stops beside you while winding a rope into a bundle. <<arcologyCyberLook 0>> <<He>> leans closer and speaks quietly.
+		<br><br>
+		"I heard you have chips hidden under your mat," <<he>> says. "Give me two and I'll leave some space behind the scrap on the night barge. You could hide there when it leaves."
+		<br><br>
+		<<link [[Hand over two chips|Arcology Stack Loading Smuggler]]>><<set $phase to 1>><</link>>
+		<br>
+		<<link [[Refuse|Arcology Stack Loading Smuggler]]>><<set $phase to 0>><</link>>
+		<br>
+	<</addinlineevent>>
+<</if>>
+
+<<addinlineevent "crew">>
+	<<arcologyNPC 0 "under" "loader">><<person1>>
+	A member of the barge crew stands near the edge of the platform, watching you guide the scrap. <<arcologyCyberLook 0>>
+	<br><br>
+	When a hanging block passes between you and the supervisor, <<he>> walks up behind you, grabs your overalls and pulls you out of the work area, behind a stack of scrap blocks.
+	<br><br>
+	<<link [[Next|Arcology Stack Loading Rape]]>><<set $molestationstart to 1>><</link>>
+<</addinlineevent>>
+
+<<if !$daily.arcologyStackOffer and _st.debt gt 0>>
+	<<addinlineevent "offer">>
+		<<set $daily.arcologyStackOffer to true>>
+		<<arcologyNPC 0 "staff" "supervisor">><<person1>>
+		<<arcologyStackFavorOffer "Arcology Stack Loading">>
+	<</addinlineevent>>
+<</if>>
+
+<<runeventpool>>
+<br>
+
+:: Arcology Stack Loading Crane
+<<effects>>
+<<if $phase is 1>>
+	You drop to the platform before the block reaches you. <span class="green">It swings over your head</span> and strikes the city's outer wall behind you. The operator stops the crane, and the other operators stop moving their loads to see what happened.
+<<else>>
+	You throw yourself to the side, but <span class="red">a corner of the swinging block strikes your shoulder</span> before you are clear. You fall onto the platform and have to push yourself up from the floor. <<pain 20>><<gggpain>><<stress 6>><<gstress>>
+<</if>>
+<<set $phase to 0>>
+<br><br>
+<<link [[Next|Arcology Stack Loading]]>><</link>>
+<br>
+
+:: Arcology Stack Loading Decoy
+<<effects>>
+<<if $phase is 1>>
+	You connect the flare's receiver to the drone relay, then hide it beneath loose scrap beside the sea door. You check that its receiver light is on before covering it with a metal plate.
+	<br><br>
+	<span class="green">The flare is ready.</span> When you send the revolt signal through the drone network, it will fill the loading area with smoke.
+	<<set $xchange.arcology.stack.revolt.decoy to true>>
+<<else>>
+	You pick up a flare, but the supervisor turns towards you before you can hide it. <span class="red">You put it back in the crate while the supervisor is watching.</span> <<arcologyStackSuspicion 20>>
+<</if>>
+<<set $phase to 0>>
+<br><br>
+<<link [[Next|Arcology Stack Loading]]>><</link>>
+<br>
+
+:: Arcology Stack Loading Message
+<<effects>><<person1>>
+<<set _st to $xchange.arcology.stack>>
+The <<person>> unfolds the label and reads the message. After checking that no one is watching, <<he>> folds it again and hides it inside <<his>> helmet.
+<br><br>
+"I'll let the fixer know you brought it," <<he>> says, before climbing back into the crane cabin. <<set _st.fixer.task to "">><<set _st.fixer.owed to true>><<arcologyStackCrew 4>>
+<br><br>
+<<link [[Next|Arcology Stack Loading]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Stack Loading Smuggler
+<<effects>><<person1>>
+<<set _st to $xchange.arcology.stack>>
+<<if $phase is 1>>
+	<<set _st.chips -= 2>><<set _st.smuggler to true>>
+	You place two chips in <<his>> hand. <<He>> checks the lights on both before putting them away.
+	<br><br>
+	"The guards won't let you board with the loading crew," <<he>> says. "You'll have to reach the barge yourself. When you do, look for a blue tag on the scrap. There'll be a space behind it where you can lie out of sight."
+	<br><br>
+	<span class="green">The barge will have a hiding place waiting for you.</span>
+<<else>>
+	"Suit yourself," the <<person>> says, returning to the rope. "I won't keep the space open forever."
+<</if>>
+<<set $phase to 0>>
+<br><br>
+<<link [[Next|Arcology Stack Loading]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Stack Loading Rape
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+<</if>>
+<<set _scenePainMult to setup.arcology.fightPainMult()>><<set _scenePainFloor to setup.arcology.fightPainFloor()>>
+<<effects>><<arcologyCombatNotes>><<effectsman>><<man>><<arcologyCyberTurn>><<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Arcology Stack Loading Rape Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Stack Loading Rape]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Stack Loading Rape Finish
+<<effects>>
+<<if $enemyhealth lte 0>>
+	<<tearful>> you push <<him>> back against the scrap blocks and move quickly out onto the loading platform. The crane operator can see you from the cabin, and the crew member stays behind the stack.
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	<<He>> steps away and returns to the barge. <<tearful>> you walk back to the loading area and pick up the hooked pole you left beside the platform.
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	The crane returns with another load, bringing the operator's view back towards the platform. <<He>> releases you and steps away before the operator looks down.
+	<br><br>
+	<<tearful>> you return to the loading area and pick up your pole.
+<</if>>
+<br><br>
+<<clotheson>><<endcombat>>
+<<link [[Next|Arcology Stack Loading]]>><</link>>
+<br>
+
+/* SUPERVISOR FAVOURS */
+:: Arcology Stack Favor
+<<if $sexstart is 1>>
+	<<person1>>You follow the supervisor into the office. <<He>> shuts the door behind you and turns the lock. The blinds have been lowered over the windows, so the workers outside cannot see into the room.
+	<br><br>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<promiscuity2>>
+	<<maninit>>
+	<<set $enemytrust += 100>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Arcology Stack Favor Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Stack Favor]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Stack Favor Finish
+<<effects>>
+<<person1>>
+<<set _st to $xchange.arcology.stack>>
+<<if $enemyhealth lte 0>>
+	You push the <<person>> back against the desk and reach the office door. As you unlock it, <<he>> picks up the tablet and records something about you.
+	<br><br>
+	<<He>> makes no attempt to call the guards before you leave. <<arcologyStackSuspicion 15>>
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	The <<person>> adjusts <<his>> clothes, then picks up the tablet and enters a payment for you. <<set _st.favor++>> <<arcologyStackPay 3000>> "Come and see me again if you want another payment," <<he>> says.
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	"Not worth it," the <<person>> says. <<He>> unlocks the office door and gestures for you to leave.
+<</if>>
+<br><br>
+<<clotheson>><<endcombat>>
+<<set _sfBack to {belt: "Arcology Stack Belt", reclamation: "Arcology Stack Reclamation", loading: "Arcology Stack Loading"}[_st.job] or "Arcology Stack">>
+<<link [[Next|_sfBack]]>><</link>>
+<br>

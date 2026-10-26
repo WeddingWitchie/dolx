@@ -1204,7 +1204,8 @@
 	<</if>>
 	/* A cat sith's ill omen */
 	<<if $illOmen is 2>>
-		<<set _masteryDodgeChance += 10>>
+		/* A combat processor corrects for part of the bad luck. */
+		<<set _masteryDodgeChance += (setup.arcology.cyberAny("processor") ? 5 : 10)>>
 	<</if>>
 	/* Small bodies evade, large bodies tank. See bodySizeDodgeCaps() in koztools.js. */
 	<<set _sizeDodgeCaps to bodySizeDodgeCaps()>>
@@ -1295,7 +1296,10 @@
 <</widget>>
 
 <<widget "combatExtendedEnemyCheck">>
-	<<set _dodgeChance to $NPCList[_args[0]].dodgeChance>>
+	/* Island fighters: working implants and any technique they primed last turn. Unchanged for everyone else. */
+	<<run setup.arcology.noteAttack(_args[0], $kicking is 1 ? "kick" : $combatExtended.hookpunchingActive gte 1 ? "hook" : "strike")>>
+	<<if $combatExtended.feinting is 1 and $combatExtended.feintingActive gte 1 and setup.arcology.breakFocus(_args[0])>><<set _cyberFocusBroken to _args[0]>><</if>>
+	<<set _dodgeChance to setup.arcology.turnDodge(_args[0], $NPCList[_args[0]].dodgeChance)>>
 	<<set _passiveEnemyDodge to 0>>
 	<<set _activeEnemyDodge to 0>>
 	<<set _enemyCounter to 0>>
@@ -1339,12 +1343,21 @@
 			<<run $enemyCEActions.filter(item => item !== "counter")>>
 		<</if>>
 	<</for>>
+	/* Reinforced arms are raised to block far more readily. */
+	<<if $combatExtended.enemyBlocking is 1 and $combatExtended.enemyBlockingActive isnot 1 and setup.arcology.cyberHas(_args[0], "limbs") and random(1, 100) lte 30>>
+		<<set $combatExtended.enemyBlockingActive to 1>>
+	<</if>>
 	<<set _test2 to _dodgeChance>>
 	<<set _check2 to _check1 * 0.8>>
 	<<if $combatExtended.feinting is 1 and $combatExtended.feintingActive gte 1>>
 		<<set _dodgeChanceReduction to Math.round($skulduggery / 100)>>
 		<<if $combatExtended.stabilityLost is 1>>
 			<<set _dodgeChanceReduction to _dodgeChanceReduction / 4>>
+		<</if>>
+		/* Synthetic eyes track the real movement, so a feint buys half as much. */
+		<<if setup.arcology.cyberHas(_args[0], "vision")>>
+			<<set _dodgeChanceReduction to _dodgeChanceReduction / 2>>
+			<<if setup.arcology.cyberPart(_args[0], "vision")>><<run setup.arcology.cyberNote(_args[0], "feint")>><</if>>
 		<</if>>
 		<<if $combatExtended.feintingActive is 2>>
 			<<set _dodgeChance -= _dodgeChanceReduction * 3>>
@@ -1365,6 +1378,8 @@
 	<<if $combatExtended.kickingToggle is 1 and $kicking is 1>>
 		<<set _dodgeChance -= Math.round(combatExtendedSkillValue('kicking') / 10)>>
 	<</if>>
+	/* Island fighters' training and implants keep part of their dodge however well the player reads them. */
+	<<set _dodgeChance to Math.max(_dodgeChance, setup.arcology.dodgeFloor(_args[0]))>>
 	<<set _test1 to _dodgeChance>>
 	<<if $combatExtended.enemyPassiveDodging is 1>>
 		<<if _dodgeChance gte random(_check1)>>
@@ -1385,7 +1400,9 @@
 		<</if>>
 	<</if>>
 	<<if $combatExtended.enemyCounteringActive is 1>>
-		<<set _check1 += 50>>
+		/* A combat processor reads the opening sooner, making counters more likely. */
+		<<set _check1 += (setup.arcology.cyberHas(_args[0], "processor") ? 25 : 50)>>
+		<<set _check1 to setup.arcology.turnCounterCheck(_args[0], _check1)>>
 		<<set _check2 to _check1 * 0.8>>
 		<<if _dodgeChance gte random(_check1)>>
 			<<set _enemyCounter to 2>>
@@ -1400,6 +1417,11 @@
 		<<set $combatExtended.enemyDodgeSuccess to _passiveEnemyDodge>>
 	<<else>>
 		<<set $combatExtended.enemyDodgeSuccess to _activeEnemyDodge>>
+	<</if>>
+	<<if $combatExtended.enemyCounterSuccess gte 1 and setup.arcology.cyberHas(_args[0], "processor")>>
+		<<run setup.arcology.cyberNote(_args[0], "counter")>>
+	<<elseif $combatExtended.enemyDodgeSuccess gte 1 and setup.arcology.cyberPart(_args[0], "vision")>>
+		<<run setup.arcology.cyberNote(_args[0], "dodge")>>
 	<</if>>
 	<<if $combatExtended.enemyCounterSuccess is 2 or $combatExtended.enemyDodgeSuccess is 2>>
 		<<set $combatExtended.enemyBlockingActive to 0>>

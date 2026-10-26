@@ -5226,6 +5226,7 @@
 					"The <<person>> tries to move, <span class='green'>but keeps stumbling.</span> <<He>> stops and looks at you, realising something is wrong."
 				)>>
 				<<set $enemyarousal -= 200>>
+				<<if setup.arcology.cyberHas($mouthtarget, "processor")>> <<arcologyCyberReact "illomen" $mouthtarget>><</if>>
 			<<else>>
 				<<= either(
 					'You finish speaking the unfamiliar words, <span class="red">but the <<person>> does not react.</span>',
@@ -5517,6 +5518,8 @@
 				<<actionsmock>><<set $speechDemand to 1>>
 				<<brat `1 + _speechTrait` $mouthtarget>>
 				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+				<<elseif $mockaction is $NPCList[$mouthtarget].insecurity and setup.arcology.cyberHas($mouthtarget, "dampener")>>
+					<<arcologyCyberReact "mock" $mouthtarget>>
 				<<elseif $mockaction is $NPCList[$mouthtarget].insecurity>>
 					<<if $consensual is 1>>
 						<<submission `1 + _speechTrait` $mouthtarget>>
@@ -5990,9 +5993,11 @@
 				<<wheeze>>
 			<<else>>
 				<<set $mouthactiondefault to "plead">>
+				<<set _cyAnger to $enemyanger>>
 				<<set $trauma -= $traumagain>><<set $traumagain to 0>><<set $speechForgive to 1>><<set $enemyanger to 0>><<set $angelforgive to 1>>
 				<<traumaClamp>>
 				<<actionsforgive>>
+				<<if setup.arcology.cyberAny("dampener")>><<set $enemyanger to Math.round(_cyAnger / 2)>> <<arcologyCyberReact "forgive" `setup.arcology.cyberSlot("dampener")`>><</if>>
 			<</if>>
 		<</if>>
 
@@ -6037,7 +6042,10 @@
 				<span class="green">You slam into <<combatperson>>.</span>
 				<<defiance 8 $mouthtarget>><<attackstat>>
 			<</if>>
-			<<if _dragonBoostRoll lte 5 and $NPCList[$mouthtarget] and $NPCList[$mouthtarget].stance isnot "defeated">>
+			<<if _dragonBoostRoll gt 5 or !$NPCList[$mouthtarget] or $NPCList[$mouthtarget].stance is "defeated">>
+			<<elseif setup.arcology.resistsKnockout($mouthtarget)>>
+				<<arcologyCyberReact "knockout" $mouthtarget>>
+			<<else>>
 				<span class="gold"><span class="bold">The impact lands with crushing force.</span></span>
 				<<if $enemyno gte 2>>
 					<<set _thedamage to Math.max(0, $NPCList[$mouthtarget].health)>>
@@ -6060,12 +6068,13 @@
 				<<else>>
 					<<set $mouthactiondefault to "plead">>
 				<</if>>
-				<<set $demonseduce to 1>><<seductionskillusecombat>>
+				<<set $demonseduce to 1>><<seductionskillusecombat>><<set _cySeduce to setup.arcology.seduceMult() lt 2>>
 				<<if $enemytype is "beast">>
 					<span class="pink">"Cum for me <<beasttype>>~" you purr.</span>
 				<<else>>
 					<span class="pink">"Cum for me~" you purr.</span>
 				<</if>>
+				<<if _cySeduce>> <<arcologyCyberReact "seduce" `setup.arcology.cyberSlot("dampener")`>><</if>>
 			<</if>>
 		<</if>>
 

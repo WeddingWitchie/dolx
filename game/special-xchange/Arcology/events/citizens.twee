@@ -1,0 +1,698 @@
+:: Arcology Citizen
+<<effects>>
+<<set _cz to $xchange.arcology.citizen>>
+<<if !_cz or !$NPCList[0] or !$NPCList[0].pronoun>>
+	The person you were talking to has gone.
+	<br><br>
+	<<set _czBack to _cz ? _cz.back : "Arcology Street">><<link [[Next|_czBack]]>><<endevent>><<unset $xchange.arcology.citizen>><</link>>
+<<else>>
+	<<person1>>
+	<<set _czGone to !_cz.talked and setup.arcology.threatBand() gte 3 and !setup.arcology.guarded()>>
+	<<if _czGone>>
+		<<arcologyCitizenLook>> <<arcologyThreatReact "civilian">>
+	<<elseif !_cz.talked>>
+		<<arcologyCitizenLook>> <<arcologyCitizenManner>> <<arcologyThreatReact "civilian">>
+	<<else>>
+		The <<persons>> still beside you.
+	<</if>>
+	<br><br>
+	<<if _czGone>>
+		<<link [[Next|_cz.back]]>><<endevent>><<unset $xchange.arcology.citizen>><</link>>
+		<br>
+		<<exit>>
+	<</if>>
+	<<if !_cz.talked>>
+		<<socialiseicon "ask">><<link [[Keep talking (0:15)|Arcology Citizen Chat]]>><<pass 15>><<set $xchange.arcology.citizen.talked to true>><</link>>
+		<br>
+	<</if>>
+	<<if !_cz.drank and _cz.where isnot "pool" and $drunk lt 400>>
+		<<foodicon "absinthe">><<link [[Have a drink (0:20)|Arcology Citizen Drink]]>><<pass 20>><<drunk 60>><<set $xchange.arcology.citizen.drank to true>><</link>><<gdrunk>>
+		<br>
+	<</if>>
+	<<if hasSexStat("promiscuity", 1)>>
+		<<brothelicon>><<link [[Flirt (0:10)|Arcology Citizen Flirt]]>><<pass 10>><<set $xchange.arcology.citizen.warm to random(1, 100) lte setup.arcology.flirtChance[_cz.mood] + (_cz.drank ? 10 : 0)>><</link>><<promiscuous1>>
+	<<else>>
+		<span class="blue">You're not confident enough to flirt with a stranger.</span>
+	<</if>>
+	<br><br>
+	<<getouticon>><<link [[Excuse yourself|_cz.back]]>><<endevent>><<unset $xchange.arcology.citizen>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Citizen Chat
+<<effects>>
+<<set _cz to $xchange.arcology.citizen>><<person1>>
+<<switch _cz.mood>>
+<<case "friendly">>
+	The <<persons>> easy to talk to.<<stress -2>><<lstress>>
+	<br><br>
+	Despite the friendly conversation, <<he>> never asks why you came to the island or who invited you.
+<<case "flirty">>
+	The <<person>> asks you a lot of questions and listens to every answer, leaning a little closer each time.
+	<<stress 4>><<gstress>>
+<<case "suspicious">>
+	The <<person>> spends more time looking at you than talking. After a few ordinary questions, <<he>> asks, "Who sponsored your visit?"
+	<br><br>
+	You leave the question unanswered.
+	<br><br>
+	<<He>> waits to see whether you'll change your mind. When you still don't answer, <<he>> gives a slow nod. "All right."
+	<br><br>
+	<<He>> changes the subject, but every time you turn your head, <<his>> eyes go to the light behind your ear.<<stress 4>><<gstress>>
+<<case "arrogant">>
+	The <<person>> barely asks you anything about yourself. Instead, <<he>> tells you about the apartments,
+	businesses, and private rooms <<he>> owns on the upper terraces.
+	<br><br>
+	Eventually <<he>> moves on to the people who work for <<him>>, and how many of them there are. <<He>> watches your face while <<he>> says the number, and seems more interested in whether it impresses you than in any of the people it counts.
+<<case "secretive">>
+	The <<person>> keeps the conversation going without any effort at all.
+	<br><br>
+	<<He>> asks about the island, remarks on the crowd, and tells you several funny stories about the other guests. When you ask where <<he>> came from, <<he>> changes the subject. When you ask <<his>> name, <<he>> smiles and asks what name you're using on the island instead.
+	<br><br>
+	By the time the conversation pauses, you realise that <<he>> has learned far more about you than you have about <<him>>.<<stress 4>><<gstress>>
+<<case "manipulative">>
+	The <<person>> begins with harmless questions, but the details <<he>> wants become increasingly specific.
+	<br><br>
+	"Where are you staying?" <<he>> asks. A little later, <<he>> wants to know who brought you to the island, and whether that person is nearby.
+	<br><br>
+	Then, still smiling, <<he>> asks, "Does your sponsor read your messages?"
+	<br><br>
+	You lean back out of <<his>> reach instead of answering.<<stress 4>><<gstress>>
+<<case "nervous">>
+	The <<person>> starts telling you about a restaurant near the lower promenade, then stops halfway through a sentence as a security guard comes past. <<He>> waits until the guard has gone, then starts the story again from the beginning.
+	<br><br>
+	The same thing happens every time somebody in uniform comes near. By the third interruption, you notice that <<he>> checks the doorways around you before answering even a simple question.
+<<default>>
+	The <<persons>> telling you about somebody who owes <<him>> money. <<He>> never raises <<his>> voice, not even when <<he>> explains that the debtor has already missed the agreed deadline.
+	<br><br>
+	When you ask what happens next, <<he>> smiles. "The debt will be paid somehow. If not willingly, I will see to it."
+	<br><br>
+	<<He>> leaves the details there, apparently satisfied that you understood the threat.
+<</switch>>
+<br><br>
+<<link [[Next|Arcology Citizen]]>><</link>>
+<br>
+
+:: Arcology Citizen Drink
+<<effects>>
+<<set _cz to $xchange.arcology.citizen>><<person1>>
+<<wearProp "champagne">>
+The <<person>> orders for both of you without asking what you want.
+<br><br>
+<<if _cz.tier is "vip">>The bottle <<he>> chooses has no price on the list.<<else>>It is something clear and very cold.<</if>>
+You drink together and talk about nothing in particular.<<drunk 120>><<ggdrunk>>
+<br><br>
+<<link [[Next|Arcology Citizen]]>><<handheldon>><</link>>
+<br>
+
+:: Arcology Citizen Flirt
+<<effects>><<set _cz to $xchange.arcology.citizen>>
+<<person1>><<promiscuity1>>
+You lean a little closer and let your knee rest against <<his>> leg.
+<br><br>
+<<if _cz.warm>>
+<<switch _cz.mood>>
+	<<case "arrogant">>
+		The <<person>> looks at you for a moment, then smiles. "Well? You're braver than you look."
+	<<case "dangerous">>
+		The <<person>> doesn't pull away. Instead, <<he>> puts a hand on your knee and looks down at where you're touching <<him>>.
+		"If you keep touching me like that, I'll assume you mean it."
+	<<case "nervous">>
+		The <<person>> laughs in surprise. <<He>> had been looking towards the door every few moments, but now <<he>> turns back to you.
+	<<default>>
+		The <<person>> stays close and answers your next question more quietly. <<He>> stops looking around the room and keeps talking to you.
+<</switch>>
+	<<arousal 300>><<garousal>>
+	<br><br>
+	<<if hasSexStat("promiscuity", 2)>>
+		<<brothelicon>><<link [[Flirt back (0:10)|Arcology Citizen Invite]]>><<pass 10>><</link>><<promiscuous2>>
+		<br>
+	<</if>>
+	<<socialiseicon>><<link [[Keep it light|Arcology Citizen]]>><</link>>
+	<br>
+	<<getouticon>><<link [[Back|_cz.back]]>><<endevent>><<unset $xchange.arcology.citizen>><</link>>
+	<br>
+<<else>>
+	<<switch _cz.mood>>
+	<<case "suspicious">>
+		The <<person>> steps away from you and taps something on the display around <<his>> wrist.
+		A few seconds later, the interface behind your ear grows warm.
+		<br><br>
+		<<holoNotice "INTERFACE" "EXTERNAL IDENTITY QUERY. SOURCE MASKED." "warn">>
+		<br>
+		<<He>> checks the result on <<his>> wrist. "Guest clearance," <<he>> says, looking at you again.
+		"So you really are only visiting."
+		<br><br>
+		Before you can ask why <<he>> checked your identity, <<he>> turns away and disappears into the crowd.
+		<<stress 6>><<ggstress>>
+	<<case "dangerous">>
+		The <<person>> catches your wrist before you can pull away and twists it until it hurts.
+		"Find somebody who'd say yes, <<bitch>>."
+		<br><br>
+		<<He>> releases your wrist and turns back to <<his>> drink.<<pain 3>><<gpain>><<stress 7>><<ggstress>>
+	<<case "arrogant">>
+		The <<person>> gives you a short laugh.
+		<br><br>
+		"I don't think you can afford me," <<he>> says, then turns away and looks back towards the rest of the room.
+		<<stress 2>><<gstress>>
+	<<case "nervous">>
+		The <<person>> looks startled.
+		<br><br>
+		"I need to go," <<he>> says quickly, leaving <<his>> drink behind as <<he>> heads away from you.
+	<<default>>
+		The <<person>> smiles, but moves <<his>> glass away from yours.
+		"You're sweet, but I'm here as someone else's guest. My host would notice if I left with you."
+	<</switch>>
+	<br><br>
+	<<link [[Next|_cz.back]]>><<endevent>><<unset $xchange.arcology.citizen>><</link>>
+<</if>>
+<br>
+
+:: Arcology Citizen Invite
+<<effects>><<set _cz to $xchange.arcology.citizen>><<person1>>
+<<set _czPlace to _cz.where is "hotel" ? "my room upstairs" : _cz.where is "city" ? "a place two streets from here" : "my cabin">>
+<<if ["bar", "pool"].includes(_cz.where) and $xchange.arcology.voyage and setup.arcology.voyageStatus().remaining lt 3600>>
+	The <<person>> glances towards the window, where the island is already coming into view.
+	"Bad timing, we're nearly in. By the time we reached my cabin, we'd be docking."
+	<br><br>
+	<<He>> looks back at you with a small smile. "If we run into each other ashore, you can ask me again."
+	<br><br>
+	<<link [[Next|_cz.back]]>><<endevent>><<unset $xchange.arcology.citizen>><</link>>
+<<elseif _cz.mood is "manipulative" and $xchange.arcology.implant>>
+	The <<person>> takes your hand and slowly runs <<his>> thumb across your palm. Without letting go, <<he>> lifts <<his>> other hand towards your face to brush your hair back.
+	<br><br>
+	<<set $skulduggerydifficulty to 500>><<skulduggerycheck "silent">>
+	<<if $skulduggerysuccess is 1 or $awareness gte 200>>
+		Something small and flat is pinched between <<his>> fingers, and it is moving towards the light behind your ear.
+		<br><br>
+		<span class="green">You notice the device.</span>
+		<br><br>
+		<<link [[Grab the hand|Arcology Citizen Con]]>><<set $phase to "caught">><</link>>
+	<<else>>
+		<<link [[Next|Arcology Citizen Con]]>><<set $phase to setup.arcology.guarded() ? "guarded" : "copied">><</link>>
+	<</if>>
+	<br>
+<<else>>
+	"I have <<print _czPlace>>," the <<person>> says quietly. "It's very private. Come with me?"
+	<br><br>
+	<<if hasSexStat("promiscuity", 3)>>
+		<<loveicon>><<link [[Go together (0:05)|Arcology Citizen Sex]]>><<pass 5>><<set $sexstart to 1>><</link>><<promiscuous3>>
+		<br>
+	<<else>>
+		<span class="blue">You're not promiscuous enough to go with a stranger.</span>
+		<br>
+	<</if>>
+	<<getouticon>><<link [[Decline|_cz.back]]>><<endevent>><<unset $xchange.arcology.citizen>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Citizen Con
+<<effects>>
+<<set _cz to $xchange.arcology.citizen>><<person1>>
+<<if !_cz.outcome>><<set _cz.outcome to $phase>><</if>>
+<<set $phase to _cz.outcome>>
+<<if $phase is "caught">>
+	You grab <<his>> wrist before <<he>> can bring it any closer. A small reader, no bigger than a coin, is pinched between <<his>> fingers.
+	<br><br>
+	The <<person>> looks down at your hand around <<his>> wrist, but doesn't try to pull away.
+	"Everyone scans the new faces," <<he>> says with the same friendly smile. "Can't blame me for trying."
+	<br><br>
+	You let go. <<He>> lowers <<his>> hand, slips the reader into a pocket,
+	then steps away before you can stop <<him>> again. <<He>> joins the people passing nearby,
+	and after a few seconds you can no longer pick <<him>> out from the crowd.
+<<elseif $phase is "guarded">>
+	<<arcologyVictorPronouns>>
+	The <<person>> moves closer and raises a hand towards your head,
+	but someone grabs <<his>> wrist before <<he>> can touch you.
+	<br><br>
+	You turn. A tall <<print _vman>> in a dark coat is standing right beside you, and you never saw <<print _vhim>> coming. <<print _vHe>> holds the <<persons>> wrist in one gloved hand and turns it, slowly, until a small reader no bigger than a coin drops from the <<persons>> fingers.
+	<br><br>
+	The reader falls to the ground, and <<print _vhe>> steps on it, breaking it into pieces.
+	<<print _vHe>> then lets go of the <<persons>> wrist.
+	The <<person>> looks up at <<print _vhis>> face and quickly turns pale.
+	<br><br>
+	Without a word, <<he>> backs away and disappears into the crowd.
+<<elseif $phase is "copied">>
+	The <<person>> leans in and kisses you.
+	<<takeKissVirginity $NPCList[0]>>
+	While <<hes>> close, one of <<his>> hands moves briefly beside your head,
+	but <<he>> pulls away before you can see what <<he>> was doing.
+	<br><br>
+	"I've forgotten something," <<he>> says, already stepping away. <<He>> turns and walks off into the crowd. A few seconds later, the light behind your ear grows warm.
+	<br><br>
+	<<holoNotice "INTERFACE" "GUEST ID READ BY AN UNREGISTERED DEVICE." "denied">>
+	<br>
+	You turn to look for <<him>>, but <<he>> has already disappeared among the other guests. Before you can do anything else, a second warning opens over the first.
+	<<if _cz.loss is undefined>>
+		<<set _cz.loss to Math.min(random(1000, 2500), $xchange.arcology.cipher)>>
+		<<set $xchange.arcology.cipher -= _cz.loss>>
+		<<run setup.arcology.expose()>><<trauma 4>>
+	<</if>>
+	<br><br>
+	<<set _holoMsg to "UNAUTHORIZED TRANSFER: " + setup.arcology.cxU(_cz.loss) + ". DEVICE BLOCKED.">>
+	<<holoNotice "WALLET" _holoMsg "denied">>
+	<br>
+	<<if _cz.loss gt 0>>
+		By the time the network blocks the device, <<print setup.arcology.cx(_cz.loss)>> has already gone from your wallet.
+	<<else>>
+		The device tried to empty your wallet, but there was nothing in it to take.
+	<</if>> <<gtrauma>>
+<</if>>
+<<if $phase is "guarded">>
+	<<set $phase to 0>>
+	<br><br>
+	<<link [[Next|Arcology Victor]]>><<set $xchange.arcology.victorBack to _cz.back>><<endevent>><<unset $xchange.arcology.citizen>><</link>>
+<<else>>
+	<<set $phase to 0>>
+	<br><br>
+	<<link [[Next|_cz.back]]>><<endevent>><<unset $xchange.arcology.citizen>><</link>>
+<</if>>
+<br>
+
+:: Arcology Citizen Sex
+<<if $sexstart is 1>>
+	<<person1>>You follow the <<person>> <<if $xchange.arcology.citizen.where is "hotel">>upstairs to <<his>> room<<elseif $xchange.arcology.citizen.where is "city">>along the street to a room two streets away<<else>>through the passenger hallway to <<his>> cabin<</if>>. Inside, <<he>> closes the door and takes your hand, drawing you towards the bed.
+	<br><br>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust += 100>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Arcology Citizen Sex Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Citizen Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Citizen Sex Finish
+<<effects>>
+<<person1>>
+<<set _cz to $xchange.arcology.citizen>>
+<<if $enemyhealth lte 0>>
+	You shove the <<person>> away and get to the door. <<He>> doesn't follow you. <<tearful>> you dress in the corridor.
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	The <<person>> lies back, breathing hard.
+	<<if _cz and _cz.tier is "vip">>
+		"Don't ask my name," <<he>> says. "I'd only have to lie." <<He>> pours two glasses from a bottle by the bed and hands you one.
+	<<elseif _cz and _cz.mood is "dangerous">>
+		"You can go," <<he>> says. "And you can forget my face. People who remember it have trouble later."
+	<<else>>
+		"I'll remember your handle," <<he>> says, smiling. "That's as close as anyone gets to a name here."
+	<</if>>
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	"Never mind," the <<person>> says, and turns away. "Close the door on your way out."
+	<br><br>
+	<<tearful>> you dress and leave.
+<</if>>
+<<silently>><<clotheson>><</silently>>
+<<endcombat>>
+<<set _czBack to _cz ? _cz.back : "Arcology Street">><<link [[Next|_czBack]]>><<unset $xchange.arcology.citizen>><</link>>
+<br>
+
+:: Arcology Event Scan
+<<effects>>
+<<if !$NPCList[0] or !$NPCList[0].cyber>><<arcologyNPC 0 "guest" "broker">><</if>>
+<<person1>>
+<<if $phase is "unseen">>
+	You keep a few people between you and the person who looked at your implant.
+	<br><br>
+	At the end of the corridor the <<person>> stops and lifts a wrist screen.
+	Over <<his>> shoulder you can see your guest ID on it, next to a price.
+	<<arcologyCyberLook 0>><br><br>	
+	Then <<he>> turns, and starts when <<he>> sees how close you are.
+	<span class="green">You got there unseen.</span>
+<<else>>
+	You follow the person who looked at your implant. The <<person>> stops at the end of the corridor and turns round to wait for you.
+	<br><br>
+	<<He>> knew you were there all along. <<arcologyCyberLook 0>>
+<</if>>
+<br><br>
+"Don't take it personally, I check every new face." <<He>> taps the side of <<his>> head.
+"Guest clearance. Sponsor field locked. Your registration is recent, too." <<He>> looks you over again. "Nothing I can sell at the moment."
+<br><br>
+<<link [[Demand deletion|Arcology Event Scan 2]]>><<set $phase to "demand">><<trauma 2>><</link>>
+<br>
+<<link [[Walk away|Arcology Event Scan 2]]>><<set $phase to "leave">><</link>>
+<br>
+
+:: Arcology Event Scan 2
+<<effects>><<person1>>
+<<if $phase is "demand">>
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek">>
+			"P-Please delete my record!" you say. "You shouldn't have taken it."
+		<<case "shy">>
+			"Please delete it. I don't want my information on your screen," you say.
+		<<case "polite">>
+			"Delete my record, please. You didn't have permission to copy it," you say.
+		<<case "neutral">>
+			"Delete my record. You had no right to take it," you say.
+		<<case "confident">>
+			"Delete it now. You don't have permission to keep my information," you say.
+		<<case "bratty">>
+			"Delete it. You don't get to steal my data and walk away with it," you say.
+		<<case "docile">>
+			"Please delete it. I don't want you keeping my information," you say.
+		<<case "flamboyant">>
+			"Delete my record, please. You didn't have permission to copy it," you say.
+		<<case "cruel">>
+			"Delete it. Whatever you do with other people's data, you're not keeping mine," you say.
+	<</switch>>
+	<br><br>
+	"Delete it? Nothing on this island is ever deleted. It's only sold, or kept."
+	<<He>> tries not to laugh as <<he>> looks at you, then turns and walks away.<<gtrauma>>
+<<else>>
+	You walk away. When you look back, the <<persons>> already reading somebody else.
+<</if>>
+<br><br>
+<<link [[Next|$xchange.arcology.eventBack]]>><<set $phase to 0>><<endevent>><<unset $xchange.arcology.eventBack, $xchange.arcology.courier>><</link>>
+<br>
+
+:: Arcology Event Case
+<<if !$xchange.arcology.courier>><<set $xchange.arcology.courier to {}>><</if>>
+<<effects>><<person1>>
+<<if !$NPCList[0] or !$NPCList[0].cyber>><<arcologyNPC 0 "under" "courier">><</if>>
+The <<person>> stops in front of you, close enough that nobody else in the lobby can see what <<hes>> carrying. <<arcologyCyberLook 0>>
+The case is small and sealed, and <<he>> keeps it down by <<his>> side.
+<br><br>
+After a quick look at the people nearby, <<he>> steps closer so <<he>> can speak without raising <<his>> voice. "Hold this for ten minutes. Security's checking people round here, and they know my face. Keep it out of sight until I come back. I'll pay you."
+<br><br>
+<<link [[Refuse|Arcology Event Case 2]]>><<set $phase to "refuse">><</link>>
+<br>
+<<set $skulduggerydifficulty to 400>>
+<<link [[Take the case|Arcology Event Case 2]]>><<set $phase to "take">><<pass 10>><</link>><<skulduggerydifficulty>>
+<br>
+
+:: Arcology Event Case 2
+<<effects>>
+<<person1>>
+<<if !$xchange.arcology.courier>><<set $xchange.arcology.courier to {}>><</if>>
+<<if $xchange.arcology.courier.outcome>><<set $phase to $xchange.arcology.courier.outcome>><</if>>
+<<if $phase is "take">>
+	<<set $skulduggerydifficulty to 400>><<skulduggerycheck "silent">>
+	<<set $phase to $skulduggerysuccess is 1 ? "paid" : "stopped">>
+	<<if $phase is "stopped" and setup.arcology.guarded()>><<set $phase to "guarded">><</if>>
+<</if>>
+<<set $xchange.arcology.courier.outcome to $phase>>
+<<switch $phase>>
+<<case "refuse">>
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek">>
+			"S-Sorry. I can't carry that for you," you say.
+		<<case "shy">>
+			"Sorry, but no. I don't want security stopping me with it," you say.
+		<<case "polite">>
+			"No, thank you. You'll have to find someone else," you say.
+		<<case "confident">>
+			"I'm not taking it. Keep looking," you say.
+		<<case "bratty">>
+			"No chance. Find another idiot to carry it for you," you say.
+		<<case "docile">>
+			"I'm sorry, but I can't do that for you," you say.
+		<<case "flamboyant">>
+			"No, thank you. You'll have to find someone else," you say.
+		<<case "cruel">>
+			"Find another fool. I'm not taking the risk for you," you say.
+		<<default>>
+			"I'm not carrying that. Find someone else," you say.
+	<</switch>>
+	<br><br>
+	The <<person>> looks at you for a moment, then pulls the case back against <<his>> side and steps around you without arguing.
+	<br><br>
+	About a minute later, two people in grey security clothing come through the same area, checking faces as they pass.
+	One of them looks at you for a second, then keeps walking.
+<<case "stopped">>
+	<<if !$NPCList[1] or !$NPCList[1].cyber>><<arcologyNPC 1 "staff" "security guard">><</if>>
+	<<person2>>
+	Before ten minutes are up, a <<person>> in grey security armour steps in front of you and raises a hand,
+	stopping you before you can pass. <<arcologyCyberLook 1>> "Hand over the case."
+	<br><br>
+	You give it to <<him>>. <<He>> turns a little away from you, breaks the seal, and looks inside. After a moment, <<he>> closes the case again and tucks it under one arm.
+	<br><br>
+	"This delivery isn't licensed. That's a fine of 50.000 Cipher." <<He>> turns <<his>> wrist towards you so you can read the amount on the screen. "If you can't pay it, you'll work it off."
+	<br><br>
+	A second guard has come up behind you while you were reading. Neither of them moves out of your way.
+	<<stress 8>><<ggstress>> <<run setup.arcology.expose()>>
+	<br><br>
+	<<if $xchange.arcology.cipher gte 50000>>
+		<<link [[Pay the fine (50.000 Cipher)|Arcology Event Case Fine]]>><<set $xchange.arcology.cipher -= 50000>><<set $phase to "paid">><</link>>
+		<br>
+	<<else>>
+		<<link [[Work off the fine|Arcology Stack Intro]]>><<set $phase to 0>><<arcologyStackStart "arcologyFine">><</link>>
+		<br>
+	<</if>>
+	<<link [[Fight the guards|Arcology Enforcers Fight]]>><<run setup.arcologyNews.report("assault")>><<set $xchange.arcology.trouble to { source: "security", back: $xchange.arcology.eventBack, pending: $xchange.arcology.trouble ? $xchange.arcology.trouble.source : "" }>><<unset $xchange.arcology.eventBack, $xchange.arcology.courier>><<saveNPC 1 "arcology_guard">><<endevent>><<loadNPC 0 "arcology_guard">><<clearNPC "arcology_guard">><<arcologyNPC 1 "staff" "security guard">><<set $fightstart to 1>><</link>>
+	<br>
+<<case "guarded">>
+	<<arcologyVictorPronouns>>
+	Before ten minutes have passed, a guard in grey security armour stops in front of you and asks for the case.
+	<br><br>
+	Before you can hand it over, a tall <<print _vman>> in a dark coat steps in beside you and takes it out of your hands. <<print _vHe>> holds up <<print _vhis>> wrist so the guard can read something on it.
+	<br><br>
+	After checking it, the guard looks between you and the <<print _vman>> before stepping back.
+	<br><br>
+	"Take it up with the courier," the <<print _vman>> says, and hands the case over. The guard takes it and walks away without another question, and without writing anything down.
+	<br><br>
+	You don't see the courier again.
+<<case "paid">>
+	Two people in grey security clothing pass close by, but neither slows down or asks about the case.
+	<br><br>
+	Once the ten minutes are over, the <<person>> reappears from among the other pedestrians and takes
+	the case back from you. <<He>> checks <<his>> wrist screen, and a moment later the light behind your ear warms.
+	<<if !$xchange.arcology.courier.settled>>
+		<<set $xchange.arcology.courier.settled to true>>
+		<<set $xchange.arcology.courier.pay to $daily.arcologyCasePaid ? 0 : random(1000, 2500)>>
+		<<set $daily.arcologyCasePaid to true>>
+		<<set $xchange.arcology.cipher to ($xchange.arcology.cipher or 0) + $xchange.arcology.courier.pay>>
+	<</if>>
+	<<set _casePay to $xchange.arcology.courier.pay>>
+	<br><br>
+	<<set _holoMsg to setup.arcology.cxU(_casePay) + " RECEIVED. SENDER UNLISTED.">>
+	<<holoNotice "WALLET" _holoMsg "ok">>
+	<br>
+	"If anyone asks, you never saw me," <<he>> says. <<He>> turns away at once and is lost in the crowd before you can ask for a name.
+<</switch>>
+<<if $phase is "guarded">>
+	<<set $phase to 0>>
+	<br><br>
+	<<link [[Next|Arcology Victor]]>><<set $xchange.arcology.victorBack to $xchange.arcology.eventBack>><<endevent>><<unset $xchange.arcology.eventBack, $xchange.arcology.courier>><</link>>
+	<br>
+<<elseif $phase isnot "stopped">>
+	<<set $phase to 0>>
+	<br><br>
+	<<link [[Next|$xchange.arcology.eventBack]]>><<endevent>><<unset $xchange.arcology.eventBack, $xchange.arcology.courier>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Event Case Fine
+<<effects>><<person2>>
+Your implant confirms that the payment has gone through.
+<br><br>
+The guard with the case checks the same confirmation on <<his>> wrist, then jerks <<his>> head to tell you to go. The second guard steps aside and lets you past.
+<<set $phase to 0>>
+<br><br>
+<<link [[Next|$xchange.arcology.eventBack]]>><<endevent>><<unset $xchange.arcology.eventBack, $xchange.arcology.courier>><</link>>
+<br>
+
+:: Arcology Enforcers
+<<location "arcology">><<effects>>
+<<if $xchange.arcology.trouble.price is undefined>><<set $xchange.arcology.trouble.price to setup.arcologyPrice.demand(random(2, 5))>><</if>>
+<<person1>>
+<<if setup.arcology.guarded()>>
+	<<arcologyVictorPronouns>>
+	Two enforcers are waiting for you. One of them begins to raise a display,
+	but stops when <<he>> notices someone behind you.
+	<br><br>
+	You turn around and see a tall <<print _vman>> in a dark coat approaching. <<print _vHe>> stops nearby without
+	saying anything, watching the two enforcers with <<print _vhis>> hands at <<print _vhis>> sides.
+	<br><br>
+	The enforcer looks at <<print _vhim>> for a long moment, then lowers the display and puts it away.
+	<br><br>
+	"Another time," <<he>> says. Both enforcers get back into their car and drive off, leaving you alone with the stranger.
+	<br><br>
+	<<link [[Next|Arcology Victor]]>><<set $xchange.arcology.victorBack to "Arcology Street">><<unset $xchange.arcology.trouble>><<endevent>><</link>>
+	<br>
+	<<exit>>
+<</if>>
+Two enforcers are waiting for you. The <<person>> nearest you steps forward and turns a display towards you. <<arcologyThreatReact "security">>
+<br><br>
+<<arcologyCyberLook 0>> <<if $xchange.arcology.trouble.source is "identity">>On the screen is a copy of the record read from your implant.<<else>>On the screen is a photograph taken inside the Glasshouse.<</if>>
+<br><br>
+<<if $xchange.arcology.trouble.source is "patron">>
+	"You threatened our employer. Now you can show us what you meant." <<He>> pockets the display.
+	<br><br><<person2>>
+	The other enforcer takes off <<his>> coat, folds it over the car door, and steps away from the car with <<his>> hands free.<<person1>>
+<<elseif $xchange.arcology.trouble.source is "identity">>
+	"Your record came up for sale. Our client wants to ask you a few questions." <<He>> puts the display away and opens the car door. The other enforcer steps behind you. "Get in."
+<<else>>
+	"You were told to leave our client alone." <<He>> pockets the display. "We'll make sure you remember next time."
+	<br><br>
+	The other enforcer steps closer, blocking your way back.
+<</if>>
+<br><br>
+<<if $xchange.arcology.cipher gte $xchange.arcology.trouble.price>>
+	You could offer them Cipher to leave you alone, though neither has asked for money.
+	<br><br>
+<</if>>
+<<link [[Fight|Arcology Enforcers Fight]]>><<set $fightstart to 1>><</link>>
+<br>
+<<if $xchange.arcology.cipher gte $xchange.arcology.trouble.price>>
+	<<link `"Offer " + setup.arcology.cx($xchange.arcology.trouble.price) + " to be left alone"` "Arcology Enforcers Escape">><<set $xchange.arcology.cipher -= $xchange.arcology.trouble.price>><<set $phase to "paid">><</link>>
+	<br>
+<</if>>
+<<link [[Run for the pier|Arcology Enforcers Escape]]>><<set $phase to setup.arcology.escape("run", "athletics", 200, 900) ? "escaped" : "caught">><<if $phase is "caught">><<pain 8>><</if>><<pass 2>><</link>><<arcologySkill "Athletics">>
+<br>
+
+:: Arcology Victor
+<<effects>><<arcologyVictorPronouns>>
+<<switch $phase>>
+<<case "who">>
+	You ask <<print _vhe>> who <<print _vhe>> is, but <<print _vhe>> doesn't answer.
+	You try asking for a name instead, only to receive the same silence.
+	<br><br>
+	<<print _vHe>> seems perfectly happy to stand there for as long as you're willing to wait. In the end, you give up.
+<<case "luchifen">>
+	"Shouldn't you be with Luchifen?" you ask.
+	<br><br>
+	To your surprise, <<print _vhe>> answers. "My master ordered me to watch over you while you are their guest. There are other loyalists looking after them."
+	<br><br>
+	<<print _vHe>> looks towards the green dome at the top of the tallest tower,
+	remaining quiet for a moment before speaking again.
+	<br><br>
+	"I would rather be near my master, if it were mine to choose."
+<<default>>
+	<<if setup.arcology.umbrellaKnown()>>
+		You recognise this <<print _vman>>. <<print _vHe>> was the one holding the umbrella for Luchifen at the docks.
+	<<else>>
+		You notice a small silver pin on the collar of <<print _vhis>> dark coat. It's shaped like half a mask,
+		similar to the one Luchifen wears. <<print _vHe>> must be one of Luchifen's people.
+	<</if>>
+	<<print _vHe>> moves a few steps away and waits quietly, occasionally looking in your direction.
+<</switch>>
+<<set $phase to 0>>
+<br><br>
+<<link [[Ask for a name|Arcology Victor]]>><<set $phase to "who">><</link>>
+<br>
+<<link [[Ask about Luchifen|Arcology Victor]]>><<set $phase to "luchifen">><</link>>
+<br>
+<<link [[Leave|$xchange.arcology.victorBack]]>><<unset $xchange.arcology.victorBack>><</link>>
+<br>
+
+:: Arcology Enforcers Escape
+<<effects>>
+<<if $phase is "caught">>
+	You turn and run, but one of the enforcers grabs you before you get far.
+	<<He>> yanks you backwards, and you stumble into a railing at the edge of the pavement.<<ggpain>>
+	<br><br>
+	Before you can pull free, the other enforcer catches up and moves in front of you.
+	<br><br>
+	<<link [[Fight|Arcology Enforcers Fight]]>><<set $phase to 0>><<set $fightstart to 1>><</link>>
+<<else>>
+	<<if $phase is "paid">>
+		You offer them Cipher to drop the matter. The first enforcer looks at the other, then holds out a payment reader. You authorise the transfer.
+		<br><br>
+		<<speechresolve>>
+		<<switch _speechAttitudeResolved>>
+			<<case "meek">>
+				"I've sent the <<print setup.arcology.cx($xchange.arcology.trouble.price)>>. Please let me go," you say.
+			<<case "shy">>
+				"I sent the <<print setup.arcology.cx($xchange.arcology.trouble.price)>>. Can I go now?" you ask.
+			<<case "polite">>
+				"I've sent the <<print setup.arcology.cx($xchange.arcology.trouble.price)>>. Please let me through," you say.
+			<<case "confident">>
+				"I've sent the <<print setup.arcology.cx($xchange.arcology.trouble.price)>>. Now let me through," you say.
+			<<case "bratty">>
+				"I sent your <<print setup.arcology.cx($xchange.arcology.trouble.price)>>. Now get out of my way," you say.
+			<<case "docile">>
+				"I've sent the <<print setup.arcology.cx($xchange.arcology.trouble.price)>>. Please let me through," you say.
+			<<case "flamboyant">>
+				"I've sent the <<print setup.arcology.cx($xchange.arcology.trouble.price)>>. Please let me through," you say.
+			<<case "cruel">>
+				"You've got your <<print setup.arcology.cx($xchange.arcology.trouble.price)>>. Now move," you say.
+			<<default>>
+				"I sent the <<print setup.arcology.cx($xchange.arcology.trouble.price)>>. Let me through," you say.
+		<</switch>>
+		<br><br>
+		The first enforcer looks down at <<his>> wrist screen and waits for the transfer to clear. When the amount appears, <<he>> steps aside to let you pass. "Keep your mouth shut from now on."
+	<<else>>
+		You slip between two shoppers and hurry towards the pier. The enforcers shove through the crowd behind you, but by the time they reach the pier, you are already through the guest checkpoint.
+		<br><br>
+		<span class="green">They stop outside it</span>.
+	<</if>>
+	<br><br>
+	<<link [[Next|Arcology Pier]]>><<set $phase to 0>><<unset $xchange.arcology.trouble>><<endevent>><</link>>
+<</if>>
+<br>
+
+:: Arcology Enforcers Fight
+<<if $fightstart is 1>>
+	<<set $fightstart to 0>>
+	<<neutral 1>><<maninit>><<npcidlegenitals>>
+	<<set $enemytrust -= 100>><<set $enemyanger += 200>>
+<</if>>
+<<set _scenePainMult to setup.arcology.fightPainMult()>><<set _scenePainFloor to setup.arcology.fightPainFloor()>>
+<<effects>><<arcologyCombatNotes>><<effectsman>><<man>><<arcologyCyberTurn>><<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|Arcology Enforcers Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Enforcers Fight]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Enforcers Finish
+<<effects>>
+<<if !$xchange.arcology.trouble.resolved>>
+<<set $xchange.arcology.trouble.loss to Math.min($xchange.arcology.cipher, $xchange.arcology.trouble.price)>>
+<<if $enemyhealth lte 0 or $enemypleasure gte $enemypleasuremax>>
+	<<if $enemypleasure gte $enemypleasuremax>><<ejaculation>><<else>><<run setup.arcology.noteWin()>><</if>>
+	<<if $xchange.arcology.trouble.source is "security">>
+		The guards step back, no longer trying to restrain you.
+		<br><br>
+		You take your chance and walk quickly towards the guest checkpoint, before either of them can call for more security.
+	<<else>>
+		The pair lose their grip on you, giving you enough room to pull away.
+		<br><br>
+		You hurry towards the guest checkpoint with them following, but the guard at the barrier raises a hand and orders them to stay on the other side.
+	<</if>>
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	<<if $xchange.arcology.trouble.source is "security">>
+		The guards force you face down onto the pavement and hold you there until you stop struggling.
+		One keeps your arms behind your back while the other scans your implant, then your wrists are fastened together.
+		<br><br>
+		"Assaulting security," the first guard says, reading your record. "No fine for this. It goes on your debt."
+		<<set $xchange.arcology.trouble.lost to true>>
+	<<else>>
+		One enforcer holds you against the ground while the other takes <<print setup.arcology.cx($xchange.arcology.trouble.loss)>>.
+		<<set $xchange.arcology.cipher -= $xchange.arcology.trouble.loss>>
+		<br><br>
+		Once the transfer is complete, they finally let you go. You start pushing yourself back up, but one of them kicks you in the ribs before following the other back towards the car.
+		<<pain 15>><<trauma 5>><<gtrauma>><<gggpain>>
+		<br><br>
+		You remain on the ground for a few moments before you can get back to your feet.
+	<</if>>
+<</if>>
+<<clotheson>><<endcombat>>
+<<set $xchange.arcology.trouble.resolved to true>>
+<</if>>
+<br><br>
+<<if $xchange.arcology.trouble.lost and $xchange.arcology.trouble.source is "security">>
+	<<link [[Next|Arcology Stack Intro]]>><<arcologyStackStart "arcologyGuards">><</link>>
+	<br>
+	<<exit>>
+<</if>>
+<<set _enforcerBack to $xchange.arcology.trouble.source is "security" ? $xchange.arcology.trouble.back : "Arcology Pier">>
+<<link [[Next|_enforcerBack]]>><<if $xchange.arcology.trouble.pending>><<set $xchange.arcology.trouble to { source: $xchange.arcology.trouble.pending }>><<else>><<unset $xchange.arcology.trouble>><</if>><</link>>
+<br>

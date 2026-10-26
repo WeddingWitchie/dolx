@@ -10,7 +10,7 @@
     <</if>>
     
     /* Named NPCs with no vanilla follower art at all. Drawing them would ask for files that don't exist and show as broken images. */
-    <<set _noVanillaFollowerArt to ["Night Monster", "Luchifen"]>>
+    <<set _noVanillaFollowerArt to ["Night Monster"]>>
 
     <<if $options.NnpcDisplaySystem is "vanilla" && $NPCNameList.includes($NPCList[0].fullDescription) && !_noVanillaFollowerArt.includes($NPCList[0].fullDescription)>>
         <<set _followerName to $NPCList[0].fullDescription.toLowerCase()>>
@@ -22,10 +22,10 @@
         Shared with the DoLP display to prevent the two systems from showing different genders. */
         <<set _displaySex to nnpcSpriteGender($NPCList[0])>>
 
-        /* Ivory Wraith sprites have no skin-colour variants, so their filename does not include one. */
+        /* Ivory Wraith sprites have no skin-colour variants, so their filename does not include one. Luchifen has one androgynous set with no skin or sex variants. */
         <<set $follower to {
             name: _followerName,
-            base: (_followerName is "ivory_wraith" ? "base_" + _displaySex : "base_" + ($NPCList[0].skincolour gt 50 ? "black" : "white") + "_" + _displaySex),
+            base: (_followerName is "ivory_wraith" ? "base_" + _displaySex : _followerName is "luchifen" ? "base" : "base_" + ($NPCList[0].skincolour gt 50 ? "black" : "white") + "_" + _displaySex),
             clothes: "upper_default",
             under_clothes: "lower_default",
         }>>
@@ -46,6 +46,9 @@
             <<set _sydHairValid to ["strawberryblond_loose", "strawberryblond_ponytail", "black_loose", "black_ponytail", "purple_loose", "mediumpurple_ponytail"]>>
             <<set _sydHairColour to (_sydHairValid.includes(C.npc.Sydney.hairColour + "_" + $sydney.hair) ? C.npc.Sydney.hairColour : "strawberryblond")>>
             <<set $follower.hair to "hair_" + _sydHairColour + "_" + $sydney.hair>>
+
+        <<elseif _followerName is "luchifen">>
+            <<set $follower.hair to "hair">>
 
         <<elseif _followerName is "kylar">>
             <<set $follower.hair to
@@ -90,8 +93,10 @@
     <</if>>
 
     <!-- Clothing Gender Selection -->
-    <<set $follower.clothes += "_" + _displaySex>>
-    <<set $follower.under_clothes += "_" + _displaySex>>
+    <<if _followerName isnot "luchifen">>
+        <<set $follower.clothes += "_" + _displaySex>>
+        <<set $follower.under_clothes += "_" + _displaySex>>
+    <</if>>
 
     <!-- Remove clothing if naked -->
     <<if $NPCList[0].clothes.upper.name is "naked" or $NPCList[0].chest isnot "clothed">><<unset $follower.clothes>><</if>>

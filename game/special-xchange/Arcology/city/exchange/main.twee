@@ -1,0 +1,199 @@
+:: Arcology Exchange Square
+<<location "arcology_exchange">><<run setup.arcology.visit("exchange")>><<effects>>
+<<arcologyDangerCheck "exchange">><<if _arcologyDangerActive>><<exit>><</if>>
+<<arcologySceneCheck "street">><<if _arcologyScene>><<include "Arcology Scene">><<exit>><</if>>
+You are in Exchange Square, a large open area surrounded by tall buildings with glass windows.
+<br><br>
+<<arcologyStreetHazards>>
+<<if !_arcologyHalt>>
+	Places of interest
+	<br>
+	<<arcologyicon "booth">><<link [[Unit Exchange (0:02)|Arcology Unit Exchange]]>><<pass 2>><</link>>
+	<br>
+	<<arcologyicon "bank">><<link [[Halden Trust (0:02)|Arcology Halden Trust]]>><<pass 2>><</link>>
+	<br><br>
+	<<arcologyStreets "exchange">>
+<</if>>
+
+:: Arcology Unit Exchange
+<<location "arcology_exchangehall">><<set $outside to 0>><<effects>>
+The Unit Exchange is a large hall with rows of trading terminals along both walls. Each terminal has a scanner for your implant and a slot for mainland money. Above them, a wide screen shows the price of Cipher in pounds, changing every few seconds.
+<br><br>
+<div id="fxHost"></div>
+<<run setTimeout(() => setup.arcologyFx.mount(document.getElementById("fxHost")))>>
+<br>
+<<getouticon>><<link [[Leave|Arcology Exchange Square]]>><<pass 2>><</link>>
+<br>
+
+:: Arcology Halden Trust
+<<location "arcology_bank">><<set $outside to 0>><<effects>>
+Halden Trust is on the ground floor of the tallest building in the square. Inside, there are no reception desks or staff to speak to. Instead, you find a row of small private booths, each with a frosted glass door. You choose an empty one, step inside, and close the door behind you.
+<br><br>
+<<holo "HALDEN TRUST / GUEST VAULT">>
+	<<holoRow "WALLET" `setup.arcology.cxU(($xchange.arcology.cipher or 0))`>>
+	<<holoRow "VAULT" `setup.arcology.cxU(setup.arcology.vault())`>>
+	<<holoLine "VAULTS ARE BOUND TO YOUR CIVIC RECORD" "warn">>
+<</holo>>
+<br>
+<<if setup.arcology.vault() gte 1 and setup.arcologyFx.crisis() gte 2>>
+	/* During a currency crisis the Trust limits each account to a small withdrawal per day. */
+	<<set _htLeft to Math.min(setup.arcology.vault(), 50 - ($daily.arcologyVaultOut or 0))>>
+	<<holoLine `"WITHDRAWALS LIMITED TO " + setup.arcology.cxU(50) + " PER DAY"` "warn">>
+	<<if _htLeft lt 1>>
+		<span class="blue">You've reached today's withdrawal limit.</span>
+		<br><br>
+	<</if>>
+<</if>>
+<<if $xchange.arcology.cipher gte 1>>
+	<<arcologyicon "bank">><<link [[Deposit everything|Arcology Halden Trust]]>><<set $xchange.arcology.vault to setup.arcology.vault() + $xchange.arcology.cipher>><<set $xchange.arcology.cipher to 0>><</link>>
+	<br>
+<</if>>
+<<if setup.arcology.vault() gte 1 and setup.arcologyFx.crisis() gte 2>>
+	<<if _htLeft gte 1>>
+		<<arcologyicon "bank">><<link `"Withdraw " + setup.arcology.cx(_htLeft)` "Arcology Halden Trust">><<set $xchange.arcology.cipher to ($xchange.arcology.cipher or 0) + _htLeft>><<set $xchange.arcology.vault to setup.arcology.vault() - _htLeft>><<set $daily.arcologyVaultOut to ($daily.arcologyVaultOut or 0) + _htLeft>><</link>>
+		<br>
+	<</if>>
+<<elseif setup.arcology.vault() gte 1>>
+	<<arcologyicon "bank">><<link [[Withdraw everything|Arcology Halden Trust]]>><<set $xchange.arcology.cipher to ($xchange.arcology.cipher or 0) + setup.arcology.vault()>><<set $xchange.arcology.vault to 0>><</link>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Exchange Square]]>><<pass 2>><</link>>
+<br>
+
+:: Arcology Commerce Walk
+<<location "arcology_commerce">><<run setup.arcology.visit("commerce")>><<effects>>
+<<arcologyDangerCheck "commerce">><<if _arcologyDangerActive>><<exit>><</if>>
+<<arcologySceneCheck "street">><<if _arcologyScene>><<include "Arcology Scene">><<exit>><</if>>
+You arrive at Commerce Walk, a shopping street near Exchange Square. A roof covers the entire street, with shops on both sides of the walkway.
+<br><br>
+<<arcologyStreetHazards>>
+<<if !_arcologyHalt>>
+	Places of interest
+	<br>
+	<<arcologyicon "training">><<link [[Training hall (0:02)|Arcology Training Hall]]>><<pass 2>><</link>>
+	<br>
+	<<arcologyicon "mining">><<link [[Compute floor (0:02)|Arcology Compute Floor]]>><<pass 2>><</link>>
+	<br>
+	<<arcologyicon "health">><<link [[Health shop (0:01)|Arcology Health Shop]]>><<pass 1>><</link>>
+	<br>
+	<<arcologyicon "studio">><<link [[Holo studio (0:01)|Arcology Holo Studio]]>><<pass 1>><</link>>
+	<br><br>
+	<<arcologyStreets "commerce">>
+<</if>>
+
+:: Arcology Training Hall
+<<location "arcology_training">><<set $outside to 0>><<effects>>
+The training hall has rows of chairs that can lean back, allowing people to lie down comfortably. Beside the top of each chair is a cable that connects to the implant behind a person's ear. An attendant walks between the chairs, checking the cables.
+<br><br>
+<<set _thP to setup.arcologyPrice.quote("training")>>
+<<if $daily.arcologyTraining>>
+	<span class="blue">You've already had a training session today.</span> You'll have to wait until tomorrow before your implant can receive another lesson.
+	<br><br>
+<<elseif !setup.arcologyPrice.affordable(_thP)>>
+	<span class="blue">A session costs <<print _thP.label>>.</span><<arcologyPriceNote _thP>>
+	<br>
+<<else>>
+	A session costs <<print _thP.label>>.<<arcologyPriceNote _thP>>
+	<br>
+	<<scienceicon>><<link [[Science (2:00)|Arcology Training Session]]>><<if setup.arcologyPrice.pay("training")>><<set $phase to "science">><<set $daily.arcologyTraining to true>><<pass 120>><<else>><<set $phase to 0>><</if>><</link>><<gscience>>
+	<br>
+	<<mathicon>><<link [[Maths (2:00)|Arcology Training Session]]>><<if setup.arcologyPrice.pay("training")>><<set $phase to "maths">><<set $daily.arcologyTraining to true>><<pass 120>><<else>><<set $phase to 0>><</if>><</link>><<gmaths>>
+	<br>
+	<<englishicon>><<link [[English (2:00)|Arcology Training Session]]>><<if setup.arcologyPrice.pay("training")>><<set $phase to "english">><<set $daily.arcologyTraining to true>><<pass 120>><<else>><<set $phase to 0>><</if>><</link>><<genglish>>
+	<br>
+	<<historyicon>><<link [[History (2:00)|Arcology Training Session]]>><<if setup.arcologyPrice.pay("training")>><<set $phase to "history">><<set $daily.arcologyTraining to true>><<pass 120>><<else>><<set $phase to 0>><</if>><</link>><<ghistory>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Commerce Walk]]>><<pass 2>><</link>>
+<br>
+
+:: Arcology Training Session
+<<location "arcology_training">><<set $outside to 0>><<effects>>
+<<if $phase is "science">><<scienceskill 8>><<elseif $phase is "maths">><<mathsskill 8>><<elseif $phase is "english">><<englishskill 8>><<elseif $phase is "history">><<historyskill 8>><</if>>
+<<if ["science", "maths", "english", "history"].includes($phase)>><<stress 2>><</if>>
+<<if !["science", "maths", "english", "history"].includes($phase)>>
+	The attendant checks the payment screen. The session didn't go through, so the chair stays upright.
+	<br><br>
+	<<link [[Next|Arcology Training Hall]]>><</link>>
+	<br>
+	<<exit>>
+<</if>>
+<<set $phase to 0>>
+You lie back in the chair as the attendant picks up a cable beside your head and connects it to your implant. The lights in the hall go out, but almost immediately, images begin appearing in front of your eyes. You close your eyes in surprise, only to find that you can still see them.
+<br><br>
+Diagrams and pages of text appear one after another, while voices speak inside your head, explaining what everything means. The information comes so quickly that you barely have time to understand one thing before something new appears.
+<br><br>
+The images suddenly disappear as the lights come back on. The attendant disconnects the cable, and you slowly sit up, rubbing your head as a headache begins to bother you.
+<br><br>
+You soon realise that you can remember everything the voices explained. You even understand things you knew nothing about before sitting in the chair, although you have no clear memory of actually learning them.<<gstress>>
+<br><br>
+<<link [[Next|Arcology Training Hall]]>><</link>>
+<br>
+
+:: Arcology Compute Floor
+<<location "arcology_compute">><<set $outside to 0>><<effects>>
+You enter a warm room with low lighting. Rows of large computers fill the room, making a steady humming sound. People sit at desks between them, solving puzzles on their screens. Each time someone finishes a puzzle, the amount of Cipher shown in the corner of their screen goes up.
+<br><br>
+A sign near the door explains how payment works.
+<br>
+<<holoNotice "YOUR IMPLANT IS YOUR ACCOUNT. ANY CIPHER YOU EARN IS AUTOMATICALLY ADDED TO IT." "warn">>
+<br><br>
+<<if setup.arcologyNews.closed("compute")>>
+	The screens on every desk are dark, and a manager is turning people away at the door. <span class="blue">There's no work here today.</span>
+	<br><br>
+<<elseif $daily.arcologyCompute>>
+	<span class="blue">You've already worked here today</span>, and the manager has given your seat to someone else.
+	<br><br>
+<<else>>
+	<<arcologyicon "compute">><<link [[Take a seat and work (1:00)|Arcology Compute Shift]]>><<set $daily.arcologyCompute to true>><<pass 60>><</link>><<gmaths>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Commerce Walk]]>><<pass 2>><</link>>
+<br>
+
+:: Arcology Compute Shift
+<<location "arcology_compute">><<set $outside to 0>><<effects>>
+<<if $daily.arcologyComputePaid is undefined>>
+	<<set $daily.arcologyComputePaid to Math.clamp(Math.floor($maths / 200) + random(0, 2), 1, 6) * 500>>
+	<<set $xchange.arcology.cipher to ($xchange.arcology.cipher or 0) + $daily.arcologyComputePaid>>
+	<<mathsskill 2>>
+<</if>>
+You sit at the desk and start solving the number puzzles on the screen. Each time you finish a puzzle, a harder one appears, and the amount of money you've earned increases a little.
+<br><br>
+The machine behind the desk makes a louder noise whenever you enter a correct answer. You keep solving puzzles and earning money until your hour of work is over.
+<br><br>
+<<set _computeMsg to setup.arcology.cxU($daily.arcologyComputePaid) + " RECEIVED. WORK LOGGED TO YOUR RECORD.">>
+<<holoNotice "WALLET" _computeMsg "ok">>
+<br>
+<<link [[Next|Arcology Compute Floor]]>><</link>>
+<br>
+
+:: Arcology Health Shop
+<<location "arcology_clinic">><<set $outside to 0>><<effects>>
+The health shop is a clean, brightly lit room with white walls and a counter near the entrance. A pharmacist checks the orders behind it while a robotic arm takes products from the shelves and drops them into a tray. The pharmacist checks each label before sliding the tray across to the waiting customer.
+<br><br>
+<<set _hsP to setup.arcologyPrice.quote("painkillers")>>
+<<if _hsP.pounds>>
+	A notice on the counter says the shop is <span class="blue">taking pounds only</span> until the exchange settles.
+	<br>
+<</if>>
+<<if setup.arcologyPrice.affordable(_hsP) and $pain gt 0>>
+	<span class="arc-priced"><<arcologyicon "health">><<link `"Painkillers (" + _hsP.label + ")"` "Arcology Health Shop">><<if setup.arcologyPrice.pay("painkillers")>><<pain -10>><</if>><</link>></span><<llpain>><<arcologyPriceNote _hsP>>
+	<br>
+<<elseif $pain gt 0>>
+	<span class="blue">Painkillers cost <<print _hsP.label>>.</span><<arcologyPriceNote _hsP>>
+	<br><br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Commerce Walk]]>><<pass 1>><</link>>
+<br>
+
+:: Arcology Holo Studio
+<<location "arcology_studio">><<set $outside to 0>><<effects>>
+The Holo studio is a large room with several chairs and plenty of empty space between them. You choose a chair and sit down, causing your Holo interface to show a list of designs you can use to change its appearance.
+<br><br>
+There are plenty to choose from. Some make your Holo menus look gold or silver, while others have effects that look like broken glass or moving water. Each design has its own price, but when you try to select one, you find that none of them are available to you.
+<br><br>
+<<holoNotice "FACET STUDIO" "CUSTOM INTERFACES ARE AVAILABLE TO RESIDENT CLEARANCE AND ABOVE." "denied">>
+<br>
+<<getouticon>><<link [[Leave|Arcology Commerce Walk]]>><<pass 1>><</link>>
+<br>

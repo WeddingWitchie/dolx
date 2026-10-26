@@ -1,0 +1,282 @@
+:: Arcology Market Street
+<<location "arcology_market">><<run setup.arcology.visit("market")>><<effects>>
+<<arcologyDangerCheck "market">><<if _arcologyDangerActive>><<exit>><</if>>
+<<arcologySceneCheck "street">><<if _arcologyScene>><<include "Arcology Scene">><<exit>><</if>>
+You arrive at Market Street, where small shops fill both sides of the road. Most of them are made from old shipping boxes, with plastic sheets used for roofs and walls. At one stall selling second-hand implant parts, a curtain hangs across the gap behind the counter.
+<br><br>
+<<arcologyStreetHazards>>
+<<if !_arcologyHalt>>
+	Places of interest
+	<br>
+	<<arcologyicon "market">><<link [[Trading post (0:02)|Arcology Trading Post]]>><<pass 2>><</link>>
+	<br>
+	<<arcologyicon "blackmarket">><<link [[Back of the parts stall (0:02)|Arcology Black Market]]>><<pass 2>><</link>>
+	<br><br>
+	<<arcologyStreets "market">>
+<</if>>
+
+:: Arcology Trading Post
+<<location "arcology_tradingpost">><<set $outside to 0>><<effects>>
+You enter the trading post, a large building where people can buy, sell, or exchange almost anything. At the far end of the room, a huge screen covers most of the wall. It shows messages from people looking to make trades.
+<br><br>
+<<if !$daily.arcologyTradeRead>>
+	<<investigateicon>><<link [[Read the offers (0:10)|Arcology Trading Post Read]]>><<set $daily.arcologyTradeRead to true>><<pass 10>><</link>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Market Street]]>><<pass 2>><</link>>
+<br>
+
+:: Arcology Trading Post Read
+<<location "arcology_tradingpost">><<set $outside to 0>><<effects>>
+You look through the advertisements. Most people are buying or selling electronic parts, but a few messages catch your attention.
+<br><br>
+<<holo "TRADING POST / OPEN OFFERS">>
+	<<holoLine "I'll pay someone to keep a computer chip for me for one week. Don't ask why.">>
+	<<holoLine "Selling a complete copy of someone's personal information from the city's records. The person it belongs to doesn't need it anymore.">>
+	<<generate1>><<set _tpP to $NPCList[0].pronouns>><<set _tpKin to $NPCList[0].pronoun is "f" ? "sister" : $NPCList[0].pronoun is "m" ? "brother" : "sibling">><<endevent>>
+	<<set _tpLine to "I'm looking for my " + _tpKin + ". " + _tpP.he.toUpperFirst() + " changed " + _tpP.his + " face last spring, and I don't know the new one. If you knew " + _tpP.him + " before the change, please contact me.">>
+	<<holoLine _tpLine>>
+<</holo>>
+<br>
+You find an advertisement that interests you and try to reply using your implant. However, before you can type your message, a warning appears in front of your eyes.
+<br><br>
+<<holoNotice "TRADING POST" "ONLY REGISTERED RESIDENTS CAN TRADE." "denied">>
+<br>
+<<link [[Next|Arcology Trading Post]]>><</link>>
+<br>
+
+:: Arcology Black Market
+<<location "arcology_blackmarket">><<set $outside to 0>><<effects>>
+Behind the parts stall, you notice a curtain blocking a narrow path between two warehouses. You pull the curtain aside and step inside.
+<br><br>
+There are small tables on both sides of the path, with a seller sitting behind each one. Each seller has several closed boxes on the table. None of the boxes have labels, so you can't tell what's inside them.
+<br><br>
+<<if $daily.arcologyBlackMarketBanned>>
+	The seller with the stim patches <span class="blue">turns away</span> when you come through the curtain.
+	<br><br>
+<<else>>
+	<<set _bmP to setup.arcologyPrice.quote("stim")>>
+	One seller has a tray of stim patches with no brand on them. A small screen beside the tray shows the price.
+	<br>
+	<<if setup.arcologyPrice.stockLeft("dealer") lte 0>>
+		<span class="blue">The tray is empty. "Come back tomorrow."</span>
+	<<elseif setup.arcologyPrice.affordable(_bmP)>>
+		<<capture _bmP>><span class="arc-priced"><<arcologyicon "health">><<link `"Buy a stim patch (" + _bmP.label + ")"` "Arcology Black Market Deal">><<arcologyNPC 0 "under" "dealer">>
+			<<if _bmP.cheap is "hostile">>
+				<<set $xchange.arcology.deal to { stage: "dispute", old: _bmP.q, fair: setup.arcologyPrice.fair("stim") }>><<run delete $xchange.arcology.pq.stim>>
+			<<elseif setup.arcologyPrice.pay("stim")>>
+				<<set $xchange.arcology.deal to { stage: "bought" }>><<pain -25>><<stress -3>>
+			<<else>>
+				<<set $xchange.arcology.deal to { stage: "unpaid" }>>
+			<</if>>
+		<</link>></span><</capture>><<lpain>><<arcologyPriceNote _bmP>>
+	<<else>>
+		<span class="blue">A stim patch costs <<print _bmP.label>>.</span><<arcologyPriceNote _bmP>>
+	<</if>>
+	<br><br>
+<</if>>
+<<if !$daily.arcologyBlackMarket>>
+	<<set $skulduggerydifficulty to 600>>
+	<<investigateicon>><<link [[Listen to the sellers (0:10)|Arcology Black Market Listen]]>><<set $daily.arcologyBlackMarket to true>><<pass 10>><<skulduggerycheck "silent">><<set $phase to $skulduggerysuccess>><</link>><<skulduggerydifficulty>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Market Street]]>><<pass 2>><</link>>
+<br>
+
+:: Arcology Black Market Listen
+<<location "arcology_blackmarket">><<set $outside to 0>><<effects>>
+<<if $phase is 1>>
+	You stop beside one of the tables and pretend to look at the closed boxes. A customer is talking to the seller about the price of something, so you stay nearby and listen.
+	<br><br>
+	"It's a complete copy of the original chip," the seller explains. "It has all the same permissions, so it can open every door the original can open. Even if the original chip is destroyed, this copy will still work. It will even work if the owner dies."
+	<br><br>
+	"What if the owner is still alive?" the customer asks.
+	<br><br>
+	"Then both chips can open the same doors," the seller answers. "At least for a while."
+	<br><br>
+	The seller closes the box and continues talking to the customer. <span class="green">Neither of them realises you've been listening.</span>
+<<elseif $phase is 0>>
+	You walk closer to one of the tables, hoping to hear what the seller is telling a customer. However, the seller notices the small light behind your ear and immediately stops talking.
+	<br><br>
+	"You've got a guest chip," the seller says loudly enough for people at the next table to hear. "Go look somewhere else."
+	<br><br>
+	You turn around and head back towards the curtain. <span class="red">Several people look at you as you leave.</span><<run setup.arcology.expose()>>
+<<else>>
+	You've already listened to the sellers.
+<</if>>
+<<set $phase to -1>>
+<br><br>
+<<link [[Next|Arcology Black Market]]>><<set $phase to 0>><</link>>
+<br>
+
+:: Arcology Neon Strip
+<<location "arcology_neon">><<run setup.arcology.visit("neon")>><<effects>>
+<<arcologyDangerCheck "neon">><<if _arcologyDangerActive>><<exit>><</if>>
+<<arcologySceneCheck "street">><<if _arcologyScene>><<include "Arcology Scene">><<exit>><</if>>
+You are on the Neon Strip, a street full of nightclubs and bars. Bright signs cover the front of almost every building, from the ground floor to the roof. The signs flash in pink, gold, and green.
+<br><br>
+<<if Time.dayState is "night">>
+	The street is crowded with people visiting the clubs. Loud music comes from several clubs at once, making it difficult to hear any one song clearly.
+	Security guards stand outside the club entrances, checking the information stored in each visitor's implant. Anyone who doesn't meet the club's requirements is turned away at the door.
+<<elseif Time.dayState is "dawn">>
+	People are leaving the clubs as the sun comes up. Some cover their eyes because of the bright morning light, while others walk slowly along the street.
+	A worker is cleaning the road, using water to move pieces of broken glass towards the drains.
+<<else>>
+	Most of the clubs are closed, and there are very few people on the street. Delivery drones arrive at the back entrances of the buildings, bringing boxes filled with bottles.
+	The bright signs are still flashing, even though almost nobody is around to see them.
+<</if>>
+<br><br>
+<<arcologyStreetHazards>>
+<<if !_arcologyHalt>>
+	Places of interest
+	<br>
+	<<arcologyicon "halcyon">><<link [[Halcyon (0:01)|Arcology Halcyon]]>><<pass 1>><</link>>
+	<br>
+	<<arcologyicon "gambling">><<link [[The Static Room (0:01)|Arcology Static Room]]>><<pass 1>><</link>>
+	<br>
+	<<if Time.dayState is "night" or Time.hour lt 4>>
+		<<arcologyicon "club">><<link [[Pulse (0:02)|Arcology Pulse]]>><<pass 2>><</link>>
+		<br>
+	<</if>>
+	<br>
+	<<arcologyStreets "neon">>
+<</if>>
+
+:: Arcology Halcyon
+<<location "arcology_halcyon">><<set $outside to 0>><<effects>>
+You enter Halcyon, a bar with a long glass counter. There are lights underneath the glass, making the drinks placed on the counter look brighter.
+<br><br>
+Behind the counter, a large screen shows the usernames of customers and how much they still need to pay for their drinks. Some customers have paid extra to keep their names and bills hidden from other people.
+<br><br>
+<<set _hcP to setup.arcologyPrice.quote("drinkHalcyon")>>
+<<if setup.arcologyFx.crisis() gte 2>>
+	A sign behind the counter says <span class="blue">Cipher payments are suspended</span> until the exchange settles.
+	<br>
+<<elseif $drunk lt 500 and setup.arcologyPrice.affordable(_hcP)>>
+	<span class="arc-priced"><<foodicon "cider">><<link `"Buy a drink (" + _hcP.label + ", 0:10)"` "Arcology Halcyon">><<if setup.arcologyPrice.pay("drinkHalcyon")>><<pass 10>><<drunk 120>><<stress -2>><</if>><</link>></span><<ggdrunk>><<lstress>><<arcologyPriceNote _hcP>>
+	<br>
+<<elseif $drunk gte 500>>
+	<span class="blue">The bartender refuses to sell you another drink.</span>
+	<br>
+<</if>>
+<<if !$daily.arcologyCitizens or !$daily.arcologyCitizens["Arcology Halcyon"]>>
+	<<socialiseicon>><<link [[Talk to someone at the bar (0:10)|Arcology Citizen]]>><<pass 10>><<generate1>><<person1>><<run setup.arcology.newCitizen(either("guest", "guest", "under"), "Arcology Halcyon", "city")>><</link>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Neon Strip]]>><<pass 1>><</link>>
+<br>
+
+:: Arcology Static Room
+<<location "arcology_gambling">><<set $outside to 0>><<effects>>
+You enter the Static Room, a place where people gamble. There are no windows, and you can't see any clocks.
+<br><br>
+Near the entrance, a sign appears in the air.
+<br>
+<<holoNotice "STATIC ROOM" "YOU CAN ALSO USE RECORDS INSTEAD OF MONEY TO PLACE BETS. ASK AT THE DESK." "warn">>
+<br>
+<<if $xchange.arcology.cipher gte 1000>>
+	<<arcologyicon "gambling">><<link [[Bet 1.000 Cipher (0:05)|Arcology Static Bet]]>><<pass 5>><<set $xchange.arcology.cipher -= 1000>><<set $phase to random(1, 100) lte 45 ? "win" : "lose">><</link>>
+	<br>
+<<else>>
+	<span class="blue">You need at least 1.000 Cipher to place a bet.</span>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Neon Strip]]>><<pass 1>><</link>>
+<br>
+
+:: Arcology Static Bet
+<<location "arcology_gambling">><<set $outside to 0>><<effects>>
+You touch a number on the glass table, then place your hand flat beside it. The numbers shown on its surface begin changing quickly. After a few seconds, they change more slowly until the final result appears.
+<br><br>
+<<if $phase is "win">>
+	<<set $phase to 0>><<set $xchange.arcology.cipher += 2000>>
+	<span class="green">You win!</span> The result matches the number you chose. The table makes a short sound, and 2.000 Cipher is added to your digital wallet.<<stress -2>><<lstress>>
+<<elseif $phase is "lose">>
+	<<set $phase to 0>>
+	<span class="red">You lose</span>. The result doesn't match the number you chose. The person playing beside you keeps looking at the glass without reacting.<<stress 2>><<gstress>>
+<<else>>
+	<span class="blue">Your bet is no longer shown on the table</span>.
+<</if>>
+<br><br>
+<<link [[Next|Arcology Static Room]]>><</link>>
+<br>
+
+:: Arcology Pulse
+<<location "arcology_club">><<set $outside to 0>><<effects>>
+You are in Pulse, the biggest nightclub on the Strip.
+<br><br>
+Inside, the dance floor is crowded with people. You notice coloured lights changing as people dance. The lights are connected to the dancers' implants, so their movements control the colours. Some dancers have paid extra to make their lights brighter, making them easier to notice in the crowd.
+<br><br>
+<<if setup.arcology.reliefLeft("club")>>
+	<<arcologyicon "dancers">><<link [[Dance (0:30)|Arcology Pulse]]>><<pass 30>><<run setup.arcology.relief("club")>><<stress -6>><<tiredness 4>><<danceskilluse>><</link>><<lstress>><<gtiredness>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Neon Strip]]>><<pass 2>><</link>>
+<br>
+
+:: Arcology Underpass
+<<location "arcology_underpass">><<run setup.arcology.visit("underpass")>><<effects>>
+<<arcologyDangerCheck "underpass">><<if _arcologyDangerActive>><<exit>><</if>>
+You enter the Underpass, a road tunnel beneath the city's main platform. The ceiling is low and dirty. Advertising screens cover parts of the walls, but many of them are broken. The screens that still work provide enough light to see the road ahead.
+<br><br>
+<<arcologyStreetHazards>>
+<<if !_arcologyHalt>>
+	Places of interest
+	<br>
+	<<arcologyicon "cutter">><<link [[Chip cutter (0:02)|Arcology Chip Cutter]]>><<pass 2>><</link>>
+	<br>
+	<<arcologyicon "camp">><<link [[The camp (0:02)|Arcology Underpass Camp]]>><<pass 2>><</link>>
+	<br><br>
+	<<arcologyStreets "underpass">>
+<</if>>
+
+:: Arcology Chip Cutter
+<<location "arcology_cutter">><<set $outside to 0>><<effects>>
+<<arcologyDangerCheck "underpass">><<if _arcologyDangerActive>><<exit>><</if>>
+You open a door in the tunnel wall and enter a small room. On one side is a chair like the kind used by dentists. Next to it is a table with several magnifying glasses and tools for working on small electronic parts.
+<br><br>
+You notice several electronic chips placed in rows on a soft pad. Each chip has a small paper label beside it, with something written on it.
+<br><br>
+A sign glows on the wall above the table, listing the services offered here.
+<br><br>
+<<holo "SERVICES">>
+	<<holoLine "CHIP BACKUPS.">>
+	<<holoLine "SPLITS.">>
+	<<holoLine "COPIES.">>
+	<<holoLine "NO QUESTIONS ASKED." "warn">>
+<</holo>>
+<br>
+<<if !$daily.arcologyCutterAsk>>
+	<<socialiseicon "ask">><<link [[Ask about a backup (0:05)|Arcology Chip Cutter Ask]]>><<set $daily.arcologyCutterAsk to true>><<pass 5>><<arcologyNPC 0 "under" "cutter">><</link>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Underpass]]>><<pass 2>><</link>>
+<br>
+
+:: Arcology Chip Cutter Ask
+<<location "arcology_cutter">><<set $outside to 0>><<effects>><<person1>>
+The cutter is a <<person>> whose eyes have been replaced with special lenses that help <<him>> see very small objects. <<arcologyCyberLook 0>>
+<br><br>
+<<Hes>> working on a small electronic chip at <<his>> table.
+<br><br>
+When you ask about making a copy of your own chip, <<he>> continues working while answering you.
+"A backup? Good idea. Your chip stores your identity and all your records on this island. If someone destroys it, you lose everything stored on it."
+<br><br>
+<<link [[Leave|Arcology Chip Cutter]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Underpass Camp
+<<location "arcology_underpass">><<set $outside to 0>><<effects>>
+<<arcologyDangerCheck "underpass">><<if _arcologyDangerActive>><<exit>><</if>>
+As you walk further into the tunnel, you find a group of people living there. They have used shopping trolleys to hold up large sheets of plastic, making small shelters where they can sleep and keep their belongings.
+<br><br>
+You notice several electrical wires coming from the shelters. They are connected to a nearby electrical box, which has been broken open. It looks like someone has connected the wires to take electricity from the city above without paying for it.
+<br><br>
+Nobody here seems to have a working implant. Some people have scars where their implants used to be. A child runs past you, playing with an old electronic chip tied to a piece of string. The chip no longer works, but the child happily swings it back and forth.
+<br><br>
+Near the entrance to the camp, you see an old screen. Someone has written a message on it with a marker:
+<br>
+<i>Here you are no one. Here no one is looking for you.</i>
+<br><br>
+<<getouticon>><<link [[Leave|Arcology Underpass]]>><<pass 2>><</link>>
+<br>

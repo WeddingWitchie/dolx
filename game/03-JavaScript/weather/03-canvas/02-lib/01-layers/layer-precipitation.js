@@ -6,7 +6,7 @@ Weather.Renderer.Layers.add({
 		{
 			effect: "particleRain",
 			drawCondition() {
-				return Weather.precipitation === "rain" && !this.renderInstance.sidebarSkyDisabled;
+				return Weather.precipitation === "rain" && !this.renderInstance.precipitationDisabled;
 			},
 			params: {
 				sunTint: "#97a9e8aa",
@@ -125,7 +125,7 @@ Weather.Renderer.Layers.add({
 		{
 			effect: "particleSnow",
 			drawCondition() {
-				return Weather.precipitation === "snow" && !this.renderInstance.sidebarSkyDisabled;
+				return Weather.precipitation === "snow" && !this.renderInstance.precipitationDisabled;
 			},
 			params: {
 				sunTint: "#ffffff",
@@ -186,7 +186,7 @@ Weather.Renderer.Layers.add({
 		{
 			effect: "particleSnow",
 			drawCondition() {
-				return Weather.precipitation === "snow" && !this.renderInstance.sidebarSkyDisabled;
+				return Weather.precipitation === "snow" && !this.renderInstance.precipitationDisabled;
 			},
 			params: {
 				sunTint: "#ffffff",
@@ -249,7 +249,7 @@ Weather.Renderer.Layers.add({
 			effect: "imageOverlay",
 			drawCondition() {
 				return (
-					!this.renderInstance.sidebarSkyDisabled && Weather.precipitationIntensity >= 1.3 // precipitationIntensity for lightPrecipitation
+					!this.renderInstance.precipitationDisabled && Weather.precipitationIntensity >= 1.3 // precipitationIntensity for lightPrecipitation
 				);
 			},
 			compositeOperation: "destination-out",

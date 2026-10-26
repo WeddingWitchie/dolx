@@ -73,6 +73,11 @@ setup.WeatherBindings = {
 			"fog", // Per-location fog enabled/bounds/curve are informed by the current LocationImages
 		],
 	},
+	locationImage: {
+		// Areas that share one V.location but pick a different image (the Arcology ship decks and Stack areas)
+		variable: () => setup.Locations.get(),
+		layers: ["location", "precipitation", "fog"],
+	},
 	tentworld: {
 		variable: () => V.location === "tentworld",
 		layers: ["all"],

@@ -1,0 +1,182 @@
+:: Arcology Breakwater Road
+<<location "arcology_coast">><<run setup.arcology.visit("breakwater")>><<effects>>
+<<arcologyDangerCheck "breakwater">><<if _arcologyDangerActive>><<exit>><</if>>
+<<arcologySceneCheck "street">><<if _arcologyScene>><<include "Arcology Scene">><<exit>><</if>>
+You walk along Breakwater Road, near the edge of the city. A huge wall stands on one side of the road, taller than most of the nearby buildings. On the other side, the glass dome reaches down to the sea. You can see waves hitting the glass from outside.
+<br><br>
+<<if Time.dayState is "night">>
+	Bright lights at the top of the wall make it easy to see the area. Outside the dome, several workers are hanging from ropes above the water. They are checking the glass panels and making repairs, even though it is already night.
+<<else>>
+	Several workers are walking along the top of the wall, using long poles to scrape away salt stuck between its panels. They wear bright vests with large numbers printed on their backs, making them easy to see from the road below.
+<</if>>
+<br><br>
+<<arcologyStreetHazards>>
+<<if !_arcologyHalt>>
+	Places of interest
+	<br>
+	<<arcologyicon "maintenance">><<link [[Maintenance hatch (0:02)|Arcology Seawall Hatch]]>><<pass 2>><</link>>
+	<br>
+	<<arcologyicon "coast">><<link [[Dome edge (0:05)|Arcology Dome Edge]]>><<pass 5>><</link>>
+	<br><br>
+	<<arcologyStreets "breakwater">>
+<</if>>
+
+:: Arcology Seawall Hatch
+<<location "arcology_hatch">><<set $outside to 0>><<effects>>
+At the bottom of the seawall, you find a large metal door. A screen beside it shows a list of maintenance jobs available today, along with how much each job pays.
+<<if $daily.arcologySeawallShift>>
+	<br><br>
+	You check your implant. It shows that you've already worked a maintenance shift today, so you can't take another job until tomorrow.
+<</if>>
+<br><br>
+<<if !$daily.arcologySeawallShift and $tiredness lt 1800>>
+	<<arcologyicon "maintenance">><<link [[Take a maintenance shift (2:00)|Arcology Seawall Shift]]>><<set $daily.arcologySeawallShift to true>><<pass 120>><<tiredness 12>><</link>><<gtiredness>>
+	<br>
+<<elseif !$daily.arcologySeawallShift>>
+	<span class="blue">You're too tired to work a maintenance shift.</span>
+	<br><br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Breakwater Road]]>><<pass 2>><</link>>
+<br>
+
+:: Arcology Seawall Shift
+<<location "arcology_hatch">><<set $outside to 0>><<effects>>
+<<if !$daily.arcologySeawallPaid>>
+	<<set $daily.arcologySeawallPaid to random(2000, 4000)>>
+	<<if setup.arcologyFx.crisis() gte 2>><<set $daily.arcologySeawallPaid to Math.ceil($daily.arcologySeawallPaid / 2)>><<set _seawallHeld to true>><</if>>
+	<<set $xchange.arcology.cipher to ($xchange.arcology.cipher or 0) + $daily.arcologySeawallPaid>>
+	<<physique 3>>
+<</if>>
+A supervisor gives you a scraper, a vest with a number on it, and a safety belt. You put on the vest and tighten the belt around your waist. The supervisor attaches a safety cable to your belt, then points to a ladder built into the wall.
+<br><br>
+You climb the ladder behind the other workers. At the top, you step onto a narrow walkway along the inside of the glass dome.
+Your job is to remove the white salt that has collected in the gaps between the glass panels. You press the scraper against the salt and start cleaning.
+<br><br>
+By the end of your shift, your hands hurt from holding and using the scraper for so long. You follow the other workers down the ladder, where the supervisor removes your safety cable.
+<br><br>
+You take off the vest and belt, then return them along with the scraper. Before leaving, you tap your implant against the reader to record the end of your shift.
+<br><br>
+<<set _seawallMsg to setup.arcology.cxU($daily.arcologySeawallPaid) + " RECEIVED. CONTRACT LABOUR LOGGED.">>
+<<holoNotice "WALLET" _seawallMsg "ok">>
+<<if _seawallHeld>><<holoNotice "PAYROLL" "CRISIS RATE: TODAY'S PAY HAS BEEN CUT IN HALF." "warn">><</if>>
+<br>
+<<link [[Next|Arcology Breakwater Road]]>><</link>>
+<br>
+
+:: Arcology Dome Edge
+<<location "arcology_domeedge">><<effects>>
+You reach the end of Breakwater Road, where a metal railing separates the street from the glass wall of the dome. Beyond the glass is the open sea.
+<br><br>
+You look up. The glass wall goes high above the buildings before curving over the city. The dome is so large that you can't see its top clearly from where you're standing.
+<br><br>
+<<if Time.dayState is "night">>
+	The sea outside is almost completely dark. You can see the lights from the buildings behind you reflected in the glass, making it difficult to see the water beyond.
+<<elseif Weather.precipitation isnot "none">>
+	You watch the rain hit the outside of the glass and flow down towards the sea. You're only a few steps away from it, but you remain dry inside the dome.
+<<else>>
+	You can see the sea clearly through the glass. Most of the water is calm, although a large wave occasionally reaches the dome and splashes against it. You can see the water hitting the glass, but you can't hear it from inside.
+<</if>>
+<br><br>
+<<if setup.arcology.reliefLeft("domeEdge")>>
+	<<arcologyicon "seaview">><<link [[Watch the sea (0:20)|Arcology Dome Edge]]>><<pass 20>><<run setup.arcology.relief("domeEdge")>><<stress -4>><</link>><<lstress>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Breakwater Road]]>><<pass 5>><</link>>
+<br>
+
+:: Arcology Dockside Flats
+<<location "arcology_flats">><<run setup.arcology.visit("flats")>><<effects>>
+<<arcologyDangerCheck "flats">><<if _arcologyDangerActive>><<exit>><</if>>
+<<arcologySceneCheck "street">><<if _arcologyScene>><<include "Arcology Scene">><<exit>><</if>>
+You are in Dockside Flats, a neighbourhood beside the sea. The apartment buildings are tall and very close together, leaving only narrow streets between them.
+<br><br>
+<<if Time.dayState is "night">>
+	Most of the streetlights are broken, making it difficult to see along the streets.
+<</if>>
+<br><br>
+<<arcologyStreetHazards>>
+<<if !_arcologyHalt>>
+	Places of interest
+	<br>
+	<<arcologyicon "flats">><<link [[Housing block (0:02)|Arcology Flats Block]]>><<pass 2>><</link>>
+	<br>
+	<<arcologyicon "bar">><<link [[The Ballast (0:02)|Arcology Ballast]]>><<pass 2>><</link>>
+	<br><br>
+	<<arcologyStreets "flats">>
+<</if>>
+
+:: Arcology Flats Block
+<<location "arcology_stairwell">><<set $outside to 0>><<effects>>
+Inside the apartment building, the air smells damp. A staircase leads to the upper floors, with several apartment doors on each floor. Instead of normal handles, each door has a small device that checks a person's implant before letting them inside.
+<br><br>
+As you go upstairs, you see people sleeping on the steps. Some are wrapped in coats, while others have blankets spread beneath them. They've moved their bedding close to the walls, away from the apartment doors, but you still have to watch where you step to get past.
+<br><br>
+One of the sleepers gets up as you pass and touches the reader beside a door. It gives no response. After another attempt, the sleeper returns to the bedding on the stairs, pulling a blanket out of the way of your feet.
+<br><br>
+<<holoNotice "ACCESS FOLLOWS REGISTRATION." "LOST CHIPS ARE NOT REPLACED ON THIS SITE." "ok">>
+<br><br>
+<<if !$daily.arcologyFlatsTalk>>
+	<<socialiseicon>><<link [[Talk to someone on the stairs (0:10)|Arcology Flats Stairs]]>><<set $daily.arcologyFlatsTalk to true>><<pass 10>><<arcologyNPC 0 "under" "resident">><</link>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Dockside Flats]]>><<pass 2>><</link>>
+<br>
+
+:: Arcology Flats Stairs
+<<location "arcology_stairwell">><<set $outside to 0>><<effects>><<person1>>
+You sit down on the stairs, a few steps below a <<person>> wearing a grey coat. <<arcologyCyberLook 0>>
+<br><br>
+<<He>> notices the small light behind your ear and looks at it for a moment. "You're a visitor, aren't you? I can tell by the colour of your chip."
+<br><br>
+<<He>> turns <<his>> head to show you the side of <<his>> neck. There's a burn mark on the skin where <<his>> own implant should be.
+"Someone tried to copy the information from my implant. Whoever it was damaged it, and it hasn't worked since."
+<br><br>
+<<He>> turns back towards you. "Without it, the city's system doesn't recognise me. I can't rent a room, get a job, or even buy water. According to the registry, I don't exist anymore."
+<br><br>
+<<He>> looks down the stairs, listening as a door closes on the floor below. "So now I spend my days here. Sometimes someone leaves a door unlocked, and I can get inside for a while. Until they find me."
+<br><br>
+<<if $xchange.arcology.cipher gte 1000>>
+	<<link [[Offer some Cipher (1.000 Cipher)|Arcology Flats Stairs 2]]>><<set $xchange.arcology.cipher -= 1000>><<set $phase to "gave">><</link>>
+	<br>
+<</if>>
+<<link [[Leave|Arcology Flats Block]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Flats Stairs 2
+<<location "arcology_stairwell">><<set $outside to 0>><<effects>><<person1>>
+<<if $phase is "gave">><<set $phase to 0>><<trauma -2>><</if>>
+You try to send the <<person>> some Cipher through your implant, but you can't find an account to send the money to. You explain that you can't transfer the payment without one.
+<br><br>
+<<He>> laughs. "See? Doesn't work. Just buy me something from the kiosk instead."
+<br><br>
+You go back down the stairs to a kiosk on the street outside, where you spend the Cipher on a bottle of water and a packet of crackers.
+<br><br>
+When you return, the <<person>> takes them from you and nods in thanks. Instead of eating or drinking anything, <<he>> puts both items inside <<his>> coat.<<ltrauma>>
+<br><br>
+<<link [[Leave|Arcology Flats Block]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Ballast
+<<location "arcology_bar">><<set $outside to 0>><<effects>>
+The Ballast is a small, narrow bar on the ground floor of an apartment building. The counter is made from a large piece of metal on top of two old oil drums. There's only one screen in the room, and it shows nothing but the time.
+<br><br>
+<<if Time.hour gte 6 and Time.hour lt 16>>
+	A few dock workers sit at the counter, drinking before or after work. Most of them keep quiet, only speaking when they want another drink.
+<<else>>
+	<<generate1>><<person1>>The bar is crowded and noisy. A <<person>> near the back is singing loudly, while several people shout at <<him>> to stop. The singer ignores them and keeps going.<<endevent>>
+<</if>>
+<br><br>
+<<set _baP to setup.arcologyPrice.quote("drinkBallast")>>
+<<if setup.arcologyFx.crisis() gte 2>>
+	A sign behind the counter says <span class="blue">Cipher payments are suspended</span> until the exchange settles.
+	<br>
+<<elseif $drunk lt 500 and setup.arcologyPrice.affordable(_baP)>>
+	<span class="arc-priced"><<foodicon "cider">><<link `"Buy a drink (" + _baP.label + ", 0:10)"` "Arcology Ballast">><<if setup.arcologyPrice.pay("drinkBallast")>><<pass 10>><<drunk 90>><<stress -1>><</if>><</link>></span><<gdrunk>><<lstress>><<arcologyPriceNote _baP>>
+	<br>
+<</if>>
+<<if !$daily.arcologyCitizens or !$daily.arcologyCitizens["Arcology Ballast"]>>
+	<<socialiseicon>><<link [[Talk to a regular (0:10)|Arcology Citizen]]>><<pass 10>><<generate1>><<person1>><<run setup.arcology.newCitizen("under", "Arcology Ballast", "city")>><</link>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Dockside Flats]]>><<pass 2>><</link>>
+<br>

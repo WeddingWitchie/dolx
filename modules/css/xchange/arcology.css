@@ -1,0 +1,3422 @@
+/* Journal map island marker and encrypted city map.
+   Cyan readout on near-black: the island's interface colour. Amber is the one accent and only marks the denial. */
+
+/* Holds the map image so the marker and panel scale with it. */
+.map-frame {
+	position: relative;
+	display: inline-block;
+	max-width: 100%;
+	line-height: 0;
+}
+
+/* Open sea to the right of the prison island, clear of every landmark (source image 466x316). */
+.arcology-orb-zone {
+	position: absolute;
+	left: 62%;
+	top: 3%;
+	width: 33%;
+	height: 20%;
+}
+
+/* 44px hit area around a small marker, so it is easy to click and tap. */
+.arcology-orb {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+	/* Slow drift so the marker reads as a moving island; a minute per lap keeps it out of the way. */
+	animation: arcology-drift 64s ease-in-out infinite alternate;
+}
+
+/* Keep the game's default button hover fill off the map. */
+.arcology-orb:hover,
+.arcology-orb:active,
+.arcology-orb:focus {
+	background: none;
+}
+
+.arcology-orb:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 0;
+}
+
+/* Floating city: a glass dome on its platform, with the navigation ring of the player's interface around it. */
+.arcology-orb-mark {
+	position: absolute;
+	left: 2px;
+	top: 6px;
+	width: 40px;
+	height: 32px;
+	overflow: visible;
+	opacity: 0.9;
+	filter: drop-shadow(0 0 2px rgb(120 230 255 / 60%));
+	transition: transform 0.2s, opacity 0.2s;
+}
+
+.arcology-orb:hover .arcology-orb-mark,
+.arcology-orb:focus-visible .arcology-orb-mark {
+	opacity: 1;
+	transform: scale(1.12);
+}
+
+.ao-dome {
+	fill: rgb(150 230 255 / 22%);
+	stroke: #a8f0ff;
+	stroke-width: 1;
+}
+
+.ao-city rect {
+	fill: #7fe9ff;
+	opacity: 0.75;
+}
+
+.ao-platform {
+	fill: #24505e;
+	stroke: #6fc8dc;
+	stroke-width: 0.6;
+}
+
+.ao-edge {
+	stroke: #7fe9ff;
+	stroke-width: 1;
+}
+
+.ao-wake {
+	stroke: rgb(168 240 255 / 45%);
+	stroke-width: 0.8;
+}
+
+.ao-ring-back path,
+.ao-ring-front path {
+	fill: none;
+	stroke: rgb(168 240 255 / 80%);
+	stroke-width: 0.8;
+}
+
+.ao-ring-back path {
+	opacity: 0.4;
+}
+
+/* The ring "turns" by sliding a gap along its front half. */
+.glitch-fx .ao-ring-front path {
+	stroke-dasharray: 22 3;
+	animation: ao-ring 6s linear infinite;
+}
+
+.glitch-fx .ao-city rect {
+	animation: ao-pulse 4s ease-in-out infinite;
+}
+
+.glitch-fx .arcology-orb-mark {
+	animation: ao-interfere 11s ease-in-out infinite;
+}
+
+@keyframes ao-ring {
+	to {
+		stroke-dashoffset: -50;
+	}
+}
+
+@keyframes ao-pulse {
+	50% {
+		opacity: 1;
+	}
+}
+
+@keyframes ao-interfere {
+	0%,
+	93%,
+	96%,
+	100% {
+		translate: 0;
+		opacity: 0.9;
+	}
+
+	94% {
+		translate: 1px 0;
+		opacity: 0.75;
+	}
+
+	95% {
+		translate: -1px 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.arcology-orb,
+	.arcology-orb-mark,
+	.ao-ring-front path,
+	.ao-city rect {
+		animation: none !important;
+	}
+}
+
+@keyframes arcology-drift {
+	0% {
+		left: 10%;
+		top: 15%;
+	}
+
+	30% {
+		left: 45%;
+		top: 0;
+	}
+
+	60% {
+		left: calc(100% - 44px);
+		top: calc(100% - 44px);
+	}
+
+	100% {
+		left: 25%;
+		top: calc(100% - 44px);
+	}
+}
+
+/* Encrypted map panel, laid over the journal map. */
+.arcology-holo {
+	position: absolute;
+	inset: 0;
+	overflow: auto;
+	padding: 10px 12px;
+	border: 1px solid #5fd4f0;
+	background: rgb(4 16 24 / 94%);
+	color: #9eeaff;
+	/* A system readout, so a fixed-width face; matches the island's terminals in the prose. */
+	font-family: monospace;
+	font-size: 0.85em;
+	line-height: 1.4;
+	text-align: left;
+}
+
+.arcology-holo[hidden] {
+	display: none;
+}
+
+/* One scan pass when the panel opens. */
+.arcology-holo::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	height: 2px;
+	background: #9eeaff;
+	opacity: 0;
+	animation: arcology-scan 1.3s linear 1;
+	pointer-events: none;
+}
+
+@keyframes arcology-scan {
+	0% {
+		top: 0;
+		opacity: 0.8;
+	}
+
+	100% {
+		top: 100%;
+		opacity: 0;
+	}
+}
+
+/* Blurred outline: there is a map under the encryption, but nothing on it can be read. */
+.arcology-holo-shape {
+	position: absolute;
+	right: 4%;
+	top: 12%;
+	width: 45%;
+	opacity: 0.25;
+	filter: blur(2px);
+	pointer-events: none;
+}
+
+.arcology-holo-shape path {
+	fill: none;
+	stroke: #9eeaff;
+	stroke-width: 2;
+	stroke-dasharray: 6 4;
+}
+
+.arcology-holo-body {
+	position: relative;
+}
+
+.arcology-holo-body p {
+	margin: 0 0 2px;
+}
+
+.arcology-holo-guest {
+	color: #fff;
+}
+
+.arcology-holo-noise {
+	color: #6fbfd6;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.arcology-holo-denied {
+	margin-top: 6px !important;
+	color: #ffb454;
+	font-weight: bold;
+	visibility: hidden;
+}
+
+.arcology-holo.decoded .arcology-holo-denied {
+	visibility: visible;
+}
+
+.arcology-holo-note {
+	margin-top: 6px !important;
+	font-family: inherit;
+	color: #cfeff8;
+}
+
+.arcology-holo-close {
+	min-height: 44px;
+	margin-top: 8px;
+	padding: 0 16px;
+	border: 1px solid #5fd4f0;
+	background: transparent;
+	color: #9eeaff;
+	font: inherit;
+	cursor: pointer;
+}
+
+.arcology-holo-close:hover {
+	background: rgb(95 212 240 / 15%);
+}
+
+.arcology-holo-close:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 2px;
+}
+
+/* Too narrow to fit the readout over the map: show it under the map instead. */
+@media (max-width: 520px) {
+	.arcology-holo {
+		position: relative;
+		inset: auto;
+		margin-top: 4px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.arcology-orb,
+	.arcology-holo::before {
+		animation: none;
+	}
+
+	.arcology-orb {
+		left: 30%;
+		top: 10%;
+	}
+}
+
+/* Holographic panels for island technology (<<holo>>). Same cyan readout and amber accent as the map panel.
+   Reserved for screens and interfaces; ordinary narration never uses it. */
+.holo {
+	position: relative;
+	max-width: 36em;
+	margin: 4px 0;
+	padding: 8px 12px 10px;
+	overflow: hidden;
+	border: 1px solid #5fd4f0;
+	background: rgb(4 16 24 / 90%);
+	color: #9eeaff;
+	font-family: inherit;
+	font-size: 0.9em;
+	line-height: 1.45;
+	/* A short fade as the panel opens; the text inside composes itself (setup.arcology.compose). */
+	animation: holo-in 0.35s ease-out 1;
+}
+
+/* Faint static scanlines: the hologram read without motion. */
+.holo::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: repeating-linear-gradient(to bottom, transparent 0 2px, rgb(158 234 255 / 5%) 2px 3px);
+	pointer-events: none;
+}
+
+.holo[data-state="pending"] {
+	border-style: dashed;
+}
+
+.holo[data-state="denied"] {
+	border-color: #ffb454;
+}
+
+.holo-head {
+	margin-bottom: 6px;
+	padding-bottom: 3px;
+	border-bottom: 1px solid rgb(95 212 240 / 40%);
+	color: #fff;
+	font-family: monospace;
+	font-size: 0.88em;
+}
+
+.holo-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 12px;
+}
+
+.holo-label {
+	min-width: 10em;
+	color: #6fbfd6;
+	font-family: monospace;
+	font-size: 0.9em;
+}
+
+.holo-value {
+	color: #cfeff8;
+	overflow-wrap: anywhere;
+}
+
+.holo-line {
+	margin-top: 2px;
+	color: #c8f6ff;
+}
+
+.holo-line[data-tone="warn"] {
+	color: #ffb454;
+}
+
+.holo-line[data-tone="denied"] {
+	color: #ffb454;
+	font-weight: bold;
+}
+
+.holo-field {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 10px;
+	margin-top: 6px;
+	color: #6fbfd6;
+}
+
+.holo-field input {
+	max-width: 100%;
+	box-sizing: border-box;
+	min-height: 36px;
+	padding: 2px 8px;
+	border: 1px solid #5fd4f0;
+	background: rgb(4 16 24 / 100%);
+	color: #e8fbff;
+	font: inherit;
+}
+
+.holo-field input:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 1px;
+}
+
+@keyframes holo-in {
+	from {
+		opacity: 0;
+		transform: translateY(2px);
+	}
+}
+
+/* Reopened Holo card: already authenticated this session, so the panels stay put. */
+.holo-settled .holo {
+	animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.holo {
+		animation: none;
+	}
+}
+
+/* Luchifen's revealed name: plain text with a short, strong digital tear every few seconds.
+   The copies are decorative; the real text underneath never moves. Off with the Glitch effects setting. */
+.luchifen-name {
+	position: relative;
+	display: inline-block;
+}
+
+.glitch-fx .luchifen-name::before,
+.glitch-fx .luchifen-name::after {
+	--luchifen-shift: 1;
+
+	content: attr(data-text) / "";
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	pointer-events: none;
+	animation: luchifen-tear 3.2s steps(1) infinite;
+}
+
+.glitch-fx .luchifen-name {
+	animation: luchifen-jitter 3.2s steps(1) infinite;
+}
+
+.glitch-fx .luchifen-name::before {
+	color: #69ff9b;
+	text-shadow: 2px 0 #5287ff;
+}
+
+.glitch-fx .luchifen-name::after {
+	--luchifen-shift: -1;
+
+	color: #ff637e;
+	text-shadow: -2px 0 #5287ff;
+	animation-delay: 0.02s;
+}
+
+@keyframes luchifen-tear {
+	/* One strong burst: bands of the name tear sideways in red and green, then it settles back to plain text. */
+	0% {
+		opacity: 1;
+		clip-path: polygon(0 8%, 100% 8%, 100% 18%, 0 18%, 0 42%, 100% 42%, 100% 54%, 0 54%, 0 76%, 100% 76%, 100% 84%, 0 84%);
+		transform: translateX(calc(14px * var(--luchifen-shift))) skewX(-18deg);
+	}
+
+	1.5% {
+		opacity: 1;
+		clip-path: polygon(0 20%, 100% 20%, 100% 32%, 0 32%, 0 58%, 100% 58%, 100% 70%, 0 70%, 0 88%, 100% 88%, 100% 96%, 0 96%);
+		transform: translateX(calc(-12px * var(--luchifen-shift))) skewX(14deg);
+	}
+
+	3% {
+		opacity: 1;
+		clip-path: polygon(0 0, 100% 0, 100% 14%, 0 14%, 0 34%, 100% 34%, 100% 50%, 0 50%, 0 66%, 100% 66%, 100% 80%, 0 80%);
+		transform: translateX(calc(18px * var(--luchifen-shift))) skewX(-22deg);
+	}
+
+	4.5% {
+		opacity: 1;
+		clip-path: polygon(0 12%, 100% 12%, 100% 24%, 0 24%, 0 46%, 100% 46%, 100% 60%, 0 60%, 0 84%, 100% 84%, 100% 100%, 0 100%);
+		transform: translateX(calc(-15px * var(--luchifen-shift))) skewX(16deg);
+	}
+
+	6% {
+		opacity: 1;
+		clip-path: polygon(0 28%, 100% 28%, 100% 40%, 0 40%, 0 62%, 100% 62%, 100% 74%, 0 74%);
+		transform: translateX(calc(8px * var(--luchifen-shift))) skewX(-8deg);
+	}
+
+	7.5%,
+	100% {
+		opacity: 0;
+		clip-path: none;
+		transform: none;
+	}
+}
+
+/* The name itself jolts sideways during the burst. */
+@keyframes luchifen-jitter {
+	0%,
+	3% {
+		transform: translateX(-3px);
+	}
+
+	1.5%,
+	4.5% {
+		transform: translateX(3px);
+	}
+
+	6% {
+		transform: translateX(-1px);
+	}
+
+	7.5%,
+	100% {
+		transform: none;
+	}
+}
+
+/* The holo flicker belongs to the same setting. */
+html:not(.glitch-fx) .holo {
+	animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.glitch-fx .luchifen-name {
+		animation: none;
+	}
+
+	.glitch-fx .luchifen-name::before,
+	.glitch-fx .luchifen-name::after {
+		display: none;
+	}
+}
+
+/* One-line holographic notification for a single system event. */
+.holo-notice {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px 10px;
+	padding: 5px 10px;
+	border-width: 0 0 0 3px;
+}
+
+.holo-notice-title {
+	color: #fff;
+}
+
+.holo-notice .holo-line {
+	margin: 0;
+}
+
+/* Transit screen. The bar is segmented with tick marks so progress reads as a gauge, not decoration. */
+.transit-bar {
+	position: relative;
+	height: 10px;
+	margin: 8px 0 6px;
+	border: 1px solid #5fd4f0;
+	background: repeating-linear-gradient(to right, transparent 0 calc(10% - 1px), rgb(95 212 240 / 35%) calc(10% - 1px) 10%);
+}
+
+.transit-fill {
+	display: block;
+	height: 100%;
+	background: #7fe9ff;
+}
+
+/* One sweep across the filled part when the screen appears. */
+.glitch-fx .transit-fill {
+	background: linear-gradient(90deg, #7fe9ff 0 40%, #e8fbff 50%, #7fe9ff 60% 100%) 0 0 / 300% 100%;
+	animation: transit-sweep 1.2s ease-out 1;
+}
+
+@keyframes transit-sweep {
+	from {
+		background-position: 100% 0;
+	}
+
+	to {
+		background-position: 0 0;
+	}
+}
+
+.transit-locked {
+	margin-top: 6px;
+}
+
+.transit-locked-btn {
+	min-height: 44px;
+	margin-bottom: 4px;
+	padding: 0 14px;
+	border: 1px dashed #ffb454;
+	background: transparent;
+	color: #ffb454;
+	font: inherit;
+	cursor: not-allowed;
+}
+
+/* Compact transit gauge in the ship's rooms. */
+.transit-strip {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 2px 10px;
+	margin-bottom: 12px;
+	padding: 4px 10px;
+}
+
+.transit-strip .holo-label {
+	min-width: 0;
+}
+
+.transit-strip .transit-bar {
+	flex: 1 1 8em;
+	margin: 0;
+}
+
+/* Holo tab: a dashboard laid out by the width of the journal, not the window.
+   Cyan is the interface, amber marks guest-level and warnings, red-orange marks denial. */
+.holo-wrap {
+	container-type: inline-size;
+}
+
+.holo-journal {
+	--holo-ok: #7fe9ff;
+	--holo-warn: #ffb454;
+	--holo-denied: #ff8a66;
+	--holo-dim: #6fbfd6;
+
+	position: relative;
+	display: grid;
+	grid-template-areas: "id" "net" "obj" "room" "wallet" "svc";
+	gap: 10px;
+	max-width: 64em;
+}
+
+.holo-journal .holo {
+	max-width: none;
+	margin: 0;
+}
+
+.holo-journal a {
+	display: inline-block;
+	margin-top: 4px;
+}
+
+@container (min-width: 440px) {
+	.holo-journal {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		grid-template-areas: "id id" "net wallet" "obj obj" "room room" "svc svc";
+	}
+}
+
+@container (min-width: 660px) {
+	.holo-journal {
+		grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
+		grid-template-areas: "id id net" "id id wallet" "obj obj room" "svc svc svc";
+	}
+}
+
+/* Map, Exchange and News share one row once the journal is wide enough for three readable cards; below that they stack. */
+.holo-services .holo-tiles {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+@container (min-width: 660px) {
+	.holo-services .holo-tiles {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+.holo-net {
+	grid-area: net;
+}
+
+.holo-objectives {
+	grid-area: obj;
+}
+
+.holo-room {
+	grid-area: room;
+}
+
+.holo-wallet {
+	grid-area: wallet;
+}
+
+.holo-services {
+	grid-area: svc;
+}
+
+/* Identity card: chamfered corners, a faint diagonal security pattern and the registry mark. */
+.holo-id {
+	grid-area: id;
+	padding: 10px 14px 8px;
+	border-color: var(--holo-ok);
+	background: repeating-linear-gradient(135deg, transparent 0 7px, rgb(127 233 255 / 4%) 7px 8px),
+		linear-gradient(160deg, rgb(12 44 64 / 96%), rgb(4 16 24 / 96%) 60%);
+	clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+	box-shadow: inset 0 0 0 1px rgb(127 233 255 / 25%), inset 0 0 24px rgb(127 233 255 / 8%);
+	/* The card mixes the game's own type for names and values with the readout face for labels and codes. */
+	font-family: inherit;
+}
+
+.holo-id-head,
+.holo-id-label,
+.holo-id .holo-badge,
+.holo-id-number,
+.holo-id-mrz {
+	font-family: monospace;
+}
+
+.holo-id[data-state="denied"] {
+	border-color: var(--holo-denied);
+}
+
+.holo-id-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 10px;
+	margin-bottom: 10px;
+	padding-bottom: 6px;
+	border-bottom: 1px solid rgb(127 233 255 / 35%);
+}
+
+.holo-id-emblem {
+	width: 22px;
+	height: 22px;
+	fill: none;
+	stroke: var(--holo-ok);
+	stroke-width: 1.6;
+}
+
+.holo-id-issuer {
+	color: #fff;
+	letter-spacing: 0.18em;
+}
+
+.holo-id-kind {
+	margin-left: auto;
+	color: var(--holo-dim);
+	font-size: 0.8em;
+	letter-spacing: 0.12em;
+}
+
+.holo-id-main {
+	display: grid;
+	grid-template-columns: minmax(96px, 128px) minmax(0, 1fr);
+	gap: 14px;
+	align-items: start;
+}
+
+/* The player's own sprite, cropped to head and shoulders. The canvas keeps its 1:1 shape at any art resolution;
+   the head sits a little left of centre and about a fifth of the way down the model. */
+.holo-id-photo {
+	position: relative;
+	aspect-ratio: 4 / 5;
+	overflow: hidden;
+	border: 1px solid rgb(127 233 255 / 60%);
+	background: radial-gradient(circle at 50% 35%, rgb(60 140 180 / 45%), rgb(4 16 24 / 100%) 70%);
+}
+
+.holo-id-photo canvas {
+	position: absolute;
+	left: -87%;
+	top: -12%;
+	width: 300% !important;
+	height: auto !important;
+	image-rendering: pixelated;
+}
+
+/* One scan down the photo when the card authenticates. */
+.holo-id-photo::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: -4px;
+	height: 3px;
+	background: var(--holo-ok);
+	box-shadow: 0 0 8px var(--holo-ok);
+	opacity: 0;
+	pointer-events: none;
+}
+
+.glitch-fx .holo-journal.authenticated .holo-id-photo::after {
+	animation: holo-photo-scan 1.1s ease-in-out 1;
+}
+
+@keyframes holo-photo-scan {
+	0% {
+		top: -4px;
+		opacity: 0.9;
+	}
+
+	100% {
+		top: 100%;
+		opacity: 0;
+	}
+}
+
+.holo-id-fields {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 9em), 1fr));
+	gap: 8px 14px;
+	align-content: start;
+}
+
+.holo-id-field {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	min-width: 0;
+}
+
+.holo-id-label {
+	color: var(--holo-dim);
+	font-size: 0.72em;
+	letter-spacing: 0.14em;
+}
+
+.holo-id-value {
+	color: #e8fbff;
+	overflow-wrap: anywhere;
+}
+
+/* The codename is the card's headline, set in the game's own type rather than the readout face. */
+.holo-id-handle {
+	grid-column: 1 / -1;
+}
+
+.holo-id-handle .holo-id-value {
+	color: #fff;
+	font-size: 1.7em;
+	line-height: 1.1;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	text-shadow: 0 0 6px rgb(127 233 255 / 55%);
+}
+
+@container (max-width: 440px) {
+	.holo-id-main {
+		grid-template-columns: 80px minmax(0, 1fr);
+		gap: 10px;
+	}
+
+	.holo-id-handle .holo-id-value {
+		font-size: 1.3em;
+		letter-spacing: 0.02em;
+	}
+}
+
+.holo-id-foot {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 6px 18px;
+	margin-top: 10px;
+	padding-top: 8px;
+	border-top: 1px dashed rgb(127 233 255 / 35%);
+}
+
+.holo-id-number {
+	letter-spacing: 0.1em;
+}
+
+.holo-id-barcode {
+	width: 9em;
+	height: 24px;
+	margin-left: auto;
+	fill: var(--holo-ok);
+	opacity: 0.85;
+}
+
+/* Decorative machine-readable line. */
+.holo-id-mrz::before {
+	content: attr(data-mrz);
+	display: block;
+	margin-top: 6px;
+	overflow: hidden;
+	color: rgb(127 233 255 / 45%);
+	font-size: 0.72em;
+	letter-spacing: 0.16em;
+	white-space: nowrap;
+}
+
+/* Status badges. "off" is a service that exists but is not active for this guest. */
+.holo-badge {
+	display: inline-block;
+	align-self: flex-start;
+	padding: 1px 8px;
+	border: 1px solid currentcolor;
+	color: var(--holo-ok);
+	letter-spacing: 0.08em;
+}
+
+.holo-badge[data-tone="warn"] {
+	color: var(--holo-warn);
+}
+
+.holo-badge[data-tone="denied"] {
+	color: var(--holo-denied);
+}
+
+.holo-badge[data-tone="off"] {
+	border-style: dashed;
+	color: var(--holo-dim);
+}
+
+.holo-status {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 4px;
+	color: var(--holo-ok);
+}
+
+.holo-status[data-tone="warn"] {
+	color: var(--holo-warn);
+}
+
+.holo-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: currentcolor;
+	box-shadow: 0 0 6px currentcolor;
+}
+
+/* The connection light pulses once as the card authenticates, then holds. */
+.glitch-fx .holo-journal.authenticated:not(.holo-settled) .holo-dot {
+	animation: holo-dot-pulse 1.2s ease-in-out 1;
+}
+
+@keyframes holo-dot-pulse {
+	50% {
+		opacity: 0.35;
+	}
+}
+
+.holo-auth {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 8px;
+}
+
+.holo-obj + .holo-obj {
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top: 1px dashed rgb(95 212 240 / 30%);
+}
+
+.holo-obj-title {
+	color: #fff;
+	letter-spacing: 0.08em;
+}
+
+.holo-obj .transit-bar {
+	margin: 6px 0 4px;
+}
+
+.holo-empty {
+	color: var(--holo-dim);
+}
+
+.holo-big {
+	margin-bottom: 4px;
+	color: #fff;
+	font-size: 1.15em;
+	letter-spacing: 0.08em;
+}
+
+.holo-big-off {
+	color: var(--holo-dim);
+}
+
+.holo-amount {
+	color: #fff;
+	font-size: 2em;
+	line-height: 1.2;
+}
+
+.holo-amount span {
+	color: var(--holo-dim);
+	font-size: 0.45em;
+	letter-spacing: 0.16em;
+}
+
+.holo-tiles {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 14em), 1fr));
+	gap: 8px;
+}
+
+/* Encrypted and locked services: dashed amber edge and a padlock, so they read as closed before they are tried. */
+.holo-tile {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+	padding: 8px 10px;
+	border-left: 2px solid var(--holo-warn);
+	background: rgb(255 180 84 / 5%);
+}
+
+.holo-tile-name {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: #fff;
+	letter-spacing: 0.08em;
+}
+
+.holo-tile-state {
+	color: var(--holo-warn);
+	font-size: 0.8em;
+	letter-spacing: 0.14em;
+}
+
+.holo-lock {
+	width: 10px;
+	height: 12px;
+	fill: none;
+	stroke: var(--holo-warn);
+	stroke-width: 1.4;
+}
+
+.holo-tile a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	margin-top: 4px;
+	padding: 0 14px;
+	border: 1px solid var(--holo-ok);
+	text-decoration: none;
+}
+
+.holo-tile a:hover,
+.holo-tile a:focus-visible {
+	background: rgb(127 233 255 / 12%);
+}
+
+/* Brief interference on a refused request. */
+.glitch-fx .holo-tile.holo-interfere,
+.glitch-fx .holo-svc.holo-interfere {
+	animation: holo-interfere 0.45s steps(1) 1;
+}
+
+@keyframes holo-interfere {
+	0% {
+		transform: translateX(4px) skewX(-8deg);
+		filter: hue-rotate(40deg);
+	}
+
+	25% {
+		transform: translateX(-2px);
+		opacity: 0.6;
+	}
+
+	50% {
+		transform: translateX(1px);
+		filter: none;
+		opacity: 1;
+	}
+
+	75%,
+	100% {
+		transform: none;
+	}
+}
+
+/* Start-up sequence laid over the tab for about a second. Removed by script; hidden without it. */
+.holo-boot {
+	position: absolute;
+	z-index: 2;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: center;
+	gap: 12px;
+	padding: 0 12%;
+	background: #050a0d;
+	color: #9eeaff;
+	letter-spacing: 0.15em;
+}
+
+/* Corner brackets of a viewfinder. */
+.holo-boot::before,
+.holo-boot::after {
+	content: "";
+	position: absolute;
+	top: 16px;
+	width: 24px;
+	height: 24px;
+	border-top: 1px solid #3c8a96;
+}
+
+.holo-boot::before {
+	left: 16px;
+	border-left: 1px solid #3c8a96;
+}
+
+.holo-boot::after {
+	right: 16px;
+	border-right: 1px solid #3c8a96;
+}
+
+.holo-boot-status {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.holo-boot-dot {
+	flex: none;
+	width: 12px;
+	height: 12px;
+	border: 2px solid #5fa8b4;
+	border-radius: 50%;
+	background: #2a5a62;
+}
+
+.holo-boot-bar {
+	height: 4px;
+	border: 1px solid #2a5a62;
+}
+
+.holo-boot-bar span {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: #7fe9ff;
+	box-shadow: 0 0 6px #7fe9ff;
+	transform-origin: left;
+	animation: holo-boot-fill 1s ease-out forwards;
+}
+
+@keyframes holo-boot-fill {
+	from {
+		transform: scaleX(0.05);
+	}
+
+	to {
+		transform: scaleX(1);
+	}
+}
+
+.holo-boot-sub {
+	color: #5fa8b4;
+	font-size: 0.85em;
+}
+
+html:not(.glitch-fx) .holo-boot {
+	display: none;
+}
+
+html:not(.glitch-fx) .arcology-orb,
+html:not(.glitch-fx) .arcology-holo::before {
+	animation: none;
+}
+
+.holo-boot-skip {
+	align-self: flex-start;
+	min-height: 44px;
+	padding: 0 16px;
+	border: 1px solid #5fd4f0;
+	background: transparent;
+	color: #9eeaff;
+	font: inherit;
+	cursor: pointer;
+}
+
+.holo-boot-skip:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 2px;
+}
+
+/* Sidebar scenery on the island: faint scanlines and the dome's cyan edge over the location art only,
+   so nothing is ever drawn over the character. */
+.in-arcology #canvasSkybox::after {
+	content: "";
+	position: absolute;
+	z-index: 20;
+	inset: 0;
+	box-shadow: inset 0 0 0 1px rgb(127 233 255 / 35%);
+	background: repeating-linear-gradient(to bottom, transparent 0 3px, rgb(158 234 255 / 5%) 3px 4px);
+	pointer-events: none;
+}
+
+/* A slow scan band down the scenery every few seconds. */
+.glitch-fx.in-arcology #canvasSkybox::before {
+	content: "";
+	position: absolute;
+	z-index: 21;
+	left: 0;
+	right: 0;
+	height: 24px;
+	background: linear-gradient(to bottom, transparent, rgb(158 234 255 / 12%), transparent);
+	animation: arcology-sidebar-scan 7s linear infinite;
+	pointer-events: none;
+}
+
+@keyframes arcology-sidebar-scan {
+	0% {
+		top: -24px;
+	}
+
+	40%,
+	100% {
+		top: 100%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.glitch-fx .transit-fill,
+	.glitch-fx .holo-journal.authenticated .holo-id-photo::after,
+	.glitch-fx .holo-journal.authenticated .holo-dot,
+	.glitch-fx .holo-tile.holo-interfere,
+	.glitch-fx .holo-svc.holo-interfere {
+		animation: none;
+	}
+
+	.glitch-fx.in-arcology #canvasSkybox::before {
+		display: none;
+	}
+
+	.holo-boot {
+		display: none;
+	}
+}
+
+/* Links inside a holo panel use the panel's own cyan so they stay readable on the dark surface. */
+.holo a {
+	color: #50dfff;
+	text-decoration: underline;
+}
+
+.holo a:hover,
+.holo a:focus-visible {
+	color: #fff;
+}
+
+/* Holo city map (setup.arcology.renderMap). Ring colour follows the district threat tier. */
+/* Narrow screens scroll the map sideways instead of shrinking its labels. */
+.acm {
+	margin-top: 6px;
+	overflow-x: auto;
+}
+
+.acm-svg {
+	display: block;
+	width: 100%;
+	min-width: 520px;
+	max-height: 70vh;
+	background: rgb(8 14 30 / 85%);
+	border: 1px solid rgb(127 233 255 / 35%);
+}
+
+.acm-link {
+	stroke: #6fa8ff;
+	stroke-width: 2;
+	opacity: 0.7;
+}
+
+.acm-link.acm-faint {
+	stroke-dasharray: 3 4;
+	opacity: 0.35;
+}
+
+.acm-node {
+	cursor: pointer;
+	outline: none;
+}
+
+.acm-ring {
+	fill: rgb(10 18 40 / 90%);
+	stroke: #7fe9ff;
+	stroke-width: 2;
+}
+
+.acm-node[data-tier="1"] .acm-ring {
+	stroke: #6fa8ff;
+}
+
+.acm-node[data-tier="2"] .acm-ring {
+	stroke: #b9a6ff;
+}
+
+.acm-node[data-tier="3"] .acm-ring {
+	stroke: #ffa040;
+}
+
+.acm-node[data-tier="4"] .acm-ring {
+	stroke: #ff4f6a;
+}
+
+.acm-node.acm-unknown .acm-ring {
+	stroke: #4a5a7a;
+	stroke-dasharray: 3 3;
+}
+
+.acm-node.acm-restricted .acm-ring {
+	stroke: #ffd36b;
+}
+
+.acm-node image {
+	image-rendering: pixelated;
+}
+
+.acm-node text {
+	fill: #cfefff;
+	font-size: 10px;
+	text-anchor: middle;
+	letter-spacing: 0.5px;
+}
+
+.acm-node.acm-unknown text {
+	fill: #6a7a9a;
+}
+
+.acm-node.acm-here .acm-ring {
+	stroke: #fff;
+	stroke-width: 3;
+	animation: acm-here 2.4s ease-in-out infinite;
+}
+
+.acm-node.acm-selected .acm-ring,
+.acm-node:focus-visible .acm-ring {
+	fill: rgb(127 233 255 / 25%);
+}
+
+.acm-info {
+	position: sticky;
+	left: 0;
+	margin-top: 4px;
+	padding: 16px;
+	background: #081521;
+	color: #cfefff;
+	font-family: inherit;
+	font-size: 1em;
+	font-weight: normal;
+	border-left: 2px solid #7fe9ff;
+}
+
+@keyframes acm-here {
+	50% {
+		stroke-opacity: 40%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.acm-node.acm-here .acm-ring {
+		animation: none;
+	}
+}
+
+/* Social Holo: the same implant interface as the Journal tab, laid out as a grid of topic panels. The threat assessment is the only one yet. */
+.holo-social {
+	--holo-ok: #7fe9ff;
+	--holo-warn: #ffb454;
+	--holo-denied: #ff8a66;
+	--holo-dim: #6fbfd6;
+
+	position: relative;
+	display: grid;
+	gap: 10px;
+	max-width: 64em;
+}
+
+.holo-social .holo {
+	max-width: none;
+	margin: 0;
+}
+
+.holo-social-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 2px 12px;
+	padding-bottom: 6px;
+	border-bottom: 1px solid rgb(127 233 255 / 35%);
+	font-family: monospace;
+}
+
+.holo-social-head .holo-head {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	color: var(--holo-ok);
+	letter-spacing: 0.08em;
+}
+
+.holo-social-head .holo-label {
+	color: var(--holo-dim);
+}
+
+/* One scan line passes down the card as it opens. */
+.holo-social.holo-scan::after {
+	content: "";
+	position: absolute;
+	inset: 0 0 auto;
+	height: 2px;
+	background: linear-gradient(90deg, transparent, rgb(127 233 255 / 55%), transparent);
+	pointer-events: none;
+	animation: holo-social-scan 0.6s ease-out forwards;
+}
+
+@keyframes holo-social-scan {
+	from {
+		top: 0;
+		opacity: 1;
+	}
+
+	to {
+		top: 100%;
+		opacity: 0;
+	}
+}
+
+/* Island threat assessment: chamfered like the identity card, one marker on a cyan-to-red scale. */
+.arcology-threat {
+	padding: 10px 14px 12px;
+	border-color: var(--holo-ok);
+	background: repeating-linear-gradient(135deg, transparent 0 7px, rgb(127 233 255 / 4%) 7px 8px),
+		linear-gradient(160deg, rgb(12 44 64 / 96%), rgb(4 16 24 / 96%) 60%);
+	clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+
+.arcology-threat-readout,
+.arcology-threat-ends {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 2px 10px;
+	font-family: monospace;
+}
+
+.arcology-threat-readout .holo-value {
+	color: var(--holo-dim);
+}
+
+.arcology-threat-label {
+	color: var(--holo-ok);
+	font-weight: bold;
+}
+
+.arcology-threat[data-band="2"] .arcology-threat-label,
+.arcology-threat[data-band="3"] .arcology-threat-label {
+	color: var(--holo-warn);
+}
+
+.arcology-threat[data-band="4"] .arcology-threat-label {
+	color: var(--holo-denied);
+}
+
+.arcology-threat-bar {
+	position: relative;
+	height: 6px;
+	margin: 10px 0 6px;
+	background: linear-gradient(90deg, var(--holo-ok), var(--holo-warn) 60%, var(--holo-denied));
+}
+
+.arcology-threat-marker {
+	position: absolute;
+	top: -5px;
+	width: 6px;
+	height: 16px;
+	margin-left: -3px;
+	border: 1px solid rgb(4 16 24);
+	background: #fff;
+}
+
+/* The marker slides to its reading as the card opens. */
+.holo-scan .arcology-threat-marker {
+	animation: arcology-threat-marker 0.5s ease-out;
+}
+
+@keyframes arcology-threat-marker {
+	from {
+		left: 0;
+	}
+}
+
+.arcology-threat-ends {
+	color: var(--holo-dim);
+	font-size: 0.8em;
+}
+
+.arcology-threat-note {
+	margin-top: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.holo-social.holo-scan::after,
+	.holo-scan .arcology-threat-marker {
+		animation: none;
+	}
+}
+
+/* Dome Broadcast news reader. Cyan is the network, amber marks reporting under question, red is kept for breaking and violent stories. */
+.dbn {
+	--dbn-ink: #7fe9ff;
+	--dbn-dim: #6fbfd6;
+	--dbn-text: #d6f2fa;
+	--dbn-soft: #a9cfdc;
+	--dbn-hot: #ff5c6a;
+	--dbn-warn: #ffb454;
+	--dbn-line: rgb(127 233 255 / 22%);
+	--dbn-panel: rgb(4 13 20 / 92%);
+	--holo-ok: var(--dbn-ink);
+	--holo-warn: var(--dbn-warn);
+	--holo-denied: #ff8a66;
+	--holo-dim: var(--dbn-dim);
+
+	display: grid;
+	gap: 12px;
+	max-width: 60em;
+	color: var(--dbn-text);
+}
+
+.dbn a {
+	color: var(--dbn-ink);
+}
+
+.dbn-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 8px 16px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid var(--dbn-line);
+}
+
+.dbn-brand {
+	display: flex;
+	align-items: stretch;
+	font-weight: bold;
+	font-size: 1.5em;
+	line-height: 1;
+	letter-spacing: 0.04em;
+}
+
+.dbn-mark {
+	padding: 4px 8px;
+	background: var(--dbn-ink);
+	color: #021018;
+}
+
+.dbn-word {
+	padding: 4px 8px;
+	border: 1px solid var(--dbn-ink);
+	border-left: 0;
+	color: #fff;
+}
+
+.dbn-status {
+	display: grid;
+	justify-items: end;
+	gap: 2px;
+	font-family: monospace;
+	font-size: 0.8em;
+	letter-spacing: 0.08em;
+	color: var(--dbn-dim);
+}
+
+@container (max-width: 439px) {
+	.dbn-status {
+		grid-auto-flow: column;
+		justify-items: start;
+		gap: 10px;
+	}
+}
+
+.dbn-live.on {
+	color: var(--dbn-hot);
+}
+
+.dbn-live.on::before {
+	content: "";
+	display: inline-block;
+	width: 7px;
+	height: 7px;
+	margin-right: 6px;
+	border-radius: 50%;
+	background: var(--dbn-hot);
+}
+
+.dbn-back a {
+	display: inline-block;
+	padding: 6px 0;
+}
+
+/* Four sections fit one row on desktop; on a phone the row scrolls sideways inside itself, never the page. */
+.dbn-nav {
+	display: flex;
+	gap: 6px;
+	overflow-x: auto;
+	scrollbar-width: thin;
+	overscroll-behavior-x: contain;
+}
+
+.dbn-tab {
+	flex: 0 0 auto;
+}
+
+.dbn-tab a {
+	display: inline-block;
+	min-height: 32px;
+	padding: 6px 12px;
+	border: 1px solid var(--dbn-line);
+	color: var(--dbn-soft);
+	text-decoration: none;
+}
+
+.dbn-tab.on a {
+	border-color: var(--dbn-ink);
+	background: rgb(127 233 255 / 12%);
+	color: #fff;
+}
+
+.dbn-urgent {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 4px 10px;
+	padding: 8px 10px;
+	border: 1px solid var(--dbn-hot);
+	background: rgb(255 92 106 / 8%);
+}
+
+.dbn-urgent-label {
+	font-family: monospace;
+	font-size: 0.8em;
+	letter-spacing: 0.12em;
+	color: var(--dbn-hot);
+}
+
+.dbn-urgent-text a {
+	color: #fff;
+}
+
+.dbn-section-head {
+	margin-top: 4px;
+	color: var(--dbn-dim);
+	font-family: monospace;
+	font-size: 0.85em;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.dbn-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 10px;
+}
+
+.dbn-grid + .dbn-grid {
+	margin-top: 12px;
+}
+
+.dbn-single > .dbn-card {
+	grid-column: 1 / -1;
+}
+
+.dbn-card {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	border: 1px solid var(--dbn-line);
+	background: var(--dbn-panel);
+}
+
+.dbn-card-body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 6px;
+	padding: 10px 12px 12px;
+}
+
+.dbn-art {
+	aspect-ratio: 16 / 9;
+	background: #03070c;
+	overflow: hidden;
+}
+
+.dbn-art svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.dbn-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 10px;
+	font-family: monospace;
+	font-size: 0.78em;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.dbn-cat {
+	color: var(--dbn-ink);
+}
+
+.dbn-place,
+.dbn-time {
+	color: var(--dbn-dim);
+	font-family: monospace;
+	font-size: 0.85em;
+}
+
+.dbn-title {
+	font-size: 1.08em;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.dbn-title a {
+	color: #fff;
+	text-decoration: none;
+}
+
+.dbn-title a:hover,
+.dbn-title a:focus-visible {
+	text-decoration: underline;
+}
+
+.dbn-dek {
+	margin: 0;
+	color: var(--dbn-soft);
+	font-size: 0.92em;
+	line-height: 1.45;
+}
+
+.dbn-foot {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 4px 10px;
+	margin-top: auto;
+	padding-top: 6px;
+	border-top: 1px solid var(--dbn-line);
+}
+
+.dbn-count {
+	color: var(--dbn-dim);
+	font-size: 0.82em;
+}
+
+.dbn-featured .dbn-title {
+	font-size: 1.35em;
+}
+
+@container (min-width: 620px) {
+	.dbn-featured {
+		display: grid;
+		grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+	}
+
+	.dbn-featured .dbn-art {
+		aspect-ratio: auto;
+		min-height: 13em;
+	}
+}
+
+.dbn-card[data-tone="notice"] {
+	background: rgb(4 13 20 / 70%);
+}
+
+.dbn-card[data-tone="notice"] .dbn-art {
+	aspect-ratio: 32 / 9;
+}
+
+.dbn-card[data-tone="breaking"],
+.dbn-card[data-tone="alert"],
+.dbn-article[data-tone="breaking"],
+.dbn-article[data-tone="alert"] {
+	border-color: rgb(255 92 106 / 55%);
+}
+
+.dbn-card[data-tone="breaking"] .dbn-cat,
+.dbn-card[data-tone="alert"] .dbn-cat,
+.dbn-article[data-tone="breaking"] .dbn-cat,
+.dbn-article[data-tone="alert"] .dbn-cat {
+	color: var(--dbn-hot);
+}
+
+.dbn-card[data-tone="investigation"] .dbn-cat,
+.dbn-article[data-tone="investigation"] .dbn-cat {
+	color: var(--dbn-warn);
+}
+
+#customOverlayContent .dbn ul,
+.dbn ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.dbn-archive summary {
+	min-height: 32px;
+	padding: 6px 0;
+	cursor: pointer;
+	color: var(--dbn-dim);
+	font-family: monospace;
+	letter-spacing: 0.06em;
+}
+
+.dbn-archive-list li,
+.dbn-related li {
+	padding: 6px 0;
+	border-bottom: 1px solid var(--dbn-line);
+}
+
+.dbn-archive-list .dbn-cat {
+	margin-right: 4px;
+	font-family: monospace;
+	font-size: 0.78em;
+}
+
+.dbn-article {
+	display: grid;
+	gap: 10px;
+	min-width: 0;
+	padding: 14px;
+	border: 1px solid var(--dbn-line);
+	background: var(--dbn-panel);
+}
+
+.dbn-headline {
+	color: #fff;
+	font-size: 1.5em;
+	font-weight: bold;
+	line-height: 1.25;
+}
+
+.dbn-standfirst {
+	margin: 0;
+	color: var(--dbn-soft);
+	font-size: 1.05em;
+}
+
+.dbn-byline {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 4px 10px;
+	padding: 6px 0;
+	border-top: 1px solid var(--dbn-line);
+	border-bottom: 1px solid var(--dbn-line);
+	color: var(--dbn-dim);
+	font-size: 0.88em;
+}
+
+.dbn-art-main {
+	border: 1px solid var(--dbn-line);
+}
+
+/* Live market chips on Markets and Business stories; colours match the exchange chart. */
+.dbn-market {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	margin: 10px 0;
+	padding: 8px;
+	border: 1px solid var(--dbn-line);
+}
+
+.dbn-market-label {
+	flex-basis: 100%;
+	color: var(--dbn-dim);
+	font-size: 0.75em;
+	letter-spacing: 0.08em;
+}
+
+.dbn-chip {
+	padding: 2px 6px;
+	border: 1px solid var(--dbn-line);
+	color: var(--dbn-text);
+	font-size: 0.85em;
+	white-space: nowrap;
+}
+
+.dbn-chip.up {
+	color: #5fd68a;
+}
+
+.dbn-chip.down {
+	color: #ff7a6b;
+}
+
+/* One framed card per story in the weekly review; the title is the link to the original report. */
+.dbn-week-item {
+	margin: 12px 0;
+	padding: 10px 12px;
+	border: 1px solid var(--dbn-line);
+	background: var(--dbn-panel);
+}
+
+.dbn-week-item h2 {
+	margin: 0 0 6px;
+	font-size: 1.15em;
+}
+
+.dbn-week-item p {
+	margin: 6px 0;
+}
+
+.dbn-week-earlier {
+	color: var(--dbn-dim);
+	font-size: 0.88em;
+}
+
+.dbn-keys {
+	margin: 10px 0;
+	padding: 8px 10px;
+	border: 1px solid var(--dbn-line);
+}
+
+.dbn-keys ol {
+	margin: 6px 0 0;
+	padding-left: 1.4em;
+	color: var(--dbn-text);
+}
+
+.dbn-keys li + li {
+	margin-top: 6px;
+}
+
+.dbn-reporter {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin: 14px 0;
+	padding: 10px;
+	border: 1px solid var(--dbn-line);
+	color: var(--dbn-soft);
+	font-size: 0.9em;
+}
+
+.dbn-reporter-name {
+	color: var(--dbn-warn);
+}
+
+.dbn-text p {
+	margin: 0 0 0.8em;
+	line-height: 1.6;
+}
+
+.dbn-digest li {
+	padding: 6px 0;
+	border-bottom: 1px solid var(--dbn-line);
+}
+
+.dbn-reactions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.dbn-react {
+	border: 1px solid var(--dbn-line);
+	font-size: 0.88em;
+}
+
+.dbn-react a,
+.dbn-react:not(:has(a)) {
+	display: inline-block;
+	min-height: 32px;
+	padding: 6px 10px;
+	text-decoration: none;
+}
+
+.dbn-react.mine {
+	border-color: var(--dbn-ink);
+	background: rgb(127 233 255 / 15%);
+}
+
+.dbn-comments li {
+	display: grid;
+	gap: 2px;
+	padding: 8px 0;
+	border-bottom: 1px solid var(--dbn-line);
+}
+
+.dbn-handle {
+	color: var(--dbn-ink);
+	font-family: monospace;
+	font-size: 0.88em;
+}
+
+.dbn-comments li.mine .dbn-handle {
+	color: var(--dbn-warn);
+}
+
+.dbn-reply {
+	display: grid;
+	gap: 6px;
+}
+
+.dbn-reply-label {
+	color: var(--dbn-dim);
+	font-size: 0.88em;
+}
+
+.dbn-reply a {
+	display: block;
+	padding: 8px 10px;
+	border: 1px solid var(--dbn-line);
+	text-decoration: none;
+}
+
+.dbn-reply a:hover,
+.dbn-reply a:focus-visible {
+	border-color: var(--dbn-ink);
+}
+
+/* Holo services: each card is an illustration with its title and one button over it. */
+.holo-svc {
+	position: relative;
+	display: flex;
+	min-height: 11em;
+	overflow: hidden;
+	isolation: isolate;
+	border: 1px solid rgb(127 233 255 / 30%);
+	background: #020a14;
+}
+
+.holo-svc-bg {
+	position: absolute;
+	inset: 0;
+	z-index: -2;
+}
+
+.holo-svc-bg svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.holo-svc::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background: linear-gradient(90deg, rgb(2 8 16 / 70%), transparent 55%);
+}
+
+.holo-svc-body {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-end;
+	gap: 8px;
+	padding: 14px 16px;
+}
+
+.holo-svc-title {
+	color: #fff;
+	font-size: 1.45em;
+	font-weight: bold;
+	letter-spacing: 0.08em;
+	text-shadow: 0 1px 6px #000;
+}
+
+.holo-svc a,
+.holo-svc .transit-locked-btn {
+	display: inline-block;
+	padding: 8px 16px;
+	border: 1px solid var(--holo-ok);
+	background: rgb(2 12 22 / 75%);
+	color: #fff;
+	text-decoration: none;
+}
+
+.holo-svc a:hover,
+.holo-svc a:focus-visible {
+	background: rgb(127 233 255 / 18%);
+}
+
+.holo-svc-rate {
+	color: #ffc857;
+	font-family: monospace;
+	font-size: 0.95em;
+	letter-spacing: 0.06em;
+	text-shadow: 0 1px 4px #000;
+}
+
+.holo-svc-fx {
+	border-color: rgb(255 200 87 / 35%);
+}
+
+.holo-svc-new,
+.dbn-new {
+	color: var(--holo-warn);
+	font-family: monospace;
+	font-size: 0.85em;
+	letter-spacing: 0.08em;
+}
+
+/* City Map screen. */
+.acm-head,
+.dbn-head {
+	position: relative;
+	overflow: hidden;
+	isolation: isolate;
+}
+
+.acm-backdrop,
+.dbn-masthead {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+}
+
+.acm-backdrop svg,
+.dbn-masthead svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.acm-head {
+	min-height: 11em;
+	display: flex;
+	align-items: flex-end;
+	padding: 14px;
+	border: 1px solid rgb(127 233 255 / 25%);
+}
+
+.acm-title {
+	display: grid;
+	gap: 4px;
+}
+
+.acm-brand {
+	color: #fff;
+	font-size: 1.5em;
+	font-weight: bold;
+	letter-spacing: 0.08em;
+}
+
+.acm-state {
+	color: var(--holo-ok);
+	font-family: monospace;
+	letter-spacing: 0.12em;
+}
+
+.acm-state.locked {
+	color: var(--holo-warn);
+}
+
+.acm-sub {
+	color: var(--holo-dim);
+	font-family: monospace;
+	font-size: 0.8em;
+}
+
+.acm-screen .acm-svg {
+	min-width: 0;
+	max-width: none;
+	height: auto;
+	border: 0;
+	max-height: none;
+	background: radial-gradient(ellipse at 50% 0%, rgb(127 233 255 / 10%), transparent 60%), rgb(4 10 22 / 92%);
+}
+
+.acm-screen .acm-node text,
+.acm-place text {
+	font-family: monospace;
+	font-size: 12px;
+	letter-spacing: 0.3px;
+}
+
+.acm-node.acm-known text {
+	text-anchor: start;
+	fill: #e4f7ff;
+}
+
+.acm-place rect {
+	fill: rgb(10 18 40 / 70%);
+	stroke: #4f7fa0;
+	stroke-dasharray: 3 3;
+}
+
+.acm-place text {
+	fill: #9fc3d6;
+	text-anchor: middle;
+}
+
+.acm-link.acm-private {
+	stroke-dasharray: 4 5;
+	opacity: 0.6;
+}
+
+.acm-route-label {
+	fill: #9fc3d6;
+	font-family: monospace;
+	font-size: 9px;
+}
+
+.acm-name {
+	color: #fff;
+	font-size: 1.1em;
+	letter-spacing: 0.06em;
+}
+
+.acm-you {
+	color: var(--holo-warn);
+	font-size: 0.8em;
+}
+
+.acm-desc {
+	margin: 4px 0 6px;
+	font-family: inherit;
+	line-height: 1.45;
+}
+
+.acm-row {
+	display: grid;
+	grid-template-columns: 9em 1fr;
+	gap: 8px;
+	padding: 2px 0;
+}
+
+.acm-row span:first-child {
+	color: var(--holo-dim);
+}
+
+.acm-advisory {
+	margin-top: 6px;
+	color: var(--holo-warn);
+}
+
+/* Dome Broadcast masthead: the brand sits over the city. */
+.dbn > .dbn-head {
+	min-height: 9em;
+	padding: 14px;
+	border: 1px solid rgb(127 233 255 / 25%);
+}
+
+.dbn-head .dbn-status {
+	color: #cfe9f3;
+}
+
+/* Article page treatments. */
+.dbn-article .dbn-art-main {
+	max-height: 24em;
+}
+
+.dbn-article[data-tone="notice"] .dbn-art-main {
+	aspect-ratio: 32 / 9;
+}
+
+.dbn-article[data-tone="investigation"] .dbn-meta::before {
+	content: "INVESTIGATION";
+	color: var(--dbn-warn);
+}
+
+.dbn-article[data-tone="breaking"] .dbn-headline {
+	padding-top: 6px;
+	border-top: 3px solid var(--dbn-hot);
+}
+
+.dbn-article[data-cat="BUSINESS"] .dbn-standfirst {
+	font-family: monospace;
+	font-size: 0.95em;
+}
+
+.dbn-replies {
+	margin: 6px 0 0 12px !important;
+	padding-left: 10px !important;
+	border-left: 1px solid var(--dbn-line);
+}
+
+.dbn-replies li {
+	border-bottom: 0;
+}
+
+/* Residents replying to each other: indented under the comment they answer, two levels at most. */
+.dbn-comments li:has(+ li.dbn-d1),
+.dbn-comments li.dbn-d1:has(+ li.dbn-d1),
+.dbn-comments li.dbn-d1:has(+ li.dbn-d2),
+.dbn-comments li.dbn-d2:has(+ li.dbn-d1),
+.dbn-comments li.dbn-d2:has(+ li.dbn-d2) {
+	border-bottom: 0;
+}
+
+.dbn-comments li.dbn-d1,
+.dbn-comments li.dbn-d2 {
+	padding: 4px 0 6px 10px;
+	border-left: 1px solid var(--dbn-line);
+}
+
+.dbn-comments li.dbn-d1 {
+	margin-left: 12px;
+}
+
+.dbn-comments li.dbn-d2 {
+	margin-left: 24px;
+}
+
+.dbn-to {
+	color: var(--dbn-dim);
+	font-size: 0.9em;
+}
+
+@media (max-width: 600px) {
+	.dbn-comments li.dbn-d1 {
+		margin-left: 6px;
+	}
+
+	.dbn-comments li.dbn-d2 {
+		margin-left: 12px;
+	}
+}
+
+/* A shop price shown longer than its quote holds: the link stops working until the prices are looked at again. */
+.arc-priced.expired a {
+	pointer-events: none;
+	opacity: 0.45;
+	text-decoration: line-through;
+}
+
+.arc-price-notice {
+	margin: 0 0 1em;
+	padding: 4px 10px;
+	border-left: 3px solid currentcolor;
+}
+
+.dbn-replies li.official .dbn-handle {
+	color: #fff;
+}
+
+.dbn-verified {
+	padding: 0 4px;
+	border: 1px solid var(--dbn-dim);
+	color: var(--dbn-dim);
+	font-size: 0.75em;
+}
+
+/* Illustration motion. Only inside .is-live, paused while the Journal is hidden or the tab is in the background. */
+.is-live .na-win {
+	animation: na-win 5s steps(2, end) infinite;
+}
+
+.is-live .na-flicker {
+	animation: na-flicker 6s ease-in-out infinite;
+}
+
+.is-live .na-blink {
+	animation: na-blink 2.4s ease-in-out infinite;
+}
+
+.is-live .na-drift {
+	animation: na-drift 9s ease-in-out infinite alternate;
+}
+
+.is-live .na-move {
+	animation: na-move 14s linear infinite;
+}
+
+.is-live .na-move-long {
+	animation: na-move-long 26s linear infinite;
+}
+
+.is-live .na-scan {
+	animation: na-scan 7s linear infinite;
+}
+
+.is-live .na-scan-x {
+	animation: na-scan-x 4s ease-in-out infinite alternate;
+}
+
+.is-live .na-scan-y {
+	animation: na-scan-y 3s ease-in-out infinite alternate;
+}
+
+.is-live .na-smoke {
+	animation: na-smoke 6s ease-out infinite;
+}
+
+.is-live .na-pulse {
+	animation: na-pulse 2.6s ease-out infinite;
+	transform-box: fill-box;
+	transform-origin: center;
+}
+
+.is-live .na-press {
+	animation: na-press 2.2s ease-in-out infinite;
+}
+
+.is-live .na-sway {
+	animation: na-sway 5s ease-in-out infinite alternate;
+	transform-box: view-box;
+	transform-origin: 50% 0;
+}
+
+.is-live .na-seg {
+	animation: na-seg 3s ease-in-out infinite;
+}
+
+.is-live .na-glow {
+	animation: na-glow 4s ease-in-out infinite;
+}
+
+.is-live .na-grow {
+	animation: na-grow 3.5s ease-out infinite;
+	transform-box: fill-box;
+	transform-origin: left;
+}
+
+#customOverlay.hidden .is-live *,
+html.arc-page-hidden .is-live * {
+	animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.is-live * {
+		animation: none !important;
+	}
+}
+
+@keyframes na-win {
+	50% {
+		opacity: 0.1;
+	}
+}
+
+@keyframes na-flicker {
+	0%,
+	100% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.7;
+	}
+}
+
+@keyframes na-blink {
+	50% {
+		opacity: 0.25;
+	}
+}
+
+@keyframes na-drift {
+	to {
+		transform: translate(18px, -4px);
+	}
+}
+
+@keyframes na-move {
+	from {
+		transform: translateX(-160px);
+	}
+
+	to {
+		transform: translateX(220px);
+	}
+}
+
+@keyframes na-move-long {
+	from {
+		transform: translateX(0);
+	}
+
+	to {
+		transform: translateX(720px);
+	}
+}
+
+@keyframes na-scan {
+	from {
+		transform: translateY(0);
+	}
+
+	to {
+		transform: translateY(190px);
+	}
+}
+
+@keyframes na-scan-x {
+	from {
+		transform: translateX(0);
+	}
+
+	to {
+		transform: translateX(110px);
+	}
+}
+
+@keyframes na-scan-y {
+	to {
+		transform: translateY(32px);
+	}
+}
+
+@keyframes na-smoke {
+	from {
+		transform: translate(0, 0);
+	}
+
+	to {
+		transform: translate(10px, -14px);
+		opacity: 0;
+	}
+}
+
+@keyframes na-pulse {
+	from {
+		transform: scale(0.6);
+		opacity: 0.9;
+	}
+
+	to {
+		transform: scale(1.5);
+		opacity: 0;
+	}
+}
+
+@keyframes na-press {
+	50% {
+		transform: translateY(8px);
+	}
+}
+
+@keyframes na-sway {
+	from {
+		transform: rotate(-1deg);
+	}
+
+	to {
+		transform: rotate(1deg);
+	}
+}
+
+@keyframes na-seg {
+	50% {
+		opacity: 0.85;
+	}
+}
+
+@keyframes na-glow {
+	50% {
+		opacity: 0.6;
+	}
+}
+
+@keyframes na-grow {
+	from {
+		transform: scaleX(0);
+	}
+
+	to {
+		transform: scaleX(1);
+	}
+}
+
+/* City Map header: title on the left, live readouts on the right. */
+.acm-screen .acm-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 12px 24px;
+	min-height: 0;
+	padding: 18px 18px 14px;
+}
+
+.acm-kicker {
+	color: var(--holo-dim);
+	font-family: monospace;
+	font-size: 0.75em;
+	letter-spacing: 0.18em;
+}
+
+.acm-badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 12px;
+	align-items: baseline;
+}
+
+.acm-badges .acm-state {
+	padding: 1px 8px;
+	border: 1px solid currentcolor;
+	font-size: 0.85em;
+}
+
+.acm-readout {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(7em, auto));
+	gap: 8px;
+}
+
+.acm-read {
+	min-width: 0;
+	display: grid;
+	gap: 2px;
+	padding: 6px 10px;
+	border: 0;
+	border-left: 2px solid #36576c;
+	background: rgb(2 10 20 / 70%);
+	font-family: monospace;
+}
+
+.acm-read span {
+	color: var(--holo-dim);
+	font-size: 0.72em;
+	letter-spacing: 0.14em;
+}
+
+.acm-read b {
+	color: #fff;
+	font-weight: normal;
+	letter-spacing: 0.06em;
+}
+
+.acm-read.set b {
+	color: #6fc3ff;
+}
+
+@container (max-width: 520px) {
+	.acm-readout {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		width: 100%;
+		font-size: 0.82em;
+	}
+
+	.acm-read {
+		padding: 5px 6px;
+	}
+}
+
+/* Graph: one box style per state, tier as a thin bar along the bottom. */
+.acm-screen .acm-ring {
+	fill: rgb(6 16 32 / 95%);
+	stroke: rgb(127 233 255 / 45%);
+	stroke-width: 1.2;
+}
+
+.acm-tier {
+	fill: #7fe9ff;
+	opacity: 0.8;
+}
+
+.acm-node[data-tier="1"] .acm-tier {
+	fill: #6fa8ff;
+}
+
+.acm-node[data-tier="2"] .acm-tier {
+	fill: #b9a6ff;
+}
+
+.acm-node[data-tier="3"] .acm-tier {
+	fill: #ffa040;
+}
+
+.acm-node[data-tier="4"] .acm-tier {
+	fill: #ff4f6a;
+}
+
+.acm-screen .acm-node.acm-unknown .acm-ring {
+	fill: rgb(6 14 26 / 70%);
+	stroke: rgb(111 191 214 / 25%);
+	stroke-dasharray: none;
+}
+
+.acm-screen .acm-node.acm-unknown text {
+	fill: rgb(111 191 214 / 45%);
+	font-size: 8px;
+	letter-spacing: 1.5px;
+	text-anchor: middle;
+}
+
+.acm-screen .acm-link {
+	fill: none;
+	stroke: rgb(111 168 255 / 55%);
+	stroke-width: 1.6;
+	stroke-linejoin: round;
+	stroke-linecap: round;
+}
+
+.acm-screen .acm-link.acm-faint {
+	stroke: rgb(111 191 214 / 18%);
+	stroke-dasharray: 2 4;
+}
+
+.acm-screen .acm-link.acm-on {
+	stroke: #43dcff;
+	stroke-width: 4;
+	filter: none;
+	opacity: 1;
+}
+
+.acm-screen .acm-node.acm-here .acm-ring {
+	stroke: #fff;
+	stroke-width: 1.6;
+	animation: none;
+}
+
+.acm-screen .acm-node.acm-path .acm-ring {
+	stroke: #3fa9ff;
+}
+
+.acm-screen .acm-node.acm-dest .acm-ring {
+	stroke: #3fa9ff;
+	stroke-width: 2.4;
+	fill: rgb(20 60 110 / 60%);
+}
+
+.acm-screen .acm-node.acm-selected .acm-ring {
+	fill: rgb(127 233 255 / 14%);
+}
+
+.acm-you-dot {
+	fill: #ffc857;
+}
+
+.acm-flag {
+	fill: #3fa9ff;
+	stroke: #3fa9ff;
+	stroke-width: 1.4;
+}
+
+.acm-screen .acm-node.acm-known {
+	cursor: pointer;
+}
+
+.acm-screen .acm-node.acm-unknown {
+	cursor: default;
+}
+
+.acm-nav {
+	margin: 2px 0 6px;
+	color: #6fc3ff;
+	letter-spacing: 0.06em;
+}
+
+.acm-nav.dim {
+	color: var(--holo-dim);
+}
+
+.acm-clear {
+	margin-left: 8px;
+	padding: 2px 10px;
+	border: 1px solid #6fc3ff;
+	background: transparent;
+	color: #fff;
+	font: inherit;
+	cursor: pointer;
+}
+
+/* The diagram keeps readable map units; scrolling belongs to this viewport, never the Journal. */
+.customOverlay[data-overlay="journal"]:has(.acm-screen) {
+	max-width: 1400px;
+}
+
+.acm-screen,
+#acmHost,
+.dbn,
+.holo-wrap {
+	min-width: 0;
+	max-width: 100%;
+}
+
+.acm-screen .acm {
+	height: min(68vh, 920px);
+	overflow: auto;
+	overscroll-behavior: contain;
+	border: 1px solid #36576c;
+	background: #040b16;
+	scrollbar-color: #548aa6 #081624;
+}
+
+.acm-tools,
+.acm-view-tools {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+.acm-tools {
+	justify-content: space-between;
+}
+
+.acm-tools label {
+	display: grid;
+	gap: 4px;
+	max-width: 100%;
+	color: #b9d6e5;
+	font-size: 0.9em;
+}
+
+.acm-tools select,
+.acm-tools button,
+.acm-clear {
+	min-height: 44px;
+	max-width: 100%;
+	padding: 8px 12px;
+	border: 1px solid #54839c;
+	background: #0a1c2b;
+	color: #dff8ff;
+}
+
+.acm-tools button:disabled {
+	opacity: 0.45;
+}
+
+.acm-tools :focus-visible,
+.acm:focus-visible {
+	outline: 2px solid #43dcff;
+	outline-offset: 2px;
+}
+
+.acm-hint {
+	margin: 8px 0;
+	color: #b3cddd;
+	font-size: 0.85em;
+}
+
+.acm-screen .acm-readout {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	font-size: 0.95em;
+}
+
+.acm-read b,
+.acm-row span {
+	overflow-wrap: anywhere;
+}
+
+/* Editorial hierarchy follows the report, with compact notices and wider investigations. */
+.dbn-card[data-tone="investigation"] {
+	border-top: 3px solid var(--dbn-warn);
+}
+
+.dbn-card[data-tone="investigation"] .dbn-meta::before {
+	content: "INVESTIGATION";
+	color: var(--dbn-warn);
+}
+
+.dbn-card[data-tone="breaking"] .dbn-title,
+.dbn-card[data-tone="alert"] .dbn-title {
+	font-weight: bold;
+}
+
+.dbn-card[data-cat="BUSINESS"] .dbn-card-body {
+	border-left: 3px solid #72bccd;
+}
+
+.dbn-card[data-tone="reminder"],
+.dbn-article[data-tone="reminder"] {
+	border-left: 3px solid #7fe3ff;
+	background: #071c27;
+}
+
+.dbn-card[data-tone="reminder"] .dbn-cat::before,
+.dbn-article[data-tone="reminder"] .dbn-cat::before {
+	content: "ⓘ ";
+}
+
+.dbn-grid .dbn-card[data-tone="notice"] {
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: 88px minmax(0, 1fr);
+	align-self: start;
+}
+
+.dbn-grid .dbn-card[data-tone="notice"] .dbn-art {
+	aspect-ratio: auto;
+	min-height: 100%;
+}
+
+.dbn-grid .dbn-card[data-tone="notice"] .dbn-dek {
+	display: none;
+}
+
+.dbn-card-body,
+.dbn-comments li,
+.dbn-replies li {
+	overflow-wrap: anywhere;
+}
+
+.dbn-tab a,
+.dbn-back a,
+.dbn-reply a,
+.dbn-react a {
+	display: inline-block;
+	min-height: 44px;
+	box-sizing: border-box;
+	padding: 10px 4px;
+}
+
+@container (min-width: 700px) {
+	.dbn-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.dbn-grid .dbn-card[data-tone="investigation"] {
+		grid-column: 1 / -1;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+	}
+
+	.dbn-single .dbn-card:not([data-tone="notice"]) {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+	}
+
+	.dbn-single .dbn-card:not([data-tone="notice"]) .dbn-art {
+		align-self: start;
+	}
+}
+
+@container (max-width: 520px) {
+	.acm-screen .acm-head {
+		padding: 12px;
+		gap: 12px;
+	}
+
+	.acm-screen .acm-readout {
+		grid-template-columns: 1fr;
+		gap: 4px;
+	}
+
+	.acm-read {
+		display: flex;
+		justify-content: space-between;
+		gap: 12px;
+	}
+
+	.acm-screen .acm {
+		height: 54vh;
+		min-height: 280px;
+	}
+
+	.acm-tools label,
+	.acm-tools select {
+		width: 100%;
+	}
+
+	.acm-info {
+		padding: 12px;
+	}
+
+	.acm-row {
+		grid-template-columns: 1fr;
+		gap: 2px;
+	}
+
+	.dbn-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.dbn-brand {
+		font-size: clamp(1.1rem, 6cqi, 2rem);
+	}
+}
+
+/* Route marker beside street exits that lead towards the City Map destination. */
+.arc-gps {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	margin-left: 4px;
+	vertical-align: middle;
+	border-radius: 50%;
+	background: #3fa9ff;
+	box-shadow: 0 0 6px #3fa9ff;
+}
+
+.arc-gps-arrived {
+	color: #6fc3ff;
+}
+
+.arc-gps-arrived .arc-gps {
+	margin: 0 6px 0 0;
+}
+
+.is-live .na-spin {
+	animation: na-spin 18s linear infinite;
+}
+
+@keyframes na-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Unit Exchange trading terminal (setup.arcologyFx.mount). Cyan carries the data; green and red only mark direction. */
+#fxHost,
+#fxHolo {
+	container-type: inline-size;
+	max-width: 60em;
+}
+
+/* Trading suspensions and emergency rules, shown above the quote before any order is placed. */
+.fx-halt {
+	margin: 0;
+	padding: 8px 10px;
+	border: 1px solid var(--fx-down);
+	background: rgb(255 122 107 / 12%);
+	color: #ffd2cc;
+	font-weight: bold;
+}
+
+.fx-term {
+	--fx-ink: #9eeaff;
+	--fx-dim: #6fa9bb;
+	--fx-line: rgb(95 212 240 / 35%);
+	--fx-up: #5fd68a;
+	--fx-down: #ff7a6b;
+	--fx-warn: #ffb454;
+
+	display: grid;
+	gap: 12px;
+	padding: 12px;
+	border: 1px solid #5fd4f0;
+	background: rgb(4 16 24 / 94%);
+	color: var(--fx-ink);
+	font-variant-numeric: tabular-nums;
+	line-height: 1.4;
+}
+
+.fx-term h4 {
+	margin: 0 0 6px;
+	color: var(--fx-dim);
+	font-size: 0.8em;
+	font-weight: normal;
+	letter-spacing: 0.08em;
+}
+
+.fx-term dl,
+.fx-term dd,
+.fx-term ol {
+	margin: 0;
+	padding: 0;
+}
+
+.fx-head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	align-items: baseline;
+	justify-content: space-between;
+	padding-bottom: 8px;
+	border-bottom: 1px solid var(--fx-line);
+}
+
+.fx-kicker {
+	display: block;
+	color: var(--fx-dim);
+	font-size: 0.75em;
+	letter-spacing: 0.1em;
+}
+
+.fx-pair {
+	font-size: 1.15em;
+	letter-spacing: 0.06em;
+}
+
+.fx-live {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+	color: var(--fx-dim);
+	font-size: 0.8em;
+}
+
+.fx-dot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--fx-up);
+}
+
+.fx-quote {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 16px;
+	align-items: baseline;
+}
+
+.fx-price {
+	font-size: 1.1em;
+}
+
+.fx-mid {
+	font-size: 1.7em;
+	color: #e6fbff;
+}
+
+.fx-term .up {
+	color: var(--fx-up);
+}
+
+.fx-term .down {
+	color: var(--fx-down);
+}
+
+.fx-term .warn {
+	color: var(--fx-warn);
+}
+
+.fx-term .hot {
+	color: var(--fx-down);
+}
+
+.fx-sides {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 8px;
+}
+
+.fx-sides > div,
+.fx-wallet dl > div {
+	min-width: 0;
+}
+
+.fx-sides dt,
+.fx-wallet dt {
+	color: var(--fx-dim);
+	font-size: 0.75em;
+	letter-spacing: 0.06em;
+}
+
+.fx-sides dd {
+	font-size: 1.05em;
+}
+
+.fx-ranges {
+	display: flex;
+	gap: 4px;
+	margin-bottom: 6px;
+}
+
+.fx-term button {
+	min-height: 36px;
+	padding: 4px 10px;
+	border: 1px solid var(--fx-line);
+	background: rgb(10 34 48 / 90%);
+	color: var(--fx-ink);
+	font: inherit;
+	cursor: pointer;
+}
+
+.fx-term button[aria-pressed="true"] {
+	border-color: #5fd4f0;
+	background: #12425a;
+	color: #e6fbff;
+}
+
+.fx-term button:focus-visible,
+.fx-term input:focus-visible {
+	outline: 2px solid var(--fx-warn);
+	outline-offset: 1px;
+}
+
+.fx-term button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.fx-plot {
+	position: relative;
+	height: 190px;
+	margin-right: 64px;
+	border-left: 1px solid var(--fx-line);
+	border-bottom: 1px solid var(--fx-line);
+}
+
+.fx-svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+/* Candles: thin wick for the period's range, solid body from open to close. */
+.fx-wick {
+	stroke-width: 1.5;
+	vector-effect: non-scaling-stroke;
+}
+
+.fx-wick.up {
+	stroke: var(--fx-up);
+}
+
+.fx-wick.down {
+	stroke: var(--fx-down);
+}
+
+.fx-body.up {
+	fill: var(--fx-up);
+}
+
+.fx-body.down {
+	fill: var(--fx-down);
+}
+
+.fx-base {
+	stroke: var(--fx-line);
+	stroke-dasharray: 4 4;
+	vector-effect: non-scaling-stroke;
+}
+
+.fx-ev {
+	stroke-width: 1;
+	stroke-dasharray: 2 3;
+	vector-effect: non-scaling-stroke;
+}
+
+.fx-ev.up {
+	stroke: var(--fx-up);
+}
+
+.fx-ev.down {
+	stroke: var(--fx-down);
+}
+
+.fx-y span {
+	position: absolute;
+	left: 100%;
+	padding-left: 6px;
+	color: var(--fx-dim);
+	font-size: 0.75em;
+	white-space: nowrap;
+	transform: translateY(-50%);
+}
+
+.fx-now {
+	position: absolute;
+	left: 100%;
+	padding: 0 4px;
+	background: #12425a;
+	color: #e6fbff;
+	font-size: 0.75em;
+	white-space: nowrap;
+	transform: translateY(-50%);
+	transition: top 0.8s ease;
+}
+
+.fx-x {
+	display: flex;
+	justify-content: space-between;
+	margin: 4px 64px 0 0;
+	color: var(--fx-dim);
+	font-size: 0.75em;
+}
+
+.fx-span {
+	margin-top: 4px;
+	color: var(--fx-dim);
+	font-size: 0.8em;
+}
+
+.fx-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+	gap: 12px;
+}
+
+.fx-wallet,
+.fx-order {
+	padding: 10px;
+	border: 1px solid var(--fx-line);
+}
+
+.fx-wallet dl {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+}
+
+.fx-hint,
+.fx-foot {
+	margin: 8px 0 0;
+	color: var(--fx-dim);
+	font-size: 0.8em;
+}
+
+.fx-tabs,
+.fx-quick {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 4px;
+}
+
+.fx-quick {
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	margin-top: 6px;
+}
+
+.fx-amt {
+	display: grid;
+	gap: 4px;
+	margin-top: 8px;
+	color: var(--fx-dim);
+	font-size: 0.85em;
+}
+
+.fx-amt input {
+	min-height: 38px;
+	padding: 4px 8px;
+	border: 1px solid #5fd4f0;
+	background: #02090f;
+	color: #e6fbff;
+	font: inherit;
+	font-size: 1.1rem;
+}
+
+.fx-preview {
+	min-height: 2.8em;
+	margin: 8px 0;
+	font-size: 0.9em;
+}
+
+.fx-term .fx-go {
+	width: 100%;
+	min-height: 44px;
+	border-color: #5fd4f0;
+	background: #0f3a50;
+	font-weight: bold;
+}
+
+.fx-msg {
+	min-height: 1.4em;
+	margin: 6px 0 0;
+	color: var(--fx-warn);
+	font-size: 0.85em;
+}
+
+.fx-lists {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.fx-lists ol {
+	display: grid;
+	gap: 3px;
+	list-style: none;
+	font-size: 0.85em;
+}
+
+.fx-t,
+.fx-dim {
+	color: var(--fx-dim);
+}
+
+.fx-t {
+	margin-right: 6px;
+}
+
+@container (max-width: 560px) {
+	.fx-term button,
+	.fx-amt input {
+		min-height: 44px;
+	}
+
+	.fx-sides,
+	.fx-grid,
+	.fx-lists {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.fx-grid,
+	.fx-lists {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.fx-plot {
+		height: 160px;
+		margin-right: 58px;
+	}
+
+	.fx-x {
+		margin-right: 58px;
+	}
+
+	.fx-ranges button {
+		flex: 1;
+		padding: 4px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.fx-now {
+		transition: none;
+	}
+}

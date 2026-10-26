@@ -1,0 +1,205 @@
+:: Arcology Stack Widgets [widget]
+/* Sends the player to the Stack bad end. Call in the link body that leads to Arcology Stack Intro.
+   Debt is in thousandths of a Cipher, like the rest of the island. Crew is how far the other workers trust the player (0-50),
+   net is progress on rewiring the drone network for the revolt (0-10). */
+<<widget "arcologyStackStart">>
+	<<endevent>><<unset $xchange.arcology.citizen, $xchange.arcology.eventBack, $xchange.arcology.trouble>>
+	<<badEndTracking "Arcology Stack" { reason: _args[0] }>>
+	<<set _sRuns to $xchange.arcology.debt ? $xchange.arcology.debt.runs : 0>>
+	<<set $xchange.arcology.stack to {
+		why: _args[0],
+		debt: ($xchange.arcology.debt ? $xchange.arcology.debt.amount + 50000 : 75000),
+		suspicion: 60, band: 0, route: 0, runs: _sRuns, bandMax: 10 + 5 * _sRuns, routeMax: 5 + 2 * _sRuns,
+		day: 0, jobs: [], crew: 0, chips: 0, net: 0, favor: 0, revolt: {}
+	}>>
+	<<unset $xchange.arcology.debt>>
+	<<unset $daily.arcologyStackShift, $daily.arcologyStackRation, $daily.arcologyStackChip, $daily.arcologyStackOffer, $daily.arcologyStackFavorPaid, $daily.arcologyStackBand, $daily.arcologyStackRoute, $weekly.arcologyStackEavesdrop>>
+	<<arcologyNPC 0 "staff" "security guard">>
+<</widget>>
+
+<<widget "arcologyStackEnd">>
+	<<endevent>><<unset $xchange.arcology.stack>>
+	<<clearNPC "stack_fixer">><<clearNPC "stack_medic">><<clearNPC "stack_buyer">>
+<</widget>>
+
+<<widget "arcologyStackWatch">>
+	<<set _sw to $xchange.arcology.stack.suspicion>>
+	<<if _sw gte 80>>
+		Almost every drone that passes your station <span class="red">turns towards you</span>, even when other workers are nearby.
+	<<elseif _sw gte 60>>
+		<span class="pink">Drones keep returning to check your station.</span> The workers nearby are checked less often.
+	<<elseif _sw gte 40>>
+		<span class="purple">Supervisors check your username when they come past your station.</span>
+	<<elseif _sw gte 20>>
+		<span class="blue">The drones check your work</span> about as often as they check everyone else's.
+	<<else>>
+		The drones pass your station <span class="teal">without stopping to check your work.</span>
+	<</if>>
+<</widget>>
+
+<<widget "arcologyStackSuspicion">>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $xchange.arcology.stack.suspicion to Math.clamp($xchange.arcology.stack.suspicion + _args[0], 0, 100)>>
+	<</if>>
+<</widget>>
+
+<<widget "arcologyStackCrew">>
+	<<if _args[0] and $statFreeze isnot true>>
+		<<set $xchange.arcology.stack.crew to Math.clamp($xchange.arcology.stack.crew + _args[0], 0, 50)>>
+	<</if>>
+<</widget>>
+
+/* Takes an amount off the debt and prints the band's countdown. */
+<<widget "arcologyStackPay">>
+	<<set _spAmount to Math.min(_args[0], $xchange.arcology.stack.debt)>>
+	<<set $xchange.arcology.stack.debt -= _spAmount>>
+	<<if _spAmount gt 0>>The debt shown on your ankle band decreases by <span class="green"><<print setup.arcology.cx(_spAmount)>></span>.<</if>>
+<</widget>>
+
+/* Adds to the debt and prints the band's count up. */
+<<widget "arcologyStackCharge">>
+	<<set $xchange.arcology.stack.debt += _args[0]>>
+	The debt shown on your ankle band increases by <span class="red"><<print setup.arcology.cx(_args[0])>></span>.
+<</widget>>
+
+/* How the workers around the player treat them. */
+<<widget "arcologyStackCrewText">>
+	<<set _sc to $xchange.arcology.stack.crew>>
+	<<if _sc gte 40>>
+		<span class="green">Workers move aside when you approach the belts.</span> Some also tell you what they have heard during their shifts.
+	<<elseif _sc gte 25>>
+		<span class="teal">A few workers nod to you when the shift starts.</span>
+	<<elseif _sc gte 10>>
+		<span class="blue">Some workers know your username.</span>
+	<<else>>
+		<span class="purple">The other workers rarely speak to you.</span>
+	<</if>>
+<</widget>>
+
+/* The supervisor hands out the day's job: belt, reclamation and loading in turn, reshuffled once all three are done. Needs the supervisor in slot 0. */
+<<widget "arcologyStackJob">>
+	<<set _st to $xchange.arcology.stack>>
+	<<if !_st.jobs or _st.jobs.length is 0>><<set _st.jobs to ["belt", "reclamation", "loading"]>><</if>>
+	<<set _st.job to _st.jobs.pluck()>>
+	<<switch _st.job>>
+	<<case "belt">>
+		<<He>> points to an empty station beside a sorting belt. Broken machines and parts from the city above move past the workers on the belt.
+	<<case "reclamation">>
+		<<He>> sends you through a heavy door into the reclamation area. Workers here take apart the broken items that could not be sorted on the belts.
+	<<default>>
+		<<He>> sends you down a ramp to a door facing the sea. Crates filled with crushed scrap have been placed beside the door for the cargo boat that arrives at night.
+	<</switch>>
+	<br><br>
+	<<arcologyStackJobLink>>
+<</widget>>
+
+/* Link to the current job. The first visit to each job goes through its intro. */
+<<widget "arcologyStackJobLink">>
+	<<set _st to $xchange.arcology.stack>>
+	<<set _sjName to {belt: "Belt", reclamation: "Reclamation", loading: "Loading"}[_st.job] or "Belt">>
+	<<set _sjLink to "Arcology Stack " + _sjName + ((_st.seenJobs or []).includes(_st.job) ? "" : " Intro")>>
+	<<link [[Next|_sjLink]]>><<endevent>><</link>>
+<</widget>>
+
+/* Shared top of every job passage. Labour, collapse, the end of the shift and a punishment take the page; _sjBusy is false when none of them did. */
+<<widget "arcologyStackShiftGate">>
+	<<set _sjBusy to true>>
+	<<if isPregnancyEnding()>>
+		You put your hands on your stomach as you sink to your knees beside your work station. A nearby drone shines a red light on you, and a worker shouts for a medic.
+		<br><br>
+		<<link [[Next|Arcology Stack Birth]]>><<endevent>><</link>>
+	<<elseif $stress gte $stressmax and !$possessed>>
+		<span class="red">The stress has become too much for you to continue working.</span>
+		<br><br>
+		<<passout>>
+		<<link [[Everything fades to black...|Arcology Stack Passout]]>><<endevent>><<set $phase to "shift">><</link>>
+	<<elseif $xchange.arcology.stack.debt lte 0>>
+		Your ankle band shows a balance of zero. A drone scans it, then signals a supervisor to come over.
+		<br><br>
+		<<link [[Next|Arcology Stack Release]]>><<endevent>><</link>>
+	<<elseif $xchange.arcology.stack.day gte 3 and !$xchange.arcology.stack.rescue and C.npc.Luchifen.love gte setup.arcology.stackRescueLove and Time.hour gte 6 and Time.hour lt 21>>
+		The service lift opens. The supervisor leaves the work area to speak to someone at the doors, then points towards your station.
+		<br><br>
+		<<link [[Next|Arcology Stack Rescue]]>><<endevent>><</link>>
+	<<elseif $xchange.arcology.stack.suspicion gte 100>>
+		<<arcologyNPC 0 "staff" "guard">><<person1>>
+		A <<person>> in grey armour steps between you and your station, then takes hold of your arm. "You're coming with me," <<he>> says.
+		<br><br>
+		<<link [[Next|Arcology Stack Punishment]]>><</link>>
+	<<elseif Time.hour gte 21 or Time.hour lt 6>>
+		A horn sounds throughout the Stack. The belts start moving more slowly, and the workers begin leaving their stations. Your shift is over.
+		<br><br>
+		<<link [[Next|Arcology Stack Shift End]]>><<endevent>><</link>>
+	<<else>>
+		<<set _sjBusy to false>>
+	<</if>>
+<</widget>>
+
+/* Work choices for a job passage. Arg: the job's events passage. */
+<<widget "arcologyStackWorkLinks">>
+	<<icon "mark.gif">><<link [[Focus on the work (1:00)|_args[0]]]>><<pass 1 hour>><<set $phase to 0>><<tiredness 4>><</link>><<gtiredness>>
+	<br>
+	<<icon "mark.gif">><<link [[Pretend to work (1:00)|_args[0]]]>><<pass 1 hour>><<set $phase to 1>><<stress 2>><</link>><<gstress>>
+	<br>
+<</widget>>
+
+/* One hour of work: focused hours pay towards the debt, faked ones risk the drones. The job passage prints what the work was. */
+<<widget "arcologyStackHour">>
+	<<set _st to $xchange.arcology.stack>>
+	<<if $phase is 0>>
+		<<physique 1>> <<arcologyStackPay `400 + Math.min(_st.favor, 5) * 40`>>
+	<<else>>
+		You move your hands as though you're working, but avoid doing most of the tasks you're supposed to finish.
+		<<if random(1, 100) lte 40 + Math.floor(_st.suspicion / 4)>>
+			<span class="red">A drone stops above your station and watches what you are doing.</span><<arcologyStackSuspicion 6>>
+		<<else>>
+			The drones continue past your station without stopping.
+		<</if>>
+	<</if>>
+<</widget>>
+
+/* Where a punishment hands the player back: the bunks at night, otherwise back to the day's job. */
+<<widget "arcologyStackPunishEnd">>
+	<<set _st to $xchange.arcology.stack>>
+	<<set _st.suspicion to 60>>
+	<<if isPregnancyEnding()>>
+		The guard opens the door and finds you lying on the floor in labour. <<He>> calls for a medic.
+		<br><br>
+		<<link [[Next|Arcology Stack Birth]]>><<endevent>><</link>>
+	<<elseif Time.hour gte 21 or Time.hour lt 6>>
+		The guard walks you back to the bunks and leaves you there.
+		<br><br>
+		<<link [[Next|Arcology Stack Bunks]]>><<endevent>><</link>>
+	<<else>>
+		The guard takes you back upstairs and pushes you towards the work area, where you're expected to continue your shift.
+		<br><br>
+		<<arcologyStackJobLink>>
+	<</if>>
+<</widget>>
+
+/* A supervisor offers to take something off the debt in the office. Needs the supervisor in slot 0. Arg: the job passage to return to. */
+<<widget "arcologyStackFavorOffer">>
+	A <<person>> from the supervisors' office comes to your station. <<arcologyCyberLook 0>> <<He>> looks down at the debt shown on your ankle band before speaking to you.
+	<br><br>
+	"There are other ways to pay that debt," <<he>> says. "Come to my office. I can lock the door."
+	<br><br>
+	<<link [[Follow the supervisor|Arcology Stack Favor]]>><<set $sexstart to 1>><</link>><<promiscuous2>>
+	<br>
+	<<link [[Refuse|_args[0]]]>><<endevent>><</link>>
+	<br>
+<</widget>>
+
+/* The number of revolt distractions ready: the bay lights, the loading decoy and the fixer's drones. */
+<<widget "arcologyStackDistractions">>
+	<<set _sdr to $xchange.arcology.stack.revolt>>
+	<<set _sdCount to (_sdr.lights ? 1 : 0) + (_sdr.decoy ? 1 : 0) + (_sdr.drones ? 1 : 0)>>
+<</widget>>
+
+/* How much breath is left during the swim under the hull. */
+<<widget "arcologyStackBreath">>
+	<<switch $xchange.arcology.stack.swim.air>>
+	<<case 3>>You can still hold your breath comfortably.
+	<<case 2>><span class="purple">You are starting to feel the need to breathe, but you still have some air left.</span>
+	<<default>><span class="red">You can't hold your breath much longer. You need to reach the surface soon.</span>
+	<</switch>>
+<</widget>>

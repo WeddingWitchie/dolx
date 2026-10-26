@@ -9,7 +9,7 @@
 		/* Doing events this way, means that npc's may still be loaded, so endevent or loading new npc's should not be done */
 		<<earSlimeFocusChoice>>
 	<</if>>
-	<<sleephour>>
+	<<sleephour _args[1]>>
 	<<sleepGlasses `$sleepHoursTotal gt 0`>>
 	<<set $portalPanties.asleep to 1>>
 	<<if _wakeEvent and !_args[0]>>
@@ -95,7 +95,7 @@
 		<<set $_bonusFatigueLoss += 100>>
 	<<elseif modLISelected("Poppy") and $location is "flats" and $bus is "poppy_bedroom">>
 		<<set $_bonusFatigueLoss += 100>>
-	<<elseif $location is "seaspray_hotel">>
+	<<elseif $location is "seaspray_hotel" or $location is "arcology_hotel">>
 		<!-- a proper hotel bed, better than anything the orphanage provides -->
 		<<set $_bonusFatigueLoss += 80>>
 	<<elseif $_bed.type.includes('comfy')>>
@@ -123,6 +123,10 @@
 	<<if _sleepAidStrength and $sleephour gte 1>>
 		<<set _sleepAidOverslept to sleepAidOversleepHours()>>
 		<<set $sleephour += _sleepAidOverslept>>
+	<</if>>
+	<<if Number.isFinite(_args[0])>>
+		<<set _sleepLimit to Math.max(0, Math.floor(_args[0]))>>
+		<<set $sleephour to $sleephour lt 0 ? _sleepLimit : Math.min($sleephour, _sleepLimit)>>
 	<</if>>
 
 	<<for $sleephour gte 1 or $sleephour lte -1>>
@@ -617,7 +621,7 @@
 <</widget>>
 
 <<widget "bedstorereturn">>
-	<<for _bedStore range ["bed", "Farm Bed", "farm alex bed", "prison bed", "Temple Bunk Bed", "Pirate Bed Lie", "Mansion Bed", "Poppy Flats", "averyhotel", "Seaspray Hotel Bed"]>>
+	<<for _bedStore range ["bed", "Farm Bed", "farm alex bed", "prison bed", "Temple Bunk Bed", "Pirate Bed Lie", "Mansion Bed", "Poppy Flats", "averyhotel", "Seaspray Hotel Bed", "Arcology Hotel Bed", "Arcology Ship Bed"]>>
 		<<storeon _bedStore "wardrobe">>
 	<</for>>
 <</widget>>

@@ -3,9 +3,8 @@
 	<<if $xchange.silverStranger is undefined or typeof $xchange.silverStranger isnot "object" or Array.isArray($xchange.silverStranger)>>
 		<<set $xchange.silverStranger to { unlocked: false, met: false }>>
 	<</if>>
-	/* Hidden named NPC "Luchifen", shown as "???". Uses standard C.npc relationship tracking. */
 	<<if Array.isArray($NPCNameList) and !$NPCNameList.includes("Luchifen")>>
-		/* "h" starts the architect with both genital sets. */
+		/* "h" starts with both genital sets. */
 		<<set _luchifenDef to {nam: "Luchifen", title: "architect", insecurity: "looks", adult: 1, gender: "h"}>>
 		<<newNamedNpc _luchifenDef>>
 	<</if>>
@@ -31,7 +30,7 @@
 
 /* Renders the stranger's hidden name as a glowing silver "???". Used in the social tab and dialogue. */
 <<widget "silverName">>
-	<span class="silverStranger">???</span>
+	<<if $xchange.silverStranger and $xchange.silverStranger.nameKnown>><span class="luchifen-name" data-text="Luchifen">Luchifen</span><<else>><span class="silverStranger">???</span><</if>>
 <</widget>>
 
 <<widget "silverStrangerCheck">>
@@ -68,7 +67,14 @@
 /* Docks hub link only after the first meeting. */
 <<widget "silverStrangerDocks">>
 	<<silverStrangerCheck>>
-	<<if _silverActive and $xchange.silverStranger.met is true>>
+	<<arcologyShunCheck>>
+	<<if _silverActive and _arcologyShun>>
+		/* After a failed island invitation Luchifen still comes to the docks, but won't talk until the silence ends. */
+		Near the edge of the water, Luchifen stands with their back to the town. Someone you don't know is holding an umbrella over them.
+		<br>
+		<<icon "mark.gif">><<link [[Approach Luchifen (0:05)|Arcology Shun]]>><<pass 5>><</link>>
+		<br><br>
+	<<elseif _silverActive and $xchange.silverStranger.met is true>>
 		Near the edge of the water, a <span class="purple">figure of silver</span> watches the tide, in no hurry to be anywhere.
 		<br>
 		/* If Mickey's earpiece is kept but the confrontation hasn't happened, trigger it before the normal questions. */
@@ -77,8 +83,9 @@
 		<<else>>
 			<<icon "mark.gif">><<link [[Approach the silver figure (0:05)|Silver Stranger]]>><<pass 5>><</link>>
 		<</if>>
-		<br><br>
+		<br>
 	<</if>>
+	<<arcologyDocksLink>>
 <</widget>>
 
 /* Renders one purchasable line for a pill whose inventory name and pre-markup base price are known directly.
@@ -158,7 +165,7 @@ _args: 0 pill name, 1 base price, 2 pill icon. */
 
 :: Silver Stranger Styles [stylesheet]
 .silverStranger {
-	color: #e6e8f4;
-	font-weight: bold;
+	color: #e1e2e3;
+	font-weight: normal;
 	text-shadow: 0 0 4px #cfd3e6, 0 0 10px #9aa0c0, 0 0 16px #6b70a0;
 }

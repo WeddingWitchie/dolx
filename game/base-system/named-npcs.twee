@@ -658,7 +658,10 @@ Zohar
 <<widget "getNNPCClothes">>
 	<<set _nam to _args[0]>>
 	<<set _i to $NPCNameList.indexOf(_nam)>>
-	<<if !$NPCName[_i].outfits>>
+	<<if _nam is "Luchifen">>
+		/* Their "t" pronoun matches no m/f clothing set, so random clothes come back empty. Name the neutral formal set. */
+		<<npcClothesName $NPCName[_i] "neutralFormal">>
+	<<elseif !$NPCName[_i].outfits>>
 		<<generateNPCClothes $NPCName[_i]>>
 		<<if $debug is 1>><<run console.log('Named NPC [', $NPCName[_i], '] generated with area-appropriate clothes due to a lack of outfits.')>><</if>>
 	<<else>>
@@ -2734,8 +2737,21 @@ Zohar
 				<</if>>
 			<</if>>
 		<<case Luchifen>>
-			/* Hidden stranger: name shown only as a glowing "???", and no opinion line until the player has drawn their interest. */
-			<<if $NPCName[_i].love gt 0>>
+			/* Hidden stranger: name shown only as a glowing "???", and no opinion line until the player has drawn their interest.
+			   After the island reveal the line follows the invitation story first, then their Favor. */
+			<<if $xchange.arcology and $xchange.arcology.redeem and $xchange.arcology.redeem.stage is "silent">>
+				<<silverName>> <span class="red">won't acknowledge you.</span>
+			<<elseif $xchange.arcology and $xchange.arcology.redeem and $xchange.arcology.redeem.stage is "arena">>
+				<<silverName>> is waiting to see you <span class="gold">become champion</span>.
+			<<elseif $xchange.silverStranger and $xchange.silverStranger.nameKnown>>
+				<<if $NPCName[_i].love gte 30>>
+					<<silverName>> <span class="green">keeps you close</span>, somehow.
+				<<elseif $NPCName[_i].love gte 10>>
+					<<silverName>> <span class="teal">approves of you</span>.
+				<<else>>
+					<<silverName>> is watching what you do.
+				<</if>>
+			<<elseif $NPCName[_i].love gt 0>>
 				<<silverName>> wants to know more about you.
 			<</if>>
 		<<case Zephyr>>

@@ -1,0 +1,750 @@
+/* BARGE ESCAPE */
+:: Arcology Stack Way Out
+<<location "arcology_stack">><<set $outside to 0>><<effects>>
+<<set _st to $xchange.arcology.stack>><<set _bm to _st.bandMax or 10>><<set _rm to _st.routeMax or 5>>
+You watch the drones travel between the sorting belts. Each one follows a particular path, and you begin looking for a time when you could cross the room without being seen.
+<br><br>
+The band around your ankle is locked, but you think a thin piece of scrap metal might loosen its hinge. You have also seen workers send discarded parts through an opening leading towards the sea door.
+If you can remove the band and learn when the drones pass, that opening might give you a way out. Watching the patrols or working on the hinge takes half an hour.
+<br><br>
+<<if _st.band gt 0>>The band is <span class="teal"><<print Math.floor(_st.band * 100 / _bm)>>%</span> loose. <</if>><<if _st.route gt 0>>You have worked out <span class="teal"><<print _st.route>> of <<print _rm>></span> drone patrol routes.<</if>>
+<<if _st.smuggler>><span class="green">Someone has prepared a place for you to hide among the scrap on the barge.</span><</if>>
+<br><br>
+<<set _stBandHint to !$daily.arcologyStackBand and _st.band lt _bm and _st.suspicion gt 40>>
+<<set _stDarkHint to _st.band gte _bm and _st.route gte _rm and Time.hour gte 5 and Time.hour lt 22>>
+<<set _stDoneHint to $daily.arcologyStackRoute and ($daily.arcologyStackBand or _st.band gte _bm) and !(_st.band gte _bm and _st.route gte _rm)>>
+<<if _stBandHint>><span class="blue">The drones are checking your work area too often</span> for you to loosen the band safely. <</if>><<if _stDarkHint>><span class="blue">You can remove the band, and you know when the drones pass.</span> You need to wait until night to attempt your escape. <</if>><<if _stDoneHint>><span class="blue">You have already spent time preparing your escape today.</span> Doing more now could make the drones suspicious.<</if>>
+<<if _stBandHint or _stDarkHint or _stDoneHint>><br><br><</if>>
+<<if !$daily.arcologyStackRoute and _st.route lt _rm>>
+	<<investigateicon>><<link [[Watch patrols (0:30)|Arcology Stack Patrols]]>><<set $daily.arcologyStackRoute to true>><<pass 30>><</link>>
+	<br>
+<</if>>
+<<if !$daily.arcologyStackBand and _st.band lt _bm and _st.suspicion lte 40>>
+	<<icon "mark.gif">><<link [[Loosen the band (0:30)|Arcology Stack Band]]>><<set $daily.arcologyStackBand to true>><<pass 30>><<set $phase to setup.arcology.escape("stack", "skulduggery", 200, 900) ? 1 : 0>><</link>><<arcologySkill "Skulduggery">>
+	<br>
+<</if>>
+<<if _st.band gte _bm and _st.route gte _rm and (Time.hour gte 22 or Time.hour lt 5)>>
+	<<icon "prison-run.png">><<link [[Run|Arcology Stack Run]]>><<pass 3>><<set $phase to setup.arcology.escape("stack", "skulduggery", 400, 1100) ? 1 : 0>><</link>><<arcologySkill "Skulduggery">>
+	<br>
+<</if>>
+<br>
+<<getouticon>><<link `(!$daily.arcologyStackRoute && _st.route < _rm) || (!$daily.arcologyStackBand && _st.band < _bm && _st.suspicion <= 40) || (_st.band >= _bm && _st.route >= _rm && (Time.hour >= 22 || Time.hour < 5)) ? "Back to the bunks" : "Next"` "Arcology Stack Bunks">><</link>>
+<br>
+
+:: Arcology Stack Patrols
+<<effects>>
+<<set _st to $xchange.arcology.stack>><<set _rm to _st.routeMax or 5>>
+<<set _st.route to Math.min(_rm, _st.route + 1)>>
+You lie on a bunk facing the passage and keep your eyes partly closed whenever a drone moves past. From here, you can see the doorway without drawing attention to yourself.
+<br><br>
+You count how long it takes each drone to pass. The drones follow the same paths, but arrive at different times. After one passes the doorway, there are a few seconds before the next one appears.
+<br><br>
+You keep watching until you can remember which drone comes next and how long the passage stays clear.
+<<if _st.route gte _rm>>
+	<span class="green">You have learned the routes of every drone</span> between the bunks and the sea door, including the short gaps between patrols.
+<<else>>
+	You've worked out <span class="teal"><<print _st.route>> of <<print _rm>></span> patrol patterns.
+<</if>>
+<br><br>
+<<link [[Next|Arcology Stack Way Out]]>><</link>>
+<br>
+
+:: Arcology Stack Band
+<<effects>>
+<<set _st to $xchange.arcology.stack>><<set _bm to _st.bandMax or 10>>
+<<if $phase is 1>>
+	<<set _st.band to Math.min(_bm, _st.band + Math.max(setup.escapeAmount(), 0.5))>>
+	You crouch beside a conveyor that has stopped moving. Its metal side blocks the nearest camera from seeing your ankle. You push a thin piece of scrap metal into the band's hinge, then press against the metal to loosen it.
+	<br><br>
+	When you hear a drone approaching, you stop working on the hinge and keep your hand beside your ankle until the drone passes.
+	<br><br>
+	<<if _st.band gte _bm>>
+		<span class="green">The hinge is loose enough for you to open the band.</span> Its red numbers are still lit, so you leave it around your ankle until you are ready to escape.
+	<<else>>
+		The band is <span class="teal"><<print Math.floor(_st.band * 100 / _bm)>>%</span> loose.
+	<</if>>
+<<else>>
+	You have barely pushed the piece of metal into the hinge when a drone comes around the conveyor. Its light moves towards your ankle, so you drop the scrap onto the floor and walk back to the bunks.
+	<br><br>
+	The drone follows you into the sleeping area. It passes your bunk several times, even after you lie down. <span class="red">You will have to be more careful while the drones are checking on you.</span> <<arcologyStackSuspicion 15>><<stress 4>><<gstress>>
+<</if>>
+<<set $phase to 0>>
+<br><br>
+<<link [[Next|Arcology Stack Way Out]]>><</link>>
+<br>
+
+:: Arcology Stack Run
+<<effects>>
+Once the other workers are asleep, you return to your bunk and open the loosened band. You put it on your mattress, leaving its red numbers lit, then walk towards the sorting belts.
+<br><br>
+You remember the times you counted while watching the drones. Whenever one passes, you wait for the few seconds before the next patrol arrives.
+<br><br>
+<<if $phase is 1>>
+	<<set $phase to 0>>
+	You stay behind a metal support until the first drone passes. As soon as it turns the corner, you cross between two sorting belts and stop behind another piece of machinery.
+	<br><br>
+	A drone enters the next aisle before you can cross it. You crouch beneath a conveyor and watch its light move across the floor. Once the drone has passed, you crawl out and continue towards the sea door.
+	<br><br>
+	You reach the far end of the sorting room <span class="green">without setting off an alarm</span>.
+	<br><br>
+	A steep metal chute leads upwards to the sea door. Workers send old machinery through this opening to be collected outside. Oil covers parts of the chute, so climbing it will be difficult. The scrap barge should be nearby tonight.
+	<br><br>
+	<<link [[Next|Arcology Stack Run 2]]>><<set $phase to setup.arcology.escape("stack", "athletics", 400, 1000) ? "up" : "slip">><</link>>
+	<br>
+<<else>>
+	You wait for a drone to pass before leaving your hiding place. Halfway to the next belt, another drone comes around the corner earlier than you expected.
+	<br><br>
+	You try to get behind the machinery, but <span class="red">the drone shines its light directly at you.</span> A siren sounds above the sorting room before you can reach cover.
+	<br><br>
+	<<link [[Next|Arcology Stack Caught]]>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Stack Run 2
+<<pass 2>><<effects>>
+<<if $phase is "up">>
+	<<set $phase to 0>>
+	You get down on your hands and knees to climb the chute. The oil makes your feet slip, so you use the metal sides to support yourself as you move upwards.
+	<br><br>
+	Your hands are sore by the time you reach the top. The sea door is open, and cold air reaches you from outside. You look for the scrap barge, but it is farther behind the moving city, attached by a long rope.
+	<br><br>
+	Below you, seawater moves quickly through a narrow channel beneath the city. Large pumps take in water to help keep the floating city level, then release it near the back. You will have to swim through that channel to reach the barge.
+	<br><br>
+	<<link [[Next|Arcology Stack Swim]]>><<set $xchange.arcology.stack.swim to { air: 3 }>><<water>><</link>>
+	<br>
+<<else>>
+	<<set $phase to 0>>
+	As you climb, your foot slides across an oily patch of metal. You try to stop yourself by grabbing the sides of the chute, but you cannot find anything secure enough to hold.
+	<br><br>
+	You slide all the way to the bottom and hit the floor. A nearby drone turns towards the noise.<<pain 6>><<gpain>>
+	<br><br>
+	<<link [[Next|Arcology Stack Caught]]>><</link>>
+	<br>
+<</if>>
+
+/* UNDER THE HULL: the city is moving, so the barge trails on a tow line behind the stern. Each failed check costs a breath; none left means surfacing in a drone's light. */
+:: Arcology Stack Swim
+<<pass 1>><<effects>>
+You drop into the cold water and go beneath the surface. The strong flow pushes you along the channel before you have time to choose where to swim. You hold your breath and try to keep your body away from the pipes and large metal covers around the pumps.
+<br><br>
+Small green work lights near the pipes help you see the machinery.
+<br><br>
+<<arcologyStackBreath>>
+<br><br>
+<<link [[Ride the current|Arcology Stack Swim Grate]]>><<set $phase to setup.arcology.escape("stack", "swimming", 200, 900) ? 1 : 0>><</link>><<arcologySkill "Swimming">>
+<br>
+<<link [[Grab the guide rail|Arcology Stack Swim Grate]]>><<set $phase to setup.arcology.escape("force", "physique", 2000, 16000) ? 2 : 0>><</link>><<arcologySkill "Physique">>
+<br>
+
+:: Arcology Stack Swim Grate
+<<effects>>
+<<set _ss to $xchange.arcology.stack.swim>>
+<<switch $phase>>
+<<case 1>>
+	You let the water carry you forwards and use small kicks to change direction. Whenever a pipe comes close, you turn your body to avoid it. <span class="green">You reach the end of the channel without hitting the machinery.</span>
+<<case 2>>
+	You grab the metal rail fixed along the channel wall. Keeping one hand on it, you reach forwards with the other and pull yourself towards the end of the channel. <span class="green">The rail lets you stay close to the wall while the water rushes past.</span>
+<<default>>
+	The moving water turns your body sideways, and you hit the metal covering of a pump. <span class="red">The impact makes you release some of the air you were holding,</span> and bubbles rise past your face. <<pain 8>><<gpain>><<set _ss.air-->>
+<</switch>>
+<<set $phase to 0>>
+<br><br>
+<<if _ss.air lte 0>>
+	<<link [[Next|Arcology Stack Swim Surface]]>><</link>>
+<<else>>
+	At the end of the channel, the strong flow pushes you against a large metal grate. You put your hands on its bars and try to keep your face away from the metal.
+	<br><br>
+	Through the grate, you can see the open water beneath the city. Two bars near the bottom have been bent apart, leaving a gap that might be wide enough for you to swim through.
+	<br><br>
+	<<arcologyStackBreath>>
+	<br><br>
+	<<link [[Squeeze through the gap|Arcology Stack Swim Hull]]>><<set $phase to setup.arcology.escape("stack", "athletics", 300, 1000) ? 1 : 0>><</link>><<arcologySkill "Athletics">>
+	<br>
+	<<link [[Wait for the pumps to reverse|Arcology Stack Swim Hull]]>><<set $phase to 2>><<set _ss.air-->><<stress 6>><</link>><<gstress>>
+<</if>>
+<br>
+
+:: Arcology Stack Swim Hull
+<<effects>>
+<<set _ss to $xchange.arcology.stack.swim>>
+<<switch $phase>>
+<<case 1>>
+	You turn sideways and put one arm through the gap, followed by the other. You pull your shoulders through and push with your feet until your hips fit between the bars. <span class="green">The metal scratches your skin, but you make it to the other side.</span> <<pain 4>><<gpain>>
+<<case 2>>
+	You keep both hands on the grate while the water pushes against your back. You badly need to breathe, but you wait for the pumps to change direction. When the flow becomes weaker, you pull yourself through the gap before the water starts pushing hard again.
+<<default>>
+	You manage to get your shoulders through the gap, but <span class="red">your clothes get caught on one of the bent bars.</span> You have to pull yourself backwards slightly to free the fabric before pushing through again. The struggle takes more of the air you were holding. <<pain 6>><<gpain>><<set _ss.air-->>
+<</switch>>
+<<set $phase to 0>>
+<br><br>
+<<if _ss.air lte 0>>
+	<<link [[Next|Arcology Stack Swim Surface]]>><</link>>
+<<else>>
+	After passing through the grate, you are swimming beneath the wide metal base of the city. A large metal fin, used to help keep the city steady, extends down into the water nearby. The water behind the engines is full of bubbles from the moving machinery.
+	<br><br>
+	A drone moves along the underside of the city. Its searchlight points into the water, moving from side to side as it looks for anyone swimming below.
+	<br><br>
+	<<arcologyStackBreath>>
+	<br><br>
+	<<link [[Dive beneath the light|Arcology Stack Swim Wake]]>><<set $phase to setup.arcology.escape("stack", "swimming", 300, 1000) ? 1 : 0>><</link>><<arcologySkill "Swimming">>
+	<br>
+	<<link [[Hide in the fin's shadow|Arcology Stack Swim Wake]]>><<set $phase to setup.arcology.escape("stack", "skulduggery", 300, 1000) ? 2 : 0>><</link>><<arcologySkill "Skulduggery">>
+<</if>>
+<br>
+
+:: Arcology Stack Swim Wake
+<<effects>>
+<<set _ss to $xchange.arcology.stack.swim>>
+<<switch $phase>>
+<<case 1>>
+	You swim deeper as the drone approaches. From below, you can see its searchlight moving across the water above you. <span class="green">The drone passes without seeing you.</span>
+<<case 2>>
+	You swim close to the large metal fin and put a hand against it to keep your position. The drone's searchlight moves across the nearby water, but the fin blocks the light from reaching you. <span class="green">The drone continues along the city without stopping.</span>
+<<default>>
+	The drone's searchlight reaches your arm. You pull it back beside your body and swim beneath the metal base, but <span class="red">the drone may have seen you.</span> Swimming so quickly makes it harder to keep holding your breath. <<set _ss.air-->><<arcologyStackSuspicion 10>>
+<</switch>>
+<<set $phase to 0>>
+<br><br>
+<<if _ss.air lte 0>>
+	<<link [[Next|Arcology Stack Swim Surface]]>><</link>>
+<<else>>
+	You swim upwards through the water behind the city and finally reach the surface. You take several breaths while looking around for the scrap barge. The city is still moving forwards, with its illuminated dome visible above the water.
+	<br><br>
+	The barge is being pulled behind the city by a long rope. It is close enough to swim towards, but you are already falling behind. If you struggled underwater, you may not have enough strength left to catch it.
+	<br><br>
+	<<set _ssTired to (3 - _ss.air) * 150>>
+	<<if $xchange.arcology.stack.smuggler>>
+		<<link [[Next|Arcology Stack Free]]>><<set $phase to setup.arcology.escape("stack", "swimming", 100 + _ssTired, 800 + _ssTired) ? "hidden" : "sank">><</link>>
+	<<else>>
+		<<link [[Next|Arcology Stack Free]]>><<set $phase to setup.arcology.escape("stack", "swimming", 200 + _ssTired, 900 + _ssTired) ? "swam" : "sank">><</link>>
+	<</if>>
+<</if>>
+<br>
+
+:: Arcology Stack Swim Surface
+<<effects>>
+<<set $phase to 0>>
+You cannot hold your breath any longer. You kick towards the surface as quickly as you can, then come out of the water coughing and trying to breathe.
+<br><br>
+Before you can swim away, a drone turns its searchlight towards you. The light stays on you, and a siren sounds from the city above.
+<br><br>
+<<link [[Next|Arcology Stack Caught]]>><</link>>
+<br>
+
+:: Arcology Stack Free
+<<effects>>
+<<if $phase is "hidden">>
+	<<set $phase to 0>>
+	You swim towards the blue mark on the scrap near the back of the barge. When you reach it, you grab the edge of the barge and pull yourself onto the pile of discarded metal.
+	<br><br>
+	Someone has cleared a space behind the marked block, large enough for you to hide inside. You crawl into it, then pull a loose metal plate across the opening so the crew cannot easily see you.
+	<br><br>
+	Nobody approaches your hiding place. The barge's engines start, and the barge begins moving away from the city.
+	<br><br>
+	<<link [[Next|Arcology Stack Barge Landing]]>><</link>>
+<<elseif $phase is "swam">>
+	<<set $phase to 0>>
+	You swim towards the moving barge, trying to reach the long rope attached to its front. After several strokes, you manage to grab the rope and rest for a moment before pulling yourself along it.
+	<br><br>
+	You reach the side of the barge and climb over the edge, landing among broken mechanical arms and old cables.
+	<br><br>
+	<<if random(1, 100) lte 50>>
+		You are still trying to catch your breath when you notice someone shining a torch across the scrap. <<arcologyNPC 0 "under" "loader">><<person1>>A <<person>> from the crew is walking between the piles of metal, checking the chains that keep everything in place.
+		<br><br>
+		<<link [[Keep still|Arcology Stack Barge Found]]>><<set $phase to setup.arcology.escape("run", "skulduggery", 300, 1000) ? 1 : 0>><</link>><<arcologySkill "Skulduggery">>
+		<br>
+		<<link [[Jump the crew member first|Arcology Stack Barge Fight]]>><<set $fightstart to 1>><</link>>
+		<br>
+	<<else>>
+		Nobody comes to check the scrap, so you stay hidden among it.
+		<br><br>
+		<<link [[Next|Arcology Stack Barge Landing]]>><</link>>
+	<</if>>
+<<else>>
+	<<set $phase to 0>>
+	You try to swim towards the barge, but the water moving behind the city's engines keeps pushing you backwards. The barge gets farther away, and your arms become too tired to keep up.
+	<br><br>
+	A drone flies out from the city and shines its light on the water around you. A siren sounds as the guards come to take you back.
+	<br><br>
+	<<link [[Next|Arcology Stack Caught]]>><</link>>
+<</if>>
+<br>
+
+:: Arcology Stack Barge Found
+<<effects>>
+<<person1>>
+<<if $phase is 1>>
+	<<set $phase to 0>>
+	You crouch beneath the old cables and keep your body still while the crew member checks the pile. The torch shines across a broken mechanical arm near your face, then moves away.
+	<br><br>
+	You wait until you hear the crew member walking towards the stairs. <span class="green">The <<person>> goes below deck without finding you.</span>
+	<br><br>
+	<<link [[Next|Arcology Stack Barge Landing]]>><<endevent>><</link>>
+<<else>>
+	<<set $phase to 0>>
+	The crew member shines the torch directly at your face. <span class="red">The <<person>> shouts for help,</span> then climbs over the scrap towards you before you can hide again.
+	<br><br>
+	<<link [[Next|Arcology Stack Barge Fight]]>><<set $fightstart to 1>><</link>>
+<</if>>
+<br>
+
+:: Arcology Stack Barge Fight
+<<if $fightstart is 1>>
+	<<set $fightstart to 0>>
+	<<neutral 1>><<maninit>><<npcidlegenitals>>
+	<<set $enemytrust -= 100>><<set $enemyanger += 200>>
+<</if>>
+<<set _scenePainMult to setup.arcology.fightPainMult()>><<set _scenePainFloor to setup.arcology.fightPainFloor()>>
+<<effects>><<arcologyCombatNotes>><<effectsman>><<man>><<arcologyCyberTurn>><<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|Arcology Stack Barge Fight Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Stack Barge Fight]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Stack Barge Fight Finish
+<<effects>>
+<<if $enemyhealth lte 0 or $enemypleasure gte $enemypleasuremax>>
+	<<if $enemypleasure gte $enemypleasuremax>><<ejaculation>><<else>><<run setup.arcology.noteWin()>><</if>>
+	<<tearful>> you manage to push the <<person>> over the side of the barge. You quickly move to the other end and crawl beneath a pile of scrap before the rest of the crew arrives. The other crew members search the deck without finding you. The crew assumes the missing worker fell into the water.
+	<br><br>
+	<<clotheson>><<endcombat>>
+	<br><br>
+	<<link [[Next|Arcology Stack Barge Landing]]>><</link>>
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	Several crew members force you down against the pile of scrap and keep you there while one of them contacts the city. The barge begins turning back towards Arcology. <<tearful>> you watch the sky above the deck, knowing the drones will soon arrive.
+	<br><br>
+	<<clotheson>><<endcombat>>
+	<<link [[Next|Arcology Stack Caught]]>><</link>>
+<</if>>
+<br>
+
+:: Arcology Stack Barge Landing
+<<pass `setup.arcology.voyageHours() * 60`>><<effects>>
+<<badEndTrackingEnd "Arcology Stack" { reason: "arcologyStackRan" }>>
+You spend several days hidden among the scrap. Your clothes gradually dry, but you have no blanket to keep out the wind. You sleep in short stretches, waking whenever the engines change pitch or footsteps pass your hiding place. Each time someone comes near, you crouch behind the scrap and wait for them to leave.
+<br><br>
+Eventually, the barge reaches the town docks. You wait until the barge stops beside the pier, then climb down onto it before the crew comes up from below deck.
+<br><br>
+The implant behind your ear is still active. Red text appears at the edge of your vision, reminding you that Arcology still considers you to be in debt.
+<br><br>
+<<set _holoMsg to "ABSCONDED. OUTSTANDING DEBT " + setup.arcology.cxU($xchange.arcology.stack.debt) + ".">>
+<<holoNotice "CIVIC REGISTRY" _holoMsg "denied">>
+<br>
+<<link [[Next|Docks]]>><<set $xchange.arcology.debt to { amount: $xchange.arcology.stack.debt, runs: ($xchange.arcology.stack.runs or 0) + 1 }>><<arcologyStackEnd>><<set $eventskip to 1>><</link>>
+<br>
+
+:: Arcology Stack Caught
+<<location "arcology_stack">><<effects>>
+<<set _st to $xchange.arcology.stack>>
+<<set _st.band to 0>><<set _st.route to Math.min(_st.route, 2)>><<set _st.suspicion to 100>><<set _st.smuggler to false>><<run delete _st.swim>>
+<<endevent>><<arcologyNPC 0 "staff" "guard">><<person1>>
+Guards in grey armour take hold of your arms and bring you back to the bunks. One guard checks your ankle, then locks a replacement band around your leg. The new hinge is positioned where you cannot reach it easily.
+<br><br>
+The guard shows you a new patrol schedule on a wrist screen. An extra drone has been assigned to watch you, changing the routes you memorised. <<arcologyStackCharge 2500>> <<stress 10>><<ggstress>><<trauma 4>><<gtrauma>>
+<br><br>
+"You still have to answer for trying to escape," the <<person>> says. The guard takes you by the arm and leads you away from the bunks.
+<br><br>
+<<link [[Next|Arcology Stack Punishment]]>><</link>>
+<br>
+
+/* REVOLT */
+:: Arcology Stack Revolt
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+<<set _sdCount to $phase>>
+You climb onto a bunk and tap the nearby drone cable three times, giving the signal you agreed on with the other workers. You wait, watching the drones above the sorting belts.
+<br><br>
+The relay broadcasts your signal to the modified chips, including a command to erase the workers' debt records. A moment later, the drones' red camera lights turn white. The drones stop moving along their patrol routes and remain above the belts. Workers begin leaving the bunks and running towards the main passage.
+<br><br>
+<<if _sdCount gte 3>>
+	The lights in the working area go out while smoke and the bright light from a flare appear near the sea door. At the same time, the guards' screens show an empty sorting room instead of the workers leaving their bunks.
+	<br><br>
+	The guards hurry towards different parts of the Stack to investigate. <span class="green">Nobody is left blocking your path to the service lift.</span>
+	<br><br>
+	<<link [[Next|Arcology Stack Revolt Victory]]>><</link>>
+<<elseif _sdCount is 2>>
+	<<arcologyNPC 0 "staff" "security guard">><<person1>>
+	The problems you arranged draw most of the guards away. <span class="blue">One security guard remains in front of the lift,</span> holding a weapon towards the approaching workers. <<arcologyCyberLook 0>>
+	<br><br>
+	<<link [[Next|Arcology Stack Revolt Fight]]>><<set $fightstart to 1>><<set $phase to 1>><</link>>
+<<elseif _sdCount is 1>>
+	<<arcologyNPC 0 "staff" "security guard">><<arcologyNPC 1 "staff" "guard">><<arcologyNPC 2 "staff" "guard">><<person1>>
+	Some guards leave to investigate the distraction you prepared. <span class="purple">Three guards remain in the corridor to the lift,</span> standing between you and the exit.
+	<br><br>
+	<<link [[Next|Arcology Stack Revolt Fight]]>><<set $fightstart to 1>><<set $phase to 3>><</link>>
+<<else>>
+	<<arcologyNPC 0 "staff" "security guard">><<person1>>
+	The drones have stopped patrolling, but the guards can still see the workers running towards the lift. Several guards step into the corridor and draw their batons.
+	<br><br>
+	<span class="red">The workers at the front turn back when the guards begin hitting them,</span> forcing the people behind to stop as well.
+	<br><br>
+	You try to keep moving, but a <<person>> catches you by the collar before you reach the lift. <<arcologyStackCrew -10>><<set _st.net to Math.max(0, _st.net - 5)>>
+	<br><br>
+	<<link [[Next|Arcology Stack Punishment]]>><</link>>
+<</if>>
+<br>
+
+:: Arcology Stack Revolt Fight
+<<if $fightstart is 1>>
+	<<set $fightstart to 0>>
+	<<set $enemyno to $phase>>
+	<<set $phase to 0>>
+	<<neutral 1>><<maninit>><<npcidlegenitals>>
+	<<set $enemytrust -= 100>><<set $enemyanger += 200>>
+	<<person1>>
+<</if>>
+<<set _scenePainMult to setup.arcology.fightPainMult()>><<set _scenePainFloor to setup.arcology.fightPainFloor()>>
+<<effects>><<arcologyCombatNotes>><<effectsman>><<man>><<arcologyCyberTurn>><<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|Arcology Stack Revolt Fight Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Stack Revolt Fight]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Stack Revolt Fight Finish
+<<effects>>
+<<if $enemyhealth lte 0 or $enemypleasure gte $enemypleasuremax>>
+	<<if $enemypleasure gte $enemypleasuremax>><<ejaculation>><<else>><<run setup.arcology.noteWin()>><</if>>
+	<<tearful>> you move past the guards you have defeated. The other workers run through the open space towards the lift, while you follow behind them.
+	<br><br>
+	<<clotheson>><<endcombat>>
+	<<link [[Next|Arcology Stack Revolt Victory]]>><</link>>
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	The guards strike you until you fall to the floor. When the workers behind you see that you cannot get past, the group turns back and runs towards the bunks.
+	<<clotheson>><<endcombat>>
+	<<arcologyStackCrew -10>><<set $xchange.arcology.stack.net to Math.max(0, $xchange.arcology.stack.net - 5)>>
+	<br><br>
+	<<endevent>><<arcologyNPC 0 "staff" "guard">><<person1>>
+	<<tearful>> you try to get up, but a <<person>> grabs your arm and pulls you away from the lift towards the punishment corridor.
+	<br><br>
+	<<link [[Next|Arcology Stack Punishment]]>><</link>>
+<</if>>
+<br>
+
+:: Arcology Stack Revolt Victory
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+You reach the service lift, followed by the workers who escaped the guards. The lift doors are closed, and the control panel beside them shows a red warning light.
+<br><br>
+<<if _st.revolt.code>>
+	<<pass 4>>
+	You remember hearing the supervisors discuss the access code through a vent. You enter the shift number in reverse order, pressing one button at a time. <span class="green">The warning light turns green, and the lift doors unlock.</span>
+	<br><br>
+	<<link [[Next|Arcology Stack Revolt Free]]>><</link>>
+<<else>>
+	You do not know the code to open the lift. When you look above the closed doors, you see a maintenance hatch that leads into the space where the lift moves between floors.
+	<br><br>
+	<<link [[Next|Arcology Stack Revolt Shaft]]>><<set $phase to setup.arcology.escape("stack", "athletics", 400, 1100) ? 1 : 0>><</link>>
+<</if>>
+<br>
+
+:: Arcology Stack Revolt Shaft
+<<pass 10>><<effects>>
+<<if $phase is 1>>
+	<<set $phase to 0>>
+	You pull yourself through the hatch and find a metal ladder fixed to the wall. You begin climbing, followed by the other workers. There is little room to move, so you keep climbing without stopping while more people come through the hatch below.
+	<br><br>
+	When you reach the pier level, your arms hurt from the climb. You find a lever beside the doors and pull it. The doors open, allowing everyone to leave the shaft.
+	<br><br>
+	<<link [[Next|Arcology Stack Revolt Free]]>><</link>>
+<<else>>
+	<<set $phase to 0>>
+	Halfway up the ladder, your hand slips from a greasy step. You try to grab the next one, but fall backwards into the workers climbing below you. Several workers lose their hold, and you fall together to the bottom of the shaft. <<pain 15>><<ggpain>>
+	<br><br>
+	The drones begin patrolling again before you can climb out. By the time guards reach the hatch, you are still at the bottom of the shaft. <<arcologyStackCrew -10>>
+	<br><br>
+	<<endevent>><<arcologyNPC 0 "staff" "guard">><<person1>>
+	<<link [[Next|Arcology Stack Punishment]]>><</link>>
+<</if>>
+<br>
+
+:: Arcology Stack Revolt Free
+<<pass 1>><<effects>>
+<<badEndTrackingEnd "Arcology Stack" { reason: "arcologyStackRevolt" }>>
+<<run setup.arcology.expose(5)>>
+The doors open onto the pier, and the workers run outside. Some head along the waterfront while others take the stairs towards the lower streets. A few stop beside the exit, looking back at the dome above the city.
+<br><br>
+The warning in your implant disappears, then returns with letters and numbers you cannot make sense of.
+<br><br>
+<<holo "CIVIC REGISTRY / STATUS CHANGE" "ok">>
+	<<holoRow "HANDLE" `$xchange.arcology.handle`>>
+	<<holoRow "STATUS" "RECORD CORRUPTED">>
+	<<holoLine "DEBT NOT FOUND" "ok">>
+<</holo>>
+<br>
+The Stack's debt records have been deleted during the revolt. Your implant no longer shows the amount you owed. You can leave the Stack, but <span class="red">the island's guards will soon be looking for the workers who escaped, including you.</span>
+<br><br>
+<<link [[Next|Arcology Pier]]>><<arcologyStackEnd>><</link>>
+<br>
+
+/* The Stack's punishments, the island's answer to the mine's pit: the isolation pod, implant reconditioning, the compactor hold
+   and a night sold to a buyer. Callers leave a guard in slot 0; every branch ends in <<arcologyStackPunishEnd>>. */
+:: Arcology Stack Punishment
+<<effects>><<person1>>
+<<set _st to $xchange.arcology.stack>>
+<<set _spPool to ["Pod", "Recondition", "Compactor"]>>
+<<if _st.buyerSeen>><<set _spPool.push("Buyer", "Buyer")>><</if>>
+<<set _spPick to _spPool.random()>>
+The <<person>> takes you past the sleeping area and into a corridor away from the sorting belts. As you walk, the guard checks your record on a tablet and reads out the rule you broke. <<He>> keeps hold of your arm while leading you farther into the building.
+<br><br>
+<<set _spLink to "Arcology Stack " + _spPick>>
+<<link [[Next|_spLink]]>><</link>>
+<br>
+
+:: Arcology Stack Pod
+<<effects>><<person1>>
+The corridor ends beside a row of narrow metal pods. Each is just large enough for someone to stand inside, with a small window near the top. The <<person>> opens one of the doors and pushes you inside before closing it. <<pain 4>><<gpain>>
+<br><br>
+The light switches off, leaving you in darkness. The walls block almost all the noise from the rest of the Stack. You move one foot against the floor, but even that makes very little sound. <<ggstress>><<stress 10>>
+<br><br>
+You try to count how much time has passed, but you cannot tell whether you have been inside for a few minutes or much longer. You feel the band around your ankle and start thinking about how many more shifts you will have to work. <<gggstress>><<stress 40>>
+<br><br>
+You remember the town across the water. You wonder whether anyone has looked for you since you disappeared, and whether you will be able to return. <<gggtrauma>><<trauma 300>>
+<br><br>
+<<link `$trauma >= 2500 ? "Wait (2:00)" : "Next"` "Arcology Stack Pod End">><</link>>
+<br>
+<<if $trauma gte 2500>>
+	<<link [[Cry|Arcology Stack Pod Cry]]>><<trauma -50>><</link>><<llltrauma>>
+	<br>
+<</if>>
+
+:: Arcology Stack Pod Cry
+<<effects>>
+<span class="red">You begin crying and cannot stop.</span> You cover your face with your hands, but there is nobody inside the pod to see you. Your cries sound faint through the walls, and no guard comes to check on you. <<ggstress>><<stress 10>>
+<br><br>
+After a while, you wipe your face and manage to stop crying. You lean against the wall and try to breathe normally again. <<trauma -25>><<llltrauma>>
+<br><br>
+<<link [[Next|Arcology Stack Pod End]]>><</link>>
+<br>
+
+:: Arcology Stack Pod End
+<<pass 2 hours>><<effects>><<person1>>
+The door opens, letting the bright corridor lights shine inside. You close your eyes briefly before the <<person>> grabs your arm and pulls you out.
+<br><br>
+You stumble as you leave the pod, then manage to stand while the guard waits beside you.
+<br><br>
+<<arcologyStackPunishEnd>>
+
+:: Arcology Stack Recondition
+<<effects>><<person1>>
+The <<person>> sits you in a chair bolted to the floor and straps your wrists to its arms. A technician wheels a console over and plugs a cable into the light behind your ear.
+<br><br>
+<<holo "IMPLANT / RECONDITIONING" "denied">>
+	<<holoRow "HANDLE" `$xchange.arcology.handle`>>
+	<<holoRow "PROGRAMME" "COMPLIANCE 3">>
+	<<holoLine "USER CONSENT" "denied">>
+<</holo>>
+<br>
+A sharp pain starts near the implant behind your ear and spreads through your head. Your vision fills with flashing lines, followed by large red words: <span class="red">STATION. SORT. COMPLY.</span>
+<br><br>
+You try to look away, but the instructions remain in front of your eyes. Another pulse makes your fingers move against the straps, as though you were already working at a sorting belt. <<pain 10>><<ggpain>>
+<br><br>
+<<link [[Fight it|Arcology Stack Recondition 2]]>><<pass 30>><<set $phase to setup.arcology.escape("stack", "willpower", 200, 1000) ? 1 : 0>><</link>><<arcologySkill "Willpower">>
+<br>
+<<link [[Let it run|Arcology Stack Recondition 2]]>><<pass 30>><<set $phase to 2>><</link>>
+<br>
+
+:: Arcology Stack Recondition 2
+<<effects>>
+<<switch $phase>>
+<<case 1>>
+	You repeat your own handle out loud to remind yourself who you are. The programme keeps showing the same orders, but you concentrate on saying your handle rather than following them.
+	<br><br>
+	After several more pulses, the same instruction stays on the display without changing. <span class="green">The programme stops, and the technician cannot make it continue.</span> The technician swears and presses several buttons on the console. <<willpower 3>><<gwillpower>><<stress 10>><<gstress>>
+	<br><br>
+	"You wouldn't follow the instructions," the technician says. The technician looks at the frozen display. "Put down that the treatment is complete. I'm not starting it again."
+<<case 0>>
+	You try to remember your own handle while the machine repeats its instructions. Each new pulse makes it harder to concentrate, until <span class="red">you begin repeating the sorting orders without meaning to.</span> You keep thinking about where each piece of scrap belongs, even though you are still strapped to the chair. <<trauma 30>><<ggtrauma>><<stress 20>><<ggstress>><<pain 10>><<ggpain>>
+<<default>>
+	You stop trying to resist the repeated instructions. As the machine continues, the pain begins to fade and a strange warmth spreads through your body. You stop pulling against the straps and listen to the orders instead. <<trauma 20>><<ggtrauma>><<arousal 1500>><<garousal>>
+	<br><br>
+	When the technician unplugs the cable, you find yourself waiting for another instruction to appear.
+<</switch>>
+<<set $phase to 0>>
+<br><br>
+The <<person>> removes the straps from your wrists. Your vision is still disturbed by small flashes of light as you get up from the chair.
+<br><br>
+<<arcologyStackPunishEnd>>
+
+:: Arcology Stack Compactor
+<<effects>><<person1>>
+<<set _scPool to ["Empty"]>>
+<<if $settings.tentaclesEnabled>><<set _scPool.push("Tendrils")>><</if>>
+<<if $settings.slimesEnabled>><<set _scPool.push("Culture")>><</if>>
+<<set _scPick to _scPool.random()>>
+The <<person>> stops at a heavy metal door marked COMPACTOR HOLD / ORGANIC WASTE. The guard turns the wheel until the door opens, then pushes you inside.
+<br><br>
+You fall onto a floor that slopes down towards the drains. Something warm and slippery covers the metal beneath your hands. <<pain 5>><<gpain>>
+<br><br>
+The door closes above you, leaving you inside the room. A row of small green lights along one wall lets you see part of the floor. <<ggstress>><<stress 10>>
+<br><br>
+<<if _scPick is "Tendrils">>
+	You see something moving behind the metal covers over the drains. The Stack uses living organisms to break down waste mixed in with the scrap, and some have been left inside this room.
+	<br><br>
+	Pale tendrils push through the openings and move across the floor towards you. <span class="red">One reaches your ankle while more emerge from the drains.</span>
+	<br><br>
+	<<link [[Next|Arcology Stack Compactor Tendrils]]>><<set $molestationstart to 1>><<endevent>><</link>>
+<<elseif _scPick is "Culture">>
+	You try to get up, but the warm substance on the floor sticks to your hands. It is a living cleaning substance used to break down waste from the sorting belts.
+	<br><br>
+	As you move your hands away, the substance moves towards your legs. <span class="red">It gathers around your knees and slowly moves up your thighs.</span>
+	<br><br>
+	<<link [[Next|Arcology Stack Compactor Culture]]>><<set $molestationstart to 1>><<endevent>><</link>>
+<<else>>
+	There is nobody else inside the room. Machinery starts working somewhere above you, and the metal walls shake every few minutes. You move away from the walls each time, expecting the machine to start pushing them together.
+	<br><br>
+	The walls do not move any closer, but you keep looking up whenever the machinery starts again. <<gggstress>><<stress 30>><<trauma 100>><<ggtrauma>>
+	<br><br>
+	<<link [[Next|Arcology Stack Compactor End]]>><<endevent>><</link>>
+<</if>>
+<br>
+
+:: Arcology Stack Compactor Tendrils
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<set $combat to 1>>
+	<<set $enemytype to "tentacles">>
+	<<molested>>
+	<<controlloss>>
+	<<tentaclestart 6 12>>
+<</if>>
+<<statetentacles>>
+<<effects>>
+<<effectstentacles>>
+<<tentacles>>
+<<actionstentacles>>
+<<if $tentacles.active lte ($tentacles.max / 2)>>
+	<span id="next"><<link [[Next|Arcology Stack Compactor Tendrils Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Stack Compactor Tendrils]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Stack Compactor Tendrils Finish
+<<effects>>
+The tendrils slowly pull away from your body and disappear through the drain openings. <<tearful>> you move towards a clear section of floor, sit against the wall and wait for someone to open the door.
+<br><br>
+<<clotheson>><<endcombat>>
+<<link [[Next|Arcology Stack Compactor End]]>><</link>>
+<br>
+
+:: Arcology Stack Compactor Culture
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<molested>>
+	<<controlloss>>
+	<<set $combat to 1>>
+	<<set $enemytype to "swarm">>
+	<<swarminit "slimes" "culture" "moving towards you" "encircle you" "fend off" 4 2>>
+	<<set $timer to 8>>
+<</if>>
+<<swarmeffects>>
+<<swarm>>
+<<swarmactions>>
+<<if $timer lte 0>>
+	<span id="next"><<link [[Next|Arcology Stack Compactor Culture Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Stack Compactor Culture]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Stack Compactor Culture Finish
+<<effects>>
+The living substance begins flowing back towards the drains, leaving some of it on your skin. <<tearful>> you wipe off as much as you can, then sit away from the drain openings and wait for the door to open.
+<br><br>
+<<clotheson>><<endcombat>>
+<<link [[Next|Arcology Stack Compactor End]]>><</link>>
+<br>
+
+:: Arcology Stack Compactor End
+<<pass 2 hours>><<effects>>
+<<arcologyNPC 0 "staff" "guard">><<person1>>
+The heavy door opens above you, and someone lowers a rope ladder into the room. You grab the ladder and climb towards the opening.
+<br><br>
+A <<person>> waits at the top with a hose. As soon as you climb out, the guard sprays you with water to wash off anything left from the room. <<wash>>
+<br><br>
+<<arcologyStackPunishEnd>>
+
+:: Arcology Stack Buyer
+<<effects>><<person1>>
+At the end of the corridor, the <<person>> opens a door to a room with carpet on the floor. The guard pushes you inside and closes the door, leaving you alone with whoever is waiting there.
+<br><br>
+<<endevent>><<loadNPC 0 "stack_buyer">><<person1>>
+A visitor wearing a clean coat is sitting on a wide bed. <<arcologyCyberLook 0>> <<He>> pours a drink into two glasses and offers you one.
+<br><br>
+"I paid your supervisor to spend a few hours with you," <<he>> says. "Only a small part of that money will reduce your debt. The Stack keeps the rest."
+<br><br>
+<<He>> taps the empty space on the bed beside <<him>>. "You can sit here yourself, or I can make you. What are you going to do?"
+<br><br>
+<<link [[Make it pleasant|Arcology Stack Buyer Sex]]>><<set $sexstart to 1>><<pass 2 hours>><</link>><<promiscuous2>>
+<br>
+<<link [[Refuse|Arcology Stack Buyer Rape]]>><<set $molestationstart to 1>><<pass 2 hours>><</link>>
+<br>
+
+:: Arcology Stack Buyer Sex
+<<if $sexstart is 1>>
+	<<person1>>You accept the glass and sit beside <<him>> on the bed. After you take a sip, the visitor takes the glass from your hand and puts it aside. <<He>> moves closer and guides you down onto the bed.
+	<br><br>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<promiscuity2>>
+	<<maninit>>
+	<<set $enemytrust += 100>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Arcology Stack Buyer Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Stack Buyer Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Stack Buyer Rape
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<person1>><<He>> puts the glass aside and reaches for you. When you try to move away, the visitor grabs your wrists to stop you.
+	<br><br>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+<</if>>
+<<set _scenePainMult to setup.arcology.fightPainMult()>><<set _scenePainFloor to setup.arcology.fightPainFloor()>>
+<<effects>><<arcologyCombatNotes>><<effectsman>><<man>><<arcologyCyberTurn>><<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Arcology Stack Buyer Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Stack Buyer Rape]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Stack Buyer Finish
+<<effects>>
+<<if $enemyhealth lte 0>>
+	You manage to push the visitor away and reach the door, but it is locked from the outside. You hit the door several times until a guard opens it.
+	<br><br>
+	The guard sees the visitor on the bed, grabs your arm and pulls you into the corridor. <<tearful>> you are taken back towards the Stack's work area. <<arcologyStackSuspicion 20>>
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	The visitor lies back against the pillows and presses something on <<his>> wrist screen. "I'll ask your supervisor to send you here again," <<he>> says, without asking what you want. <<arcologyStackPay 3000>>
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	"You haven't given me what I paid for," the visitor says before calling for the guard. The guard takes you back into the corridor, and <<tearful>> you return to the Stack.
+<</if>>
+<br><br>
+<<clotheson>><<endcombat>>
+<<endevent>><<arcologyNPC 0 "staff" "guard">><<person1>>
+<<arcologyStackPunishEnd>>

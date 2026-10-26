@@ -1,0 +1,519 @@
+:: Arcology Holo Widgets [widget]
+/* A holographic interface panel. For island technology only, never for ordinary narration.
+   _args[0]: panel title. _args[1]: "ok" (default) | "pending" | "denied". */
+<<widget "holo" container>>
+	<<if _args[1]>><<run ArcologySfx.cue(_args[1])>><</if>>
+	<div class="holo" @data-state="_args[1] or 'ok'" role="group" @aria-label="_args[0]">
+		<div class="holo-head">_args[0]</div>
+		<div class="holo-body">_contents</div>
+	</div>
+<</widget>>
+
+/* One label/value line in a <<holo>> panel. */
+<<widget "holoRow">><div class="holo-row"><span class="holo-label">_args[0]</span><span class="holo-value">_args[1]</span></div><</widget>>
+
+/* A status line. _args[1]: "ok" | "warn" | "denied". */
+<<widget "holoLine">><div class="holo-line" @data-tone="_args[1] or 'ok'">_args[0]</div><</widget>>
+
+/* A one-line holographic notification for a meaningful digital event. _args: title, text, tone ("ok" | "warn" | "denied"). */
+<<widget "holoNotice">>
+	<<run ArcologySfx.cue(_args[2])>>
+	<div class="holo holo-notice" @data-state="_args[2] is 'denied' ? 'denied' : 'ok'" role="status">
+		<span class="holo-notice-title">_args[0]</span>
+		<span class="holo-line" @data-tone="_args[2] or 'ok'">_args[1]</span>
+	</div>
+<</widget>>
+
+/* The Holo tab in the Journal: the implant's own view of the island systems. Uses the existing story state only. */
+<<widget "arcologyHoloJournal">>
+	<<arcologyInit>>
+	<<set _ha to $xchange.arcology>>
+	<<set _online to setup.arcology.online()>>
+	<<set _haNow to Time.date.timeStamp>>
+	<<set _cached to _online ? "" : " · CACHED">>
+	<<set _haId to setup.arcology.guestId()>>
+	<<set _haRoom to setup.arcology.hasRoom()>>
+	<<if _ha.guest.status is "revoked">>
+		<<set _haClearance to "REVOKED">><<set _haTone to "denied">><<set _haAuth to "AUTHORIZATION REVOKED">>
+	<<else>>
+		<<set _haClearance to (_ha.clearance or "guest").toUpperCase()>><<set _haTone to "warn">>
+		<<if _haRoom>>
+			<<set _haAuth to _ha.guest.status is "sponsored" ? "SPONSORED GUEST" : "PAYING GUEST">>
+		<<elseif ["sponsored", "paid"].includes(_ha.guest.status)>>
+			<<set _haAuth to "AUTHORIZATION EXPIRED">>
+		<<else>>
+			<<set _haAuth to "NO ROOM AUTHORIZATION">>
+		<</if>>
+	<</if>>
+	<div class="holo-wrap"><div class="holo-journal">
+		<div id="holoBoot" class="holo-boot" role="status">
+			<div class="holo-boot-status"><span class="holo-boot-dot"></span><span class="holo-boot-line"><<if setup.arcology.online()>>CONNECTING TO CITY NETWORK...<<else>>NO SIGNAL. LOADING CACHE...<</if>></span></div>
+			<div class="holo-boot-bar"><span></span></div>
+			<div class="holo-boot-sub">AUTHENTICATING <<print (_ha.handle or "GUEST").toUpperCase()>></div>
+			<button type="button" class="holo-boot-skip">Skip</button>
+		</div>
+		<section class="holo holo-id" aria-label="Digital identity" @data-state="_haTone is 'denied' ? 'denied' : 'ok'">
+			<div class="holo-id-head">
+				<svg class="holo-id-emblem" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 21a10 10 0 0 1 20 0"/><path d="M7 21v-7m5 7V9m5 12v-6"/><path d="M1 21h22"/></svg>
+				<span class="holo-id-issuer">CIVIC REGISTRY</span>
+				<span class="holo-id-kind">DIGITAL IDENTITY</span>
+			</div>
+			<div class="holo-id-main">
+				<div class="holo-id-photo"><<if $options.images is 1>><<canvasimg "holoPortrait" "holo" "still">><<else>><span class="holo-empty">IMAGES DISABLED</span><</if>></div>
+				<div class="holo-id-fields">
+					<div class="holo-id-field holo-id-handle"><span class="holo-id-label">HANDLE</span><span class="holo-id-value"><<print _ha.handle or "UNREGISTERED">></span></div>
+					<div class="holo-id-field"><span class="holo-id-label">TITLE</span><span class="holo-id-value"><<print _ha.title or "NO TITLE">></span></div>
+					<div class="holo-id-field"><span class="holo-id-label">CLEARANCE</span><span class="holo-badge" @data-tone="_haTone">_haClearance</span></div>
+					<div class="holo-id-field"><span class="holo-id-label">INTERFACE</span><span class="holo-id-value"><<print (_ha.implant and _ha.implant.model is "basic") ? "BASIC CIVILIAN" : "UNKNOWN">></span></div>
+					<div class="holo-id-field"><span class="holo-id-label">STATUS</span><span class="holo-id-value">_haAuth</span></div>
+					<div class="holo-id-field"><span class="holo-id-label">AFFILIATION</span><span class="holo-id-value">NONE</span></div>
+				</div>
+			</div>
+			<div class="holo-id-foot">
+				<div class="holo-id-field"><span class="holo-id-label">GUEST ID</span><span class="holo-id-value holo-id-number"><<print _haId or "NOT REGISTERED">></span></div>
+				<<if _ha.implant and _ha.implant.fitted>>
+					<div class="holo-id-field"><span class="holo-id-label">ISSUED</span><span class="holo-id-value"><<print setup.arcology.issueDate(_ha.implant.fitted)>></span></div>
+				<</if>>
+				<<if _haId>><<print setup.arcology.barcode(_haId)>><</if>>
+			</div>
+			<div class="holo-id-mrz" aria-hidden="true" @data-mrz="setup.arcology.mrz(_ha.handle, _haId)"></div>
+		</section>
+		<section class="holo holo-net" aria-label="Network" @data-state="_online ? 'ok' : 'pending'">
+			<div class="holo-head">NETWORK</div>
+			<div class="holo-status" @data-tone="_online ? 'ok' : 'warn'"><span class="holo-dot" aria-hidden="true"></span><<print _online ? "CITY NETWORK CONNECTED" : "OUT OF RANGE">></div>
+			<<if _online>>
+				<<holoRow "LAST SYNC" "NOW">>
+			<<else>>
+				<<holoRow "LAST SYNC" `_ha.lastSync ? setup.arcology.when(_ha.lastSync).toUpperCase() : "AT REGISTRATION"`>>
+				<<holoLine "SHOWING CACHED DATA" "warn">>
+			<</if>>
+			<div class="holo-auth">
+				<span class="holo-badge" @data-tone="_ha.handle ? 'ok' : 'warn'"><<print _ha.handle ? "ID VERIFIED" : "ID PENDING">></span>
+				<span class="holo-badge" @data-tone="_haRoom and _ha.guest.status is 'sponsored' ? 'ok' : 'off'">SPONSOR LINK</span>
+				<span class="holo-badge" @data-tone="_haTone">_haClearance ACCESS</span>
+			</div>
+		</section>
+		<section class="holo holo-objectives" aria-label="Objectives">
+			<div class="holo-head">OBJECTIVES<<print _cached>></div>
+			<<set _objectives to 0>>
+			<<if _ha.voyage and _ha.voyage.arriveAt>>
+				<<set _objectives++>><<set _hvs to setup.arcology.voyageStatus()>>
+				<div class="holo-obj">
+					<div class="holo-obj-title"><<print _ha.voyage.to is "arcology" ? "IN TRANSIT TO ARCOLOGY" : "IN TRANSIT TO THE MAINLAND">></div>
+					<div class="transit-bar" role="progressbar" aria-label="Journey progress" aria-valuemin="0" aria-valuemax="100" @aria-valuenow="_hvs.pct"><span class="transit-fill" @style="'width: ' + _hvs.pct + '%'"></span></div>
+					<<holoRow "REMAINING" `setup.arcology.duration(_hvs.remaining)`>>
+				</div>
+			<</if>>
+			<<if _ha.debt>>
+				<<set _objectives++>>
+				<div class="holo-obj">
+					<div class="holo-obj-title">OUTSTANDING STACK DEBT</div>
+					<<holoRow "BALANCE" `setup.arcology.cxU(_ha.debt.amount)`>>
+					<<holoRow "STATUS" "ABSCONDED">>
+					<<holoLine "PAY AT THE PIER BOOTH. UNPAID DEBTORS ARE DETAINED ON ARRIVAL." "denied">>
+				</div>
+			<</if>>
+			<<if _ha.party.status is "invited">>
+				<<set _objectives++>>
+				<div class="holo-obj">
+					<div class="holo-obj-title">GLASSHOUSE MASQUERADE</div>
+					<<if _haNow gte _ha.party.end>>
+						<<holoLine "DOORS CLOSED" "denied">>
+					<<elseif _haNow gte _ha.party.at - 3600>>
+						<<holoLine "OPEN NOW" "ok">>
+						<<holoRow "MEET" "LUCHIFEN, GLASSHOUSE LIFT, RELAY STREET">>
+						<<holoRow "DOORS CLOSE IN" `setup.arcology.duration(_ha.party.end - _haNow)`>>
+					<<else>>
+						<<holoRow "WHEN" `setup.arcology.when(_ha.party.at).toUpperCase()`>>
+						<<holoRow "STARTS IN" `setup.arcology.duration(_ha.party.at - _haNow)`>>
+						<<holoRow "MEET" "LUCHIFEN, GLASSHOUSE LIFT, RELAY STREET">>
+					<</if>>
+				</div>
+			<<elseif _ha.party.status is "attending">>
+				<<set _objectives++>>
+				<div class="holo-obj"><div class="holo-obj-title">GLASSHOUSE MASQUERADE</div><<holoLine "IN PROGRESS" "ok">></div>
+			<<elseif _ha.party.status is "done" and _haNow lt _ha.party.end + 2 * 86400>>
+				<<set _objectives++>>
+				<div class="holo-obj"><div class="holo-obj-title">GLASSHOUSE MASQUERADE</div><<holoLine "ATTENDED" "ok">></div>
+			<</if>>
+			<<if _ha.redeem.stage is "silent">>
+				<<set _objectives++>>
+				<div class="holo-obj"><div class="holo-obj-title">SPONSOR</div><<holoLine "NO RESPONSE" "warn">></div>
+			<<elseif _ha.redeem.stage is "arena">>
+				<<set _objectives++>>
+				<div class="holo-obj">
+					<div class="holo-obj-title">SPONSOR CONDITION</div>
+					<<holoRow "REQUIREMENT" `_ha.redeem.sponsored ? "WIN LUCHIFEN'S ARRANGED BOUT" : "CHAMPION OF THE UNDERGROUND ARENA"`>>
+					<<holoLine `setup.arcology.arenaQualified() ? "REQUIREMENT MET" : "NOT YET MET"` `setup.arcology.arenaQualified() ? "ok" : "warn"`>>
+				</div>
+			<<elseif _ha.redeem.stage is "invited">>
+				<<set _objectives++>>
+				<div class="holo-obj"><div class="holo-obj-title">SPONSOR</div><<holoLine "INVITATION RENEWED. MEET LUCHIFEN AT THE DOCKS" "ok">></div>
+			<</if>>
+			<<if _objectives is 0>>
+				<div class="holo-empty">NO ACTIVE OBJECTIVES</div>
+			<</if>>
+		</section>
+		<section class="holo holo-room" aria-label="Accommodation" @data-state="_haRoom ? 'ok' : 'denied'">
+			<div class="holo-head">ACCOMMODATION<<print _cached>></div>
+			<<if _haRoom>>
+				<div class="holo-big">HOTEL MERIDIAN · <<print setup.arcology.roomNumber()>></div>
+				<<holoRow "SPONSOR" `_ha.guest.sponsor ? _ha.guest.sponsor.toUpperCase() : "NONE"`>>
+				<<holoRow "PAYMENT" `_ha.guest.status is "sponsored" ? "COVERED BY SPONSOR" : "SETTLED"`>>
+				<<holoRow "VALID UNTIL" `setup.arcology.when(_ha.guest.until).toUpperCase()`>>
+				<<holoRow "TIME LEFT" `setup.arcology.duration(_ha.guest.until - _haNow)`>>
+			<<else>>
+				<div class="holo-big holo-big-off">NO ROOM</div>
+				<<holoRow "NIGHTLY RATE" `setup.arcology.cxU(setup.arcologyPrice.peek("night").q)`>>
+			<</if>>
+		</section>
+		<section class="holo holo-wallet" aria-label="Wallet">
+			<div class="holo-head">WALLET<<print _cached>></div>
+			<div class="holo-amount"><<print setup.arcology.cxN(_ha.cipher or 0)>> <span>CIPHER</span></div>
+			<<if _ha.vault>><<holoRow "VAULT" `setup.arcology.cxU(_ha.vault)`>><</if>>
+		</section>
+		<section class="holo holo-services" aria-label="Network services" @data-state="_online ? 'ok' : 'denied'">
+			<div class="holo-head">SERVICES</div>
+			<div class="holo-tiles">
+				<div id="holoMapTile" class="holo-svc">
+					<div class="holo-svc-bg" @data-visual="'mapcard'" aria-hidden="true"></div>
+					<div class="holo-svc-body">
+						<span class="holo-svc-title">CITY MAP</span>
+						<<if _online and setup.arcology.mapAccess()>>
+							<<link "Open the city map">><<replace "#customOverlayContent">><<arcologyCityMap>><</replace>><</link>>
+						<<elseif _online>>
+							<<link "Request the city map">><<run ArcologySfx.play("deny")>><<replace "#holoMapReply">><<holoLine "ACCESS RESTRICTED. INSUFFICIENT AUTHORIZATION." "denied">><</replace>><<run setup.arcology.compose(document.getElementById("holoMapReply"), "decode")>><<removeclass "#holoMapTile" "holo-interfere">><<run void document.getElementById("holoMapTile").offsetWidth>><<addclass "#holoMapTile" "holo-interfere">><</link>>
+						<<else>>
+							<button type="button" class="transit-locked-btn" disabled>Request the city map</button>
+							<<holoLine "UNAVAILABLE: CITY NETWORK OUT OF RANGE" "denied">>
+						<</if>>
+						<div id="holoMapReply"></div>
+					</div>
+				</div>
+				<div class="holo-svc holo-svc-fx">
+					<div class="holo-svc-bg" data-visual="fxcard" data-live aria-hidden="true"></div>
+					<div class="holo-svc-body">
+						<span class="holo-svc-title">UNIT EXCHANGE</span>
+						<<if _online>>
+							<span class="holo-svc-rate">1 CIPHER = <<print setup.arcologyFx.gbp(setup.arcologyFx.mid(setup.arcologyFx.sync()))>></span>
+							<<link "Open Unit Exchange">><<replace "#customOverlayContent">><<arcologyHoloExchange>><</replace>><</link>>
+						<<else>>
+							<button type="button" class="transit-locked-btn" disabled>Open Unit Exchange</button>
+							<<holoLine "UNAVAILABLE: CITY NETWORK OUT OF RANGE" "denied">>
+						<</if>>
+					</div>
+				</div>
+				<<set _haUnread to setup.arcologyNews.unread().length>>
+				<div class="holo-svc">
+					<div class="holo-svc-bg" data-visual="masthead" aria-hidden="true"></div>
+					<div class="holo-svc-body">
+						<span class="holo-svc-title">CITY NEWS</span>
+						<<link "Read the news">><<run setup.arcologyNews.mode = "journal">><<replace "#customOverlayContent">><<arcologyNewsReader>><</replace>><</link>>
+						<<if _haUnread>><span class="holo-svc-new"><<print _haUnread>> NEW REPL<<print _haUnread is 1 ? "Y" : "IES">></span><</if>>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div></div>
+	<<run setup.arcology.holoOpen()>><<run setTimeout(() => setup.arcologyVisuals.fill(), 0)>>
+<</widget>>
+
+/* The Unit Exchange terminal inside the Journal: the same market and trade code as the hall in Exchange Square.
+   Opening it moves nobody and passes no time. */
+<<widget "arcologyHoloExchange">>
+	<div class="holo-wrap"><div class="fx-holo">
+		<div class="dbn-back"><<link "Back to Holo">><<run setup.arcology.holoQuiet = true>><<replace "#customOverlayContent">><<arcologyHoloJournal>><</replace>><</link>></div>
+		<div id="fxHolo"></div>
+	</div></div>
+	<<run setTimeout(() => setup.arcologyFx.mount(document.getElementById("fxHolo")))>>
+<</widget>>
+
+/* The drifting island marker on the journal map, and the encrypted map it opens.
+   Shown only after the first visit. Behaviour lives in arcology-map.js. */
+<<widget "arcologyMapOrb">>
+	<<if $xchange.arcology and $xchange.arcology.arrived>>
+		<<set _arcologyRevoked to $xchange.arcology.guest and $xchange.arcology.guest.status is "revoked">>
+		<div class="arcology-orb-zone">
+			<button type="button" class="arcology-orb" aria-label="Island city map" aria-haspopup="dialog" aria-controls="arcologyHolo"><svg class="arcology-orb-mark" viewBox="0 0 40 32" aria-hidden="true" focusable="false"><g class="ao-ring-back" transform="rotate(-14 20 16)"><path d="M2 16 A18 5 0 0 1 38 16"/></g><path class="ao-dome" d="M9 19 A11 11 0 0 1 31 19 Z"/><g class="ao-city"><rect x="13" y="14" width="2" height="5"/><rect x="16" y="11" width="2" height="8"/><rect x="19" y="9" width="2" height="10"/><rect x="19.6" y="6" width="0.8" height="3"/><rect x="22" y="12" width="2" height="7"/><rect x="25" y="15" width="2" height="4"/></g><path class="ao-platform" d="M7 19 H33 L30 22.5 H10 Z"/><path class="ao-edge" d="M6 23 H34"/><path class="ao-wake" d="M4 26 H11 M29 26 H37 M8 28.5 H13 M27 28.5 H32"/><g class="ao-ring-front" transform="rotate(-14 20 16)"><path d="M38 16 A18 5 0 0 1 2 16"/></g></svg></button>
+		</div>
+		<div class="arcology-holo" id="arcologyHolo" role="dialog" aria-labelledby="arcologyHoloTitle" hidden>
+			<svg class="arcology-holo-shape" viewBox="0 0 200 120" aria-hidden="true" focusable="false"><path d="M30 70 Q40 30 80 34 Q110 12 140 30 Q178 36 170 66 Q182 96 140 98 Q112 112 82 100 Q40 104 30 70 Z"/></svg>
+			<div class="arcology-holo-body">
+				<p id="arcologyHoloTitle"><<print setup.arcology.online() ? "CITY NETWORK CONNECTED" : "CACHED CITY DATA">></p>
+				<p>INTERFACE: <<print !$xchange.arcology.implant ? "NOT FITTED" : setup.arcology.online() ? "ONLINE" : "OUT OF RANGE">></p>
+				<p>USER: <<arcologyHandle>></p>
+				<p>CLEARANCE: <span class="arcology-holo-guest"><<print _arcologyRevoked ? "REVOKED" : ($xchange.arcology.clearance or "guest").toUpperCase()>></span></p>
+				<p class="arcology-holo-noise" aria-hidden="true">&nbsp;</p>
+				<p class="arcology-holo-noise" aria-hidden="true">&nbsp;</p>
+				<p>DECRYPTING CITY DATA... <span class="arcology-holo-progress">0%</span></p>
+				<p class="arcology-holo-denied">ACCESS RESTRICTED<br>INSUFFICIENT AUTHORIZATION</p>
+				<p class="arcology-holo-note"><<if _arcologyRevoked>>Your guest key has been revoked, so the island's systems no longer accept it.<<else>>Your guest key opens the public district and your hotel. The rest of the map stays locked.<</if>></p>
+				<button type="button" class="arcology-holo-close">Close</button>
+			</div>
+		</div>
+	<</if>>
+<</widget>>
+
+/* The Holo tab in Social: how the island's people and organisations see the player.
+Each topic is its own <section class="holo"> in the grid, so later panels (factions, guilds) slot in beside the threat assessment without changing it. */
+<<widget "arcologyHoloSocial">>
+	<<arcologyInit>>
+	<div class="holo-wrap"><div class="holo-social">
+		<div class="holo-social-head">
+			<span class="holo-head">SOCIAL INTELLIGENCE</span>
+			<span class="holo-label">USER <<print ($xchange.arcology.handle or "GUEST").toUpperCase()>></span>
+		</div>
+		<<arcologyThreatMeter>>
+	</div></div>
+	<<run setup.arcology.socialHoloOpen()>>
+<</widget>>
+
+/* How dangerous the island thinks the player is. Score and level come from setup.arcology.threatScore(); nothing is worked out here. */
+<<widget "arcologyThreatMeter">>
+	<<set _atScore to setup.arcology.threatScore()>><<set _atBand to setup.arcology.threatBand()>><<set _atBandInfo to setup.arcology.threatBands[_atBand]>>
+	<section class="holo arcology-threat" aria-label="Island threat assessment" @data-band="_atBand">
+		<div class="holo-head">ISLAND THREAT ASSESSMENT</div>
+		<div class="arcology-threat-readout">
+			<span class="holo-big arcology-threat-label">_atBandInfo.label</span>
+			<span class="holo-value">SCORE <<print _atScore>> / 100</span>
+		</div>
+		<div class="arcology-threat-bar" role="meter" aria-valuemin="0" aria-valuemax="100" @aria-valuenow="_atScore" @aria-valuetext="_atBandInfo.label + ', score ' + _atScore" aria-label="Island threat assessment">
+			<span class="arcology-threat-marker" @style="'left: ' + _atScore + '%'"></span>
+		</div>
+		<div class="arcology-threat-ends"><span class="holo-label">LOW PROFILE</span><span class="holo-label">HUNTED</span></div>
+		<div class="holo-line arcology-threat-note">_atBandInfo.note</div>
+		<<if setup.arcology.guarded()>>
+			<div class="holo-line" data-tone="warn"><<if _atBand gte 2>>SPONSOR ON FILE: LUCHIFEN. MOST PEOPLE KEEP THEIR DISTANCE.<<else>>SPONSOR ON FILE: LUCHIFEN.<</if>></div>
+		<</if>>
+	</section>
+<</widget>>
+
+/* The City Map screen inside the Journal Holo. Guest clearance sees only the districts it has visited (encrypted view);
+   higher clearance gets the full map. Selecting a district only shows information; travel still goes through the streets. */
+<<widget "arcologyCityMap">>
+	<<set _cmAuth to setup.arcology.mapAccess()>>
+	<div class="holo-wrap"><div class="holo-news acm-screen">
+		<header class="acm-head">
+			<div class="acm-backdrop" @data-visual="_cmAuth ? 'map-full' : 'map'" data-live aria-hidden="true"></div>
+			<div class="acm-title">
+				<span class="acm-kicker">ARCOLOGY / NAVIGATION</span>
+				<span class="acm-brand">CITY MAP</span>
+				<span class="acm-badges"><span @class="'acm-state' + (_cmAuth ? '' : ' locked')"><<print _cmAuth ? "AUTHORIZED" : "ENCRYPTED">></span><span class="acm-sub"><<print setup.arcology.online() ? "LIVE POSITION" : "CACHED. LAST SYNC " + setup.arcologyNews.when($xchange.arcology.lastSync)>></span></span>
+			</div>
+			<<if _cmAuth>><div id="acmReadout" class="acm-readout" aria-live="polite"></div><</if>>
+		</header>
+		<div class="dbn-back"><<link "Back to Holo">><<run setup.arcology.holoQuiet = true>><<replace "#customOverlayContent">><<arcologyHoloJournal>><</replace>><</link>></div>
+		<<if _cmAuth>><div id="acmHost"></div><<else>><<holoLine "ACCESS RESTRICTED. INSUFFICIENT AUTHORIZATION." "denied">><</if>>
+	</div></div>
+	<<run setTimeout(() => { const host = document.getElementById("acmHost"); if (host) arcologyRenderMap(host); setup.arcologyVisuals.fill(); })>>
+<</widget>>
+
+/* Dome Broadcast's news reader. setup.arcologyNews.mode is "journal" (inside the Journal overlay, with reactions and comments)
+   or "lobby" (the public wall at Dome Broadcast, read only). Nothing here passes time. */
+<<widget "arcologyNewsReader">>
+	<<set _nrHot to setup.arcologyNews.feed().find(x => x.k is "break" and x.at gte setup.arcologyNews.now() - 6 * 3600)>>
+	<div class="holo-wrap"><div class="holo-news dbn">
+		<header class="dbn-head">
+			<div class="dbn-masthead" data-visual="masthead" data-live aria-hidden="true"></div>
+			<div class="dbn-brand"><span class="dbn-mark">DOME</span><span class="dbn-word">BROADCAST</span></div>
+			<div class="dbn-status">
+				<span class="dbn-net">CITY NETWORK</span>
+				<<if !setup.arcology.online()>>
+					<span class="dbn-live">CACHED. LAST SYNC <<print setup.arcologyNews.when($xchange.arcology.lastSync)>></span>
+				<<elseif _nrHot>>
+					<span class="dbn-live on">LIVE</span>
+				<<else>>
+					<span class="dbn-live">SYNCED</span>
+				<</if>>
+				<span class="dbn-date"><<print setup.arcology.issueDate(Time.date.timeStamp)>></span>
+			</div>
+		</header>
+		<<if setup.arcologyNews.mode is "journal">>
+			<div class="dbn-back"><<link "Back to Holo">><<run setup.arcology.holoQuiet = true>><<replace "#customOverlayContent">><<arcologyHoloJournal>><</replace>><</link>></div>
+		<</if>>
+		<div id="holoNewsBody"><<arcologyNewsList>></div>
+	</div></div>
+	<<run setup.arcology.holoReveal(".dbn-head")>><<run setup.arcologyNewsArt.later()>>
+<</widget>>
+
+/* Opens an article in the reader. _args[0]: article id. Used inside link bodies. */
+<<widget "arcologyNewsParagraph">><<for _npPart range setup.arcologyNewsText.linkedText(_args[0], _args[1])>><<if _npPart.id>><<capture _npPart>><<link _npPart.text>><<arcologyNewsOpen _npPart.id>><</link>><</capture>><<else>><<print _npPart.text>><</if>><</for>><</widget>>
+
+<<widget "arcologyNewsOpen">>
+	<<replace "#holoNewsBody">><<arcologyNewsArticle _args[0]>><</replace>>
+	<<run setup.arcologyNewsArt.later(true)>>
+<</widget>>
+
+/* The front page of the current section: urgent strip, featured story, latest reports, then the 28-day archive. */
+<<widget "arcologyNewsList">>
+	<<set _nlAll to setup.arcologyNews.feed()>>
+	<<set _nlSec to setup.arcologyNews.section>>
+	<nav class="dbn-nav" aria-label="News sections">
+		<<for _nlS range setup.arcologyNews.sections>>
+			<<if _nlS[0] isnot "latest" and !_nlAll.some(x => setup.arcologyNews.inSection(x, _nlS[0]))>><<continue>><</if>>
+			<<capture _nlS>><span @class="'dbn-tab' + (_nlSec is _nlS[0] ? ' on' : '')"><<link _nlS[1]>><<run setup.arcologyNews.section = _nlS[0]>><<replace "#holoNewsBody">><<arcologyNewsList>><</replace>><<run setup.arcologyNewsArt.later()>><</link>></span><</capture>>
+		<</for>>
+	</nav>
+	<<set _nlFeed to _nlAll.filter(x => setup.arcologyNews.inSection(x, _nlSec))>>
+	<<set _nlCut to setup.arcologyNews.now() - 7 * setup.arcologyNews.DAY>>
+	<<set _nlUrgent to _nlAll.find(x => ["breaking", "alert"].includes(x.tone) and x.at gte setup.arcologyNews.now() - setup.arcologyNews.DAY)>>
+	<<if _nlUrgent and _nlSec is "latest">>
+		<div class="dbn-urgent" role="status"><span class="dbn-urgent-label"><<print _nlUrgent.tone is "breaking" ? "BREAKING" : "DEVELOPING">></span><span class="dbn-urgent-text"><<capture _nlUrgent>><<link _nlUrgent.title>><<arcologyNewsOpen _nlUrgent.id>><</link>><</capture>></span></div>
+	<</if>>
+	<<set _nlTop to _nlFeed.find(x => ["breaking", "investigation"].includes(x.tone) and x.at gte setup.arcologyNews.now() - 2 * setup.arcologyNews.DAY) or _nlFeed.find(x => !["notice", "reminder"].includes(x.k) and x.at gte _nlCut)>>
+	<<if _nlTop>><<arcologyNewsCard _nlTop "featured">><</if>>
+	<<set _nlCards to setup.arcologyNews.balanced(_nlFeed.filter(x => x isnot _nlTop and x.at gte _nlCut and !(_nlTop and _nlTop.e and x.e is _nlTop.e)), _nlSec, 8)>>
+	<<set _nlCards to setup.arcologyNews.trimFront(_nlCards, _nlTop, 3)>>
+	<<set _nlLead to _nlCards.filter(x => !["notice", "reminder", "investigation"].includes(x.tone)).slice(0, 2)>>
+	<<set _nlReminder to _nlCards.find(x => x.k is "reminder")>>
+	<<set _nlMoreAt to _nlLead.length + (_nlReminder ? 1 : 0)>>
+	<<set _nlCards to _nlLead.concat(_nlReminder ? [_nlReminder] : [], _nlCards.filter(x => !_nlLead.includes(x) and x isnot _nlReminder))>>
+	<<if _nlCards.length>>
+		<div class="dbn-section-head">Latest reports</div>
+		<<for _nlI to 0; _nlI lt _nlCards.length; _nlI++>>
+			<<if _nlMoreAt gt 0 and _nlI is _nlMoreAt>><div class="dbn-section-head">More reports</div><</if>>
+			<<set _nlRow to [_nlCards[_nlI]]>>
+			<<if !["notice", "reminder", "investigation"].includes(_nlCards[_nlI].tone) and _nlCards[_nlI + 1] and !["notice", "reminder", "investigation"].includes(_nlCards[_nlI + 1].tone)>>
+				<<run _nlRow.push(_nlCards[++_nlI])>>
+			<</if>>
+			<div @class="'dbn-grid' + (_nlRow.length is 1 ? ' dbn-single' : '')"><<for _nlC range _nlRow>><<arcologyNewsCard _nlC>><</for>></div>
+		<</for>>
+	<</if>>
+	<<set _nlOld to _nlFeed.filter(x => x isnot _nlTop and !_nlCards.includes(x))>>
+	<<if _nlOld.length>>
+		<details class="dbn-archive">
+			<summary>Archive: <<print _nlOld.length>> older reports</summary>
+			<ul class="dbn-archive-list">
+				<<for _nlA range _nlOld>>
+					<<capture _nlA>><li @data-tone="_nlA.tone"><span class="dbn-time"><<print setup.arcologyNews.when(_nlA.at)>></span> <span class="dbn-cat"><<print _nlA.cat>></span> <<if setup.arcologyNews.unread().includes(_nlA.id)>><span class="dbn-new">NEW REPLY</span> <</if>><<link _nlA.title>><<arcologyNewsOpen _nlA.id>><</link>></li><</capture>>
+				<</for>>
+			</ul>
+		</details>
+	<</if>>
+	<<if !_nlFeed.length>><<holoLine "NO ARTICLES SYNCED YET." "warn">><</if>>
+<</widget>>
+
+/* One article card. _args[0]: article from setup.arcologyNews.feed(). _args[1]: "featured" for the large top card. */
+<<widget "arcologyNewsCard">>
+	<<set _ncA to _args[0]>>
+	<article @class="'dbn-card' + (_args[1] ? ' dbn-featured' : '')" @data-tone="_ncA.tone" @data-cat="_ncA.cat">
+		<div class="dbn-art" @data-news-art="_ncA.id" data-live aria-hidden="true"></div>
+		<div class="dbn-card-body">
+			<div class="dbn-meta"><span class="dbn-cat"><<print _ncA.cat>></span><<if _ncA.place>><span class="dbn-place"><<print _ncA.place>></span><</if>><<if setup.arcologyNews.unread().includes(_ncA.id)>><span class="dbn-new">NEW REPLY</span><</if>></div>
+			<div class="dbn-title"><<capture _ncA>><<link _ncA.title>><<arcologyNewsOpen _ncA.id>><</link>><</capture>></div>
+			<p class="dbn-dek"><<print _ncA.dek or _ncA.body[0]>></p>
+			<div class="dbn-foot">
+				<span class="dbn-time"><<print setup.arcologyNews.when(_ncA.at)>></span>
+				<<if _ncA.k isnot "notice">><span class="dbn-count"><<print setup.arcologyNews.reactionTotal(_ncA)>> reactions · <<print setup.arcologyNews.commentCount(_ncA)>> comments</span><</if>>
+			</div>
+		</div>
+	</article>
+<</widget>>
+
+/* One article: text, picture, the rest of its story, reactions and comments. _args[0]: article id. */
+<<widget "arcologyNewsArticle">>
+	<<set _naId to _args[0]>><<set _na to setup.arcologyNews.find(_naId)>>
+	<<set _naLive to setup.arcologyNews.mode is "journal" and setup.arcology.online()>>
+	<div class="dbn-back"><<link "All reports">><<replace "#holoNewsBody">><<arcologyNewsList>><</replace>><<run setup.arcologyNewsArt.later()>><</link>></div>
+	<<if !_na>>
+		<<holoLine "THIS ARTICLE IS NO LONGER AVAILABLE." "warn">>
+	<<else>>
+		<<set _naNew to setup.arcologyNews.unread().includes(_naId)>>
+		<article class="dbn-article" @data-tone="_na.tone" @data-cat="_na.cat">
+			<div class="dbn-meta"><span class="dbn-cat"><<print _na.cat>></span><<if _na.place>><span class="dbn-place"><<print _na.place>></span><</if>></div>
+			<div class="dbn-headline"><<print _na.title>></div>
+			<<if _na.dek>><p class="dbn-standfirst"><<print _na.dek>></p><</if>>
+			<div class="dbn-byline"><span><<print _na.byline>></span><span class="dbn-time"><<print setup.arcologyNews.when(_na.at)>></span></div>
+			<div class="dbn-art dbn-art-main" @data-news-art="_na.id" data-live aria-hidden="true"></div>
+			<<if ["MARKETS", "BUSINESS"].includes(_na.cat)>>
+				<<set _naFx to setup.arcologyFx.state()>>
+				<div class="dbn-market" aria-label="Market now">
+					<span class="dbn-market-label">MARKET NOW</span>
+					<span class="dbn-chip">£ / CIPHER <<print setup.arcologyFx.gbp(setup.arcologyFx.mid(_naFx))>></span>
+					<<for _naCh range [["1H", 3600], ["24H", 86400]]>>
+						<<set _naPct to setup.arcologyFx.change(_naFx, _naCh[1])>>
+						<<if _naPct isnot null>><span @class="'dbn-chip ' + (_naPct lt 0 ? 'down' : 'up')"><<print _naCh[0] + " " + (_naPct lt 0 ? "−" : "+") + Math.abs(_naPct).toFixed(2) + "%">></span><</if>>
+					<</for>>
+				</div>
+			<</if>>
+			<<set _naKeys to setup.arcologyNewsText.keyPoints(_na)>>
+			<<if _naKeys.length>>
+				<div class="dbn-keys"><span class="dbn-market-label">KEY POINTS</span><ol><<for _naK range _naKeys>><li><<print _naK>></li><</for>></ol></div>
+			<</if>>
+			<div class="dbn-text">
+				<<if _na.sections>>
+					<p><<print _na.body[0]>></p>
+					<<for _naSection range _na.sections>>
+						<section class="dbn-week-item">
+							<<if _naSection.id and setup.arcologyNews.find(_naSection.id)>>
+								<<capture _naSection>><h2><<link _naSection.title>><<arcologyNewsOpen _naSection.id>><</link>></h2><</capture>>
+							<<else>>
+								<h2><<print _naSection.title>></h2>
+							<</if>>
+							<<for _naP range _naSection.paragraphs>><p @class="_naP.startsWith('Last reported') ? 'dbn-week-earlier' : ''"><<arcologyNewsParagraph _naP _naId>></p><</for>>
+						</section>
+					<</for>>
+				<<elseif _na.list>>
+					<ul class="dbn-digest"><<for _naP range _na.body>><li><<print _naP>></li><</for>></ul>
+				<<else>>
+					<<for _naP range _na.body>><p><<arcologyNewsParagraph _naP _naId>></p><</for>>
+				<</if>>
+				<<if _na.note>><p><<print _na.note>></p><</if>>
+			</div>
+			<<if setup.arcologyNewsText.reporterBios[_na.byline]>>
+				<aside class="dbn-reporter"><span class="dbn-reporter-name"><<print _na.byline>></span><span><<print setup.arcologyNewsText.reporterBios[_na.byline]>></span></aside>
+			<</if>>
+			<<set _naRel to setup.arcologyNews.related(_naId)>>
+			<<if _naRel.length>>
+				<div class="dbn-section-head">More on this story</div>
+				<ul class="dbn-related">
+					<<for _naRo range _naRel>>
+						<<capture _naRo>><li><span class="dbn-time"><<print setup.arcologyNews.when(_naRo.at)>></span> <<link _naRo.title>><<arcologyNewsOpen _naRo.id>><</link>></li><</capture>>
+					<</for>>
+				</ul>
+			<</if>>
+			<<if _na.k isnot "weekly" or _na.options.length>>
+				<div class="dbn-reactions" role="group" aria-label="Reactions">
+					<<for _naR range setup.arcologyNews.reactionKinds>>
+						<<capture _naR>>
+							<<set _naCount to setup.arcologyNews.reactionCount(_na, _naR[0])>>
+							<<set _naMine to (setup.arcologyNews.state().reactions[_naId] is _naR[0])>>
+							<span @class="'dbn-react' + (_naMine ? ' mine' : '')">
+								<<if _naLive>><<link `_naR[1] + " " + _naR[2] + " " + _naCount`>><<run setup.arcologyNews.react(_naId, _naR[0])>><<replace "#holoNewsBody">><<arcologyNewsArticle _naId>><</replace>><<run setup.arcologyNewsArt.later()>><</link>><<else>><<print _naR[1] + " " + _naR[2] + " " + _naCount>><</if>>
+							</span>
+						<</capture>>
+					<</for>>
+				</div>
+				<div class="dbn-section-head">Comments (<<print setup.arcologyNews.commentCount(_na)>>)</div>
+				<ul class="dbn-comments">
+					<<for _naC range setup.arcologyNews.threadView(_na)>><li @class="'dbn-d' + _naC.depth"><span class="dbn-handle"><<print _naC.h>><<if _naC.to>> <span class="dbn-to">replying to <<print _naC.to>></span><</if>></span><span><<print _naC.t>></span></li><</for>>
+					<<set _naPosted to setup.arcologyNews.state().comments[_naId]>>
+					<<if _naPosted>>
+						<li class="mine"><span class="dbn-handle"><<print $xchange.arcology.handle or "Guest">></span><span><<print _naPosted.t or _na.options[_naPosted.i][0]>></span>
+							<<set _naReplies to (_naPosted.r or []).filter(x => x.at lte setup.arcologyNews.now())>>
+							<<if _naReplies.length>>
+								<ul class="dbn-replies">
+									<<for _naRp range _naReplies>>
+										<li @class="_naRp.o ? 'official' : ''"><span class="dbn-handle"><<print _naRp.h>><<if _naRp.o>> <span class="dbn-verified">VERIFIED</span><</if>></span><span><<print _naRp.t>></span><<if _naNew>> <span class="dbn-new">NEW</span><</if>></li>
+										<<if _naRp.n>><li class="dbn-modnote"><<holoLine "MODERATION NOTE ATTACHED TO YOUR HANDLE" "warn">></li><</if>>
+									<</for>>
+								</ul>
+							<</if>>
+						</li>
+					<</if>>
+				</ul>
+				<<if !_naPosted and _naLive and _na.options.length>>
+					<div class="dbn-reply">
+						<div class="dbn-reply-label">Comment as <<print $xchange.arcology.handle or "Guest">></div>
+						<<for _naI to 0; _naI lt _na.options.length; _naI++>>
+							<<capture _naI>><<link _na.options[_naI][0]>><<run setup.arcologyNews.comment(_naId, _naI)>><<replace "#holoNewsBody">><<arcologyNewsArticle _naId>><</replace>><<run setup.arcologyNewsArt.later()>><</link>><</capture>>
+						<</for>>
+					</div>
+				<<elseif !_naPosted and _na.options.length>>
+					<<holoLine `setup.arcologyNews.mode is "lobby" ? "TO COMMENT, OPEN THE NEWS ON YOUR HOLO." : "COMMENTS NEED A CITY NETWORK CONNECTION."` "warn">>
+				<</if>>
+			<</if>>
+		</article>
+		<<run setup.arcologyNews.markRead(_naId)>>
+	<</if>>
+<</widget>>

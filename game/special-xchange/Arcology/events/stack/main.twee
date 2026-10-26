@@ -1,0 +1,896 @@
+:: Arcology Stack Intro
+<<location "arcology_stack">><<set $outside to 0>><<effects>>
+<<if !$NPCList[0] or !$NPCList[0].cyber>><<arcologyNPC 0 "staff" "security guard">><</if>>
+<<person1>><<switch $xchange.arcology.stack.why>>
+<<case "arcologyAbduction">>
+	The intake clerk stands behind a counter near the pier entrance. The clerk scans your implant, then compares the information on the screen with the transfer record your captor has brought.
+	<br><br>
+	"Transfer accepted," the clerk says.
+	<br><br>
+	A guard comes around the counter and takes hold of your arm. Only then does your captor let go. You ask to leave, but the guard tightens <<his>> grip and leads you away from the entrance. The clerk has already turned to the next person.
+<<case "arcologyFine">>
+	The guard who stopped you checks the screen on <<his>> wrist, then holds it out for another guard to read. You can see the amount of your fine beside your handle.
+	<br><br>
+	"Fifty Cipher, and you don't have it," the second guard says. "So you'll work it off."
+	<br><br>
+	You ask where you'll be working. The guard takes your arm instead of answering and steers you past the payment checkpoint. People are waiting in line to pay their own fines. You try to catch someone's attention, but the people nearest you turn back towards the counter.
+<<case "arcologyGuards">>
+	Your wrists are still fastened when the guards pull you to your feet. One guard takes you by the arm while the other walks close behind, leaving you little room to move.
+	<br><br>
+	People on Relay Street move aside as you approach. A vendor lowers the shutter of a nearby stall, then watches through the gap. Someone raises a wrist screen to record you being taken away, but lowers it when the guard behind you turns to look. You continue towards the pier with your hands restrained.
+<<case "arcologyDebtCaught">>
+	The guards take you back along the pier, holding an arm on either side of you. Each time you slow down, one of them pulls you forward again.
+	<br><br>
+	One guard reads the amount you owed when you escaped, followed by the extra charges the city has added since then. The number on <<his>> screen is higher than the one you remember.
+	<br><br>
+	"You'd be amazed how many come back," the other guard says. "People think getting off the island means the debt goes away."
+<</switch>>
+<br><br>
+<<link [[Next|Arcology Stack Intro 1]]>><</link>>
+<br>
+
+:: Arcology Stack Intro 1
+<<pass 5>><<effects>>
+<<if $xchange.arcology.stack.why is "arcologyAbduction">>
+	The guard takes you through a door behind the counter and along a corridor used by the staff. At the far end is a service lift with orange lights above its doors.
+<<else>>
+	The guards lead you away from the public checkpoint and down a set of stairs beneath the pier. They stop in front of a service lift, well away from the places where visitors enter the city.
+<</if>>
+<br><br>
+One guard steps into the lift with you. The other stays outside and watches until the doors close.
+<br><br>
+The lift begins to descend. The floor numbers on the display change as you pass below the streets and into the city's working levels. After a while, you can hear machinery beyond the lift walls. The noise becomes louder as the lift slows.
+<br><br>
+When the doors open, you see a large room filled with moving conveyor belts. Orange lights hang above each work area, and workers stand along the belts, picking objects out of the piles passing in front of them.
+<br><br>
+<<link [[Next|Arcology Stack Intro 2]]>><</link>>
+<br>
+
+:: Arcology Stack Intro 2
+<<pass 5>><<effects>>
+A <<person>> in grey armour is waiting beside the lift, holding a small electronic reader. <<arcologyCyberLook 0>> As you step out, <<he>> tells you to stand still and turn your head.
+<br><br>
+You hesitate. The <<person>> moves closer, puts the reader against the implant behind your ear, and waits while it scans. A short sound comes from the device. Before you can ask what the scan was for, red writing appears in front of your eyes.
+<br><br>
+<<holo "CIVIC REGISTRY / STATUS CHANGE" "denied">>
+	<<holoRow "HANDLE" `$xchange.arcology.handle`>>
+	<<holoRow "STATUS" "INDENTURED">>
+	<<holoRow "DEBT" `setup.arcology.cxU($xchange.arcology.stack.debt)`>>
+	<<holoLine "EARLY RELEASE" "denied">>
+<</holo>>
+<br>
+You look from the word <span class="red">INDENTURED</span> to the amount beside your debt. You ask the <<person>> what the new status means and how you're supposed to pay that much. <<He>> lowers the reader and turns towards you, ready to explain.
+<br><br>
+<<link [[Next|Arcology Stack Intro 3]]>><</link>>
+<br>
+
+:: Arcology Stack Intro 3
+<<pass 5>><<effects>>
+"Welcome to the Stack," the <<person>> says. <<He>> points towards the workers along the conveyor belts. "The city sends its waste down here. Broken implants, metal parts, anything that can be taken apart and used again. You'll sort it with the others."
+<br><br>
+<<He>> shows you a list of charges on the reader. "Your work reduces the debt. Food, a place to sleep and anything else the city charges you for will add to it. You can leave when the balance reaches zero."
+<br><br>
+You look back at the lift. The <<person>> notices and points to the cameras over the belts. "That lift won't take you up while you owe money. If you try to leave another way, the drones will look for you."
+<br><br>
+The guard who came down with you tells you to lift one foot. <<He>> kneels, places a metal band around your ankle and fastens it so you cannot pull it off. Red numbers appear on the band, matching the debt shown in your vision. You try to slide the band over your heel, but the opening is too small. <<stress 10>><<ggstress>><<trauma 6>><<gtrauma>>
+<br><br>
+<<link [[Next|Arcology Stack]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Stack
+<<location "arcology_stack">><<set $outside to 0>><<effects>>
+<<set _st to $xchange.arcology.stack>>
+<<if _st.band is undefined>><<set _st.band to 0>><<set _st.route to 0>><<run delete _st.hack>><</if>>
+<<if _st.day is undefined>><<run Object.assign(_st, { day: 0, jobs: [], crew: 0, chips: 0, net: 0, favor: 0, revolt: {} })>><</if>>
+You are in the Stack, far below the city's streets. Several conveyor belts carry broken machinery and discarded cybernetic parts through the sorting room. Workers stand beside them, taking pieces from the moving piles and putting them into separate containers.
+<br><br>
+Orange lights illuminate each station. Drones move above the workers with red camera lights pointed towards the belts, stopping now and then to check what someone is holding.
+<br><br>
+<<holo "STACK / WORKER">>
+	<<holoRow "HANDLE" `$xchange.arcology.handle`>>
+	<<holoRow "DEBT" `setup.arcology.cxU(_st.debt)`>>
+	<<holoRow "DAY" `_st.day`>>
+<</holo>>
+<br>
+<<arcologyStackWatch>> <<arcologyStackCrewText>>
+<br><br>
+<<if isPregnancyEnding()>>
+	Pain in your stomach makes it difficult to stay standing. You hold onto the edge of a conveyor for support, but your legs give way and you slide down to the floor. A worker at the next station notices and calls for the medic.
+	<br><br>
+	<<link [[Next|Arcology Stack Birth]]>><</link>>
+<<elseif $stress gte $stressmax and !$possessed>>
+	Your legs begin to shake, and you have trouble keeping your balance. You try to reach for the side of a conveyor, but lose consciousness before you can hold on.
+	<br><br>
+	<span class="red">You pass out from exhaustion.</span>
+	<br><br>
+	<<passout>>
+	<<link [[Next|Arcology Stack Passout]]>><<set $phase to "night">><</link>>
+	<br>
+<<elseif _st.debt lte 0>>
+	You look down at the band on your ankle and notice that the red numbers have disappeared. The small light on its side has turned green.
+	<br><br>
+	<span class="green">Your debt has been paid.</span>
+	<br><br>
+	<<link [[Next|Arcology Stack Release]]>><</link>>
+	<br>
+<<elseif _st.day gte 3 and !_st.rescue and C.npc.Luchifen.love gte setup.arcology.stackRescueLove and Time.hour gte 6 and Time.hour lt 21>>
+	The lift doors open while the shift is still running. Several workers glance towards the entrance, expecting a guard or another worker. Nobody steps out at first.
+	<br><br>
+	<<link [[Next|Arcology Stack Rescue]]>><</link>>
+	<br>
+<<elseif Time.hour gte 6 and Time.hour lt 21>>
+	<<if !$daily.arcologyStackShift>>
+		A horn sounds from the wall above the sorting room. Workers leave the bunks and gather beside the conveyors. You join the line as the supervisors begin checking who has arrived.
+		<br><br>
+		<<icon "mark.gif">><<link [[Next|Arcology Stack Shift]]>><</link>>
+	<<else>>
+		The workers are still sorting parts along the moving belts. Your assigned station is empty, with another pile of scrap approaching on the conveyor.
+		<br><br>
+		<<arcologyStackJobLink>>
+	<</if>>
+	<br>
+<<else>>
+	<<pass 1>>
+	The conveyors have slowed now that the day's main shift is over. Workers carry their tools away from the sorting tables and head towards the sleeping area. A few remain at their stations to finish the remaining work.
+	<br><br>
+	<<bedicon>><<link [[Next|Arcology Stack Bunks]]>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Stack Shift
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+<<if !$daily.arcologyStackShift>>
+	<<set $daily.arcologyStackShift to true>><<set _st.day++>>
+	<<arcologyNPC 0 "staff" "supervisor">><<person1>>
+	A <<person>> carrying a tablet walks along the line of workers, calling out each handle in turn. <<arcologyCyberLook 0>> Every worker has to step forward when called so <<he>> can check the band around the worker's ankle.
+	<<if _st.day gt 1>>
+		When <<he>> reaches you, <<he>> taps the tablet. A new charge appears on your ankle band for the bunk you slept in last night. You look down at the increased amount before the supervisor tells you to move along. <<arcologyStackCharge 1000>> <<arcologyStackSuspicion -3>>
+	<<else>>
+		When <<he>> reaches you, <<he>> pauses to check your details. "New worker," <<he>> says while making a note on the tablet. <<He>> points to the line of sorting stations and tells you to pay attention to your assignment.
+	<</if>>
+	<br><br>
+	<<arcologyStackJob>>
+<<else>>
+	Your assignment is still waiting for you. The supervisor points you back towards your work station.
+	<br><br>
+	<<arcologyStackJobLink>>
+<</if>>
+<br>
+
+/* Kept for saves made in the original two-hour work passage. */
+:: Arcology Stack Work
+<<include "Arcology Stack">>
+
+:: Arcology Stack Shift End
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+The shift ends when a horn sounds above the conveyors. Workers put down the parts in their hands and walk towards the sleeping area. A drone waits above the doorway, scanning each ankle band as the workers pass underneath it.
+<br><br>
+<<if _st.favor gt 0 and !$daily.arcologyStackFavorPaid>>
+	<<set $daily.arcologyStackFavorPaid to true>>
+	The supervisor stops you before you reach the doorway and holds a reader near your ankle band. "Extra work," the supervisor says, confirming the payment on the screen. Your recorded debt decreases. <<arcologyStackPay `_st.favor * 300`>>
+	<br><br>
+<</if>>
+<<link [[Next|Arcology Stack Bunks]]>><</link>>
+<br>
+
+:: Arcology Stack Bunks
+<<location "arcology_stack">><<set $outside to 0>><<effects>>
+<<set _st to $xchange.arcology.stack>>
+The sleeping area is behind the sorting room. Rows of narrow metal bunks have been built against the walls, with four beds above one another in each section. Each bunk has a thin foam mat. A small light above the beds stays on through the night.
+<br><br>
+Workers sit on the lower bunks to remove their shoes, while others climb the metal ladders to reach their beds. There is little room to walk between the rows when people are coming and going.
+<<if $exposed gte 1>>
+	<br><br>
+	A few workers notice your <<lewdness>> as you walk past. Nobody approaches you, and most return to getting ready for bed.
+<</if>>
+<br><br>
+<<if $pleasure gte $pleasuremax>>
+	<<orgasm>>
+	Your body trembles as you orgasm, and you cannot stop yourself from making a noise. Two workers look towards you from their bunks. One turns away again while the other hides beneath a blanket.
+	<br><br>
+<</if>>
+<<if isPregnancyEnding()>>
+	A pain in your stomach makes you bend forward. You reach for a bunk frame to support yourself, but end up sitting on the floor with your back against it. The worker in the bunk above climbs down, takes one look at you, and calls through the door for the medic.
+	<br><br>
+	<<link [[Next|Arcology Stack Birth]]>><</link>>
+<<elseif $stress gte $stressmax and !$possessed>>
+	You try to make your way towards an empty bunk, but have trouble keeping your eyes open. You reach for the bed frame as your knees give way.
+	<br><br>
+	<span class="red">You pass out from exhaustion.</span>
+	<br><br>
+	<<passout>>
+	<<link [[Next|Arcology Stack Passout]]>><<set $phase to "night">><</link>>
+<<elseif _st.debt lte 0>>
+	Your band shows a balance of zero. You can ask a supervisor to check it and let you leave.
+	<br><br>
+	<<link [[Next|Arcology Stack Release]]>><<endevent>><</link>>
+<<elseif Time.hour gte 6 and Time.hour lt 21>>
+	<<if !$daily.arcologyStackShift>>
+		A horn sounds through the sleeping area, announcing the morning shift. Workers begin climbing out of their bunks and heading towards the sorting room.
+	<<else>>
+		You can hear the conveyors moving on the other side of the wall. The shift has already started, and most workers are at their stations.
+	<</if>>
+	<br><br>
+	<<getouticon>><<link [[Next|Arcology Stack]]>><</link>>
+<<else>>
+	<<if $worn.upper.name isnot "boiler suit">>
+		<span class="clothes-brown"><<icon "clothes/boiler-suit.png">></span><<link [[Take an overall|Arcology Stack Overall]]>><</link>>
+		<br>
+	<</if>>
+	<<if !$daily.arcologyStackRation>>
+		<<icon "food/coffee.png">><<link [[Queue at the hatch (0:20)|Arcology Stack Ration]]>><<pass 20>><<set $daily.arcologyStackRation to true>><<stress -12>><<trauma -6>><</link>><<llstress>><<ltrauma>>
+		<br>
+	<</if>>
+	<<bathroomicon "sink">><<link [[Wash at the tap (0:05)|Arcology Stack Water]]>><<pass 5>><<stress -2>><</link>><<lstress>>
+	<br>
+	<<socialiseicon>><<link [[Talk to the other workers (0:20)|Arcology Stack Talk]]>><<pass 20>><</link>>
+	<br>
+	<<if _st.fixer and _st.fixer.task is "chip" and _st.chips gte 1>>
+		<<socialiseicon>><<link [[Give the fixer a chip|Arcology Stack Fixer Give]]>><<set _st.chips-->><</link>>
+		<br>
+	<</if>>
+	<<if _st.fixer and _st.fixer.owed and !_st.revolt.drones>>
+		<<socialiseicon>><<link [[Call in the favour|Arcology Stack Fixer Favour]]>><</link>>
+		<br>
+	<</if>>
+	<<if _st.revolt.plan and _st.net lt 10>>
+		<<if _st.chips gte 1>>
+			<<icon "wrench.png">><<link [[Rewire a chip (0:30)|Arcology Stack Rewire]]>><<pass 30>><<set _st.chips-->><<set $phase to setup.arcology.escape("stack", "science", 100, 700) ? 1 : 0>><</link>><<arcologySkill "Science">>
+		<<else>>
+			<span class="blue">You need a memory chip to keep working on the drone network.</span>
+		<</if>>
+		<br>
+	<</if>>
+	<<if _st.revolt.plan and _st.net gte 10>>
+		<<if _st.crew gte 25>>
+			<<icon "prison-run.png">><<link [[Start the revolt|Arcology Stack Revolt]]>><<arcologyStackDistractions>><<set $phase to _sdCount>><<set _st.revolt.lights to false>><<set _st.revolt.decoy to false>><<set _st.revolt.drones to false>><</link>>
+		<<else>>
+			<span class="blue">The network is ready, but too few workers trust you to follow you.</span>
+		<</if>>
+		<br>
+	<</if>>
+	<<investigateicon>><<link [[Find a way out|Arcology Stack Way Out]]>><</link>>
+	<br>
+	<<bedicon>><<link [[Lie down|Arcology Stack Bunk]]>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Stack Overall
+<<effects>><<upperruined true>><<lowerruined true>><<upperwear "boiler suit">>
+You find a bin of spare grey overalls beside the sleeping-area door. You take one and unfold it to check the size. The fabric smells of machine oil and sweat. You shake out a few metal shavings and check the seams for tears.
+<br><br>
+You pull it on and adjust the sleeves before returning to the bunks.
+<br><br>
+<<link [[Next|Arcology Stack Bunks]]>><</link>>
+<br>
+
+:: Arcology Stack Ration
+<<effects>>
+<<arcologyNPC 0 "worker" "worker">><<person1>>
+You join a queue at a small serving hatch in the wall. As each worker reaches the front, a <<person>> behind the opening hands over a cup of warm, sweet liquid and a small tablet stamped with the city's logo.
+<br><br>
+When it is your turn, you take the cup and tablet. You look at the tablet before swallowing it.
+<br><br>
+"Stimulant and sedative," the worker behind you says. "One keeps you working. The other helps you sleep afterwards."
+<br><br>
+You drink from the cup while moving away from the hatch to make room for the next worker. The drink is warm, and you feel a little better after sitting down with it. For a short while, you can rest without having to sort another piece of scrap.
+<br><br>
+<<link [[Next|Arcology Stack Bunks]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Stack Water
+<<effects>>
+There is a sink along the wall near the bunks. You turn on the tap and let the water run over your hands, rubbing at the oil left on your fingers after the shift.
+<br><br>
+The water has a faint metal smell. You cup some in your hands to wash your face, then use the edge of your clothes to dry yourself before going back to the sleeping area.
+<br><br>
+<<link [[Next|Arcology Stack Bunks]]>><</link>>
+<br>
+
+:: Arcology Stack Talk
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+You walk slowly between the bunks, looking for someone who is still awake. A few workers are talking in small groups, while others are already lying down after their shifts. You wait for a chance to speak without disturbing anyone who is sleeping.
+<br><br>
+<<cleareventpool>>
+
+<<addinlineevent "debt" 2>>
+	<<arcologyNPC 0 "worker" "worker">><<person1>>
+	A <<person>> sitting on a bottom bunk notices you looking for a place to sit and moves over. <<arcologyCyberLook 0>> You sit beside <<him>>, careful not to disturb the worker sleeping above.
+	<br><br>
+	"How long have you been here?" you ask.
+	<br><br>
+	The <<person>> looks down at <<his>> ankle band. "Long enough to know the charges never stop. I work all day, then they charge me for every night in the bunk."
+	<br><br>
+	You ask how <<he>> ended up owing the city money. <<He>> explains that <<he>> came to the island hoping to have an old debt cleared. Someone bought the debt instead, and now <<he>> has to work here to repay it.
+	<br><br>
+	"Try to keep that number going down," <<he>> says, pointing at your ankle. "If you cause trouble, the guards will keep checking on you. Getting out becomes much harder."
+	<br><br>
+	<<He>> glances towards the doorway before touching the implant behind <<his>> ear. "I've heard the band gets its numbers from your implant. Someone who knows how to change the records might be able to change the debt too. You'd need somewhere the cameras couldn't see you, and it would take time."
+	<br><br>
+	<<He>> lowers <<his>> hand. "There's also a barge that carries scrap away at night. The guards inspect the workers, but I've never seen anyone search through every load." You thank <<him>> for telling you. <<He>> gives a small nod and moves back towards the wall so you can stand. <<arcologyStackCrew 2>><<trauma -2>><<ltrauma>>
+	<br><br>
+	<<link [[Next|Arcology Stack Bunks]]>><<endevent>><</link>>
+<</addinlineevent>>
+
+<<if !_st.revolt.drones and (!_st.fixer or (!_st.fixer.owed and !_st.fixer.task))>>
+	<<addinlineevent "fixer" 2>>
+		<<if !_st.fixer>>
+			<<arcologyNPC 0 "under" "worker">><<saveNPC 0 "stack_fixer">><<person1>>
+			<<set _st.fixer to { task: "" }>>
+			A <<person>> with old burns across both palms sits beside you while you look for an empty bunk. <<arcologyCyberLook 0>> <<He>> watches the nearby workers for a moment before speaking.
+			<br><br>
+			"You're new," <<he>> says. "I've seen you looking around. Most people stop doing that after a few shifts."
+			<br><br>
+			<<He>> shows you the burns on <<his>> hands. "I repair things when the guards aren't watching. Sometimes I need someone to bring me parts or do a small job. Interested?"
+		<<else>>
+			<<loadNPC 0 "stack_fixer">><<person1>>
+			The fixer finds you near the bunks and sits down beside you, rubbing the old burns on <<his>> palms with a thumb. "I've got another job," <<he>> says. "Interested?"
+		<</if>>
+		<br><br>
+		<<switch random(1, 3)>>
+		<<case 1>>
+			<<set _st.fixer.task to "chip">>
+			"I need a working memory chip," <<he>> says. "You'll see plenty on the sorting belts. Look for one that still has a light on it, and bring it to me before the supervisor takes it."
+		<<case 2>>
+			<<set _st.fixer.task to "drone">>
+			<<He>> checks that nobody is looking before placing a small piece of copper in your hand. "The sorting drones stop to charge near the belts," <<he>> says. "When one is close enough, touch this to its charging port. Keep your hand out of view of the cameras."
+		<<default>>
+			<<set _st.fixer.task to "message">>
+			<<He>> folds a piece of paper from an old shipping label and passes it to you. "Take this to the crane operator near the door to the sea," <<he>> says. "Look for the painted helmet. Give it to that worker, then come back."
+		<</switch>>
+		<br><br>
+		"Finish the job, and I'll owe you a favour," <<he>> says. You repeat the task back to <<him>>. <<He>> nods, then gets up and climbs into a nearby bunk. The other workers continue getting ready for bed.
+		<br><br>
+		<<link [[Next|Arcology Stack Bunks]]>><<endevent>><</link>>
+	<</addinlineevent>>
+<</if>>
+
+<<addinlineevent "flirt">>
+	<<arcologyNPC 0 "worker" "worker">><<person1>>
+	A <<person>> sits on the edge of a bottom bunk with one foot resting on the floor. <<He>> keeps looking at the amount displayed on <<his>> ankle band, touching the screen as though checking whether the number has changed. The space beside <<him>> is empty, and <<he>> notices you standing nearby.
+	<br><br>
+	<<link [[Flirt (0:10)|Arcology Stack Flirt]]>><<pass 10>><</link>><<promiscuous1>>
+	<br>
+	<<link [[Leave the worker alone|Arcology Stack Bunks]]>><<endevent>><</link>>
+<</addinlineevent>>
+
+<<if !_st.revolt.plan>>
+	<<addinlineevent "plan" 2>>
+		<<arcologyNPC 0 "worker" "worker">><<arcologyNPC 1 "worker" "worker">>
+		As you pass between two rows of bunks, you hear two workers talking quietly. You recognise the words "drone" and "relay" and sit on an empty bunk close enough to hear the rest.
+		<br><br>
+		"All the sorting drones send information through the same relay," the <<person1>><<person>> says. "If somebody connected ten modified memory chips to the cables, the relay would stop sending the camera pictures to the guards. We might get a few minutes without the drones watching us."
+		<br><br>
+		"The guards would still have guns," the <<person2>><<person>> replies. "What are we supposed to do then?"
+		<br><br>
+		"Get everyone moving towards the exits at the same time. There'd be too many of us for the guards to catch all at once."
+		<br><br>
+		The first worker notices you listening and stops speaking. The second turns to see who has come near. After a moment, the first worker says, "It would take somebody who knows how to rewire a memory chip. And we'd need enough workers willing to take the risk."
+		<br><br>
+		<<set _st.revolt.plan to true>>
+		<span class="gold">You could rewire memory chips into the drone network</span> at night, if you can find enough of them.
+		<br><br>
+		<<link [[Next|Arcology Stack Bunks]]>><<endevent>><</link>>
+	<</addinlineevent>>
+<</if>>
+
+<<if !$weekly.arcologyStackEavesdrop>>
+	<<addinlineevent "eavesdrop">>
+		<<set $weekly.arcologyStackEavesdrop to true>>
+		You try speaking to a few workers, but nobody wants a conversation tonight. As you turn towards an empty bunk, you hear people talking on the other side of the wall. The voices are coming from the supervisors' office, near the back of the sleeping area.
+		<br><br>
+		<<link [[Listen in|Arcology Stack Eavesdrop]]>><</link>>
+		<br>
+		<<link [[Ignore them|Arcology Stack Bunks]]>><</link>>
+	<</addinlineevent>>
+<</if>>
+
+<<addinlineevent "song">>
+	<<arcologyNPC 0 "worker" "worker">><<person1>>
+	A <<person>> on a top bunk begins humming a short tune. You recognise it from the sorting room, where a few workers sing the same notes while working. Someone on the other side of the sleeping area joins in, followed by another worker nearby.
+	<br><br>
+	You begin humming along. Nobody has to speak, and the workers keep the tune quiet enough for the people who are already sleeping. When the song ends, the <<person>> above you leans over the edge of the bunk and smiles at you. You smile back before finding somewhere to rest. <<arcologyStackCrew 2>><<stress -4>><<lstress>>
+	<br><br>
+	<<link [[Next|Arcology Stack Bunks]]>><<endevent>><</link>>
+<</addinlineevent>>
+
+<<addinlineevent "grope">>
+	<<arcologyNPC 0 "worker" "worker">><<person1>>
+	As you walk between two rows of bunks, a <<person>> follows close behind. Before you can move into the next row, <<he>> pushes you against a bed frame and blocks the narrow path with <<his>> body.
+	<br><br>
+	"The guards don't watch this part of the room," <<he>> says. You try to move aside, but <<he>> grabs your clothes and prevents you from passing.
+	<br><br>
+	<<link [[Endure it|Arcology Stack Grope]]>><<set $phase to 0>><<stress 4>><</link>><<gstress>>
+	<br>
+	<<link [[Push the worker away|Arcology Stack Grope]]>><<set $phase to setup.arcology.escape("force", "physique", 2000, 16000) ? 1 : 2>><</link>><<arcologySkill "Physique">>
+<</addinlineevent>>
+
+<<addinlineevent "nothing">>
+	You walk between the bunks for a while, but the workers you approach are either asleep or preparing for bed. Nobody seems interested in talking tonight, so you return to your own bunk.
+	<br><br>
+	<<link [[Next|Arcology Stack Bunks]]>><</link>>
+<</addinlineevent>>
+
+<<runeventpool>>
+<br>
+
+:: Arcology Stack Flirt
+<<effects>><<person1>>
+You sit at the other end of the bunk, with a space between you and the <<person>>. <<He>> lowers <<his>> foot and looks at you, then at the numbers on <<his>> ankle band.
+<br><br>
+"Bad day?" you ask. <<He>> nods. "Worked all shift. Barely paid off what the city charged for yesterday."
+<br><br>
+You move a little closer, letting your shoulder touch <<his>>. <<He>> turns towards you, surprised, but stays where <<he>> is.
+<br><br>
+<<speechresolve>><<switch _speechAttitudeResolved>>
+<<case "meek">>
+	"I thought you might like some company," you say quietly. "If that's okay."
+<<case "shy">>
+	"Um, I could stay here with you a while," you say, looking down at your hands.
+<<case "polite">>
+	"Would you mind if I stayed and talked with you?" you ask.
+<<case "confident">>
+	"You've been staring at that number long enough," you say. "Come on. Talk to me instead."
+<<case "bratty">>
+	"That band's getting more attention than I am," you say, smiling at <<him>>.
+<<case "docile">>
+	"I can keep you company," you say softly. "I'd like that."
+<<case "flamboyant">>
+	"I think we both deserve a little company after a day like this," you say, smiling.
+<<case "cruel">>
+	"Staring won't make your debt disappear," you say. "You could talk to me instead."
+<<default>>
+	"You want some company?" you ask. "We could talk for a while."
+<</switch>>
+<<promiscuity1>>
+<br><br>
+The <<person>> smiles and makes room for you to sit more comfortably. You ask what <<he>> did before coming to the Stack, and <<he>> tells you about the handle <<he>> used outside. You exchange a few stories while the other workers settle into their beds. When you eventually stand to leave, <<he>> thanks you for staying and watches you return to your bunk. <<arcologyStackCrew 3>>
+<br><br>
+<<link [[Next|Arcology Stack Bunks]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Stack Eavesdrop
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+You find an empty bunk beside the wall of the supervisors' office and lie down as though you're going to sleep. The people inside are talking close to a ventilation opening, so you can hear parts of the conversation.
+<br><br>
+You turn onto your side, keeping your ear towards the wall. The workers in the nearby bunks continue talking among themselves, making some of the words difficult to hear.
+<br><br>
+<<if !_st.revolt.heard>>
+	<<set _st.revolt.heard to true>>
+	"...someone asked about the new arrivals again..."
+	<br><br>
+	A second voice answers, "...the visitor with the clean coat? Pays for a night, then tells us to keep it off the debt records..."
+	<br><br>
+	"...and nobody complains afterwards," the first speaker says.
+	<br><br>
+	One of the supervisors laughs. You hear a chair moving across the floor, followed by footsteps. The voices become too quiet to understand.
+<<elseif !_st.revolt.code>>
+	<<set _st.revolt.code to true>>
+	"...the lift override code is still the shift number backwards," someone says. "I keep telling them to change it."
+	<br><br>
+	"Why bother?" another supervisor replies. "The workers aren't supposed to use the lift panel."
+	<br><br>
+	You repeat the instruction to yourself so you won't forget it.
+	<br><br>
+	<span class="gold">You have learned how to override the service lift.</span>
+<<else>>
+	"...the drone relay stopped receiving some of the camera data again," a supervisor says. "Maybe water's getting into the cables."
+	<br><br>
+	You listen for any mention of the memory chips or repairs, but the conversation moves to other work. You return to your bunk before somebody notices you listening.
+<</if>>
+<br><br>
+<<link [[Next|Arcology Stack Bunks]]>><</link>>
+<br>
+
+:: Arcology Stack Fixer Give
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+<<loadNPC 0 "stack_fixer">><<person1>>
+You find the fixer near the back row of bunks. When nobody is watching, you hold out the memory chip. <<He>> takes it and turns it over in <<his>> fingers, checking the small green light on its side.
+<br><br>
+"This one's still working," <<he>> says. <<He>> slips the chip into a pocket and looks back at you. "You did what I asked. I owe you a favour." <<set _st.fixer.task to "">><<set _st.fixer.owed to true>><<arcologyStackCrew 4>>
+<br><br>
+<<link [[Next|Arcology Stack Bunks]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Stack Fixer Favour
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+<<loadNPC 0 "stack_fixer">><<person1>>
+You find the fixer sitting by the end of a bunk. <<He>> recognises you and moves aside so you can speak without the other workers hearing.
+<br><br>
+"Ready to collect that favour?" <<he>> asks.
+<br><br>
+<<speechresolve>><<switch _speechAttitudeResolved>>
+<<case "meek">>
+	"Could you help me with the drones?" you ask quietly. "Just long enough for us to get away?"
+<<case "shy">>
+	"I wanted to ask about the drones," you say, keeping your voice low. "Could you stop them watching us for a while?"
+<<case "polite">>
+	"I'd like to ask for your help with the sorting drones," you say. "Could you stop them watching the workers for a few minutes?"
+<<case "confident">>
+	"I need the sorting drones disabled when we make our move," you say. "Can you arrange that?"
+<<case "bratty">>
+	"You still owe me," you say. "How about making those drones useless for a few minutes?"
+<<case "docile">>
+	"Could you make the drones stop watching us?" you ask softly. "I'd be grateful."
+<<case "flamboyant">>
+	"I've decided what favour I'd like," you say. "Give us a few minutes without those drones watching every move."
+<<case "cruel">>
+	"I did your job," you say. "Now stop those drones watching us when I give the signal."
+<<default>>
+	"Yes," you say. "I need the drones to stop watching us when we try to escape. Can you do that?"
+<</switch>>
+<br><br>
+The fixer looks towards the ceiling cameras before answering. "I can make the sorting drones show the guards an old recording of an empty floor. The guards won't see what's happening on the belts during that time."
+<br><br>
+<<He>> leans closer so the nearby workers cannot hear. "I can only arrange it once, so make sure everyone's ready before you start."
+<<set _st.revolt.drones to true>><<set _st.fixer.owed to false>>
+<br><br>
+<<link [[Next|Arcology Stack Bunks]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Stack Rewire
+<<effects>>
+<<set _st to $xchange.arcology.stack>>
+You wait until the other workers have gone to their bunks, then take your memory chip to the narrow space behind the last row. Several cables run along the wall there, leading towards the sorting room.
+<br><br>
+You crouch beside the cables and find one connected to the drone network. Working carefully, you remove a small section of the covering and connect the memory chip to the exposed wires. You check the connections before trying to send information through it.
+<br><br>
+<<if $phase is 1>>
+	<<set _st.net++>>
+	<span class="green">The light on the memory chip flashes twice</span>, then stays on. Your connection works. The chip can now send your instructions through another part of the drone network, bringing you closer to controlling the cameras during the escape.
+<<else>>
+	A spark jumps from one of the connections, and <span class="red">the light on the memory chip switches off.</span> You pull the damaged chip away from the cable before anyone sees what you're doing, then hide it beneath your mat. You'll need another chip to try again. <<scienceskill>>
+<</if>>
+<<set $phase to 0>>
+<br><br>
+<<if _st.net gte 10>>
+	The last connection works, and all ten modified chips are ready. <span class="green">You have finished preparing the drone network.</span> Once enough workers agree to escape with you, you can send the signal that will stop the sorting drones from showing the guards what's happening.
+<<else>>
+	You check how many connections are working before hiding your tools. You have prepared <span class="teal"><<print _st.net>> of 10</span> connections needed to interfere with the drone network.
+<</if>>
+<br><br>
+<<link [[Next|Arcology Stack Bunks]]>><</link>>
+<br>
+
+:: Arcology Stack Grope
+<<effects>>
+<<if $phase is 0>>
+	You stop moving when the <<person>> pulls you away from the bed frame. <<He>> forces you down onto the lower bunk, leaving you little room to get away. You look towards the aisle, but the other bunks block your view. <<stress 3>><<arousal 5>><<gstress>><<garousal>>
+	<br><br>
+	<<link [[Next|Arcology Stack Grope Rape]]>><<set $molestationstart to 1>><</link>>
+<<else>>
+	You place both hands against the <<persons>> chest and push as hard as you can, trying to get enough space to move past <<him>>.
+	<<if $phase is 1>>
+		<span class="green">The <<person>> falls back against the bunk opposite.</span> The noise makes a worker farther down the aisle look over. Your attacker releases you and moves away before anyone comes closer.
+		<br><br>
+		<<link [[Next|Arcology Stack Bunks]]>><<endevent>><</link>>
+	<<else>>
+		<span class="red">The <<person>> catches your arms before you can get free.</span> <<He>> pushes you down onto a lower bunk, preventing you from reaching the aisle.
+		<br><br>
+		<<link [[Next|Arcology Stack Grope Rape]]>><<set $molestationstart to 1>><<set $phase to 0>><</link>>
+	<</if>>
+<</if>>
+<br>
+
+:: Arcology Stack Grope Rape
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+<</if>>
+<<set _scenePainMult to setup.arcology.fightPainMult()>><<set _scenePainFloor to setup.arcology.fightPainFloor()>>
+<<effects>><<arcologyCombatNotes>><<effectsman>><<man>><<arcologyCyberTurn>><<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Arcology Stack Grope Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Stack Grope Rape]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Stack Grope Finish
+<<effects>>
+<<if $enemyhealth lte 0>>
+	<<tearful>> you manage to push the <<person>> off the bunk. <<He>> falls against the frame opposite, catches <<his>> balance and hurries away between the rows before you can follow.
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	The <<person>> gets up and leaves without speaking to you. <<tearful>> you sit on the edge of the bunk and pull your clothes back into place before standing.
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	The <<person>> finally releases you and walks away between the bunks. <<tearful>> you stay on the mat until you can sit up, then pull your clothes back into place.
+<</if>>
+<<clotheson>>
+<<endcombat>>
+<br>
+<<link [[Next|Arcology Stack Bunks]]>><</link>>
+<br>
+
+:: Arcology Stack Bunk
+<<effects>>
+You find an empty bunk and climb onto the thin foam mat. The mat is so narrow that your elbows touch the sides of the frame when you lie down. You adjust the mat beneath your shoulders and try to get comfortable.
+<br><br>
+You can still hear the conveyors working on the other side of the wall. When a heavier load passes through the machinery, the metal bed frame moves slightly. You turn onto your side and try to sleep while the workers around you settle into their own bunks.
+<br><br>
+<<nightmareCheck "Arcology Stack Sleep">>
+<<generateSleepLinks "Arcology Stack Sleep">>
+<<link [[Climb off the bunk|Arcology Stack Bunks]]>><<loadTempHairStyle>><</link>>
+<br><br>
+
+:: Arcology Stack Sleep
+<<set _autosavehere to true>>
+<<sleep false `(30 - Time.hour) % 24`>><<effects>><<wakingEffects $sleepHoursTotal>>
+<<if ["dryheaving","nausea"].includes(_wakingEffect)>>
+	<br><br>
+	You open your eyes and sit up slowly. Your stomach feels unsettled, and you stay on the edge of the bunk until you feel ready to stand.
+	<br><br>
+<<elseif $nightmares gte 1 and $controlled is 0>>
+	<<nightmareWake>>
+<<elseif !_wakingEffect>>
+	You wake after several hours of sleep. The lights over the bunks are still on, and other workers are beginning to move around the sleeping area.
+	<br><br>
+<<else>>
+	<br><br>
+<</if>>
+<<sleepeffects>>
+<<if Time.hour gte 6 and Time.hour lt 21>>
+	A drone enters the sleeping area and moves slowly between the rows of bunks. Its bright light passes across your bed, making you cover your eyes. A horn announces the next shift, and workers begin climbing down the ladders to put on their shoes and head towards the sorting room.
+	<br><br>
+<</if>>
+<<link [[Next|Arcology Stack Bunks]]>><</link>>
+<br>
+
+:: Arcology Stack Passout
+<<pass 1 hour>><<location "arcology_stack">><<set $outside to 0>><<effects>>
+<<set _st to $xchange.arcology.stack>>
+<<if $phase is "night" and random(1, 100) lte 35>>
+	<<set $phase to 0>>
+	<<arcologyNPC 0 "worker" "worker">><<person1>>
+	You regain consciousness on a lower bunk, confused about how you got there. As you try to move, you realise a <<person>> is holding you down. <<He>> has pulled at your clothes while you were unconscious.
+	<br><br>
+	You try to sit up, but <<he>> keeps you against the mat. You look towards the narrow aisle between the bunks, trying to find a way to get free.
+	<br><br>
+	<<link [[Next|Arcology Stack Passout Rape]]>><<set $molestationstart to 1>><</link>>
+<<else>>
+	<<set $phase to 0>>
+	You wake on a bunk with no memory of climbing into it. Someone has placed you on the mat after you passed out, but you cannot see who brought you here.
+	<br><br>
+	You sit up and check your ankle band. A new charge has been added for the help you received, increasing your debt even though you were unconscious. <<arcologyStackCharge 1500>>
+	<br><br>
+	<<link [[Next|Arcology Stack Bunks]]>><</link>>
+<</if>>
+<br>
+
+:: Arcology Stack Passout Rape
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+<</if>>
+<<set _scenePainMult to setup.arcology.fightPainMult()>><<set _scenePainFloor to setup.arcology.fightPainFloor()>>
+<<effects>><<arcologyCombatNotes>><<effectsman>><<man>><<arcologyCyberTurn>><<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Arcology Stack Passout Rape Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Arcology Stack Passout Rape]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Arcology Stack Passout Rape Finish
+<<effects>>
+<<if $enemyhealth lte 0>>
+	<<tearful>> you manage to force the <<person>> away and roll off the bunk. You get to your feet in the aisle, keeping the bed frame between you. <<He>> stays where <<he>> is while you move away.
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	The <<person>> gets up and walks away between the bunks. <<tearful>> you pull your knees towards your body and stay on the mat until you can move again.
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	The <<person>> eventually lets go and leaves through the narrow aisle. <<tearful>> you move towards the wall, pulling your clothes around yourself as you sit up.
+<</if>>
+<<clotheson>>
+<<endcombat>>
+<br>
+<<link [[Next|Arcology Stack Bunks]]>><</link>>
+<br>
+
+:: Arcology Stack Release
+<<pass 5>><<effects>>
+<<badEndTrackingEnd "Arcology Stack" { reason: "arcologyStackPaid" }>>
+You hold your ankle band where the supervisor can read it. The display shows zero beside your handle, with no new charges beneath it.
+<br><br>
+The supervisor checks the balance against a handheld reader, then tells you to hold your foot still. The supervisor removes the metal band and places it in a box containing bands from other workers.
+<br><br>
+"Your debt's paid," the supervisor says. "You can leave."
+<br><br>
+A worker carrying a bin stops to watch the supervisor put the band away. "You actually paid it off?" the worker asks. You show your bare ankle, and the worker smiles. "Get going before they find something else to charge you for."
+<br><br>
+You walk past the conveyors towards the service lift. At the doors, a scanner checks the implant behind your ear. A green light appears on the panel, and the doors open. Nobody stops you from entering.
+<br><br>
+<<link [[Next|Arcology Stack Release 2]]>><</link>>
+<br>
+
+:: Arcology Stack Release 2
+<<pass 5>><<effects>>
+You step into the lift and press the button for the pier. The doors close, and the lift begins taking you back towards the upper levels of the city.
+<br><br>
+During the journey, the warning beside your implant status changes from red to green. You open the message to read the new information.
+<br><br>
+<<holo "CIVIC REGISTRY / STATUS CHANGE" "ok">>
+	<<holoRow "HANDLE" `$xchange.arcology.handle`>>
+	<<holoRow "STATUS" "RELEASED">>
+	<<holoLine "BALANCE CLEARED" "ok">>
+<</holo>>
+<br>
+The lift stops beneath the white pier, and its doors open onto a passage leading outside. You walk past the service entrance and reach the pier without a guard following you.
+<br><br>
+<<link [[Next|Arcology Pier]]>><<arcologyStackEnd>><</link>>
+<br>
+
+:: Arcology Stack Rescue
+<<effects>>
+<<set $xchange.arcology.stack.rescue to "offered">>
+<<npc Luchifen>><<person1>>
+<<LuName>> steps out of the service lift wearing a long black coat. A supervisor approaches to question the visitor, then recognises <<luName>> and puts the tablet away.
+<br><br>
+<<LuName>> speaks briefly to the supervisor, then walks between the sorting stations until they reach you. The workers nearby continue sorting, although several turn to see why someone from the upper city has come down here.
+<br><br>
+They stop beside your station and look you over, pausing at the band on your ankle. You turn it so they can read the balance.
+<br><br>
+"I was beginning to wonder where you had gone," they say. "I asked at the checkpoint. Apparently, this is where my guest has been staying." They glance towards the supervisor, who suddenly finds something to check on the tablet. "I can settle that balance. Then we can find you somewhere rather more comfortable."
+<br><br>
+They hold out a hand. "Will you come with me?"
+<br><br>
+<<link [[Go with them|Arcology Stack Rescue Go]]>><</link>>
+<br>
+<<link [[Tell them you'll pay it yourself|Arcology Stack Rescue Stay]]>><</link>>
+<br>
+
+:: Arcology Stack Rescue Go
+<<pass 5>><<effects>>
+<<badEndTrackingEnd "Arcology Stack" { reason: "arcologyStackRescued" }>>
+You take <<luName>>'s hand. They ask the supervisor to charge the balance to their account and wait while the payment goes through. Once the reader confirms it, the supervisor cuts the band from your ankle.
+<br><br>
+<<LuName>> leads you towards the lift while the supervisor steps aside. Once you are both inside and the doors close, <<luName>> releases your hand and turns to face you.
+<br><br>
+"When I said you were my guest, I had something rather different in mind," they say. You look down at your ankle, where the band has left a mark. They follow your gaze and pause before continuing.
+<br><br>
+"If you find yourself in trouble again, do try to tell me before the guards put you to work. I would prefer to hear it from you rather than a clerk." <<npcincr Luchifen love -10>><<llllove>>
+<br><br>
+<<holo "CIVIC REGISTRY / STATUS CHANGE" "ok">>
+	<<holoRow "HANDLE" `$xchange.arcology.handle`>>
+	<<holoRow "STATUS" "RELEASED">>
+	<<holoLine "BALANCE CLEARED" "ok">>
+<</holo>>
+<br>
+The lift doors open beneath the white pier. You follow <<luName>> out through the staff passage. At the public walkway, they wait while you catch your breath, then point out the way back to the city before continuing along the pier.
+<br><br>
+<<link [[Next|Arcology Pier]]>><<arcologyStackEnd>><</link>>
+<br>
+
+:: Arcology Stack Rescue Stay
+<<pass 5>><<effects>>
+<<set $xchange.arcology.stack.rescue to "refused">>
+<<LuName>> keeps their hand out while you explain why you want to stay. The workers nearby continue sorting, trying to listen without turning towards you.
+<br><br>
+<<speechresolve>><<switch _speechAttitudeResolved>>
+<<case "meek">>
+	"Thank you, but... I think I should pay it myself," you say quietly.
+<<case "shy">>
+	"I appreciate it," you say, struggling to look at them. "I want to finish paying it myself."
+<<case "polite">>
+	"Thank you for coming here, but I'd prefer to finish paying my debt myself," you say.
+<<case "confident">>
+	"I can pay my own debt," you say. "I'm staying until it's cleared."
+<<case "bratty">>
+	"I can get out of here without you paying for me," you say. "Just watch."
+<<case "docile">>
+	"I'd like to stay and pay the debt myself, if that's all right," you say softly.
+<<case "flamboyant">>
+	"It's a generous offer," you say. "But I'd rather walk out of here knowing I paid every Cipher myself."
+<<case "cruel">>
+	"Keep your money," you say. "I don't need you to pay my way out."
+<<default>>
+	"Thanks for coming," you say. "But I'm going to pay the debt myself."
+<</switch>>
+<br><br>
+They lower their hand and look at the balance once more. "You would rather work until you have paid all of that?" You confirm it, and they step back from your station. "Very well. I will leave you to it. Though I hope you know what the Stack charges for the privilege of sleeping here."
+<br><br>
+<<LuName>> turns towards the lift. The supervisor waits beside the doors for <<luName>> to step inside, then orders everyone to return to work once the doors close.
+<br><br>
+<<link [[Next|Arcology Stack]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Stack Birth
+<<effects>>
+<<if !$xchange.arcology.stack.medic>>
+	<<set $xchange.arcology.stack.medic to true>>
+	<<arcologyNPC 1 "worker" "medic">><<saveNPC 1 "stack_medic">><<person2>>
+	Two workers bring you to a cot in the medical area. You lie on your side while two people argue nearby. You can make out a worker's voice, followed by a guard's.
+	<br><br>
+	"I usually treat cuts and burns," the worker says. "I've never had to deliver a baby down here."
+	<br><br>
+	"There's nobody else coming," the guard replies. "Help with the birth."
+<<else>>
+	<<loadNPC 1 "stack_medic">><<person2>>
+	The workers help you onto the medical cot. Someone moves a lamp above you, and you recognise the medic's voice.
+	<br><br>
+	"Another delivery," the medic says. "Somebody hold the lamp where I can see."
+<</if>>
+<br><br>
+You turn towards the bright lamp above the medical cot. The Stack's medic is standing beside you, preparing an injector. A guard is standing a short distance from the cot, watching as the medic checks your condition.
+<br><br>
+"I'm giving you something for the pain," the <<person>> says, pressing the injector against your arm. "When I tell you to push, do your best. I'll tell you what's happening."
+<br><br>
+You try to adjust your position on the cot. The medic helps you lie back and moves the lamp so <<he>> can see what <<he>> is doing.
+<br><br>
+<<wash>><<undress "stack_birth">>
+<<link [[Next|Arcology Stack Birth 2]]>><</link>>
+<br>
+
+:: Arcology Stack Birth 2
+<<effects>>
+<<switch playerNormalPregnancyType()>>
+	<<case "wolf">>
+		<<set $phase to 1>>
+		The medic looks down, then quickly adjusts <<his>> position beside the cot. "This isn't a human baby," <<he>> says. "I can see the head. Keep pushing when I tell you to."
+	<<default>>
+		<<set $phase to 0>>
+		"The head is out," the medic says. <<He>> moves closer to check the baby's position. "Push with the next contraction. I'll support the baby as it comes out."
+<</switch>>
+<br><br>
+You grip the edge of the cot as another contraction begins. The medic tells you when to push and when to rest, checking on you between contractions. You can still hear the sorting machinery nearby.
+<br><br>
+You concentrate on the medic's instructions, resting whenever you have a chance before the next contraction.
+<br><br>
+<<link [[Next|Arcology Stack Birth 3]]>><</link>>
+<br>
+
+:: Arcology Stack Birth 3
+<<run setPlayerLitterBorn()>><<pass `birthLaborTime()`>><<effects>><<set $litter_size to getLabouringLitter("pc").length>><<person2>>
+You wake on a cot in the small medical area beside the sorting room. Someone has placed a blanket over you, and the lamp above the cot has been turned away from your face.
+<br><br>
+You remember giving birth and look around for your baby. When you try to sit up, the medic comes over to check on you.
+<br><br>
+<<if $litter_size is 1>>
+	"Your child is all right," the <<person>> says. "The city doesn't allow babies to stay in the Stack."
+	<br><br>
+	<<if $phase is 1>>
+		"Your child will be taken to the forest on the mainland when it's ready."
+	<<else>>
+		"Your child will be taken to an orphanage on the mainland."
+	<</if>>
+<<else>>
+	"Your children are all right," the <<person>> says. "The city doesn't allow babies to stay in the Stack."
+	<br><br>
+	<<if $phase is 1>>
+		"Your children will be taken to the forest on the mainland when they're ready."
+	<<else>>
+		"Your children will be taken to an orphanage on the mainland."
+	<</if>>
+<</if>>
+<br><br>
+<<setBabyIntro "pc" "Bailey">>
+<<birthUi "pc" "island" `$phase is 1 ? "wolf_cave" : "home"` "Arcology Stack Birth 4" 0>>
+<br>
+
+:: Arcology Stack Birth 4
+<<pass 125>><<effects>><<person2>>
+The <<person>> helps you sit up slowly and waits until you can support yourself. <<He>> brings your clothes back to the side of the cot so you can get dressed. <<storeon "stack_birth">>
+<br><br>
+As you prepare to leave, you look down at your ankle band. The medic follows your eyes. "You still owe the balance on that," <<he>> says. "The guards will expect you back at work when you can stand."
+<<set $phase to 0>>
+<br><br>
+<<link [[Next|Arcology Stack]]>><<endevent>><</link>>
+<br>

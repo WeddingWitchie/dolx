@@ -1,0 +1,510 @@
+:: Arcology Price Ask
+<<set $outside to 0>><<effects>>
+<<set _paA to $xchange.arcology.priceAsk>>
+<<if _paA and setup.arcologyPrice.items[_paA.id]>>
+	<<set _paP to setup.arcologyPrice.peek(_paA.id)>><<set _paE to setup.arcologyPrice.explain(_paP)>>
+	<<if _paP.v.who is "kiosk">>
+		You tap the price on the kiosk screen. A small notice opens beside it.
+		<br>
+		<<holoNotice "PRICE NOTICE" `_paE.why is "old" ? "POSTED PRICES ARE UPDATED EVERY FEW DAYS." : "PRICES FOLLOW THE CIPHER EXCHANGE RATE."` "warn">>
+	<<else>>
+		<<if _paP.pounds>>
+			"Why won't you take Cipher?" you ask.
+		<<elseif _paP.corrected>>
+			"Why has the price changed?" you ask.
+		<<else>>
+			"Why is it so expensive?" you ask.
+		<</if>>
+		<br><br>
+		The <<print _paP.v.who>> <<print _paE.action>> "<<print _paE.line>>"
+		<<if _paE.town>>
+			<br><br>
+			The till adds the extra charge that also applies to purchases in town.
+		<</if>>
+	<</if>>
+	<<set _paBack to _paA.back>>
+<<else>>
+	<<set _paBack to "Arcology Street">>
+	You cannot remember which price you wanted to ask about.
+<</if>>
+<br><br>
+<<capture _paBack>><<link [[Back|_paBack]]>><<unset $xchange.arcology.priceAsk>><</link>><</capture>>
+<br>
+
+:: Arcology Black Market Deal
+<<location "arcology_blackmarket">><<set $outside to 0>><<effects>>
+<<set _bd to $xchange.arcology.deal>>
+<<if !_bd>>
+	The seller has put the tray away, so you cannot buy the patch now.
+	<br><br>
+	<<link [[Next|Arcology Black Market]]>><</link>>
+	<br>
+	<<exit>>
+<</if>>
+<<person1>>
+<<switch _bd.stage>>
+<<case "bought">>
+	The seller checks your payment, then pushes a patch across the table. You pick it up and press it against the inside of your wrist. Your arm starts to feel warm as the patch takes effect, and the pain in your body begins to fade.
+	<br><br>
+	<<link [[Next|Arcology Black Market]]>><<endevent>><<unset $xchange.arcology.deal>><</link>>
+<<case "unpaid">>
+	The seller checks the payment screen, then takes the patch back before you can pick it up. "Payment didn't go through. Try again."
+	<br><br>
+	<<link [[Next|Arcology Black Market]]>><<endevent>><<unset $xchange.arcology.deal>><</link>>
+<<case "dispute">>
+	<<A $NPCList[0].fullDescription>> sits behind the table. <<arcologyCyberLook 0>> <<He>> looks at your payment, then checks the price on <<his>> wrist screen. <<He>> stops the sale and puts a hand over the patch.
+	<br><br>
+	"That price is old," <<he>> says. "Cipher's worth less now. You thought I was going to sell it that cheap?"
+	<br><br>
+	<<He>> enters a new amount and turns the screen towards you. The price is now <<print setup.arcology.cx(_bd.fair)>>.
+	<br><br>
+	<<if $xchange.arcology.cipher gte _bd.fair>>
+		<<link `"Pay the new price (" + setup.arcology.cx(_bd.fair) + ")"` "Arcology Black Market Deal">><<if $xchange.arcology.cipher gte _bd.fair>><<set $xchange.arcology.cipher -= _bd.fair>><<set _bd.stage to "bought">><<pain -25>><<stress -3>><<run setup.arcologyPrice.noteBargain("dealer")>><</if>><</link>>
+		<br>
+	<</if>>
+	<<if !_bd.argued>>
+		<<link [[Point to the posted price|Arcology Black Market Deal]]>><<set _bd.argued to true>><<set _bd.stage to setup.arcology.escape("talk", "english", 400, 1100) ? "conceded" : "threat">><</link>><<arcologySkill "English">>
+		<br>
+	<</if>>
+	<<link [[Leave the patch and walk away|Arcology Black Market]]>><<endevent>><<unset $xchange.arcology.deal>><</link>>
+	<br>
+<<case "conceded">>
+	"That's the price you put up," you say, pointing at the list. "You can't change it after I try to pay."
+	<br><br>
+	The people at the next table turn to watch. The seller looks at them, then pushes the patch towards you. "Fine. Pay the old price. After that, don't come back."
+	<br><br>
+	<<if $xchange.arcology.cipher gte _bd.old>>
+		<<link `"Pay " + setup.arcology.cx(_bd.old)` "Arcology Black Market Deal">><<if $xchange.arcology.cipher gte _bd.old>><<set $xchange.arcology.cipher -= _bd.old>><<set _bd.stage to "bought">><<pain -25>><<stress -3>><<run setup.arcologyPrice.noteBargain("dealer")>><<set $daily.arcologyBlackMarketBanned to true>><</if>><</link>>
+		<br>
+	<</if>>
+	<<link [[Leave it|Arcology Black Market]]>><<endevent>><<unset $xchange.arcology.deal>><</link>>
+<<case "threat">>
+	"That's the price you put up," you say, pointing at the list. "You can't change it now."
+	<br><br>
+	<<arcologyCounterLine>>
+	The seller gets up from the table. Another person stands up nearby and moves closer. The seller pulls <<his>> jacket aside, showing you a stun baton. "You want to keep arguing? Leave. Now."
+	<br><br>
+	<<link [[Leave|Arcology Market Street]]>><<endevent>><<unset $xchange.arcology.deal>><<set $daily.arcologyBlackMarketBanned to true>><<stress 3>><</link>><<gstress>>
+	<br>
+	<<link [[Grab the patch and run|Arcology Black Market Deal]]>><<set _bd.stage to setup.arcology.escape("run", "athletics", 400, 1200) ? "stolen" : "caught">><<pass 1>><</link>><<arcologySkill "Athletics">>
+	<br>
+<<case "stolen">>
+	You grab the patch from the tray and run for the curtain while the seller moves around the table. You push through it, pass the parts stalls, then turn onto Market Street. You slow down among the shoppers and look behind you. The seller has not followed you.
+	<br><br>
+	Once you are away from the market, you press the patch against the inside of your wrist. After a moment, the pain in your body begins to fade.<<pain -25>><<stress -3>>
+	<<set $daily.arcologyBlackMarketBanned to true>>
+	<br><br>
+	<<link [[Next|Arcology Market Street]]>><<endevent>><<unset $xchange.arcology.deal>><</link>>
+<<case "caught">>
+	<<arcologyCounterLine>>
+	You grab the patch and turn towards the curtain. The seller comes around the table before you can reach it, catches your arm and twists it behind your back.
+	<br><br>
+	"Thief!" <<he>> shouts. People at the other tables look over as <<he>> pulls your arm further up behind your back. "Drop it and get out."
+	<br><br>
+	<<link [[Fight|Arcology Danger Fight]]>><<set $xchange.arcology.danger to { kind: "dealer", where: "market", back: "Arcology Market Street", stage: "approach", npc: true, price: _bd.fair }>><<unset $xchange.arcology.deal>><<set $daily.arcologyBlackMarketBanned to true>><<set $fightstart to 1>><</link>>
+	<br>
+	<<link [[Drop the patch and leave|Arcology Market Street]]>><<endevent>><<unset $xchange.arcology.deal>><<set $daily.arcologyBlackMarketBanned to true>><<pain 4>><<stress 4>><</link>><<gpain>><<gstress>>
+	<br>
+<</switch>>
+<br>
+
+:: Arcology Raid
+<<if !$xchange.arcology.danger or $xchange.arcology.danger.kind isnot "raid">><<include "Arcology Unrest Missing">><<exit>><</if>>
+<<set _ad to $xchange.arcology.danger>>
+<<if _ad.raid is undefined>>
+	<<set _ad.raid to setup.arcology.raidKind(_ad.where)>>
+	/* Whether the attackers have already seen the player watching; set once so reloading can't change it. */
+	<<set _ad.noticed to _ad.raid isnot "crowd" and random(1, 100) lte (_ad.raid is "attack" ? 45 : 25) + 10 * setup.arcology.threatBand()>>
+<</if>>
+<<person1>>
+<<switch _ad.raid>>
+<<case "shop">>
+	Ahead, you see a small food shop with its metal shutter forced halfway open. <<A $NPCList[0].fullDescription>> is pulling crates out from under it and passing them to another person in the street. <<arcologyCyberLook 0>>
+	<br><br>
+	The shop owner is on the floor inside, shouting that the money in the till is all in Cipher and barely worth anything now. People passing the shop keep walking. The payment card from the till is lying on the pavement beneath the shutter, where the two thieves have not noticed it.
+<<case "attack">>
+	Near a payment terminal, <<a $NPCList[0].fullDescription>> is holding a resident against the wall. Another person is going through the resident's coat pockets. <<arcologyCyberLook 0>>
+	<br><br>
+	"Pounds," the one doing the holding says. "Not Cipher. Nobody wants Cipher."
+<<case "supplies">>
+	Two raiders have stopped a delivery cart carrying crates of food and water. <<A $NPCList[0].fullDescription>> is standing on top of the cart, kicking at anyone who tries to get close. The second raider is pulling crates off the back. <<arcologyCyberLook 0>>
+	<br><br>
+	The driver is hiding behind the front of the cart. A payment card has fallen onto the road beside one of the wheels.
+<<case "crowd">>
+	People have gathered outside a financial office and are shouting through the glass doors. Several private security officers are blocking the entrance. One officer, <<a $NPCList[0].fullDescription>>, holds up a shield and pushes back anyone who gets too close. <<arcologyCyberLook 0>>
+	<br><br>
+	A sign on the door says withdrawals are suspended until further notice.
+<</switch>>
+<<if _ad.noticed>>
+	<br><br>
+	<<He>> notices you watching. <<He>> calls to the other raider, then leaves what <<he>> was doing and walks towards you.
+<</if>>
+<br><br>
+<<if _ad.raid is "crowd">>
+	<<link [[Go around the crowd|Arcology Raid Act]]>><<set _ad.action to "leave">><</link>>
+	<br>
+	<<link [[Stop and listen|Arcology Raid Act]]>><<set _ad.action to "listen">><<pass 5>><</link>>
+	<br>
+	<<link [[Push through to the doors|Arcology Raid Act]]>><<set _ad.action to "push">><<set _ad.check to setup.arcology.escape("run", "athletics", 300, 1000)>><</link>><<arcologySkill "Athletics">>
+	<br>
+<<else>>
+	<<arcologyPoliceHint>>
+	<<if _ad.noticed>>
+		<<link [[Back away|Arcology Raid Act]]>><<set _ad.action to "back">><<set _ad.check to setup.arcology.escape("run", "athletics", 300, 1000)>><</link>><<arcologySkill "Athletics">>
+	<<else>>
+		<<link [[Leave before the raiders notice you|Arcology Raid Act]]>><<set _ad.action to "leave">><</link>>
+	<</if>>
+	<br>
+	<<arcologyPoliceLink "Arcology Raid Act">>
+	<<link [[Step in and help|Arcology Raid Act]]>><<set _ad.action to "help">><<set _ad.check to setup.arcology.escape("force", "physique", 4000, 16000)>><</link>><<arcologySkill "Physique">>
+	<br>
+	<<if _ad.raid isnot "attack" and !_ad.noticed>>
+		<<link [[Pick up the dropped card|Arcology Raid Act]]>><<set _ad.action to "loot">><<set _ad.check to setup.arcology.escape("lock", "skulduggery", 300, 1000)>><</link>><<arcologySkill "Skulduggery">>
+		<br>
+	<</if>>
+<</if>>
+
+:: Arcology Raid Act
+<<if !$xchange.arcology.danger or $xchange.arcology.danger.kind isnot "raid">><<include "Arcology Unrest Missing">><<exit>><</if>>
+<<effects>><<person1>>
+<<set _ad to $xchange.arcology.danger>>
+<<if !_ad.reported>><<set _ad.reported to true>><<if _ad.raid isnot "crowd">><<run setup.arcologyNews.report("raid")>><</if>><</if>>
+<<switch _ad.action>>
+<<case "leave">>
+	<<if _ad.raid is "crowd">>
+		You stay away from the officers at the entrance and walk around the people gathered outside. When you reach the next street, you continue on your way.
+	<<else>>
+		The raiders are still busy with the robbery. You turn around and walk back the way you came, leaving the street before anyone stops you.
+	<</if>>
+	<br><br>
+	<<arcologyDangerReturn>>
+<<case "listen">>
+	You stop at the back of the crowd to hear what everyone is shouting about. People say their savings are held in Cipher accounts, but the office will not let them withdraw their money. Nobody inside has explained when withdrawals will be allowed again.
+	<br><br>
+	A person standing nearby says the office stopped answering messages two days ago. Another person claims the managers left through a back door this morning.<<stress 2>><<gstress>>
+	<br><br>
+	<<arcologyDangerReturn>>
+<<case "push">>
+	<<if _ad.check>>
+		You make your way between the people near the entrance until you reach the glass doors. The office inside is empty, although the lights are still on. Before you can look any further, a security officer pushes you back towards the crowd. You manage to walk away without being hurt.
+	<<else>>
+		<<arcologyCounterLine>>
+		As you reach the front, people behind you start pushing towards the doors. A security officer pushes a shield against your shoulder, forcing you backwards into the crowd. You fall, and someone steps on your hand before you can get up.<<pain 8>><<stress 4>><<gpain>><<gstress>>
+	<</if>>
+	<br><br>
+	<<arcologyDangerReturn>>
+<<case "back">>
+	<<if _ad.check>>
+		You move backwards as <<he>> approaches, keeping enough distance to turn the corner before <<he>> reaches you. You continue down the next street until you are among other people. When you look back, nobody is following you.
+		<br><br>
+		<<arcologyDangerReturn>>
+	<<else>>
+		<<arcologyCounterLine>>
+		You turn towards the corner, but <<he>> runs ahead and stands in your way. "Been watching us, have you?" <<he>> asks.
+		<br><br>
+		<<arcologyUnrestChoices>>
+	<</if>>
+<<case "call">>
+	You turn away from the raiders and use your implant to call Enforcement. You try to speak quietly so nobody hears you.
+	<<if _ad.police is "arrive">>
+		You tell the person answering the call where you are. A police drone arrives soon afterwards, sounding its siren as it comes down towards the street. The raiders run away when the drone approaches. It then moves over to you and scans your implant, recording your username as the person who called.<<run setup.arcology.expose()>>
+		<br><br>
+		<<arcologyDangerReturn>>
+	<<else>>
+		<<print setup.arcology.policeText(_ad.police)>>
+		<br><br>
+		<<if _ad.noticed>>The raider hears you talking and starts walking faster.<<else>>The raider hears your voice and turns towards you.<</if>> "Who are you calling?" <<he>> demands. You stop speaking, but <<he>> reaches you before you can leave and stands in your way. You still have no help from Enforcement.
+		<br><br>
+		<<arcologyUnrestChoices>>
+	<</if>>
+<<case "help">>
+	<<if setup.arcology.guarded()>><<include "Arcology Criminal Intercept">><<exit>><</if>>
+	<<if _ad.check>>
+		You shout at the raider and rush towards <<him>>. <<if _ad.raid is "supplies" and !_ad.noticed>>You grab <<his>> legs at the edge of the cart and pull <<him>> down onto the road.<<else>>You shove <<him>> before <<he>> can stop you. <<He>> stumbles backwards and moves away to keep <<his>> balance.<</if>> The second raider looks over as people nearby turn to watch. Both raiders pick up what they can carry and run away.
+		<br><br>
+		<<switch _ad.raid>>
+		<<case "shop">>The shop owner gets up and thanks you before pulling the shutter back down.
+		<<case "attack">>The resident pulls away from the wall, thanks you, then walks quickly towards a nearby building.
+		<<default>>The driver gets back into the vehicle and drives away with the crates that are still on the cart.
+		<</switch>>
+		<<stress -2>><<lstress>>
+		<br><br>
+		<<arcologyDangerReturn>>
+	<<else>>
+		<<arcologyCounterLine>>
+		You run up and shove <<him>>, but <<he>> stays on <<his>> feet. <<He>> turns towards you while the second raider drops the stolen goods and comes over to help.
+		<br><br>
+		"Wrong street," <<he>> says.
+		<br><br>
+		<<arcologyUnrestChoices>>
+	<</if>>
+<<case "loot">>
+	<<if _ad.check>>
+		<<if !_ad.taken>><<set _ad.taken to random(1500, 4500)>><<set $xchange.arcology.cipher to ($xchange.arcology.cipher or 0) + _ad.taken>><</if>>
+		While the raiders are occupied, you crouch and pick up the payment card. You hold it against your implant and transfer <<print setup.arcology.cx(_ad.taken)>> into your wallet before the card stops working.
+		<br><br>
+		You put the empty card back on the ground, stand up, and leave before the raiders notice what you did.<<stress 2>><<gstress>>
+		<br><br>
+		<<arcologyDangerReturn>>
+	<<else>>
+		<<arcologyCounterLine>>
+		You reach down for the card. The raider sees you and walks straight towards you. "That belongs to us," <<he>> says.
+		<br><br>
+		<<arcologyUnrestChoices>>
+	<</if>>
+<<default>>
+	<<include "Arcology Unrest Missing">>
+<</switch>>
+<br>
+
+:: Arcology Unrest Surrender
+<<if !$xchange.arcology.danger or !["raid", "fraud"].includes($xchange.arcology.danger.kind)>><<include "Arcology Unrest Missing">><<exit>><</if>>
+<<effects>><<person1>>
+<<if setup.arcology.guarded()>><<include "Arcology Criminal Intercept">><<exit>><</if>>
+<<set _ad to $xchange.arcology.danger>>
+<<if !_ad.robbed>>
+	<<set _ad.robbed to true>>
+	<<set _ad.loss to Math.min($xchange.arcology.cipher or 0, _ad.price)>><<set $xchange.arcology.cipher -= _ad.loss>><<stress 4>>
+<</if>>
+You hold out your wrist so <<he>> can use the payment reader. <<He>> presses it against your implant<<if _ad.loss>> and takes <<print setup.arcology.cx(_ad.loss)>> from your wallet<<else>>, but your wallet is empty. <<He>> swears at you<</if>>.
+<br><br>
+"Now get out of here," <<he>> says, putting the reader away. The people standing in your way move aside, allowing you to leave.<<gstress>>
+<br><br>
+<<arcologyDangerReturn>>
+
+:: Arcology Unrest Missing
+<<effects>>
+The trouble has already ended. People are walking along the street again.
+<br><br>
+<<set _umBack to $xchange.arcology.danger and $xchange.arcology.danger.back ? $xchange.arcology.danger.back : "Arcology Street">>
+<<capture _umBack>><<link [[Next|_umBack]]>><<endevent>><<unset $xchange.arcology.danger>><</link>><</capture>>
+<br>
+
+:: Arcology Fraud
+<<if !$xchange.arcology.danger or $xchange.arcology.danger.kind isnot "fraud">><<include "Arcology Unrest Missing">><<exit>><</if>>
+<<set _ad to $xchange.arcology.danger>>
+<<if _ad.scam is undefined>>
+	<<set _ad.scam to setup.arcology.scamKind()>>
+<</if>>
+/* A debt collector has a hand on the player and the impersonator already knows their username: walking off from those needs a check. */
+<<set _ad.confronted to ["debt", "staff"].includes(_ad.scam)>>
+<<person1>>
+<<switch _ad.scam>>
+<<case "terminal">>
+	You find a small currency exchange machine set up in a doorway. Three people are waiting to use it. The screen displays <span class="green">EMERGENCY CONVERSION: CIPHER TO POUNDS AT LAST WEEK'S RATE</span>. <<A $NPCList[0].fullDescription>> stands beside the machine and waves the next person forward. <<arcologyCyberLook 0>>
+	<br><br>
+	"The Registry is closing this exchange service soon," <<he>> says. "Give me your card and I can change your Cipher into pounds right now."
+	<br><br>
+	The machine also asks for your mainland bank card details. "That's just to check your card," the operator says. "You won't be charged."
+<<case "recovery">>
+	<<A $NPCList[0].fullDescription>> walks up beside you and shows you a small screen. <<arcologyCyberLook 0>> A chart on it shows Cipher becoming more valuable again.
+	<br><br>
+	"It's an investment fund," <<he>> says. "Put some Cipher in now, while the price is low. When it goes back up, you'll get twice as much back. I guarantee it."
+<<case "debt">>
+	<<A $NPCList[0].fullDescription>> approaches you, grabs your arm to stop you walking, and holds up a screen displaying your username. <<arcologyCyberLook 0>>
+	<br><br>
+	"I'm collecting payments for Halden Trust," <<he>> says. "Your account went below zero when Cipher lost value. You owe <<print setup.arcology.cx(_ad.price)>> to fix it. Pay now or the Trust will freeze your wallet."
+<<case "staff">>
+	<<A $NPCList[0].fullDescription>> wearing a clean grey uniform steps out of a doorway and calls you by your username. <<arcologyCyberLook 0>> <<He>> has a badge with the Halden Trust logo on <<his>> chest.
+	<br><br>
+	"We've been trying to contact you," <<he>> says. "People have been stealing from accounts during the crisis. I can move your money somewhere safe, but first I need to check your identity."
+<</switch>>
+<br><br>
+<<if !_ad.inspected>>
+	<<link [[Look more closely|Arcology Fraud Act]]>><<set _ad.inspected to true>><<set _ad.action to "inspect">><<set _ad.check to setup.arcology.escape("proof", "skulduggery", _ad.scam is "staff" ? 500 : 250, _ad.scam is "staff" ? 1300 : 900)>><<pass 2>><</link>><<arcologySkill "Skulduggery">>
+	<br>
+<</if>>
+<<if !_ad.asked>>
+	<<link [[Ask questions|Arcology Fraud Act]]>><<set _ad.asked to true>><<set _ad.action to "ask">><<set _ad.check to setup.arcology.escape("talk", "english", _ad.scam is "staff" ? 500 : 250, _ad.scam is "staff" ? 1300 : 900)>><<pass 2>><</link>><<arcologySkill "English">>
+	<br>
+<</if>>
+<<link [[Go along with it|Arcology Fraud Act]]>><<set _ad.action to "comply">><</link>>
+<br>
+<<arcologyFraudLeave>>
+
+:: Arcology Fraud Act
+<<if !$xchange.arcology.danger or $xchange.arcology.danger.kind isnot "fraud">><<include "Arcology Unrest Missing">><<exit>><</if>>
+<<effects>><<person1>>
+<<set _ad to $xchange.arcology.danger>>
+<<switch _ad.action>>
+<<case "inspect" "ask">>
+	<<if _ad.check>>
+		<<switch _ad.scam>>
+		<<case "terminal">>You look over the machine and cannot find the Civic Registry's official mark anywhere on it. The rate on the screen is three times the amount offered by the real exchange today. The machine asks for your bank card details without explaining where the converted pounds would be sent.
+		<<case "recovery">><<if _ad.action is "ask">>You ask who runs the fund. <<He>> gives you a name that does not match the one on the screen.<<else>>You compare the chart with the payment details. The chart names one company, but the payment is going to someone else.<</if>> There is no proof that the fund will pay you anything back.
+		<<case "debt">>You know guest wallets cannot hold a negative balance. Halden Trust also does not send people into the street to collect payments. When you check the number on <<his>> screen, it does not match your account.
+		<<default>>You look at <<his>> badge and see that the logo is printed on ordinary paper. The account on <<his>> screen is also registered to a private person, with no connection to Halden Trust.
+		<</switch>>
+		<span class="green">It's a scam.</span>
+		<br><br>
+		<<arcologyPoliceHint>>
+		<<arcologyFraudLeave>>
+		<<arcologyPoliceLink "Arcology Fraud Act" "report">>
+		<<link [[Call it out|Arcology Fraud Act]]>><<set _ad.action to "confront">><</link>>
+		<br>
+	<<else>>
+		<<arcologyCounterLine>>
+		<<if _ad.action is "ask">><<He>> answers your questions straight away, but you cannot tell whether <<he>> is telling the truth.<<else>>You check what <<he>> has shown you, but cannot find any clear evidence that it is fake.<</if>>
+		<br><br>
+		<<if !_ad.inspected>>
+			<<link [[Look more closely|Arcology Fraud Act]]>><<set _ad.inspected to true>><<set _ad.action to "inspect">><<set _ad.check to setup.arcology.escape("proof", "skulduggery", _ad.scam is "staff" ? 500 : 250, _ad.scam is "staff" ? 1300 : 900)>><<pass 2>><</link>><<arcologySkill "Skulduggery">>
+			<br>
+		<<elseif !_ad.asked>>
+			<<link [[Ask questions|Arcology Fraud Act]]>><<set _ad.asked to true>><<set _ad.action to "ask">><<set _ad.check to setup.arcology.escape("talk", "english", _ad.scam is "staff" ? 500 : 250, _ad.scam is "staff" ? 1300 : 900)>><<pass 2>><</link>><<arcologySkill "English">>
+			<br>
+		<</if>>
+		<<link [[Go along with it|Arcology Fraud Act]]>><<set _ad.action to "comply">><</link>>
+		<br>
+		<<arcologyFraudLeave>>
+	<</if>>
+<<case "comply">>
+	<<if !_ad.settled>>
+		<<set _ad.settled to true>>
+		<<if _ad.scam is "terminal">>
+			<<set _ad.lossGbp to Math.min($money, random(40, 120) * 100)>><<set $money -= _ad.lossGbp>>
+		<<elseif _ad.scam is "staff">>
+			<<set _ad.loss to Math.min(setup.arcology.vault() + ($xchange.arcology.cipher or 0), _ad.price * 4)>>
+			<<set _ad.fromWallet to Math.min($xchange.arcology.cipher or 0, _ad.loss)>><<set $xchange.arcology.cipher -= _ad.fromWallet>>
+			<<set $xchange.arcology.vault to setup.arcology.vault() - (_ad.loss - _ad.fromWallet)>>
+			<<run setup.arcology.expose()>>
+		<<else>>
+			<<set _ad.loss to Math.min($xchange.arcology.cipher or 0, _ad.price)>><<set $xchange.arcology.cipher -= _ad.loss>>
+		<</if>>
+		<<stress 6>>
+	<</if>>
+	<<switch _ad.scam>>
+	<<case "terminal">>
+		You put your card against the machine. The screen displays <span class="green">CONVERSION PENDING</span>. The operator tells you to expect the pounds in your bank account within an hour.
+		<br><br>
+		Before leaving, you check the receipt. <span class="red">The machine has taken <<print setup.arcologyFx.gbp(_ad.lossGbp, true)>> from your mainland account. There is no record of any Cipher being changed into pounds.</span> You turn back to question the operator, but <<he>> has already left the doorway.
+	<<case "recovery">>
+		You send <<print setup.arcology.cx(_ad.loss)>> to the fund. <<He>> thanks you and says you will get your money back when the price rises. <<He>> then walks away into the crowd. <span class="red">When you try to contact the fund again, nobody answers.</span>
+	<<case "debt">>
+		You pay <<print setup.arcology.cx(_ad.loss)>>. <<He>> lets go of your arm, marks the payment as complete on <<his>> screen, then walks away. You open your Halden Trust account to check. There is no fee listed there. <span class="red">Your money was transferred to a private wallet.</span>
+	<<default>>
+		You let <<him>> scan your implant to check your identity. Your account balance then moves into the account <<he>> showed you. <<He>> says the money will appear under your username tomorrow.
+		<br><br>
+		As <<he>> walks away, you check where the money went. <span class="red">The transfer went to a private wallet belonging to someone you do not know. You have lost <<print setup.arcology.cx(_ad.loss)>>, and <<he>> also has a copy of your identity record.</span>
+	<</switch>>
+	<<gggstress>>
+	<br><br>
+	<<arcologyDangerReturn>>
+<<case "report">>
+	<<if !_ad.newsDone and ["arrive", "late"].includes(_ad.police)>><<set _ad.newsDone to true>><<run setup.arcologyNews.report("fraud")>><</if>>
+	You use your wrist screen to send Enforcement a report. You include a photo of <<him>> and the payment screen.
+	<<if _ad.police is "arrive">>
+		<<He>> notices you sending the report and quickly walks away. The person answering your call tells you there is an officer at the next junction. You go there and explain what happened. The officer records your username and says three other people have reported the same scam today.<<run setup.arcology.expose()>>
+		<br><br>
+		<<arcologyDangerReturn>>
+	<<else>>
+		<<print setup.arcology.policeText(_ad.police)>>
+		<br><br>
+		<<if _ad.confronted>>
+			The person claiming to work for Halden Trust sees you sending the report. "You shouldn't have done that," <<he>> says. Two other people move away from the wall behind you and stand on either side of the pavement, blocking your way.
+			<br><br>
+			<<arcologyUnrestChoices>>
+		<<else>>
+			<<if _ad.scam is "terminal">>
+				The operator notices you making a report and quickly disconnects the machine. <<He>> picks it up and walks away. The people waiting in line turn towards the empty doorway, unsure what to do.
+			<<else>>
+				<<He>> notices the report on your wrist screen, puts <<his>> own screen away, then walks into the crowd. You try to follow <<him>> with your eyes, but soon lose sight of <<him>>.
+			<</if>>
+			<br><br>
+			<<arcologyDangerReturn>>
+		<</if>>
+	<</if>>
+<<case "confront">>
+	"This is a scam!" you shout, turning towards the people nearby.
+	<br><br>
+	<<if _ad.scam is "staff">>
+		The person in the uniform looks past you and nods. Two other people come out of the doorway and stand on either side of you, stopping you from walking away.
+		<br><br>
+		<<arcologyUnrestChoices>>
+	<<else>>
+		People nearby turn towards you. <<He>> swears, steps away from you and quickly walks off. A person standing near you thanks you for the warning.<<stress -2>><<lstress>>
+		<br><br>
+		<<arcologyDangerReturn>>
+	<</if>>
+<<case "leave">>
+	<<if !_ad.confronted or _ad.check>>
+		<<if _ad.scam is "debt">>
+			You pull your arm out of <<his>> hand and quickly walk away. <<He>> shouts that your wallet will be frozen, but does not follow you.
+		<<elseif _ad.scam is "staff">>
+			You walk past <<him>> without answering. <<He>> starts to follow you, but stops when a police drone passes above the street.
+		<<else>>
+			You shake your head and walk away. <<He>> calls after you, but soon stops and approaches another person instead.
+		<</if>>
+		<br><br>
+		<<arcologyDangerReturn>>
+	<<else>>
+		<<arcologyCounterLine>>
+		<<if _ad.scam is "debt">>
+			<<He>> grips your arm harder when you try to pull away. Two other people come out of a nearby doorway. One stands in front of you while the other moves behind you, leaving you with no clear way to leave.
+		<<else>>
+			You walk past the person in uniform, but two other people come out of the doorway and block the pavement ahead. The person in uniform follows behind you. "We weren't finished," <<he>> says.
+		<</if>>
+		<br><br>
+		<<arcologyUnrestChoices>>
+	<</if>>
+<<default>>
+	<<include "Arcology Unrest Missing">>
+<</switch>>
+<br>
+
+:: Arcology Unrest Widgets [widget]
+/* A raider or scammer has the player cornered: first say what they want, then the ways to answer it. */
+<<widget "arcologyUnrestChoices">>
+	<<if setup.arcology.guarded()>><<include "Arcology Criminal Intercept">><<exit>><</if>>
+	<<set _ucAd to $xchange.arcology.danger>>
+	<<if !_ucAd.demanded>>
+		<<set _ucAd.demanded to true>>
+		<<if _ucAd.kind is "raid">>
+			<<if $NPCList[1] and $NPCList[1].fullDescription>>The other raider walks behind you and blocks the way back.<</if>>
+			The first raider takes a payment reader from <<his>> pocket and shows you the screen. It says you must pay <<print setup.arcology.cx(_ucAd.price)>>. "Pay that and I'll let you leave."
+		<<else>>
+			<<He>> holds a payment reader in front of you. The screen shows <<print setup.arcology.cx(_ucAd.price)>>. "Pay me that much. Don't make this difficult."
+		<</if>>
+	<<else>>
+		<<He>> puts the payment reader in front of you again. "Are you paying or not?"
+	<</if>>
+	<br><br>
+	<<link [[Fight back|Arcology Criminal Fight]]>><<set $fightstart to 1>><</link>>
+	<br>
+	<<if !_ucAd.ran and $feetuse isnot "bound">>
+		<<link [[Try to run|Arcology Criminal Attempt]]>><<set _ucAd.ran to true>><<set _ucAd.action to "run">><<set _ucAd.check to setup.arcology.escape("run", "athletics", 400, 1200)>><<pass 1>><</link>><<arcologySkill "Athletics">>
+		<br>
+	<</if>>
+	<<link `($xchange.arcology.cipher or 0) gte _ucAd.price ? "Pay the " + setup.arcology.cx(_ucAd.price) : "Show them your wallet"` "Arcology Unrest Surrender">><</link>>
+	<br>
+<</widget>>
+
+/* A call to Enforcement from a danger event, through the shared daily limit; nothing once the limit is used (see arcologyPoliceHint). _args[0]: passage the call leads to; _args[1]: action, "call" by default. */
+<<widget "arcologyPoliceLink">>
+	<<set _plTo to _args[0]>><<set _plAction to _args[1] or "call">>
+	<<if setup.arcology.policeLeft() gt 0>>
+		<<capture _plTo _plAction>><<link `(_plAction is "report" ? "Report it to Enforcement" : "Call Enforcement") + " (" + setup.arcology.policeLeft() + " left today)"` _plTo>><<set $xchange.arcology.danger.action to _plAction>><<run setup.arcology.policeCall($xchange.arcology.danger.where)>><</link>><</capture>>
+		<br>
+	<</if>>
+<</widget>>
+
+/* Why the Enforcement link is missing; goes above the links. */
+<<widget "arcologyPoliceHint">>
+	<<if setup.arcology.policeLeft() lte 0>>
+		You have already made two calls to Enforcement today. <span class="blue">You can't call again until tomorrow.</span>
+		<br><br>
+	<</if>>
+<</widget>>
+
+/* Leaving a scam: a free walk-off unless the scammer has hold of the player or already knows their username. */
+<<widget "arcologyFraudLeave">>
+	<<if $xchange.arcology.danger.confronted>>
+		<<if !$xchange.arcology.danger.leaveTried>>
+			<<link `$xchange.arcology.danger.scam is "debt" ? "Pull your arm free" : "Walk past them"` "Arcology Fraud Act">><<set $xchange.arcology.danger.leaveTried to true>><<set $xchange.arcology.danger.action to "leave">><<set $xchange.arcology.danger.check to setup.arcology.escape("run", "athletics", 200, 900)>><</link>><<arcologySkill "Athletics">>
+			<br>
+		<</if>>
+	<<else>>
+		<<link [[Walk away|Arcology Fraud Act]]>><<set $xchange.arcology.danger.action to "leave">><</link>>
+		<br>
+	<</if>>
+<</widget>>
+

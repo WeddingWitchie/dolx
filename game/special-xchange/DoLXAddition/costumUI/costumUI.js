@@ -55,6 +55,8 @@
 			const icon = overlayTabIcons[label];
 			if (icon) button.dataset.tabIcon = icon;
 			else delete button.dataset.tabIcon;
+			/* The island's implant interface gets the island itself as its icon, drawn in CSS. */
+			button.classList.toggle("tab-holo", label === "Holo");
 		});
 	}
 

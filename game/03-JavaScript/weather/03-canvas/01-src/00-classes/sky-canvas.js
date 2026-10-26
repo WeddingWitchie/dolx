@@ -300,6 +300,11 @@ Weather.Renderer.Sky = class {
 		return V.location === "tentworld" || V.location === "mines"; // todo move to Weather
 	}
 
+	// Covered scenes (under the Arcology dome, inside the ship) keep their sky but get no rain or snow.
+	get precipitationDisabled() {
+		return this.sidebarSkyDisabled || setup.LocationImages[setup.Locations.get()]?.weather?.precipitationEnabled === false;
+	}
+
 	setMoonPhase() {
 		this.layers.get("moon")?.init();
 	}

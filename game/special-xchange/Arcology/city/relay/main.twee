@@ -1,0 +1,510 @@
+:: Arcology Pier
+<<location "arcology_pier">><<run setup.arcology.visit("pier")>><<effects>>
+<<if $xchange.arcology.debt and !$daily.arcologyDebtScan>>
+	<<set $daily.arcologyDebtScan to random(1, 100) lte 60 ? "caught" : "passed">>
+<</if>>
+<<if $xchange.arcology.debt and $daily.arcologyDebtScan is "caught">>
+	As you pass beneath the scanner arch, it checks the light behind your ear. A red warning appears over the gate, and both guards turn towards you.
+	<br><br>
+	<<holo "CIVIC REGISTRY / DEBTOR" "denied">>
+		<<holoRow "HANDLE" `$xchange.arcology.handle`>>
+		<<holoRow "OUTSTANDING" `setup.arcology.cxU($xchange.arcology.debt.amount)`>>
+		<<holoLine "ABSCONDED FROM THE STACK. DETAIN." "denied">>
+	<</holo>>
+	<br>
+	"You ran," one of them says, taking your arm. "They always add something for that."
+	<br><br>
+	<<link [[Next|Arcology Stack Intro]]>><<unset $daily.arcologyDebtScan>><<arcologyStackStart "arcologyDebtCaught">><</link>>
+	<br>
+	<<exit>>
+<</if>>
+<<arcologyDangerCheck "pier">><<if _arcologyDangerActive>><<exit>><</if>>
+You are on the white stone pier at the edge of the city.
+<<if Time.dayState is "night">>
+	The towers are lit from top to bottom, and the water under the pier is black. A few boats come in without lights on.
+<<elseif Time.dayState is "dawn">>
+	Cleaning drones are washing the stone, and the first launches of the day are tying up.
+<<elseif Time.dayState is "dusk">>
+	The strips of light on the towers are coming on one floor at a time.
+<<else>>
+	Further along the docks, large cranes lift containers from the arriving ships.
+<</if>>
+<br><br>
+<<arcologyDome "pier">>
+<br><br>
+<<arcologyPartyNotice>>
+<<if _arcologyPartyMissed>>
+	<<link [[Wait|Arcology Party Failed]]>><<set $xchange.arcology.party.why to "missed">><</link>>
+	<br>
+<<elseif $stress gte $stressmax and !$possessed>>
+	<span class="red">You've pushed yourself too much.</span> You pass out.
+	<br><br>
+	<<passout_arcology>>
+<<else>>
+	<<if $xchange.arcology.debt>>
+		The guards at the gate are looking at the light behind your ear. <span class="red">You still owe <<print setup.arcology.cx($xchange.arcology.debt.amount)>>.</span>
+		<br>
+		<<if $xchange.arcology.cipher gte 1>>
+			<<arcologyicon "cipher">><<link [[Pay what you can at the booth|Arcology Debt Pay]]>><</link>>
+			<br>
+		<</if>>
+		<br>
+	<</if>>
+	<<arcologyStreets "pier">>
+	<<if setup.arcology.partyPending()>>
+		<<entertownicon>><<link [[Back to town|Arcology Leave Warning]]>><</link>>
+	<<else>>
+			<<set _arcologyCrossingHours to setup.arcology.voyageHours()>>
+			<<capture _arcologyCrossingHours>><<entertownicon>><<link [[Back to town|Arcology Voyage Board]]>><<set $xchange.arcology.voyage to { to: "town", escort: "crew", next: "Docks", hours: _arcologyCrossingHours }>><<pass 3>><</link>><</capture>>
+	<</if>>
+	<br>
+<</if>>
+
+:: Arcology Debt Pay
+<<effects>>
+<<set _paid to Math.min($xchange.arcology.cipher, $xchange.arcology.debt.amount)>>
+<<set $xchange.arcology.cipher -= _paid>><<set $xchange.arcology.debt.amount -= _paid>>
+The clerk in the glass booth checks your balance on the desk screen and confirms the payment without looking up at you.
+<br><br>
+<<if $xchange.arcology.debt.amount lte 0>>
+	<<unset $xchange.arcology.debt>>
+	<<holoNotice "CIVIC REGISTRY" "DEBT CLEARED. DEBTOR FLAG REMOVED." "ok">>
+<<else>>
+	<<set _holoMsg to setup.arcology.cxU(_paid) + " RECEIVED. " + setup.arcology.cxU($xchange.arcology.debt.amount) + " OUTSTANDING.">>
+	<<holoNotice "CIVIC REGISTRY" _holoMsg "warn">>
+<</if>>
+<br>
+<<link [[Next|Arcology Pier]]>><</link>>
+<br>
+
+:: Arcology Scene
+You pause beside the walkway as people pass around you.
+<br><br>
+<<arcologyUnderworld _arcologyScene>>
+<<set _scBack to passage()>>
+<<link [[Next|_scBack]]>><<set $eventskip to 1>><<unset $xchange.arcology.scene>><<endevent>><</link>>
+<br>
+
+:: Arcology Leave Warning
+<<effects>>
+<<holo "NAVIGATION / DEPARTURE" "denied">>
+	<<holoLine "NEXT LAUNCH ARRIVES ON THE MAINLAND AFTER THE BALLROOM CLOSES" "warn">>
+<</holo>>
+<br>
+If you leave now, you'll miss the party Luchifen brought you here for. <span class="red">They told you it mattered to them</span>.
+<br><br>
+<<link [[Leave anyway|Arcology Party Failed]]>><<set $xchange.arcology.party.why to "departed">><</link>>
+<br>
+<<link [[Stay|Arcology Pier]]>><</link>>
+<br>
+
+:: Arcology Street
+<<location "arcology">><<run setup.arcology.visit("relay")>><<effects>>
+<<arcologyDangerCheck "street">><<if _arcologyDangerActive>><<exit>><</if>>
+<<arcologySceneCheck "street">><<if _arcologyScene>><<include "Arcology Scene">><<exit>><</if>>
+You are on Relay Street, a public area of the city built above the pier. Large advertising screens cover the outside walls of the buildings, reaching up to the walkway overhead.
+<br><br>
+<<arcologyDome "street">>
+<br><br>
+<<arcologyStreetHazards>>
+<<if !_arcologyHalt>>
+	Places of interest
+	<br>
+	<<arcologyicon "hotel">><<link [[Hotel Meridian (0:02)|Arcology Hotel]]>><<pass 2>><</link>>
+	<br>
+	<<arcologyicon "xstation">><<link [[X-Change Station (0:02)|Arcology X-Change Station]]>><<pass 2>><</link>>
+	<br>
+	<<arcologyicon "cafe">><<link [[Afterimage (0:02)|Arcology Cafe]]>><<pass 2>><</link>>
+	<br>
+	<<if setup.arcology.partyOpen()>>
+		<<arcologyicon "glasshouse">><<link [[Go to the Glasshouse lift|Arcology Party Lift]]>><<pass 2>><</link>>
+	<<else>>
+		<<arcologyicon "glasshouse">><<link [[The Glasshouse (0:02)|Arcology Glasshouse Door]]>><<pass 2>><</link>>
+	<</if>>
+	<br><br>
+	<<arcologyStreets "relay">>
+<</if>>
+
+:: Arcology Hotel
+<<location "arcology_hotel">><<effects>>
+<<arcologyDangerCheck "hotel">><<if _arcologyDangerActive>><<exit>><</if>>
+<<arcologySceneCheck "hotel">><<if _arcologyScene>><<include "Arcology Scene">><<exit>><</if>>
+You are in the lobby of the Hotel Meridian. Water flows down the sides of a low fountain made of dark polished stone.
+<br><br>
+<<if $exposed gte 1>>
+	You keep to the side of the lobby, conscious of your <<nudity>>. The desk clerk keeps looking at the desk screen.
+<<elseif setup.arcology.hasRoom()>>
+	"Welcome, <<arcologyHandle>>," the clerk at the front desk says without looking up. Your handle appears on the desk screen for a moment, then disappears.
+<<else>>
+	The clerk at the front desk glances at your handle on the desk screen, then at you, and doesn't smile.
+<</if>>
+<br><br>
+<<arcologyPartyNotice>>
+<<if _arcologyPartyMissed>>
+	<<link [[Wait|Arcology Party Failed]]>><<set $xchange.arcology.party.why to "missed">><</link>>
+	<br>
+<<elseif $stress gte $stressmax and !$possessed>>
+	<span class="red">You've pushed yourself too much.</span> You pass out.
+	<br><br>
+	<<passout_arcology>>
+<<else>>
+	<<set _uwEvent to $exposed lt 1 ? setup.arcology.rollEvent() : "none">>
+	<<if _uwEvent is "scan">>
+		A guest crossing the lobby looks at the light behind your ear for a second too long. Your implant goes warm, then cool.
+		<br>
+		<<set $skulduggerydifficulty to 400>>
+		<<investigateicon>><<link [[Follow the guest (0:05)|Arcology Event Scan]]>><<pass 5>><<arcologyNPC 0 "guest" "broker">><<set $xchange.arcology.eventBack to "Arcology Hotel">><<set $skulduggerydifficulty to 400>><<skulduggerycheck "silent">><<set $phase to $skulduggerysuccess is 1 ? "unseen" : "noticed">><<if $phase is "noticed">><<run setup.arcology.expose()>><</if>><</link>><<skulduggerydifficulty>>
+		<br><br>
+	<<elseif _uwEvent is "case">>
+		<<if !$NPCList[0] or !$NPCList[0].cyber>><<arcologyNPC 0 "under" "courier">><</if>><<person1>>
+		A <<person>> walks towards you from the other side of the lobby, holding a small case close against <<his>> hip. <<He>> catches your eye and lifts a hand, asking you to wait.
+		<br>
+		<<socialiseicon>><<link [[Stop and listen|Arcology Event Case]]>><<set $xchange.arcology.eventBack to "Arcology Hotel">><</link>>
+		<br><br>
+	<</if>>
+	<<if $exposed lt 1>>
+		<<arcologyicon "desk">><<link [[Front desk|Arcology Hotel Desk]]>><<arcologyNPC 0 "staff" "clerk">><</link>>
+		<br>
+	<</if>>
+	<<couchicon>><<link [[Go to the lounge (0:01)|Arcology Hotel Lounge]]>><<pass 1>><<endevent>><</link>>
+	<br>
+	<<if setup.arcology.hasRoom()>>
+		<br>
+		<<arcologyicon "lift">><<link `"Lift to the " + setup.arcology.roomFloor() + " floor (0:01)"` "Arcology Hotel Corridor">><<pass 1>><<endevent>><</link>>
+	<</if>>
+	<br>
+	<<arcologyicon "street">><<link [[Relay Street (0:02)|Arcology Street]]>><<pass 2>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Hotel Desk
+<<effects>>
+<<if !$NPCList[0] or !$NPCList[0].cyber>><<arcologyNPC 0 "staff" "clerk">><</if>>
+<<person1>>
+<<set _hdPay to $xchange.arcology.deskPay>><<run delete $xchange.arcology.deskPay>>
+<<if _hdPay is "paid" and setup.arcology.hasRoom()>>
+	The payment clears. The clerk taps your implant authorization onto a key card and slides it across the desk. "Room <<print setup.arcology.roomNumber()>>, on the <<print setup.arcology.roomFloor()>> floor. The lift is behind you."
+	<br><br>
+	<<arcologyGuestPanel>>
+	<br>
+	<<arcologyicon "lift">><<link `"Take the lift to the " + setup.arcology.roomFloor() + " floor (0:01)"` "Arcology Hotel Corridor">><<pass 1>><<endevent>><</link>>
+	<br>
+<<elseif setup.arcology.hasRoom()>>
+	The <<person>> behind the desk wears the hotel's grey uniform. <<arcologyCyberLook 0>>
+	<br><br>
+	"<<arcologyHandle>>," <<he>> says. "Room <<print setup.arcology.roomNumber()>>. Is there something you need?" Behind <<him>>, a screen lists the floors. The tenth isn't on it.
+	<br><br>
+	<<arcologyGuestPanel>>
+	<br>
+	<<linkreplace "Ask about the tenth floor">>"There is no tenth floor," the clerk says with a smile. "Is there anything else?"<</linkreplace>>
+	<br>
+<<else>>
+	The <<person>> behind the desk wears the hotel's grey uniform. <<arcologyCyberLook 0>>
+	<br><br>
+	<<if _hdPay is "unpaid">>The clerk frowns at the desk screen. "The payment didn't go through. Nothing has been taken from your wallet." <<He>> turns the screen so you can see the rate.<<elseif $xchange.arcology.guest>>"Your room authorization has lapsed, <<arcologyHandle>>," the clerk says.<<else>>"You don't have a room with us, <<arcologyHandle>>," the clerk says.<</if>>
+	<br><br>
+	<<arcologyGuestPanel>>
+	<br>
+	<<set _hdP to setup.arcologyPrice.quote("night")>>
+	<<if setup.arcologyPrice.affordable(_hdP)>>
+		<span class="arc-priced"><<bedicon>><<link `"Pay for one night (" + _hdP.label + ")"` "Arcology Hotel Desk">><<if setup.arcologyPrice.pay("night")>><<set $xchange.arcology.guest to { status: "paid", sponsor: "", until: setup.arcology.now() + 86400, room: setup.arcology.newRoom() }>><<set $xchange.arcology.deskPay to "paid">><<else>><<set $xchange.arcology.deskPay to "unpaid">><</if>><</link>></span><<arcologyPriceNote _hdP>>
+		<br>
+	<<else>>
+		"One night is <<print _hdP.label>>," the clerk says. "Your balance is <<arcologyCipher>>."<<arcologyPriceNote _hdP>>
+		<br>
+	<</if>>
+<</if>>
+<br>
+<<getouticon>><<link [[Back to the lobby|Arcology Hotel]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Hotel Lounge
+<<location "arcology_hotel">><<effects>>
+You are in the lounge off the lobby.
+<<if Time.hour gte 20 or Time.hour lt 2>>
+	Most of the tables are taken. At one of them, somebody is counting out black cards in front of a guest who doesn't touch them.
+<<elseif Time.hour lt 7>>
+	The lounge is nearly empty. A cleaning drone moves between the tables, wiping each one twice.
+<<else>>
+	A few guests sit reading, or pretending to read while they watch the door.
+<</if>>
+<br><br>
+<<if Time.hour gte 7 or Time.hour lt 2>>
+	<<if !$daily.arcologyCitizens or !$daily.arcologyCitizens["Arcology Hotel Lounge"]>>
+		<<socialiseicon>><<link [[Talk to another guest (0:10)|Arcology Citizen]]>><<pass 10>><<generate1>><<person1>><<run setup.arcology.newCitizen(either("vip", "guest", "guest", "under"), "Arcology Hotel Lounge", "hotel")>><</link>>
+	<</if>>
+	<br>
+	<<set $skulduggerydifficulty to 300>>
+	<<if $daily.arcologyOverhear is undefined>>
+		<<investigateicon>><<link [[Listen to the next table (0:10)|Arcology Hotel Overhear]]>><<pass 10>><<set $skulduggerydifficulty to 300>><<skulduggerycheck "silent">><<set $daily.arcologyOverhear to $skulduggerysuccess>><</link>><<skulduggerydifficulty>>
+	<</if>>
+	<br>
+<</if>>
+<<if setup.arcology.reliefLeft("lounge")>><<poppyicon "living_room">><<link [[Sit for an hour (1:00)|Arcology Hotel Lounge]]>><<pass 60>><<run setup.arcology.relief("lounge")>><<stress -4>><</link>><<lstress>><br><</if>><br>
+<<getouticon>><<link [[Back to the lobby (0:01)|Arcology Hotel]]>><<pass 1>><</link>>
+<br>
+
+:: Arcology Hotel Overhear
+<<effects>>
+<<set $skulduggerysuccess to $daily.arcologyOverhear>>
+<<if $skulduggerysuccess isnot 1>>
+	You turn in your chair and lean towards the next table, trying to hear the conversation.
+	<br><br>
+	One of the guests <span class="red">notices you listening</span>, and the others fall silent when they follow the guest's look. They wait until you move away before talking again.
+	<<stress 2>><<gstress>>
+<<else>>
+	You turn in your chair and lean towards the next table, trying to hear the conversation.
+	<br><br>
+	<<switch (Time.days + Time.hour) % 4>>
+	<<case 0>>
+		"My client wants the old face back," one guest says. "I said the old face has a warrant on it."
+		<br><br>
+		The other one laughs. "Then charge double. The warrant is extra work."
+	<<case 1>>
+		Two guests are discussing a shipment.
+		<br><br>
+		They call it "the flowers" every time, and every time one of them says it, the other looks at the ceiling cameras.
+	<<case 2>>
+		A guest is telling a story about someone who tried to leave the island owing money.
+		<br><br>
+		"They found the boat," the guest says. "Very clean boat."
+	<<default>>
+		A guest asks the waiter whether the room on the ninth floor has been cleaned yet. The waiter says it has been cleaned twice, and that the carpet is new.
+	<</switch>>
+<</if>>
+<br><br>
+<<link [[Next|Arcology Hotel Lounge]]>><</link>>
+<br>
+
+:: Arcology Hotel Corridor
+<<location "arcology_hotel">><<effects>>
+You are in the corridor on the <<print setup.arcology.roomFloor()>> floor. A small security drone hovers near the ceiling at the far end of the corridor. As you approach, it turns towards you.
+<br><br>
+<<if setup.arcology.hasRoom()>>
+	<<arcologyicon "room">><<link `"Room " + setup.arcology.roomNumber()` "Arcology Hotel Room">><</link>>
+	<br>
+<<else>>
+	/* Print nothing because own nothing */
+<</if>>
+<<arcologyicon "lift">><<link [[Lift to the lobby (0:01)|Arcology Hotel]]>><<pass 1>><</link>>
+<br>
+
+:: Arcology Hotel Room
+<<location "arcology_hotel">><<effects>>
+<<if !setup.arcology.hasRoom()>>
+	The door of room <<print setup.arcology.roomNumber()>> stays shut. A line of red text appears in front of it.
+	<br><br>
+	<<holo `"MERIDIAN / ROOM " + setup.arcology.roomNumber()` "denied">>
+		<<holoLine "GUEST KEY NOT VALID FOR THIS ROOM" "denied">>
+	<</holo>>
+	<br>
+	<<getouticon>><<link [[Go back down to the lobby|Arcology Hotel]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	<<set $storeLocation to "Arcology Hotel Bed">>
+	<<holo `"MERIDIAN / ROOM " + setup.arcology.roomNumber()`>>
+		<<holoRow "GUEST" `$xchange.arcology.handle`>>
+		<<holoRow "PRIVACY" "DO NOT DISTURB">>
+		<<holoRow "CLIMATE" "21 DEGREES">>
+		<<holoLine "HOUSEKEEPING COMPLETE" "ok">>
+	<</holo>>
+	You are in your guest room on the <<print setup.arcology.roomFloor()>> floor of the Hotel Meridian.
+	<<if Time.dayState is "night">>
+		Outside, the towers are lit, and drones pass the window in straight lines.
+	<<else>>
+		Outside, you can see the towers, and past the curve of the dome, the sea.
+	<</if>>
+	<br><br>
+	<<arcologyDome "room">>
+	<br><br>
+	<<arcologyPartyNotice>>
+	<<if _arcologyPartyMissed>>
+		<<link [[Wait|Arcology Party Failed]]>><<set $xchange.arcology.party.why to "missed">><</link>>
+		<br>
+	<<else>>
+		<<bedicon>><<link [[Strip and get in bed|Arcology Hotel Bed]]>><<undressSleep "Arcology Hotel Bed">><</link>>
+		<br>
+		<<skinicon "masturbate">><<link [[Masturbate|Arcology Masturbation]]>><<set $masturbationstart to 1>><</link>>
+		<br>
+		<<bathroomicon "shower">><<link [[Bathroom (0:01)|Arcology Hotel Bathroom]]>><<pass 1>><</link>>
+		<br>
+		<<wardrobeicon>><<link [[Open the wardrobe|Arcology Hotel Wardrobe]]>><</link>>
+		<br><br>
+		<<getouticon>><<link [[Leave|Arcology Hotel Corridor]]>><<endevent>><<set $eventskip to 1>><</link>>
+		<br><br>
+	<</if>>
+	<<arcologyRoomSettings>>
+<</if>>
+
+:: Arcology Hotel Bed
+<<set _arcologySleepCap to setup.arcology.sleepBeforeParty()>>
+<<if _arcologySleepCap is Infinity or _arcologySleepCap gte 10>>
+	<<nightmareCheck "Arcology Hotel Bed Sleep">>
+	<<generateSleepLinks "Arcology Hotel Bed Sleep">>
+<<elseif _arcologySleepCap gte 1>>
+	<<holo "INTERFACE / ALARM" "pending">>
+		<<holoLine `"WAKE IN " + _arcologySleepCap + (_arcologySleepCap is 1 ? " HOUR" : " HOURS") + ". ONE HOUR BEFORE THE BALLROOM OPENS"` "warn">>
+	<</holo>>
+	<br>
+	<<nightmareCheck "Arcology Hotel Bed Sleep">>
+	<<capture _arcologySleepCap>><<link [["Sleep until the interface wakes you (" + _arcologySleepCap + (_arcologySleepCap is 1 ? " hour)" : " hours)")|Arcology Hotel Bed Sleep]]>><<set $sleephour to _arcologySleepCap>><</link>><</capture>>
+	<br><br>
+<<else>>
+	There isn't time for a proper sleep before the party. You can lie on top of the covers for a while, but you will have to get up soon.
+	<br><br>
+<</if>>
+<<link [[Climb out of bed|Arcology Hotel Room]]>><<storeon "Arcology Hotel Bed">><<loadTempHairStyle>><<endevent>><</link>>
+
+:: Arcology Hotel Bed Sleep
+<<set _autosavehere to true>>
+<<sleep false `setup.arcology.sleepBeforeParty()`>>
+<<if _dreaming>>
+	/* <<earSlimeFocusChoice>> or similar widgets are running */
+<<else>>
+	<<effects>>
+	<<wakingEffects $sleepHoursTotal>>
+	<<if $nightmares gte 1 and $controlled is 0>>
+		<<nightmareWake>>
+	<<else>>
+		<<if ($specialClothesEffects.bimbo.total gte random(100,1000) || $specialClothesEffects.pimp.total gte random(100,1000)) or $arousal gte ($arousalmax / 10) * 9>>
+			<<wetDream>>
+		<<elseif !_wakingEffect>>
+			You sleep soundly. The spot behind your ear is warm when you wake.
+			<br><br>
+		<</if>>
+	<</if>>
+	<<sleepeffects>>
+	<br><br>
+	<<link [[Get up|Arcology Hotel Room]]>><<storeon "Arcology Hotel Bed">><</link>>
+	<br>
+<</if>>
+
+:: Arcology Hotel Wardrobe [exitCheckBypass]
+You slide open the wardrobe.
+<br><br>
+<<set $wardrobe_location to "wardrobe">>
+<<set _earSlimeEnableSwimwear to true>>
+<<wardrobeSelection>>
+<div id="wardrobewear"><<wardrobewear>></div>
+<div id="wardrobeExits"><<wardrobeExits>></div>
+<<wardrobe>>
+
+:: Arcology Hotel Bathroom
+<<location "arcology_hotel">>
+You enter a bathroom with white stone walls and floor. The shower turns on automatically when you step beneath it, while the mirror shows the time and your handle in one corner of the glass.
+<br><br>
+<<arcologyBathroomOptions "Arcology Hotel Shower">>
+<<mirroricon>><<link [[Mirror|Arcology Hotel Mirror]]>><<preMirror>><<endevent>><</link>>
+<br><br>
+<<getouticon>><<link [[Leave|Arcology Hotel Room]]>><</link>>
+<br>
+
+:: Arcology Hotel Shower
+Water runs over you as you wash in the hotel shower.
+<br><br>
+<<location "arcology_hotel">><<wearProp "soap">><<wash>>
+<<arcologyAfterShower "Arcology Hotel Bathroom">>
+
+:: Arcology Hotel Mirror
+You look at your reflection in the bathroom mirror.
+<br><br>
+<<link [[Step away|Arcology Hotel Bathroom]]>><<unset $mirrorMenu>><<unset $bodywritingSet>><</link>>
+<br>
+<<mirror "reflection">>
+
+:: Arcology Passout
+<<set _ap to $xchange.arcology.recovery>>
+<<if !_ap>>
+	You wake up near the pier's public waiting area.
+	<br><br>
+	<<link [[Next|Arcology Pier]]>><</link>><<exit>>
+<</if>>
+<<set _apHotel to (!_ap.ship and setup.arcology.hasRoom() and ["safe", "guarded"].includes(_ap.outcome))>>
+<<location `_ap.ship ? "arcology_launch" : "arcology_pier"`>><<effects>>
+<<if _ap.outcome is "guarded">>
+	<<arcologyVictorPronouns>>
+	<<if _apHotel>>
+		You wake in a bed with a clean blanket covering you. A tall <<print _vman>> in a dark coat stands near the door, talking quietly to a member of staff.
+	<<else>>
+		You wake on a padded bench with a clean blanket covering you. A tall <<print _vman>> in a dark coat stands nearby, talking quietly to a member of staff.
+	<</if>>
+	<br><br>
+	When you begin to sit up, <<print _vhe>> notices that you're awake and stops talking. <<print _vHe>> comes over to check whether you're hurt and asks how you're feeling. You are still a little weak, so <<print _vhe>> gives you time to sit up properly.
+<<elseif _ap.outcome is "robbed">>
+	<<if !_ap.resolved>>
+		<<set _ap.resolved to true>><<set _ap.loss to Math.min($xchange.arcology.cipher, random(1000, 2500))>>
+		<<set $xchange.arcology.cipher -= _ap.loss>>
+	<</if>>
+	You wake lying on your side on a cold bench. The skin around your implant is sore. Suspicious, you check your wallet record and find a transfer of <<print setup.arcology.cx(_ap.loss)>> that happened while you were unconscious.
+	<br><br>
+	You don't remember who might have taken your money.
+<<elseif _ap.outcome is "transport">>
+	<<if !_ap.resolved>>
+		<<set _ap.resolved to true>>
+		<<set $xchange.arcology.danger to { kind: "transport", where: "street", back: "Arcology Pier", stage: "approach", isolated: true }>>
+		<<arcologyCriminalInit>>
+	<</if>>
+	You wake sitting on a bench inside a freight shuttle. The vehicle is moving, and as it turns a corner, a medical case on the floor slides towards your feet.
+	<br><br>
+	Someone has attached an inventory badge to your sleeve. You look around the small space and notice a card reader built into the wall beside your seat, although you have no idea why you're here.
+	<br><br>
+	You hear voices coming from the front of the shuttle. The driver asks where you were found, and someone near the rear door answers. "Unconscious. No escort. The receiver can check the rest."
+	<br><br>
+	Wherever the shuttle is going, nobody on board seems concerned about whether you agreed to come. You look towards the doors, trying to work out how you might escape before the shuttle reaches its destination.
+	<br><br>
+	<<link [[Next|Arcology Transport Moving]]>><<unset $xchange.arcology.recovery>><</link>>
+	<<exit>>
+<<elseif ["captive", "attacker"].includes(_ap.outcome)>>
+	<<if !_ap.resolved>>
+		<<set _ap.resolved to true>><<arcologyNPC 0 "under" "stranger">>
+		<<set $xchange.arcology.danger to { kind: "abduction", where: _ap.ship ? "deck" : "street", back: _ap.back, npc: true, stage: "approach" }>>
+	<</if>>
+	<<person1>>
+	<<if _ap.outcome is "captive">>
+		You wake lying on a trolley beside an open service lift. A <<personssimple>> standing next to you, trying to fasten a strap over your knees. <<arcologyCyberLook 0>>
+		<br><br>
+		As you look around, you notice a screen near your head displaying prices for implants and donor tissue. The stranger is still busy with the strap, giving you a chance to bend your knees and pull your legs away before <<he>> can fasten it.
+		<br><br>
+		<<He>> notices you moving and reaches across the trolley, grabbing your wrist before you can push yourself away.
+	<<else>>
+		You wake when someone lifts your hand and presses it against a wrist reader. A <<personssimple>> kneeling beside you, watching the device. <<arcologyCyberLook 0>>
+		<br><br>
+		You quickly pull your hand away, but the stranger grabs your wrist again before you can move any further. <<He>> leans over you, blocking your view of the corridor behind <<him>>.
+		"You should have stayed asleep."
+	<</if>>
+	<br><br>
+	<<link [[Fight free|Arcology Danger Fight]]>><<unset $xchange.arcology.recovery>><<set $fightstart to 1>><</link>>
+	<br>
+	<<if !_ap.ship>>
+		<<link [[Stop resisting|Arcology Danger Captive]]>><<unset $xchange.arcology.recovery>><</link>>
+	<<else>>
+		<<link [[Call for the crew|Arcology Danger Result]]>><<unset $xchange.arcology.recovery>><<set $xchange.arcology.danger.stage to "escaped">><</link>>
+	<</if>>
+	<<exit>>
+<<else>>
+	<<if !_ap.resolved>><<set _ap.resolved to true>><<arcologyNPC 0 "staff" "medic">><</if>>
+	<<person1>>
+	<<if _apHotel>>
+		You wake in a comfortable bed with a <<person>> from the hotel staff sitting beside you, checking your pulse. <<arcologyCyberLook 0>>
+	<<else>>
+		You wake on a padded bench while a <<person>> in a staff uniform checks your pulse. <<arcologyCyberLook 0>>
+	<</if>>
+	<br><br>
+	When <<he>> notices you're awake, <<he>> asks how you're feeling and helps you sit up. <<He>> gives you some water while <<he>> explains where you are and how you were brought here.
+	<<He>> also tells you that you won't be charged for the help.
+<</if>>
+<br><br>
+<<if _ap.ship>>
+	You are still aboard the ship. A steward is waiting nearby and offers to show you back to the passenger lounge when you're ready to leave.
+	<br><br>
+	<<link [[Next|Arcology Voyage]]>><<unset $xchange.arcology.recovery>><<set $eventskip to 1>><<endevent>><</link>>
+<<elseif _apHotel>>
+	You are in room <<print setup.arcology.roomNumber()>> at Hotel Meridian. The staff checked your guest key before bringing you here, allowing you to recover in your own room.
+	<br><br>
+	<<link [[Next|Arcology Hotel Room]]>><<unset $xchange.arcology.recovery>><<set $eventskip to 1>><<endevent>><</link>>
+<<else>>
+	You are in the public waiting area near the pier. Once you feel well enough to leave, you can make your way back outside.
+	<br><br>
+	<<link [[Next|Arcology Pier]]>><<unset $xchange.arcology.recovery>><<set $eventskip to 1>><<endevent>><</link>>
+<</if>>
+<br>

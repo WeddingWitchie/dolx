@@ -1,0 +1,73 @@
+:: Arcology Shuttle Stop
+<<set _ssFrom to setup.arcology.districts[$xchange.arcology.shuttleFrom] or setup.arcology.districts.relay>>
+<<location _ssFrom.loc>><<effects>>
+<<set _ssFare to setup.arcology.shuttleFare()>>
+<<set _ssBroke to _ssFare gt ($xchange.arcology.cipher or 0)>>
+<<run ArcologySfx.cue(_ssBroke ? "busDenied" : "busArrive")>>
+You wait at the shuttle stop beside the road. The screen on the stop post shows the routes, and the light at its base turns on as a shuttle approaches.
+<br><br>
+<<holo "CITY SHUTTLE / ROUTE BOARD">>
+	<<holoRow "STOP" `_ssFrom.name.toUpperCase()`>>
+	<<holoRow "FARE" `_ssFare gt 0 ? setup.arcology.cxU(_ssFare) : "WAIVED: SPONSORED GUEST"`>>
+	<<set _ssShut to Object.keys(setup.arcology.districts).filter(id => setup.arcology.districts[id].bus and setup.arcologyNews.stopClosed(id))>>
+	<<if _ssShut.length>><<holoLine `"NOT IN SERVICE: " + _ssShut.map(id => setup.arcology.districts[id].name.toUpperCase()).join(", ")` "denied">><</if>>
+	<<holoLine "RESTRICTED DISTRICTS ARE NOT SERVED ON PUBLIC ROUTES" "warn">>
+<</holo>>
+<br>
+A driverless shuttle pulls in and stops in front of you. Its doors slide open.
+<<if _ssBroke>>
+	You step up to the entrance. The scanner beside the door reads your implant, gives a short warning tone and a barrier drops across the doorway.
+	<br><br>
+	<span class="blue">You don't have enough Cipher for the fare.</span> You step back onto the pavement, the doors close, and the shuttle pulls away without you.
+	<br><br>
+	<<getouticon>><<link "Leave the stop" _ssFrom.passage>><<unset $xchange.arcology.shuttleFrom>><</link>>
+	<br>
+<<else>>
+	A screen above the entrance lists the stops on its route.
+	<br><br>
+	<<for _ssId range Object.keys(setup.arcology.districts)>>
+		<<set _ssTo to setup.arcology.districts[_ssId]>>
+		<<if !_ssTo.bus or _ssId is $xchange.arcology.shuttleFrom or setup.arcologyNews.stopClosed(_ssId)>><<continue>><</if>>
+		<<set _ssTime to setup.arcology.shuttleTime($xchange.arcology.shuttleFrom, _ssId)>>
+		<<set _ssLabel to "Ride to " + _ssTo.name + " (0:" + String(_ssTime).padStart(2, "0") + ")">>
+		<<capture _ssId _ssTime _ssLabel _ssTo>><<arcologyicon _ssTo.icon>><<link _ssLabel "Arcology Shuttle Ride">><<set $xchange.arcology.shuttleTo to _ssId>><<set $xchange.arcology.cipher -= _ssFare>><<pass _ssTime>><</link>><</capture>>
+		<br>
+	<</for>>
+	<br>
+	<<getouticon>><<link "Let it go and leave the stop" _ssFrom.passage>><<unset $xchange.arcology.shuttleFrom>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Shuttle Ride
+<<set _srTo to setup.arcology.districts[$xchange.arcology.shuttleTo] or setup.arcology.districts.relay>>
+<<location _srTo.loc>><<set $outside to 0>><<effects>><<run ArcologySfx.cue("busBoard")>>
+You step aboard. The scanner by the door reads your implant<<if setup.arcology.shuttleFare() gt 0>> and takes the fare<</if>>. You find a seat by the window as the doors close behind you, and the shuttle pulls away from the stop.
+<br><br>
+It joins a line of identical shuttles, all moving at the same speed with the same gap between them.
+<br><br>
+<<if Time.dayState is "night">>
+	Most floors of the towers you pass have their lights on. Advertisements hang in the air beside the buildings and turn to follow the shuttle as it goes by.
+<<else>>
+	The other passengers sit quietly, facing forward. Their implants are showing them something you can't see. Nobody talks.
+<</if>>
+<br><br>
+The shuttle slows and stops. "<<print _srTo.name>>," a voice announces, and the doors slide open.
+<br><br>
+<<arcologyicon _srTo.icon>><<link "Get off" _srTo.passage>><<run ArcologySfx.next("busAlight")>><<set $eventskip to 1>><<unset $xchange.arcology.shuttleFrom, $xchange.arcology.shuttleTo>><</link>>
+<br>
+
+:: Arcology Loiter
+<<effects>>
+<<set _alBack to $xchange.arcology.loiterBack or "Arcology Street">>
+You step aside and find a spot where you can watch the street. People pass by without looking at you.
+<br><br>
+How long do you want to stay here?
+<br>
+<<for _alMin range [5, 10, 30, 60, 120]>>
+	<<set _alLabel to "Loiter for " + (_alMin lt 60 ? _alMin + " minutes" : _alMin is 60 ? "an hour" : (_alMin / 60) + " hours") + " (" + Math.floor(_alMin / 60) + ":" + String(_alMin % 60).padStart(2, "0") + ")">>
+	<<capture _alMin _alLabel>><<link _alLabel _alBack>><<pass _alMin>><<set $xchange.arcology.loiter to _alMin>><<unset $xchange.arcology.loiterBack>><</link>><</capture>>
+	<br>
+<</for>>
+<br>
+<<getouticon>><<link "Move on" _alBack>><<unset $xchange.arcology.loiterBack>><</link>>
+<br>

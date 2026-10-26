@@ -3,6 +3,7 @@
 <<set $xchange.colosseum.visitEvents to 0>>
 <<unset $xchange.colosseum.mock>><<unset $xchange.colosseum.fightStart>><<unset $xchange.colosseum.matchRank>><<unset $xchange.colosseum.promotion>><<unset $xchange.colosseum.keepOpponent>><<unset $xchange.colosseum.prefightAnswer>><<unset $xchange.colosseum.lashOuts>><<unset $xchange.colosseum.breed>>
 <<colosseumDoor>>
+<<unset $xchange.colosseum.sponsoredBout>>
 You find the unmarked steel door behind the old factory. A large rubbish skip blocks most of it from anyone looking down the road. You step into the narrow space beside the skip and knock twice.
 <br><br>
 A small panel slides open at eye level. You cannot see much of the person on the other side.
@@ -21,12 +22,12 @@ Once the door is closed again, <<he>> searches your pockets and runs <<his>> han
 <<set _entryEvent to $xchange.colosseum.joined gte 1 and !$daily.colosseumEntryEvent and random(1, 100) lte 35>>
 <<set _entryPassage to ($xchange.colosseum.callbacks.protect and Time.days gte $xchange.colosseum.callbacks.protect) ? "Underground Colosseum Protection Callback" : _entryEvent ? "Underground Colosseum Entry Event" : "Underground Colosseum">>
 <<if $xchange.colosseum.callbacks.silver>><<set _entryPassage to "Underground Colosseum Silver Return">><</if>>
-<<if $xchange.colosseum.banReason is "refused" and $xchange.colosseum.ending is "walked">>
+<<if $xchange.colosseum.banReason is "refused" and $xchange.colosseum.ending is "walked" and !$xchange.colosseum.luchifenBout>>
 	The attendant finds your name on the list, then keeps the inner door shut.
 	"You turned down the crowd. The house doesn't forget that. You're not coming in again."
 	<br><br>
 	<<link [[Leave|Industrial Alleyways]]>><<endevent>><</link>>
-<<elseif !_colosseumCombatReady and !["walked", "disrupted"].includes($xchange.colosseum.ending)>>
+<<elseif !_colosseumCombatReady and (!["walked", "disrupted"].includes($xchange.colosseum.ending) or $xchange.colosseum.luchifenBout)>>
 	The attendant watches the way you stand and move, then shakes <<his>> head.
 	<br><br>
 	"Tsk. You're not ready for the fights down there. Fighters can stay on their feet, block attacks, counter, feint, and attack while their opponent is doing the same."
@@ -61,7 +62,7 @@ Once the door is closed again, <<he>> searches your pockets and runs <<his>> han
 	<<He>> taps the empty space beside your name. "Nobody gives a shit who you can beat if they haven't seen you do it. <span class="purple">Get your fighting reputation back up</span>. Win somewhere people are watching. Then knock."
 	<br><br>
 	<<link [[Leave|Industrial Alleyways]]>><<endevent>><</link>>
-<<elseif $xchange.colosseum.banUntil gt Time.date.timeStamp>>
+<<elseif $xchange.colosseum.banUntil gt Time.date.timeStamp and !$xchange.colosseum.luchifenBout>>
 	The attendant finds your name on the list, then keeps the door closed.
 	"Still banned. Read the date. Knock again and I'll break your fucking fingers."
 	<br><br>
@@ -303,13 +304,13 @@ The board lists you as <span class="pink"><<colosseumName>></span>. You are curr
 <<elseif _colosseumUnfit>>
 	The receptionist glances away. "You're in no condition to fight."
 	<br>
-<<elseif $xchange.colosseum.ending is "walked" and $xchange.colosseum.banReason is "refused">>
+<<elseif $xchange.colosseum.ending is "walked" and $xchange.colosseum.banReason is "refused" and !$xchange.colosseum.luchifenBout>>
 	The receptionist shakes <<his>> head. "You turned down the crowd. The house is finished with you. I can't put you on the card."
 	<br>
-<<elseif $xchange.colosseum.ending is "walked">>
+<<elseif $xchange.colosseum.ending is "walked" and !$xchange.colosseum.luchifenBout>>
 	The receptionist shakes <<his>> head. "You quit fighting for the house. You can still watch, but I can't put you on the card."
 	<br>
-<<elseif $xchange.colosseum.ending is "disrupted">>
+<<elseif $xchange.colosseum.ending is "disrupted" and !$xchange.colosseum.luchifenBout>>
 	The receptionist does not reach for the book. "You emptied the rooms downstairs. You buy a seat like everyone else, and that's the whole of what you get from this desk."
 	<br>
 <<elseif colosseumDrugStage() is "crash">>
@@ -373,7 +374,7 @@ A fighter spits blood into a drain while an attendant reads out the next booking
 <<set _fightsToday to $daily.colosseumFights ?? 0>>
 <<colosseumUnfit>>
 <<set _pillBlock to playerIsXChanged() and !pillIsPermanent() and !$xchange.pill.hermEffect>>
-<<if playerAwareTheyArePregnant() or _colosseumUnfit or _fightsToday gte 3 or $drunk gte 360 or colosseumDrugStage() is "crash" or _pillBlock or ["walked", "disrupted"].includes($xchange.colosseum.ending)>>
+<<if playerAwareTheyArePregnant() or _colosseumUnfit or _fightsToday gte 3 or $drunk gte 360 or colosseumDrugStage() is "crash" or _pillBlock or (["walked", "disrupted"].includes($xchange.colosseum.ending) and !$xchange.colosseum.luchifenBout)>>
 	The receptionist covers the bookings. "No fight for you now. Back off."
 	<br><br>
 	<<link [[Return to the pit|Underground Colosseum Pit]]>><</link>>
@@ -398,6 +399,15 @@ A fighter spits blood into a drain while an attendant reads out the next booking
 		<br><br>
 	<</if>>
 	<<set _ranks to ["F","E","D","C","B","A","S"]>>
+	<!-- The S-rank bout Luchifen arranged for the island redemption. It stays on the board until it is won. -->
+	<<if $xchange.colosseum.luchifenBout>>
+		<<link "Take what Luchifen arranged" "Underground Colosseum Prepare">>
+			<<set $xchange.colosseum.opponentRank to 6>>
+			<<set $xchange.colosseum.promotion to 0>>
+			<<set $xchange.colosseum.sponsoredBout to 1>>
+		<</link>><<note "S-rank bout" "gold">><br>
+	<</if>>
+	<<if !["walked", "disrupted"].includes($xchange.colosseum.ending) and $xchange.colosseum.banUntil lte Time.date.timeStamp>>
 	<<if $xchange.colosseum.promotionReady and _rankIndex lt 6>>
 		<<link `"Challenge the " + _ranks[_rankIndex + 1] + "-rank gatekeeper"` "Underground Colosseum Prepare">>
 			<<set $xchange.colosseum.opponentRank to _rankIndex + 1>>
@@ -427,6 +437,7 @@ A fighter spits blood into a drain while an attendant reads out the next booking
 			<<set $xchange.colosseum.promotion to 0>>
 		<</link>><<note "Two ranks higher; greater rewards" "red">><br>
 	<</if>>
+	<</if>>
 	<br>
 	<<link [[Step back|Underground Colosseum Pit]]>><</link>>
 	<br>
@@ -434,7 +445,7 @@ A fighter spits blood into a drain while an attendant reads out the next booking
 
 :: Underground Colosseum Prepare
 <<set $outside to 0>><<set $location to "colosseum">>
-<<set _prefightEvent to $xchange.colosseum.promotion or (!$daily.colosseumPrefightEvent and $xchange.colosseum.visitEvents lt 2 and random(1, 100) lte 50)>>
+<<set _prefightEvent to !$xchange.colosseum.sponsoredBout and ($xchange.colosseum.promotion or (!$daily.colosseumPrefightEvent and $xchange.colosseum.visitEvents lt 2 and random(1, 100) lte 50))>>
 <<if ["champion", "inside"].includes($xchange.colosseum.ending)>>
 	<<include "Underground Colosseum Champion Booking">>
 <<elseif _prefightEvent>>
@@ -504,7 +515,7 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 <</if>>
 <<effects>>
 /* Cage hits hurt more than a street scuffle, and more at higher ranks. <<violence>> reads this. */
-<<set _colosseumPainMult to 1.5 + 0.25 * ($xchange.colosseum.mock ? 0 : ($xchange.colosseum.matchRank ?? 0))>>
+<<set _scenePainMult to 1.5 + 0.25 * ($xchange.colosseum.mock ? 0 : ($xchange.colosseum.matchRank ?? 0))>>
 <<if $pain lt 200 and !($pain gte 100 and $willpowerpain is 0)>>
 	<<effectsman>><<colosseumLashOut>><<man>><<stateman>>
 	<br><br>
@@ -515,7 +526,7 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 	<br><br>
 <</if>>
 <<if _combatend or $pain gte 200 or ($pain gte 100 and $willpowerpain is 0)>>
-	<<set _houseRules to !$xchange.colosseum.mock and !$xchange.colosseum.matchFix and !["champion", "inside"].includes($xchange.colosseum.ending)>>
+	<<set _houseRules to !$xchange.colosseum.mock and !$xchange.colosseum.matchFix and !$xchange.colosseum.sponsoredBout and !["champion", "inside"].includes($xchange.colosseum.ending)>>
 	<<set _fightWon to $enemyhealth lte 0 and $finish isnot 1>>
 	<<if _houseRules and _fightWon>>
 		<span id="next"><<link [[Next|Underground Colosseum Breed Offer]]>><</link>></span><<nexttext>>
@@ -532,7 +543,13 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 <<effects>><<pass 2>>
 <<colosseumThresholds>>
 <<set _wasMock to $xchange.colosseum.mock>>
+<<set _wasSponsoredBout to $xchange.colosseum.sponsoredBout>>
 <<set _victory to $enemyhealth lte 0>>
+<<if $xchange.colosseum.sponsoredBout>>
+	<<set _arcologyBoutWon to _victory and $finish isnot 1 and !$xchange.colosseum.mock>>
+	<<if _arcologyBoutWon>><<set $xchange.arcology.redeem.boutWon to true>><<unset $xchange.colosseum.luchifenBout>><</if>>
+	<<unset $xchange.colosseum.sponsoredBout>>
+<</if>>
 <<set _rankIndex to $xchange.colosseum.mock ? 0 : $xchange.colosseum.matchRank>>
 <<set _playerRank to $xchange.colosseum.rank>>
 <<set _rewardTable to [20000, 35000, 55000, 80000, 120000, 170000, 240000]>>
@@ -726,6 +743,11 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 		<<unset $xchange.colosseum.wager>>
 	<</if>>
 <</if>>
+<<if _arcologyBoutWon>>
+	<br><br>
+	Up in the gallery, someone with silver hair stands behind the dark glass, watching the scene below. Once it is over, they step back from the window and turn towards the corridor leading out of the viewing area.
+	<br><span class="gold">Luchifen will want to hear about this.</span>
+<</if>>
 <<unset $xchange.colosseum.matchRank>><<unset $xchange.colosseum.opponentRank>><<unset $xchange.colosseum.promotion>><<unset $xchange.colosseum.fightStart>><<unset $xchange.colosseum.lashOuts>><<unset $xchange.colosseum.breed>>
 <br><br>
 <<set _mockKeep to (_wasMock and !_gaveUp) or _bredWin or _bredLoss>>
@@ -745,7 +767,7 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 	<<link [[Next|Underground Colosseum Breeding Loss Sex]]>><<set $sexstart to 1>><<endevent>><</link>>
 <<elseif _bredWin>>
 	<<link [[Next|Underground Colosseum Breeding Sex]]>><<set $sexstart to 1>><<set $xchange.colosseum.breedCtx to "contestant">><<endevent>><</link>>
-<<elseif !_victory and !_gaveUp and !["champion", "inside"].includes($xchange.colosseum.ending)>>
+<<elseif !_victory and !_gaveUp and !_wasSponsoredBout and !["champion", "inside"].includes($xchange.colosseum.ending)>>
 	<<link [[The attendants take hold of you|Underground Colosseum Detention]]>><</link>>
 <<elseif _forcedPostEvent or _randomPostEvent>>
 	<<link [[Next|Underground Colosseum Postfight Event]]>><<set $daily.colosseumPostfightEvent to 1>><<set $xchange.colosseum.visitEvents to Math.min(2, $xchange.colosseum.visitEvents + 1)>><</link>>

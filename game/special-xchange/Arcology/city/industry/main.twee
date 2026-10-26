@@ -1,0 +1,223 @@
+:: Arcology Forge Lane
+<<location "arcology_forge">><<run setup.arcology.visit("forge")>><<effects>>
+<<arcologyDangerCheck "forge">><<if _arcologyDangerActive>><<exit>><</if>>
+<<arcologySceneCheck "street">><<if _arcologyScene>><<include "Arcology Scene">><<exit>><</if>>
+You are on Forge Lane. Workshops stand along both sides of the street, some with their large metal doors half open. You can see sparks coming from inside and smell hot metal as you walk past.
+<br><br>
+<<arcologyStreetHazards>>
+<<if !_arcologyHalt>>
+	Places of interest
+	<br>
+	<<arcologyicon "weapons">><<link [[Kessler Arms (0:01)|Arcology Kessler Arms]]>><<pass 1>><</link>>
+	<br>
+	<<arcologyicon "printer">><<link [[Printworks (0:01)|Arcology Printworks]]>><<pass 1>><</link>>
+	<br>
+	<<arcologyicon "calibration">><<link [[Calibration station (0:02)|Arcology Calibration]]>><<pass 2>><</link>>
+	<br><br>
+	<<arcologyStreets "forge">>
+<</if>>
+
+:: Arcology Kessler Arms
+<<location "arcology_arms">><<set $outside to 0>><<effects>>
+You enter Kessler Arms, a shop that sells weapons. There is a glass counter at the front of the shop. The glass is designed to be difficult to break.
+<br><br>
+When you approach the counter, a scanner checks your implant. A message appears on the screen.
+<br>
+<<holoNotice "Kessler Arms" "GUESTS ARE NOT ALLOWED TO BUY WEAPONS." "denied">>
+<br>
+<<getouticon>><<link [[Leave|Arcology Forge Lane]]>><<pass 1>><</link>>
+<br>
+
+:: Arcology Printworks
+<<location "arcology_print">><<set $outside to 0>><<effects>>
+You enter the printworks, where several large machines are making different objects. Each machine uses a fine white powder to make things. It adds a thin layer of powder, heats it, then adds another layer. This continues until the object is finished.
+<br><br>
+A sign on the wall explains that the shop checks who owns each design before allowing it to be made. It also says: <i>Making a copy of someone else's key is illegal unless you have permission.</i>
+<br><br>
+Someone has scratched out the word <i>unless</i> on the sign.
+<br><br>
+<<getouticon>><<link [[Leave|Arcology Forge Lane]]>><<pass 1>><</link>>
+<br>
+
+:: Arcology Calibration
+<<location "arcology_calib">><<set $outside to 0>><<effects>>
+You find several small booths where people can have their implants checked. Each booth has a chair with a soft place to rest your head. Above the chair is a small metal device that can move down to reach the implant behind your ear.
+<br><br>
+A screen lists the services available here. You can have your implant checked for problems, fix errors, or remove information left behind when other devices scan it.
+<br><br>
+<<if $weekly.arcologyCalibrated>>
+	The technician checks your record. "You've already been calibrated this week. I can't clear any more traces safely yet."
+<<elseif ($xchange.arcology.recognizable or 0) gt 0>>
+	A technician scans your implant and looks at the results.
+	"Looks like your implant has been scanned quite a few times. Every scan leaves a small record behind. Other people might use those records to recognise you."
+	<br><br>
+	<<set _cbP to setup.arcologyPrice.quote("calibration")>>
+	The technician points to an option on the screen. "I can clear some of the recent traces. It'll cost you <<print _cbP.label>>. Copies already held by other people will still be there."
+<<else>>
+	A technician scans your implant and checks the results.
+	"Everything looks fine. There are no old scan records to remove. Come back if you need it cleaned later."
+<</if>>
+<br><br>
+<<if ($xchange.arcology.recognizable or 0) gt 0 and !$weekly.arcologyCalibrated>>
+	<<if setup.arcologyPrice.affordable(_cbP)>>
+		<span class="arc-priced"><<arcologyicon "calibration">><<link `"Clear recent scan traces (" + _cbP.label + ", 0:20)"` "Arcology Calibration Done">><<if setup.arcologyPrice.pay("calibration")>><<set $weekly.arcologyCalibrated to true>><<pass 20>><<else>><<set $phase to "unpaid">><</if>><</link>></span><<arcologyPriceNote _cbP>>
+		<br>
+	<<else>>
+		<span class="blue">You don't have enough Cipher</span> to remove the old scan records.
+		<br><br>
+	<</if>>
+<<elseif $weekly.arcologyCalibrated>>
+	<span class="blue">You can only use this service once a week.</span>
+	<br><br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Forge Lane]]>><<pass 2>><</link>>
+<br>
+
+:: Arcology Calibration Done
+<<location "arcology_calib">><<set $outside to 0>><<effects>>
+<<if $phase is "unpaid">>
+	<<set $phase to 0>>
+	The booth stays locked. The payment didn't go through.
+	<br><br>
+	<<link [[Next|Arcology Calibration]]>><</link>>
+	<br>
+	<<exit>>
+<</if>>
+<<if !$daily.arcologyCalibrationDone>>
+	<<set $daily.arcologyCalibrationDone to true>>
+	<<set $xchange.arcology.recognizable to Math.max(0, ($xchange.arcology.recognizable or 0) - 1)>>
+<</if>>
+You sit down inside the booth and lean your head against the soft cushion behind you. A metal part of the machine moves down towards your head. It stops when the end touches the implant behind your ear.
+<br><br>
+The metal feels cold against your skin, but slowly becomes warmer. A few seconds later, your Holo screen turns completely white, blocking your view of the booth.
+<br><br>
+The machine finishes its work and moves away from your head. Your Holo screen returns to normal, allowing you to see the booth around you again.
+<br><br>
+<<holoNotice "CALIBRATION COMPLETE" "RECENT SCAN TRACES REDUCED. CONNECTION RESTORED." "ok">>
+<br>
+<<link [[Next|Arcology Calibration]]>><</link>>
+<br>
+
+:: Arcology Ironworks
+<<location "arcology_ironworks">><<run setup.arcology.visit("ironworks")>><<effects>>
+<<arcologyDangerCheck "ironworks">><<if _arcologyDangerActive>><<exit>><</if>>
+You arrive at the Ironworks, an area of the island filled with factories that produce metal. Inside the factories, huge ovens heat the metal until it glows orange.
+<br><br>
+Some of the buildings have open sides, allowing you to see the machines working inside.
+<br><br>
+<<arcologyStreetHazards>>
+<<if !_arcologyHalt>>
+	Places of interest
+	<br>
+	<<arcologyicon "ironworks">><<link [[Foundry gate (0:02)|Arcology Foundry Gate]]>><<pass 2>><</link>>
+	<br>
+	<<arcologyicon "scrap">><<link [[Scrap yard (0:03)|Arcology Scrap Yard]]>><<pass 3>><</link>>
+	<br><br>
+	<<arcologyStreets "ironworks">>
+<</if>>
+
+:: Arcology Foundry Gate
+<<location "arcology_ironworks">><<set $outside to 0>><<effects>>
+You arrive at the entrance to the foundry, a factory where metal is melted and shaped.
+<br><br>
+The jobs here are difficult, but they pay well. Near the gate, you notice a screen showing how many days have passed since the last serious accident at the factory.
+<br><br>
+<<if setup.arcologyNews.closed("foundry")>>
+	A notice taped over the screen says all shifts are cancelled until further notice. <span class="blue">There's no work here today.</span>
+	<br>
+<<elseif $daily.arcologyFoundryShift>>
+	<span class="blue">You've already worked here today.</span>
+	<br>
+<<elseif $tiredness gte 1600>>
+	<span class="blue">You're too tired to work here right now.</span>
+	<br>
+<<else>>
+	<<arcologyicon "ironworks">><<link [[Work a shift (3:00)|Arcology Foundry Shift]]>><<set $daily.arcologyFoundryShift to true>><<pass 180>><<tiredness 18>><</link>><<ggtiredness>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Ironworks]]>><<pass 2>><</link>>
+<br>
+
+:: Arcology Foundry Shift
+<<location "arcology_foundry">><<set $outside to 0>><<effects>>
+<<if !$daily.arcologyFoundryPaid>>
+	<<set $daily.arcologyFoundryPaid to random(3500, 6000)>>
+	<<set $xchange.arcology.cipher to ($xchange.arcology.cipher or 0) + $daily.arcologyFoundryPaid>>
+	<<physique 5>><<pain 4>>
+<</if>>
+The worker in charge gives you a pair of gloves and tells you to help the other workers carry metal parts. The parts have been left on shelves to cool down, and your job is to move them to the area where they will be loaded onto vehicles.
+<br><br>
+You pick up each metal part with both hands. They are much heavier than you expected, and even with the gloves on, you can still feel some heat coming from the metal.
+<br><br>
+<<set _foundryMsg to setup.arcology.cxU($daily.arcologyFoundryPaid) + " RECEIVED. HAZARD PAY INCLUDED.">>
+<<holoNotice "WALLET" _foundryMsg "ok">>
+<br>
+<<link [[Next|Arcology Ironworks]]>><</link>>
+<br>
+
+:: Arcology Scrap Yard
+<<location "arcology_ironworks">><<effects>>
+<<arcologyDangerCheck "ironworks">><<if _arcologyDangerActive>><<exit>><</if>>
+You arrive at a large scrap yard surrounded by a fence. Inside, broken machines are piled on top of each other, with some reaching higher than the fence.
+<br><br>
+A sign on the gate says that the scrap yard belongs to the Ironworks.
+<br><br>
+<<if !$daily.arcologyScrap>>
+	<<set $skulduggerydifficulty to 400>>
+	<<investigateicon>><<link [[Search the heaps (0:40)|Arcology Scrap Search]]>><<set $daily.arcologyScrap to true>><<pass 40>><<skulduggerycheck "silent">><<set $phase to $skulduggerysuccess>><</link>><<skulduggerydifficulty>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Ironworks]]>><<pass 3>><</link>>
+<br>
+
+:: Arcology Scrap Search
+<<location "arcology_ironworks">><<effects>>
+<<if $phase is 1>>
+	<<set $phase to -1>><<set _scrapFind to random(1000, 2500)>><<set $xchange.arcology.cipher to ($xchange.arcology.cipher or 0) + _scrapFind>>
+	You search through a pile of broken drones, removing damaged covers and moving loose wires out of the way. Inside one of the drones, you find a battery with a small light that is still on. It looks like the battery still has some power left.
+	<br><br>
+	You take the battery to a dealer waiting near the gate. The dealer checks it, then pays you without asking where you found it.
+	<br><br>
+	<<set _scrapMsg to setup.arcology.cxU(_scrapFind) + " RECEIVED.">>
+	<<holoNotice "WALLET" _scrapMsg "ok">>
+<<elseif $phase is 0>>
+	<<set $phase to -1>><<pain 2>>
+	You spend a long time searching through the broken machines, checking for anything that might still work. Unfortunately, most of the useful parts have already been taken, and everything else is too damaged to sell.
+	<br><br>
+	You decide to stop searching and walk back towards the gate. As you pass another pile of broken machines, a sharp piece of metal sticking out cuts your hand.<<gpain>>
+<<else>>
+	<span class="blue">You've already searched through these piles of broken machines.</span>
+<</if>>
+<br><br>
+<<link [[Next|Arcology Scrap Yard]]>><<set $phase to 0>><</link>>
+<br>
+
+:: Arcology Stronghold Quarter
+<<location "arcology_stronghold">><<run setup.arcology.visit("stronghold")>><<effects>>
+<<arcologyDangerCheck "stronghold">><<if _arcologyDangerActive>><<exit>><</if>>
+You are in the Stronghold Quarter.
+<br><br>
+Large concrete blocks have been placed across the road at both ends of the street. There are small spaces between the blocks where people can walk through, but vehicles can't enter. The windows on the lower floors of nearby buildings have also been blocked with bricks.
+<br><br>
+<<holoNotice "CITY NETWORK" "CITY SECURITY DOES NOT OPERATE IN THIS AREA. WE CANNOT PROTECT YOU HERE." "denied">>
+<br>
+<<arcologyStreetHazards>>
+<<if !_arcologyHalt>>
+	Places of interest
+	<br>
+	<<arcologyicon "stronghold">><<link [[The wire gate (0:02)|Arcology Wire Gate]]>><<pass 2>><</link>>
+	<br><br>
+	<<arcologyStreets "stronghold">>
+<</if>>
+
+:: Arcology Wire Gate
+<<location "arcology_stronghold">><<effects>>
+<<arcologyDangerCheck "stronghold">><<if _arcologyDangerActive>><<exit>><</if>>
+At the end of the street, you see a large building protected by a tall metal gate. Two guards stand in front of the gate. Their eyes look like small red cameras, and both wear a badge on their sleeves showing black wires tied together.
+<br><br>
+You can hear people shouting somewhere inside the building. There is also a loud banging sound that repeats several times, but you cannot see what is making it.
+<br><br>
+Above the entrance, a screen shows a list of names. Some of the names have red lines through them, although you don't know what that means.
+<br><br>
+<<getouticon>><<link [[Turn around|Arcology Stronghold Quarter]]>><<pass 2>><</link>>
+<br>

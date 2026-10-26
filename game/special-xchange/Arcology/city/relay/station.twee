@@ -1,0 +1,164 @@
+:: Arcology X-Change Station
+<<location "arcology_xstation">><<set $outside to 0>><<effects>>
+You enter the X-Change Station. Above the counter, a hologram shows a large pill slowly turning in the air.
+<br><br>
+You notice a screen showing what you're allowed to buy with your current access level.
+<br>
+<<holo "X-CHANGE STATION / ACCESS">>
+	<<holoRow "YOUR ACCESS LEVEL" `($xchange.arcology.clearance or "guest").toUpperCase()`>>
+	<<holoRow "GUEST PURCHASE LIMIT" `$daily.arcologyXStation ? "USED TODAY" : "1 PURCHASE AVAILABLE"`>>
+	<<holoLine "MORE SERVICES ARE ONLY AVAILABLE TO RESIDENTS OR HIGHER" "warn">>
+<</holo>>
+<br>
+<<arcologyicon "news">><<link [[Read the product guide (0:05)|Arcology X-Change Guide]]>><<pass 5>><</link>>
+<br>
+<<arcologyicon "xcounter">><<link [[Guest counter|Arcology X-Change Counter]]>><</link>>
+<br>
+<<arcologyicon "controls">><<link [[Advanced services|Arcology X-Change Advanced]]>><</link>>
+<br>
+<<getouticon>><<link [[Leave|Arcology Street]]>><<pass 2>><</link>>
+<br>
+
+:: Arcology X-Change Guide
+<<location "arcology_xstation">><<set $outside to 0>><<effects>>
+Next to the counter, you see a screen showing information about the X-Change pills. When you look at it, you hear a calm voice reading the information aloud.
+<br><br>
+<<holo "X-CHANGE / PILL INFORMATION">>
+	<<holoRow "PINK PILL" "CHANGES YOUR BODY TO FEMALE">>
+	<<holoRow "BLUE PILL" "CHANGES YOUR BODY TO MALE">>
+	<<holoRow "BASIC" "3 PILLS PER PACK. EACH PILL LASTS ABOUT 1 DAY">>
+	<<holoRow "NOW" "1 PILL PER PACK. LASTS ABOUT 6 HOURS">>
+	<<holoLine "PILLS WITH LONGER EFFECTS AND SPECIAL TYPES ARE ONLY AVAILABLE TO RESIDENTS" "warn">>
+<</holo>>
+<br>
+At the bottom of the screen, you notice a warning written in much smaller letters: <i>The Station is not responsible for anything you do while using X-Change, or for anything other people do to you while you're using it.</i>
+<br><br>
+<<link [[Back|Arcology X-Change Station]]>><</link>>
+<br>
+
+:: Arcology X-Change Counter
+<<location "arcology_xstation">><<set $outside to 0>><<effects>><<run ArcologySfx.cue("scan")>>
+At the counter, a staff member points a scanner at the small light behind your ear. The staff member checks the scanner's screen, then smiles.
+"You're registered as a guest. You can buy one product from this list each day, and you'll need to pay with Cipher."
+<br><br>
+<<if $daily.arcologyXStation>>
+	<span class="blue">You've already bought something here today</span>. You can buy more tomorrow.
+	<br><br>
+<<else>>
+	The staff member sets an open white pill case beside the price list and waits for your choice.
+	<br><br>
+	<<set _xsItems to [["xchange_pink_basic", "Pink Basic, pack of 3", "pinkBasic", 3, "xchangePink"], ["xchange_blue_basic", "Blue Basic, pack of 3", "blueBasic", 3, "xchangeBlue"], ["xchange_pink_now", "Pink NOW", "pinkNow", 1, "xchangePink"], ["xchange_blue_now", "Blue NOW", "blueNow", 1, "xchangeBlue"]]>>
+	<<for _xsItem range _xsItems>>
+		<<set _xsP to setup.arcologyPrice.quote(_xsItem[2])>>
+		<<set _xsLabel to _xsItem[1] + " (" + _xsP.label + ")">>
+		<<if setup.arcologyPrice.affordable(_xsP)>>
+			<<capture _xsItem _xsLabel>><span class="arc-priced"><<pillicon _xsItem[4]>><<link _xsLabel "Arcology X-Change Counter">><<if setup.arcologyPrice.pay(_xsItem[2])>><<set $pharmacyItem to setup.pharmacyItems[_xsItem[0]]>><<pharmacyAddOwned _xsItem[3]>><<boughtOnce>><<unset $pharmacyItem>><<set $daily.arcologyXStation to true>><</if>><</link>></span><</capture>>
+		<<else>>
+			<<pillicon _xsItem[4]>><span class="blue"><<print _xsLabel>></span>
+		<</if>>
+		<br>
+	<</for>>
+	<<arcologyPriceNote _xsP>>
+	<br>
+<</if>>
+
+<<link [[Back|Arcology X-Change Station]]>><</link>>
+<br>
+
+:: Arcology X-Change Advanced
+<<location "arcology_xstation">><<set $outside to 0>><<effects>>
+After passing the guest counter, you find a large glass wall blocking the way into another part of the X-Change Station.
+At the back of the area, there is a lift, but you can't find any button to call it.
+<br><br>
+A holographic display shows a list of services and what level of access you need to use them.
+<br><br>
+<<holo "X-CHANGE STATION / RESTRICTED SERVICES" `setup.arcology.hasClearance("resident") ? "ok" : "denied"`>>
+	<<holoRow "BODY CUSTOMISATION" `setup.arcology.hasClearance("resident") ? "AVAILABLE" : "RESIDENT ACCESS REQUIRED"`>>
+	<<holoRow "SPECIALIST FORMULAS" `setup.arcology.hasClearance("resident") ? "AVAILABLE" : "RESIDENT ACCESS REQUIRED"`>>
+	<<holoRow "BLUEPRINT PRINTING" `setup.arcology.hasClearance("citizen") ? "AVAILABLE" : "CITIZEN ACCESS REQUIRED"`>>
+	<<holoRow "PILL MODIFICATION" `setup.arcology.hasClearance("citizen") ? "AVAILABLE" : "CITIZEN ACCESS REQUIRED"`>>
+	<<holoRow "PREMIUM SYNTHESIS" `setup.arcology.hasClearance("authority") ? "AVAILABLE" : "AUTHORITY ACCESS REQUIRED"`>>
+<</holo>>
+<br>
+<<if setup.arcology.hasClearance("resident")>>
+	As you approach the glass wall, a consultant working on the other side notices you and checks a nearby screen.
+	"You have permission to use these services, but we're not taking appointments yet. You'll have to come back later this season."
+<<else>>
+	You try to walk closer to the glass wall, but red lights appear on the floor around your feet. A voice from a nearby speaker asks you to return to the public area.
+<</if>>
+<br><br>
+<<link [[Back|Arcology X-Change Station]]>><</link>>
+<br>
+
+:: Arcology Glasshouse Door
+<<location "arcology_glassdoor">><<set $outside to 0>><<effects>>
+<<set _gdParty to $xchange.arcology.party>>
+<<set _gdRevoked to $xchange.arcology.guest and $xchange.arcology.guest.status is "revoked">>
+The Glasshouse has a small lobby with dim lights. At the back of the room, you see the doors to a private lift, surrounded by a gold frame.
+<br><br>
+<<if _gdRevoked or (_gdParty and _gdParty.status is "failed")>>
+	As you approach, the scanner checks your implant and shows a red light. A security guard standing near the lift notices this and walks towards you.
+	"You're not allowed inside. Please leave the building."
+	<br>
+	<<holoNotice "THE GLASSHOUSE" "ENTRY DENIED. ACCESS BLOCKED." "denied">>
+<<elseif _gdParty and _gdParty.status is "invited">>
+	As you approach, the scanner checks the implant behind your ear and lights up gold. A member of staff looks at a tablet to check your invitation, then smiles at you.
+	<<if setup.arcology.partyOpen()>>
+		"Luchifen is waiting by the lift. Go on through."
+		<br><br>
+		<<link [[Go to the lift|Arcology Party Lift]]>><</link>>
+	<<elseif setup.arcology.partyMissed()>>
+		"The party has finished. Wait here. I'll let Luchifen know you're here."
+		<br><br>
+		<<link [[Wait|Arcology Party Failed]]>><<set _gdParty.why to "missed">><</link>>
+	<<else>>
+		"Your invitation is for <<print setup.arcology.when(_gdParty.at)>>. We start admitting guests an hour before that. Please come back then."
+		<br>
+		<<holoNotice "THE GLASSHOUSE" "INVITATION CONFIRMED. ENTRY OPENS AT 19:00." "pending">>
+	<</if>>
+<<elseif _gdParty and _gdParty.status is "done">>
+	The scanner checks the implant behind your ear, but its light stays white. A member of staff looks up and recognises you.
+	"Welcome back. Unfortunately, you don't have an invitation for tonight. The upper floors are being used for a private event, so we can't let you in."
+	<br>
+	<<holoNotice "THE GLASSHOUSE" "NO INVITATION FOR TONIGHT." "pending">>
+<<else>>
+	The scanner checks the implant behind your ear, but its light stays white. A member of staff looks up from a tablet as you approach.
+	"Sorry, you need an invitation to enter The Glasshouse. If you're invited to an event, you'll receive a message letting you know."
+	<br>
+	<<holoNotice "THE GLASSHOUSE" "INVITATION REQUIRED." "pending">>
+<</if>>
+<br>
+<<getouticon>><<link [[Leave|Arcology Street]]>><<pass 2>><</link>>
+<br>
+
+:: Arcology Cafe
+<<location "arcology_cafe">><<set $outside to 0>><<effects>>
+You are inside Afterimage, a small café with a large window facing Relay Street. Instead of a normal menu, the café uses a glowing hologram to show what you can order.
+<br><br>
+<<if Time.hour gte 22 or Time.hour lt 6>>
+	The café is quiet at this hour. Two people who work late shifts are sitting at one table, while a third customer sleeps at the back, hood pulled low.
+	The barista leaves the sleeper alone.
+<<else>>
+	Some customers sit near the window, talking about the different information their implants are giving them. They seem to be new to the city.
+	People who live here sit near the back of the café, where they can see anyone coming through the door.
+	<br><br>
+	Behind the counter, the barista has shiny metal fingers and uses three coffee machines at the same time without looking at them.
+<</if>>
+<br><br>
+<<set _cfP to setup.arcologyPrice.quote("coffee")>>
+<<if setup.arcologyFx.crisis() gte 2>>
+	A sign behind the counter says <span class="blue">Cipher payments are suspended</span> until the exchange settles.
+	<br>
+<<elseif setup.arcologyPrice.affordable(_cfP)>>
+	<span class="arc-priced"><<foodicon "coffee">><<link `"Buy a coffee (" + _cfP.label + ", 0:15)"` "Arcology Cafe">><<if setup.arcologyPrice.pay("coffee")>><<pass 15>><<tiredness -2>><<stress -1>><</if>><</link>></span><<ltiredness>><<lstress>><<arcologyPriceNote _cfP>>
+	<br>
+<<else>>
+	<span class="blue">A coffee costs <<print _cfP.label>>.</span>
+	<br>
+<</if>>
+<<if !$daily.arcologyCitizens or !$daily.arcologyCitizens["Arcology Cafe"]>>
+	<<socialiseicon>><<link [[Talk to another visitor (0:10)|Arcology Citizen]]>><<pass 10>><<generate1>><<person1>><<run setup.arcology.newCitizen("guest", "Arcology Cafe", "city")>><</link>>
+	<br>
+<</if>>
+<<getouticon>><<link [[Leave|Arcology Street]]>><<pass 2>><</link>>
+<br>

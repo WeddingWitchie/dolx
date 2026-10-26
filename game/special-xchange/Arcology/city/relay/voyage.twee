@@ -1,0 +1,1067 @@
+:: Arcology Voyage Board
+<<effects>>
+/* $xchange.arcology.voyage is set by the link that led here: to, escort, next. Rendering again keeps the first roll.
+   The launch ride out to the ship is part of the crossing, so the clock starts here and never restarts aboard. */
+<<if !$xchange.arcology.voyage.arriveAt>>
+	<<set _voyageHours to $xchange.arcology.voyage.hours or setup.arcology.voyageHours()>>
+	<<set $xchange.arcology.voyage.hours to _voyageHours>>
+	<<set $xchange.arcology.voyage.arriveAt to setup.arcology.now() + _voyageHours * 3600>>
+<</if>>
+<<set _forced to $xchange.arcology.voyage.escort is "loyalists">>
+<<switch $xchange.arcology.voyage.escort>>
+<<case "luchifen">>
+	<<if !$xchange.arcology.trips>>
+		You follow <<luName>> onto a small black boat waiting beside the pier.
+		<br><br>
+		At the front, a pilot sits behind a curved screen, checking the controls while you board. The pilot gives you a brief look before turning back to the screen.
+		<<LuName>> takes a seat on one of the benches, leaving room beside them.
+		<br><br>
+		"You can sit here," they say. "It's a short ride to the ship."
+	<<else>>
+		<<LuName>> steps onto the black boat ahead of you and gives the pilot a nod. You follow them aboard while the pilot prepares to leave.
+	<</if>>
+<<case "loyalists">>
+	Two loyalists walk you down the pier, keeping you between them until you reach a grey boat.
+	They take you inside and lead you to a small cabin. There is a bed against one wall, a sink, and a round window overlooking the water. One of the loyalists stays by the open door while the other checks something on a screen.
+	<br><br>
+	Once you're inside, they shut the door behind you. You hear the lock turn from the other side, leaving you alone in the cabin.
+	<br><br>
+	Nobody has told you how long the journey will take.
+<<default>>
+	<<if $xchange.arcology.voyage.to is "arcology">>
+		At the far end of the docks, a small black boat is waiting to take passengers out to sea.
+		<<if $xchange.arcology.implant>>
+			The pilot notices the light behind your ear and checks a screen beside the controls.
+		<<else>>
+			The pilot checks a screen beside the controls.
+		<</if>>
+		<br><br>
+		After a moment, the pilot nods and lets you aboard without asking any questions.
+	<<else>>
+		A boat is waiting at the end of the white pier.
+		<<if $xchange.arcology.implant>>
+			Before you can board, a scanner checks the light behind your ear. The pilot looks at the result, then lets you through.
+		<<else>>
+			The pilot checks a screen beside the controls before letting you aboard.
+		<</if>>
+	<</if>>
+<</switch>>
+<br><br>
+<<link [[Next|Arcology Voyage Board 2]]>><</link>>
+<br>
+
+:: Arcology Voyage Board 2
+<<effects>>
+<<set _forced to $xchange.arcology.voyage.escort is "loyalists">>
+<<if !_forced>>
+	<<if !$xchange.arcology.trips>>
+		The boat leaves the pier and heads out past the <<print $xchange.arcology.voyage.to is "arcology" ? "breakwater" : "edge of the dome">>. You watch it get further away as the pilot takes you out to sea.
+		<br><br>
+		After some time, the boat begins to slow down. You look ahead and see a much larger white ship waiting on the water.
+		As you get closer, you can see three floors of dark windows along its sides. There is no name painted anywhere on the ship.
+		<br><br>
+		The lowest row of windows passes just above your head as the pilot brings the launch alongside. From this close, you have to lean back to see the upper decks. The pilot holds the smaller boat steady while a door opens in the ship's side and a ramp lowers towards you, bridging the gap between the two vessels.
+		<br><br>
+		<<if $xchange.arcology.voyage.escort is "luchifen">>
+			<<LuName>> watches you look over the ship, smiling a little when you turn towards them.
+			"There it is. I thought you might like it."
+			<br><br>
+			They get up from the bench as the pilot finishes bringing the boat into position.
+		<</if>>
+	<<else>>
+		The boat takes you away from the pier and out to sea. After some time, the large white ship comes into view.
+		The pilot slows down as you approach, bringing the smaller boat alongside an open door near the bottom of the ship. A ramp is waiting for you to board.
+	<</if>>
+	<br><br>
+<</if>>
+<<if !_forced and $xchange.arcology.voyage.escort is "luchifen">>
+	At the top of the ramp, <<luName>> points you towards the passenger lounge. "I'll be in the VIP lounge upstairs if you want company," they say, and head for the stairs.
+	<br><br>
+<</if>>
+<<if $xchange.arcology.implant>>
+	The implant behind your ear becomes warm for a moment as the <<print _forced ? "launch" : "ship">> checks your identity.
+<<elseif _forced>>
+	There is no screen inside the cabin to show you the route. You can see the sea through the small round window, but you still have no idea where they're taking you.
+<<else>>
+	A screen beside the ship's boarding door shows the route across the sea, although the final destination is hidden.
+<</if>>
+<br><br>
+<<if _forced>>
+	<<holoNotice "TRANSFER ORDER" "MANDATORY TRANSFER. GUEST AUTHORIZATION REVOKED." "denied">>
+<<else>>
+	<<holoNotice "NAVIGATION" `$xchange.arcology.voyage.to is "arcology" ? "ROUTE RECALCULATED. TARGET IS MOVING." : "MAINLAND ROUTE CONFIRMED."` "warn">>
+<</if>>
+<br>
+<<if _forced>>
+	<<link [[Wait in the locked cabin|Arcology Voyage]]>><</link>>
+<<else>>
+	<<arcologyicon "ship">><<link [[Go aboard (0:20)|Arcology Voyage]]>><<pass 20>><</link>>
+<</if>>
+<br>
+
+:: Arcology Voyage
+<<set $outside to 0>><<location "arcology_launch">><<effects>>
+<<arcologyShipStatus>>
+<<if !_forced and !_shipArrived>><<arcologyDangerCheck "ship">><<if _arcologyDangerActive>><<exit>><</if>><</if>>
+<<arcologyTransitPanel>>
+<br>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<elseif _forced>>
+	You are locked in a small cabin below deck. You can hear the water hitting the side of the boat beside your bunk.
+	<br><br>
+	<<arcologyicon "porthole">><<link [[Look out of the small window (0:15)|Arcology Voyage Window]]>><<set $xchange.arcology.voyage.room to passage()>><<pass 15>><</link>>
+	<br>
+	<<bedicon>><<link [[Lie down on the bunk|Arcology Voyage Bed]]>><</link>>
+	<br>
+	<<skinicon "masturbate">><<link [[Masturbate|Arcology Masturbation]]>><<set $masturbationstart to 1>><</link>>
+	<br><br>
+	<<arcologyShipWait>>
+<<else>>
+	You are in the passenger lounge.
+	<<if _vs.pct lt 25>>
+		<<if $xchange.arcology.voyage.to is "town">>Through the glass wall, you can see the water behind the ship as it leaves Arcology further behind.<<else>>Through the glass wall, the coast is getting smaller behind the ship, although you can still make out the line of the land.<</if>>
+	<<elseif _vs.pct lt 75>>
+		Through the glass wall, you can see the sea stretching away from the ship.
+	<<else>>
+		The engine note has changed, and two of the staff keep glancing at the display at the front of the lounge.
+	<</if>>
+	<<if Time.dayState is "night">>
+		<br><br>
+		Most of the lights are low. A few passengers are asleep under blankets.
+		A steward walks between the chairs with a scanner, holding it above each sleeper's ear before moving on.
+	<</if>>
+	<br><br>
+	<<arcologyicon "cabin">><<link [[Enter cabin (0:02)|Arcology Ship Cabin]]>><<pass 2>><</link>>
+	<br>
+	<<arcologyicon "display">><<link [[Navigation display (0:10)|Arcology Voyage Navigation]]>><<pass 10>><</link>>
+	<br>
+	<<arcologyShipWait>>
+	<br>
+	<<entranceicon>><<link [[To the passenger hallway (0:01)|Arcology Ship Hallway]]>><<pass 1>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Ship Cabin
+<<set $outside to 0>><<location "arcology_launch">><<effects>>
+<<arcologyShipStatus>>
+<<arcologyDangerCheck "room">><<if _arcologyDangerActive>><<exit>><</if>>
+<<arcologyTransitStrip>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+	<<if !$xchange.arcology.voyage.cabinSeen>>
+		<<set $xchange.arcology.voyage.cabinSeen to true>>
+		<<if $xchange.arcology.implant>>
+			A steward walks you to your cabin. The door unlocks when it recognises your guest ID.
+		<<else>>
+			A steward gives you a key card and shows you how to use it to unlock the door.
+		<</if>>
+		Inside, you find a large bed and several pillows. A wide window covers most of one wall, giving you a clear view of the sea.
+		<br><br>
+		Before leaving, the steward touches another reader above the door lock. You notice that this reader is only accessible from the hallway, with no matching controls inside your cabin.
+	<<else>>
+		<<if ["Arcology Voyage Bed", "Arcology Voyage Sleep"].includes(previous())>>You get out of bed.<<else>>You return to your cabin.<</if>>
+		<<set _cabinBack to true>>
+	<</if>>
+	/* The first visit already describes the window, so the view line is for return visits. */
+	<<if !_cabinBack>>
+	<<elseif Time.dayState is "night">>
+		Outside, the sea is dark, although you can still see the ship's lights reflected on the water.
+	<<else>>
+		<<if Weather.precipitation is "rain">>
+			Rain hits the window, making it difficult to see the sea outside.
+		<<elseif Weather.precipitation is "snow">>
+			Snow blows past the window, while the sea beyond looks grey.
+		<<else>>
+			You can see the open sea through your cabin window.
+		<</if>>
+	<</if>>
+	<br><br>
+	<<bedicon>><<link [[Strip and get in bed|Arcology Voyage Bed]]>><<undressSleep "Arcology Ship Bed">><</link>>
+	<br>
+	<<skinicon "masturbate">><<link [[Masturbate|Arcology Masturbation]]>><<set $masturbationstart to 1>><</link>>
+	<br>
+	<<bathroomicon "shower">><<link [[Bathroom (0:01)|Arcology Ship Bathroom]]>><<pass 1>><</link>>
+	<br>
+	<<arcologyicon "display">><<link [[Look at the display|Arcology Ship Desk]]>><</link>>
+	<br><br>
+	<<exiticon>><<link [[Go to the passenger lounge (0:02)|Arcology Voyage]]>><<pass 2>><</link>>
+	<br><br>
+<</if>>
+
+:: Arcology Ship Desk
+<<location "arcology_launch">><<effects>><<arcologyShipStatus>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+	The desk is positioned so that you can see the bookcase and entertainment screen while sitting there.
+	<br><br>
+	<<icon "library.png">><<link [[Open the bookcase|Arcology Ship Bookcase]]>><</link>>
+	<br>
+	<<furnitureicon "controller">><<link [[Use the console|Home Console]]>><<set $xchange.arcology.voyage.consoleOpen to Time.date.timeStamp>><</link>>
+	<br>
+	<<arcologyicon "controls">><<link [[Cabin controls|Arcology Ship Controls]]>><</link>>
+	<br><br>
+	<<getouticon>><<link [[Back|Arcology Ship Cabin]]>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Ship Controls
+<<location "arcology_launch">><<effects>><<arcologyShipStatus>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+	The cabin display offers food, lighting, and temperature controls. Below them, <i>external communications</i> is greyed out.
+	<br><br>
+	<<if !$xchange.arcology.voyage.ate or $hunger gte 600>>
+		<<foodicon "eat">><<link [[Order something to eat (0:30)|Arcology Voyage Galley]]>><<set $xchange.arcology.voyage.room to passage()>><<pass 30>><</link>>
+		<br>
+	<</if>>
+	<<wardrobeicon>><<link [[Open the wardrobe|Arcology Ship Wardrobe]]>><</link>>
+	<br>
+	<<arcologyRoomSettings>>
+	<br>
+	<<getouticon>><<link [[Back|Arcology Ship Desk]]>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Ship Bathroom
+<<location "arcology_launch">><<effects>>
+<<arcologyDangerCheck "room">><<if _arcologyDangerActive>><<exit>><</if>>
+The bathroom floor is made of warm stone. A glass screen separates the shower from the rest of the room, and lights around the long mirror switch on when you enter.
+<br><br>
+<<arcologyBathroomOptions "Arcology Ship Shower">>
+<<mirroricon>><<link [[Mirror|Arcology Ship Mirror]]>><<preMirror>><<endevent>><</link>>
+<br><br>
+<<getouticon>><<link [[Back to your cabin (0:01)|Arcology Ship Cabin]]>><<pass 1>><</link>>
+<br>
+
+:: Arcology Ship Shower
+You wash beneath the shower, bracing yourself as the ship moves.
+<br><br>
+<<location "arcology_launch">><<wearProp "soap">>
+<<wash>>
+<<arcologyAfterShower "Arcology Ship Bathroom">>
+
+
+:: Arcology Ship Wardrobe [exitCheckBypass]
+
+You open the tall wardrobe. A dressing screen stands beside it.
+<br><br>
+<<set $wardrobe_location to "wardrobe">>
+<<set _earSlimeEnableSwimwear to true>>
+<<wardrobeSelection>>
+<div id="wardrobewear"><<wardrobewear>></div>
+<div id="wardrobeExits"><<wardrobeExits>></div>
+<<wardrobe>>
+
+:: Arcology Ship Mirror
+
+You look at yourself in the bathroom mirror.
+<br><br>
+<<link [[Step away|Arcology Ship Bathroom]]>><<unset $mirrorMenu>><<unset $bodywritingSet>><</link>>
+<br>
+<<mirror "reflection">>
+
+:: Arcology Ship Bookcase
+<<effects>>
+<<arcologyShipStatus>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+The bookcase contains several textbooks that look new, a few novels, and a large book filled with photographs of the sea.
+<br><br>
+/* The same books, with the same requirements, as the school library. */
+<<scienceicon>><<link [[Study science (0:20)|Arcology Ship Bookcase Study]]>><<pass 20>><<set $phase to 1>><</link>><<gscience>>
+<br>
+<<mathicon>><<link [[Study maths (0:20)|Arcology Ship Bookcase Study]]>><<pass 20>><<set $phase to 2>><</link>><<gmaths>>
+<br>
+<<englishicon>><<link [[Study English (0:20)|Arcology Ship Bookcase Study]]>><<pass 20>><<set $phase to 3>><</link>><<genglish>>
+<br>
+<<historyicon>><<link [[Study history (0:20)|Arcology Ship Bookcase Study]]>><<pass 20>><<set $phase to 4>><</link>><<ghistory>>
+<br>
+<<icon "library.png">><<link [[Browse the novels|Arcology Ship Novels]]>><</link>>
+<br><br>
+<<link [[Close the bookcase|Arcology Ship Desk]]>><</link>>
+<br>
+<</if>>
+
+:: Arcology Ship Novels
+<<effects>><<arcologyShipStatus>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+You lift a few books out to read their covers. The shelf brackets keep them from sliding as the ship moves.
+<br><br>
+<<scarleticon>><<link [[Take "Raul and Janet"|ScarletBook1]]>><<pass 1>><<set $scarletExitPassage to "Arcology Ship Cabin">><</link>>
+<br>
+<<oliveicon>><<link [[Take the olive-coloured book|Olive Book 1]]>><<set $oliveExitPassage to "Arcology Ship Cabin">><<pass 1>><</link>>
+<br><br>
+<<link [[Close the bookcase|Arcology Ship Desk]]>><</link>>
+<br>
+<</if>>
+
+:: Arcology Ship Bookcase Study
+<<effects>>
+<<autism-cold-start "study" "Arcology Ship Cabin" "twenty minutes of study">>
+<<if !_autismColdFired>>
+	<<if $phase is 1>><<scienceskill 3>>
+		<<autism-focus-line "science">>
+		<<wearProp "open science">>
+		You sit by the window with a science textbook and read through the material.
+	<<elseif $phase is 2>><<mathsskill 3>>
+		<<autism-focus-line "maths">>
+		<<wearProp "open maths">>
+		You sit by the window with a maths textbook and read through the material.
+	<<elseif $phase is 3>><<englishskill 3>>
+		<<autism-focus-line "english">>
+		<<wearProp "open English">>
+		You sit by the window with an English textbook and read through the material.
+	<<else>><<historyskill 3>>
+		<<autism-focus-line "history">>
+		<<wearProp "open history">>
+		You sit by the window with a history textbook and read through the material.
+	<</if>>
+	<br><br>
+	<<link [[Put the book back|Arcology Ship Bookcase]]>><<handheldon>><<set $phase to 0>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Ship Hallway
+<<set $outside to 0>><<location "arcology_launch">><<effects>>
+<<arcologyDangerCheck "ship">><<if _arcologyDangerActive>><<exit>><</if>>
+<<arcologySceneCheck "ship">><<if _arcologyScene>><<include "Arcology Scene">><<exit>><</if>>
+<<arcologyShipStatus>>
+<<arcologyTransitStrip>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+	<<if !$xchange.arcology.voyage.hallSeen and !$xchange.arcology.trips>>
+		<<set $xchange.arcology.voyage.hallSeen to true>>
+		The passenger hallway goes through most of the ship. A thick carpet covers the floor, making your footsteps almost silent. Cameras on the ceiling turn towards you as you pass through the hallway.
+		<br><br>
+		Farther ahead, the hallway becomes wider, with signs pointing towards the bar and swimming pool. A staircase nearby leads up to the open deck.
+		<br><br>
+		Two stewards are talking beside a crew door. Unlike the passenger doors, this one has no handle on your side, so you can't open it yourself.
+		A small screen above reads <span class="blue">PASSENGER COMFORT: NOMINAL</span>.
+	<<else>>
+		You are in the passenger hallway. The screens on the walls are showing pictures of a city you don't recognise.
+		<br><br>
+		You also notice red lines on the carpet in front of the crew doors, marking where passengers must stop. The areas beyond those lines are reserved for the ship's crew.
+	<</if>>
+	<br><br>
+	<<entranceicon>><<link [[Passenger promenade (0:01)|Arcology Ship Promenade]]>><<pass 1>><</link>>
+	<br>
+	<<stairsicon "up">><<link [[Open deck (0:02)|Arcology Voyage Deck]]>><<pass 2>><</link>>
+	<br>
+	<<exiticon>><<link [[Passenger lounge (0:01)|Arcology Voyage]]>><<pass 1>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Ship Promenade
+<<location "arcology_leisure">><<effects>><<arcologyShipStatus>>
+<<arcologyDangerCheck "ship">><<if _arcologyDangerActive>><<exit>><</if>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+	A wide walkway goes around the indoor pool, with a bar at one end, and the VIP lounge at the other. Near the walkway, an attendant sits at a desk, checking passengers as they arrive.
+	<br><br>
+	<<arcologyicon "bar">><<link [[Bar (0:01)|Arcology Ship Bar]]>><<pass 1>><</link>>
+	<br>
+	<<arcologyicon "pool">><<link [[Pool (0:02)|Arcology Ship Pool]]>><<pass 2>><</link>>
+	<br>
+	<<arcologyicon "vip">><<link [[VIP lounge (0:02)|Arcology Ship VIP]]>><<pass 2>><</link>>
+	<br><br>
+	<<getouticon>><<link [[To the passenger hallway (0:01)|Arcology Ship Hallway]]>><<pass 1>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Ship Bar
+<<set $outside to 0>><<location "arcology_leisure">><<effects>>
+<<arcologyDangerCheck "ship">><<if _arcologyDangerActive>><<exit>><</if>>
+<<arcologySceneCheck "ship">><<if _arcologyScene>><<include "Arcology Scene">><<exit>><</if>>
+<<arcologyShipStatus>>
+<<arcologyTransitStrip>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+	You enter the ship's bar.
+	<br><br>
+	<<if Time.hour gte 1 and Time.hour lt 7>>
+		The bar is almost empty at this hour. One passenger has fallen asleep at a table in the corner, beside a full glass of alcohol that nobody has touched.
+	<<elseif Time.hour gte 18>>
+		Most of the tables are occupied, although the bar remains surprisingly quiet. Passengers talk amongst themselves without raising their voices, even when someone at another table starts laughing.
+	<<else>>
+		A few passengers are sitting at the tables, leaning towards each other as they talk quietly. The rest of the bar is fairly empty.
+	<</if>>
+	<br><br>
+	<<foodicon "scotch">><<link [[Order a drink|Arcology Ship Bar Menu]]>><<arcologyNPC 0 "staff" "bartender">><</link>>
+	<br>
+	<<arcologyicon "lounge">><<link [[Go to the bar tables|Arcology Ship Bar Tables]]>><</link>>
+	<br>
+	<<exiticon>><<link [[Back to the promenade (0:01)|Arcology Ship Promenade]]>><<pass 1>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Ship Bar Tables
+<<location "arcology_leisure">><<effects>><<arcologyShipStatus>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+	Several tables are arranged along one wall of the bar, each with its own seating area.
+	<br><br>
+	<<if !$daily.arcologyBarWatch>>
+		<<investigateicon>><<link [[Watch the other passengers (0:10)|Arcology Ship Bar Watch]]>><<set $daily.arcologyBarWatch to true>><<pass 10>><<arcologyNPC 0 "guest" "passenger">><</link>>
+	<</if>>
+	<br>
+	<<if (Time.hour lt 1 or Time.hour gte 7) and (!$daily.arcologyCitizens or !$daily.arcologyCitizens["Arcology Ship Bar Tables"])>>
+		<<socialiseicon>><<link [[Talk to another passenger (0:10)|Arcology Citizen]]>><<pass 10>><<generate1>><<person1>><<run setup.arcology.newCitizen(either("vip", "guest", "guest"), "Arcology Ship Bar Tables", "bar")>><</link>>
+		<br>
+	<</if>>
+	<<if setup.arcology.reliefLeft("bar")>><<relaxicon>><<link [[Sit at the bar for an hour (1:00)|Arcology Ship Bar Linger]]>><<pass 60>><<set $phase to (!$daily.arcologyBarChat and random(1, 3) is 1) ? "chat" : "quiet">><<if $phase is "chat">><<arcologyNPC 0 "guest" "passenger">><</if>><<set $daily.arcologyBarChat to true>><<run setup.arcology.relief("bar")>><<stress -4>><</link>><<lstress>><br><</if>><br>
+	<<exiticon>><<link [[Go back to the counter|Arcology Ship Bar]]>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Ship Bar Menu
+<<effects>>
+<<if !$NPCList[0] or !$NPCList[0].cyber>><<arcologyNPC 0 "staff" "bartender">><</if>>
+<<person1>>
+The <<person>> behind the counter wears a white jacket. <<arcologyCyberLook 0>>
+<br><br>
+<<if $drunk gte 300>>
+	The bartender looks at you for a moment, then sets down a glass of sparkling water instead of the menu. <span class="red">You won't be served anything stronger for a while.</span>
+	<br><br>
+	<<foodicon "gin">><<link [[Sparkling water (0:05)|Arcology Ship Bar Drink]]>><<set $phase to "water">><<pass 5>><</link>>
+	<br>
+<<else>>
+	The bartender slides a thin glass card across the counter. The drinks are listed without prices.
+	<br><br>
+	<<foodstufficon "white_wine">><<link [[Champagne (0:10)|Arcology Ship Bar Drink]]>><<set $phase to "champagne">><<pass 10>><<drunk 90>><</link>><<gdrunk>>
+	<br>
+	<<foodicon "cider">><<link [[The house cocktail (0:10)|Arcology Ship Bar Drink]]>><<set $phase to "cocktail">><<pass 10>><<drunk 120>><</link>><<ggdrunk>>
+	<br>
+	<<foodicon "whisky">><<link [[Whisky (0:05)|Arcology Ship Bar Drink]]>><<set $phase to "whisky">><<pass 5>><<drunk 120>><</link>><<ggdrunk>>
+	<br>
+	<<foodicon "gin">><<link [[Sparkling water (0:05)|Arcology Ship Bar Drink]]>><<set $phase to "water">><<pass 5>><</link>>
+	<br>
+<</if>>
+<br>
+<<link [[Never mind|Arcology Ship Bar]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Ship Bar Drink
+<<effects>><<person1>>
+<<switch $phase>>
+<<case "champagne">>
+	<<wearProp "champagne">>
+	The bartender opens a new bottle of champagne and pours you a glass. <<He>> puts the bottle in a bucket of ice beside <<him>>, keeping the rest cold.
+	<br><br>
+	The champagne has a fresh, slightly sour taste and isn't very sweet.
+<<case "cocktail">>
+	<<wearProp "cider">>
+	The house cocktail is pink and smells of fresh strawberries. It tastes sweet at first, followed by a slightly bitter taste.
+	<br><br>
+	You can barely taste the alcohol, even though it's quite a strong drink.
+<<case "whisky">>
+	<<wearProp "whisky">>
+	The bartender takes out a bottle of whisky without a label and pours you a glass. <<He>> places it in front of you without saying anything.
+	<br><br>
+	The whisky has a strong, slightly smoky taste, and you feel its warmth in your throat as you swallow.
+<<default>>
+	<<set $thirst to Math.max(0, ($thirst or 0) - 600)>>
+	The bartender gives you a glass of cold water with a slice of lemon floating in it.
+<</switch>><<stress -1>><<lstress>>
+<br><br>
+<<link [[Next|Arcology Ship Bar]]>><<handheldon>><<set $phase to 0>><<endevent>><</link>>
+<br>
+
+:: Arcology Ship Bar Watch
+<<effects>><<person1>>
+<<switch Math.floor(Time.date.timeStamp / 600) % 6>>
+<<case 1>>
+	The <<person>> sitting at the end of the bar keeps looking at <<his>> reflection in the shiny black counter.
+	<br><br>
+	<<He>> touches <<his>> jaw and cheeks, looking closely at <<his>> face. The person sitting beside <<him>> continues talking about the weather, paying no attention to what <<hes>> doing.
+<<case 2>>
+	Two passengers wearing identical grey suits sit together at a corner table, sharing a bottle of wine.
+<<case 3>>
+	The <<person>> sitting at the bar asks the bartender for "the usual". The bartender checks the customer records, then tells <<him>> that <<he>> has never ordered anything here before.
+	<br><br>
+	"You served me before I changed my appearance," <<he>> replies.
+	<br><br>
+		The bartender studies <<his>> face, then checks the customer record once more. After a pause, the bartender reaches for a bottle and begins preparing the drink, leaving the discrepancy on the screen unanswered.
+<<case 4>>
+	The <<person>> asks the bartender for a drink you've never heard of. The bartender looks surprised, then takes a bottle from under the counter instead of using one from the shelves.
+	<br><br>
+	After pouring the drink, the bartender gives the customer a small bow. The <<person>> takes the glass and returns to <<his>> table without seeming to notice the special treatment.
+<<case 5>>
+	The <<persons>> telling <<his>> friends about a warehouse that caught fire.
+	<br><br>
+	<<He>> seems rather pleased with the story, especially when <<he>> explains that the insurance money paid for <<his>> trip here. <<His>> friends burst out laughing at that, making you wonder whether the fire was really an accident.
+<<default>>
+	The <<person>> sitting near the bar wears silver rings on every finger. <<He>> keeps looking towards the entrance, checking everyone who comes inside.
+	<br><br>
+	Strangely, <<he>> always looks at their hands before checking their faces. <<He>> seems to be searching for someone.
+<</switch>>
+<br><br>
+<<link [[Next|Arcology Ship Bar]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Ship Bar Linger
+<<effects>>
+You sit on a stool at the end of the bar with a glass of water, watching the other passengers. Whenever your glass is nearly empty, the bartender comes over to refill it without asking.
+<br><br>
+<<if $phase is "chat">>
+	<<person1>>A <<person>> sitting a couple of seats away turns towards you. <<arcologyCyberLook 0>>
+	"Are you travelling for work or for a holiday?" Before you can answer, <<he>> smiles and shakes <<his>> head. "Actually, don't tell me. I'd rather not know."
+	<br><br>
+	<<He>> turns back to <<his>> drink, leaving you alone.
+<<else>>
+	The other passengers leave you alone, but you can still hear parts of their conversations.
+	<br><br>
+	Some call each other by first names that you suspect aren't real, while others talk about their journeys without saying exactly where they're going.
+<</if>>
+<br><br>
+<<link [[Next|Arcology Ship Bar]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Ship VIP
+<<set $outside to 0>><<location "arcology_leisure">><<effects>>
+<<arcologyShipStatus>>
+<<arcologyTransitStrip>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+	You enter the VIP lounge at the back of the ship. <<if $xchange.arcology.implant>>Your guest ID is recognised, and the door opens after a short pause.<<else>>A steward checks your cabin card before opening the door for you.<</if>>
+	<br><br>
+	Inside, several large grey leather chairs face a wide window covering most of the back wall. You can see the sea behind the ship through the glass. Soft yellow lights keep the room comfortably lit, while a steward waits beside a small table in case anyone needs anything. The lounge is quiet, with only a few passengers inside.
+	<br><br>
+	<<if _withLu>>
+		<<switch Time.hour % 3>>
+		<<case 0>>
+			<<LuName>> is sitting in the chair closest to the window, apparently reading something. There's no book or screen in front of them, but their eyes keep moving along lines of text that you can't see.
+		<<case 1>>
+			<<LuName>> is sitting in the chair closest to the window, holding a glass of a pale-coloured drink. They occasionally take a sip while looking out at the sea behind the ship.
+		<<default>>
+			<<LuName>> is leaning back in the chair closest to the window, resting with their eyes partly closed. Their lips move occasionally, but you can't hear anything.
+		<</switch>>
+		They don't turn towards you when you enter.
+		<br><br>
+		<<socialiseicon>><<link `"Approach " + ($xchange.silverStranger and $xchange.silverStranger.nameKnown ? "Luchifen" : "the silver figure")` "Arcology Ship VIP Luchifen">><<pass 3>><</link>>
+		<br>
+	<<else>>
+		An elderly passenger has fallen asleep in one of the chairs under a blanket, a pair of expensive-looking shoes resting on the footrest.
+		<br><br>
+	<</if>>
+	<<if setup.arcology.reliefLeft("vipWindow")>><<relaxicon>><<link [[Sit by the window (0:30)|Arcology Ship VIP]]>><<pass 30>><<run setup.arcology.relief("vipWindow")>><<stress -4>><</link>><<lstress>><br><</if>>
+	<<exiticon>><<link [[Back to the promenade (0:02)|Arcology Ship Promenade]]>><<pass 2>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Ship VIP Luchifen
+<<effects>>
+<<arcologyShipStatus>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+<<set _vlu to $xchange.arcology.voyage>>
+<<if !_vlu.approached>>
+	<<set $xchange.arcology.voyage.approached to true>>
+	You walk across the lounge towards <<LuName>>, who is sitting in a chair and looking up at you. "I was starting to think the bar had kept you."
+	<br><br>
+	They push the empty chair beside them a little further out with their foot, giving you room to sit.
+<<else>>
+	When you walk over to <<LuName>> again, they turn towards you. "Back again?"
+<</if>>
+<br><br>
+<<socialiseicon "ask">><<link [[Talk with them|Arcology Ship VIP Conversation]]>><</link>>
+<br>
+<<if !_vlu.watched>>
+	<<socialiseicon>><<link [[Stay with them and say nothing (0:30)|Arcology Voyage Watch]]>><<pass 30>><</link>>
+	<br>
+<</if>>
+<<if !_vlu.sat>>
+	<<arcologyicon "lounge">><<link [[Sit beside them (0:30)|Arcology Ship VIP Sit]]>><<pass 30>><</link>>
+	<br>
+<</if>>
+<br>
+<<getouticon>><<link [[Leave them alone|Arcology Ship VIP]]>><</link>>
+<br>
+<</if>>
+
+:: Arcology Ship VIP Conversation
+<<effects>><<arcologyShipStatus>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+<<set _vlu to $xchange.arcology.voyage>>
+You sit in the chair beside <<luName>>, close enough to speak without raising your voice. The steward at the door can still see you both, but the other passengers are sitting too far away to hear what you say. Every so often, <<luName>>'s eyes drift to one side and move along lines of text that you can't see.
+<br>
+<<if !_vlu.reading>>
+	<br>
+	<<socialiseicon "ask">><<link [[Ask what they're reading (0:10)|Arcology Voyage Reading]]>><<pass 10>><</link>>
+<</if>>
+<<if !_vlu.shipAsked>>
+	<br>
+	<<socialiseicon "ask">><<link [[Ask about the ship (0:15)|Arcology Ship VIP Ship]]>><<pass 15>><</link>>
+<</if>>
+<<if !_vlu.talked>>
+	<br>
+	<<socialiseicon "ask">><<link [[Ask about the island (0:20)|Arcology Voyage Talk]]>><<pass 20>><</link>>
+<</if>>
+<br>
+<<getouticon>><<link [[Back|Arcology Ship VIP Luchifen]]>><</link>>
+<br>
+<</if>>
+
+:: Arcology Ship VIP Ship
+<<effects>>
+<<set $xchange.arcology.voyage.shipAsked to true>>
+You ask whose ship this is.
+<br><br>
+"Officially? It belongs to a company," they say with a smile. "But I travel on it so often that the crew already knows which chair I like. They always keep it free for me."
+<br><br>
+You look around at the many empty seats and ask why such a large ship has so few passengers.
+<br><br>
+"Privacy, mostly." They take a sip from the glass beside them before turning back to you.
+"Some of them might ask who you are, by the way. If you don't feel like answering their questions, just tell them you're with me. They'll leave you alone."
+<br><br>
+<<link [[Next|Arcology Ship VIP Conversation]]>><</link>>
+<br>
+
+:: Arcology Ship VIP Sit
+<<effects>>
+<<set _firstSit to !$xchange.arcology.voyage.sat>>
+<<set $xchange.arcology.voyage.sat to true>>
+You sit in the chair beside <<luName>>. One of the staff comes over with a bottle and two glasses, pouring you both a pale-coloured drink before leaving.
+<br><br>
+For a while, <<LuName>> sits quietly beside you, looking out at the sea.<<stress -4>><<lstress>>
+<br><br>
+They eventually notice something outside and point towards the water.
+You turn to look and see a huge, pale shape appearing above the water in the distance. You can't make out exactly what it is before it disappears beneath the sea again.
+<br><br>
+The whole thing only lasts a few seconds, but <<luName>> doesn't seem surprised.
+"We see those creatures following the ship sometimes. Nobody knows why they do it. Maybe they're just curious about us. Can't blame them, really. I'd be curious too."
+<br><br>
+<<link [[Next|Arcology Ship VIP Luchifen]]>><</link>>
+<br>
+
+:: Arcology Ship Pool
+<<set $outside to 0>><<location "arcology_leisure">><<effects>>
+<<arcologyShipStatus>>
+<<arcologyTransitStrip>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+	You arrive at the ship's indoor swimming pool. The pool is long and deep, with soft purple lights shining from underwater. A large glass roof covers the area, allowing passengers to see the sky outside.
+	<br><br>
+	<<if Time.dayState is "night">>
+		Outside, the sky is dark. The purple lights from the pool reflect on the glass roof, moving whenever the water below moves.
+	<<elseif Weather.precipitation isnot "none">>
+		<<if Weather.precipitation is "snow">>
+			Snow falls onto the glass roof above you, slowly melting into water that flows down the glass.
+		<<else>>
+			You can see rain falling onto the glass roof, with water flowing down its sides.
+		<</if>>
+	<<else>>
+		You can see the sky clearly through the glass roof above the pool.
+	<</if>>
+	<<if Time.hour gte 7 and Time.hour lt 23>>
+		<br><br>
+		A few passengers are swimming slowly from one end of the pool to the other. Nearby, someone has fallen asleep on one of the chairs under an open magazine.
+	<</if>>
+	<br><br>
+	<<if $tiredness gte 1700>>
+		<span class="blue">You're too exhausted to swim.</span>
+	<<else>>
+		<<swimicon "dive">><<link [[Swim (0:30)|Arcology Ship Pool Swim]]>><<pass 30>><<tiredness 6>><</link>><<gtiredness>><<gswimming>>
+	<</if>>
+	<br>
+	<<arcologyicon "lounge">><<link [[Go over to the loungers|Arcology Ship Pool Loungers]]>><</link>>
+	<br>
+	<<if Time.hour gte 7 and Time.hour lt 23 and (!$daily.arcologyCitizens or !$daily.arcologyCitizens["Arcology Ship Pool"])>>
+		<<socialiseicon>><<link [[Talk to another guest (0:10)|Arcology Citizen]]>><<pass 10>><<generate1>><<person1>><<run setup.arcology.newCitizen(either("vip", "guest"), "Arcology Ship Pool", "pool")>><</link>>
+		<br>
+	<</if>>
+	<br>
+	<<exiticon>><<link [[Back to the promenade (0:02)|Arcology Ship Promenade]]>><<pass 2>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Ship Pool Loungers
+<<location "arcology_leisure">><<effects>><<arcologyShipStatus>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+	Several reclining chairs are arranged in a row beside the pool, all facing the water.
+	<br><br>
+	At the far end of the pool, another passenger is sitting on a chair near the edge, with both feet in the water. An attendant stands behind the passenger's chair.
+	<br><br>
+	<<if setup.arcology.reliefLeft("pool")>><<relaxicon>><<link [[Relax on a lounger (0:30)|Arcology Ship Pool Relax]]>><<pass 30>><<run setup.arcology.relief("pool")>><<stress -4>><</link>><<lstress>><br><</if>>
+	<<if !$daily.arcologyPoolWatch>>
+		<<investigateicon>><<link [[Watch the other guests (0:10)|Arcology Ship Pool Watch]]>><<set $daily.arcologyPoolWatch to true>><<pass 10>><<arcologyNPC 0 "guest" "swimmer">><</link>>
+	<</if>>
+	<br>
+	<<getouticon>><<link [[Return to the poolside|Arcology Ship Pool]]>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Ship Pool Swim
+<<set _waterDoesNotAttractAttention to true>><<water>><<waterbr 2>><<effects>>
+You swim from one side of the pool to the other, turning around whenever you reach the wall.<<physique 2>><<swimmingskilluse>>
+<br><br>
+The water is pleasantly warm, although the ship sometimes rocks slightly as it travels across the sea, making small waves in the pool.
+<br><br>
+<<if setup.arcology.voyageStatus().remaining lte 0>>
+	A short bell rings near the pool, letting you know that the ship has arrived at its destination.
+	<br><br>
+<<elseif $tiredness gte 1700>>
+	<span class="blue">You're too exhausted to keep swimming.</span>
+	<br>
+<<else>>
+	<<swimicon>><<link [[Keep swimming (0:30)|Arcology Ship Pool Swim]]>><<pass 30>><<tiredness 6>><</link>><<gtiredness>><<gswimming>>
+	<br>
+<</if>>
+<<swimicon "leave">><<link [[Climb out (0:01)|Arcology Ship Pool Climb]]>><<pass 1>><</link>>
+<br>
+
+:: Arcology Ship Pool Climb
+<<effects>>
+<<dry_full>>
+You climb out and dry yourself on one of the folded towels. A steward takes the towel away before you have decided where to put it.
+<br><br>
+<<link [[Next|Arcology Ship Pool]]>><</link>>
+<br>
+
+:: Arcology Ship Pool Relax
+<<effects>>
+You stretch out on a lounger. Somebody brings you a glass of iced water and a fresh towel without being asked, and the light from the pool moves slowly across the ceiling.
+<br><br>
+<<link [[Next|Arcology Ship Pool]]>><</link>>
+<br>
+
+:: Arcology Ship Pool Watch
+<<effects>><<person1>>
+<<switch Math.floor(Time.date.timeStamp / 600) % 4>>
+<<case 1>>
+	Each time the <<person>> reaches the end of the pool, <<he>> stops swimming and lifts <<his>> arms out of the water. <<He>> looks at both sides of them under the pool lights before continuing.
+<<case 2>>
+	An older couple sit at the edge of the pool with their feet in the water. Everyone who walks past gives them a friendly nod, but nobody stops to talk. They seem to be well known among the passengers.
+<<case 3>>
+	The <<person>> swims from one end of the pool to the other forty times without taking a break. When <<he>> finally climbs out, <<he>> picks up a small device from beneath <<his>> towel and checks the screen.
+	<br><br>
+	After reading it, <<he>> immediately gets back into the pool and starts swimming again.
+<<default>>
+	Two young passengers are running beside the pool, racing to see who can reach the other end first. A steward watches them but doesn't ask them to slow down.
+	<br><br>
+	The passengers don't seem worried about breaking anything, since someone else would have to pay for the damage.
+<</switch>>
+<br><br>
+<<link [[Next|Arcology Ship Pool]]>><<endevent>><</link>>
+<br>
+
+:: Arcology Voyage Talk
+<<effects>>
+<<set $xchange.arcology.voyage.talked to true>>
+<<if $xchange.arcology.voyage.to is "arcology">>
+	You ask why the journey to Arcology takes so long.
+	<br><br>
+	"Because my city won't stay where I leave it," they say. "The currents carry it, and it has engines for when the currents don't suit us. Sometimes we're close to town; sometimes we're a great deal farther away. Very few people need to know where we'll be next."
+	<br><br>
+	"Then how does the captain know where to find it?" you ask.
+	<br><br>
+	"The captain receives new directions while we're travelling. Otherwise, we'd arrive at a very expensive patch of empty sea." They smile at the thought. "The passengers don't receive them, of course. A comfortable cabin, a good dinner, and absolutely no idea where they are. Most of them seem quite content with that."
+	<br><br>
+	You ask whether that means you can't see the location either.
+	<br><br>
+	"Of course not! You're still a passenger." They laugh. "But you're welcome to ask the captain. I'm sure the captain will have plenty to say about me afterwards."
+<<else>>
+	You ask why the journey back to town takes so long when the town itself hasn't moved.
+	<br><br>
+	"But Arcology has moved," they reply. "Your town is being very obliging and staying where you left it. Our city doesn't extend the same courtesy. If it carries us farther out to sea while you're visiting, you have a longer journey home."
+	<br><br>
+	You ask whether someone could simply follow the ship to find Arcology.
+	<br><br>
+	"They could certainly try," they say with a smile. "But we don't always travel along the same route, and we never show passengers where Arcology is on the map."
+	<br><br>
+	You ask whether the captain would tell you if you asked.
+	<br><br>
+	"Oh, you can try! Though I doubt you'll get very far." They laugh. "I'd probably hear about it later, too."
+<</if>>
+<br><br>
+<<link [[Next|Arcology Voyage Talk 2]]>><<pass 3>><</link>>
+<br>
+
+:: Arcology Voyage Talk 2
+<<effects>>
+They return to their reading, leaving you to think about what they've told you.
+<br><br>
+A little later, they look up again. "You should get some sleep if you're tired. You'll want to be awake when we arrive."
+<br><br>
+<<link [[Next|Arcology Ship VIP Conversation]]>><</link>>
+<br>
+
+:: Arcology Voyage Watch
+<<effects>>
+<<set $xchange.arcology.voyage.watched to true>>
+You sit across from <<luName>> while they busy themselves with something you can't see. Their eyes move from side to side across a screen only they can see, and they occasionally frown at what is on it.
+<br><br>
+After a while, they speak without looking at you. "You're staring."
+<br><br>
+"There's not much else to look at," you reply.
+<br><br>
+"Am I really so beautiful that the whole ocean can't compete?" They move their chair a little to one side, giving you a better view of the water.
+"You can stay here if you like. Just stop watching me work."
+<br><br>
+They turn back to whatever they were doing, leaving you to decide whether to watch the ocean or continue bothering them.
+<br><br>
+<<link [[Next|Arcology Ship VIP Luchifen]]>><</link>>
+<br>
+
+:: Arcology Voyage Reading
+<<effects>>
+<<set $xchange.arcology.voyage.reading to true>>
+You notice <<luName>> looking at something you can't see, so you ask what they're reading.
+<br><br>
+"Oh, just gossip," they say without looking at you. "Who's arrived in the city, who's left, and who's changed their face recently but thinks nobody has noticed."
+<br><br>
+"You're reading about other people's lives?" you ask.
+<br><br>
+"Sometimes." They blink and finally look at you. "Other times, I'm checking what supplies and goods are arriving in the city. Much more boring, I assure you."
+<br><br>
+<<link [[Next|Arcology Ship VIP Conversation]]>><</link>>
+<br>
+
+:: Arcology Voyage Window
+<<effects>>
+<<set _vs to setup.arcology.voyageStatus()>>
+<<if $xchange.arcology.voyage.escort is "loyalists">>
+	The small, round window is about as wide as your hand. Dried salt has collected around its edges.
+<<else>>
+	A large, clean window lets you see outside, reaching from the floor to the ceiling.
+<</if>>
+<<if Weather.precipitation is "rain">>
+	Rain hits the window while large waves move across the sea outside. Despite the rough water, you can barely feel the ship moving.
+<<elseif Weather.precipitation is "snow">>
+	Snow blows past the window, melting as soon as it touches the glass.
+<<elseif Time.dayState is "night">>
+	The ship's lights reflect on the dark water. Beyond the lights, it is too dark to see much of the sea.
+<<else>>
+	You watch the waves outside as the ship travels across the sea.
+<</if>>
+<<if $xchange.arcology.voyage.to is "arcology" and _vs.pct gte 75>>
+	<br><br>
+	Far ahead, you notice a curved line of light just above the water. As the ship gets closer, you realise it is the edge of the huge dome covering a city.
+<<elseif $xchange.arcology.voyage.to is "town" and _vs.pct gte 75>>
+	<br><br>
+	You can see land in the distance. At first, it looks like a thin grey line above the water, but the coast becomes clearer as the ship gets closer.
+<</if>>
+<br><br>
+<<link [[Next|$xchange.arcology.voyage.room]]>><<unset $xchange.arcology.voyage.room>><</link>>
+<br>
+
+:: Arcology Voyage Navigation
+<<effects>>
+A wide screen at the front of the lounge shows the ship's route. <<if $xchange.arcology.implant>>When you look towards the screen, the route appears in front of your eyes as well.<<else>>You step closer so you can read the smaller words on the screen.<</if>>
+<br><br>
+<<if $xchange.arcology.voyage.to is "arcology">>
+	<<holo "NAVIGATION / ROUTE DETAIL" "pending">>
+		<<holoRow "TARGET" "ARCOLOGY (MOBILE)">>
+		<<holoRow "COORDINATES" "[ENCRYPTED]">>
+		<<holoRow "COURSE" "CORRECTED EVERY 20 MINUTES">>
+		<<holoLine "YOUR CLEARANCE DOES NOT INCLUDE THE DESTINATION POSITION" "warn">>
+	<</holo>>
+	<br>
+	The route on the screen changes direction several times before reaching the hidden destination. You can see where the ship will turn, but the screen won't show you exactly where the city is.
+<<else>>
+	<<holo "NAVIGATION / ROUTE DETAIL">>
+		<<holoRow "TARGET" "MER STREET DOCKS">>
+		<<holoRow "COORDINATES" "FIXED">>
+		<<holoLine "ROUTE CLEAR" "ok">>
+	<</holo>>
+	<br>
+	The line on the display runs straight towards the coast.
+<</if>>
+<br><br>
+<<link [[Next|Arcology Voyage]]>><</link>>
+<br>
+
+:: Arcology Voyage Galley
+<<effects>>
+<<set $xchange.arcology.voyage.ate to true>>
+A few minutes after you ask for food, a steward knocks on your door and brings in a small serving table. On it are grilled fish, rice with herbs, a bowl of fresh fruit, and a jug of cold water with ice.
+<br><br>
+The steward places the table beside your bed. You pick up the knife and fork, surprised by how heavy they feel. Before you get a chance to say thank you, the steward has already left the room.
+<<if setup.arcology.relief("meal")>><<stress -6>><<llstress>><</if>>
+<br><br>
+<<link [[Next|$xchange.arcology.voyage.room]]>><<unset $xchange.arcology.voyage.room>><</link>>
+<br>
+
+:: Arcology Voyage Deck
+<<location "arcology_deck">><<effects>>
+<<arcologyDangerCheck "deck">><<if _arcologyDangerActive>><<exit>><</if>>
+<<arcologyShipStatus>>
+<<arcologyTransitStrip>>
+<<if _shipArrived>>
+	<<arcologyShipArrival>>
+<<else>>
+	You are standing on the open deck at the back of the ship, looking out over the sea.
+	<br><br>
+	<<if Weather.precipitation is "rain">>
+		Rain blows across the deck, making the floor wet and leaving water dripping from the railings. A crew member wearing a coat with the hood up stands in the doorway, watching you.
+	<<elseif Weather.precipitation is "snow">>
+		Snow slowly covers the railings, although the snow that lands on the deck melts almost immediately.
+	<<elseif Time.dayState is "night">>
+		You can see a red light on one side of the ship and a green light on the other. The sea is dark, making it difficult to see the white foam left in the water behind the ship.
+	<<else>>
+		As the ship moves across the sea, the water behind it turns white with foam. Wind blows across the open deck, and you can hear waves hitting the ship below.
+	<</if>>
+	<br><br>
+	<<arcologyicon "rail">><<link [[Lean on the rail (0:30)|Arcology Voyage Deck Rail]]>><<pass 30>><<run setup.arcology.relief("deck")>><<stress -1>><</link>><<lstress>><br>
+	<<if setup.arcology.reliefLeft("deck")>><<relaxicon>><<link [[Stay out on deck for a while (2:00)|Arcology Voyage Deck Rail]]>><<pass 120>><<run setup.arcology.relief("deck")>><<stress -4>><<set $phase to "long">><</link>><<lstress>><br><</if>>
+	<<stairsicon "down">><<link [[Go back inside (0:02)|Arcology Ship Hallway]]>><<pass 2>><</link>>
+	<br>
+<</if>>
+
+:: Arcology Voyage Deck Rail
+<<effects>>
+<<if Time.dayState is "night">>
+	You lean on the rail and watch the ship's lights move over the water. Up here you can hardly hear the engines.
+<<else>>
+	You lean on the rail and watch the sea go past. The wind is strong and smells of salt.
+<</if>>
+<<if $phase is "long" and $xchange.arcology.voyage.escort is "luchifen">>
+	<<LuName>> comes up once, looks at the sky, and goes back down without saying anything.
+<</if>>
+<<set $phase to 0>>
+<br><br>
+<<link [[Next|Arcology Voyage Deck]]>><</link>>
+<br>
+
+:: Arcology Voyage Console End
+<<effects>>
+/* A console session counts as at least an hour of the crossing. Some games pass time themselves (the virtual pet), so only the rest of the hour is added.
+   consoleOpen holds the start time and is cleared here, so a refresh adds nothing. */
+<<if $xchange.arcology.voyage and $xchange.arcology.voyage.consoleOpen>>
+	<<set _consoleSpent to Math.floor((Time.date.timeStamp - $xchange.arcology.voyage.consoleOpen) / 60)>>
+	<<set _consoleLeft to Math.max(0, Math.ceil(($xchange.arcology.voyage.arriveAt - Time.date.timeStamp) / 60))>>
+	<<unset $xchange.arcology.voyage.consoleOpen>>
+	<<pass `Math.min(_consoleLeft, Math.max(0, 60 - _consoleSpent))`>>
+	You switch the console off and put it back in its slot. The cabin display shows how much time has passed since you started playing.
+	<br><br>
+	You hadn't realised you were using it for so long.
+<<else>>
+	You switch the console off.
+<</if>>
+<br><br>
+<<link [[Next|Arcology Ship Cabin]]>><</link>>
+<br>
+
+:: Arcology Voyage Bed
+/* Sleep is capped at the time left, so the player always wakes before landfall (the hotel bed does the same for the ballroom). */
+<<set _forced to $xchange.arcology.voyage.escort is "loyalists">>
+<<set _voyageLeft to Math.floor(setup.arcology.hoursUntil($xchange.arcology.voyage.arriveAt))>>
+<<if _forced>>
+	The bunk is narrow, but the blanket is clean.
+<<else>>
+	The sheets are smooth and the bed is wide enough to lie across.
+<</if>>
+<br><br>
+<<if _voyageLeft gte 10>>
+	<<nightmareCheck "Arcology Voyage Sleep">>
+	<<generateSleepLinks "Arcology Voyage Sleep">>
+<<elseif _voyageLeft gte 1>>
+	<<nightmareCheck "Arcology Voyage Sleep">>
+	<<capture _voyageLeft>><<link [["Sleep for " + _voyageLeft + (_voyageLeft === 1 ? " hour" : " hours")|Arcology Voyage Sleep]]>><<set $sleephour to _voyageLeft>><</link>><</capture>>
+	<br><br>
+<<else>>
+	You won't get any proper sleep before you arrive.
+	<br><br>
+<</if>>
+<<if _forced>>
+	<<link [[Get up|Arcology Voyage]]>><</link>>
+<<else>>
+	<<link [[Climb out of bed|Arcology Ship Cabin]]>><<storeon "Arcology Ship Bed">><<loadTempHairStyle>><<endevent>><</link>>
+<</if>>
+
+:: Arcology Voyage Sleep
+<<set _autosavehere to true>>
+<<sleep false `setup.arcology.hoursUntil($xchange.arcology.voyage.arriveAt)`>>
+<<if _dreaming>>
+	/* <<earSlimeFocusChoice>> or similar widgets are running */
+<<else>>
+	<<effects>>
+	<<wakingEffects $sleepHoursTotal>>
+	<<if $nightmares gte 1 and $controlled is 0>>
+		<<nightmareWake>>
+	<<elseif !_wakingEffect>>
+		You fall asleep while listening to the quiet sound of the ship's engines. When you wake up, you stay in bed for a while before checking how much longer it will take to reach your destination.
+		<br><br>
+	<</if>>
+	<<sleepeffects>>
+	<br><br>
+	<<if $xchange.arcology.voyage.escort is "loyalists">>
+		<<link [[Get up|Arcology Voyage]]>><</link>>
+	<<else>>
+		<<link [[Get up|Arcology Ship Cabin]]>><<storeon "Arcology Ship Bed">><</link>>
+	<</if>>
+	<br>
+<</if>>
+
+:: Arcology Voyage Land
+<<effects>>
+<<switch $xchange.arcology.voyage.escort>>
+<<case "loyalists">>
+	They unlock the cabin door and lead you outside. The boat has stopped beside a pier at the Mer Street docks, where you can smell fish and fuel from the nearby boats.
+	<br><br>
+	One of them takes you onto the pier before handing you a folded note. They refuse to explain anything, and by the time you start opening it, they're already leaving in the boat.
+	<br><br>
+	You notice that the name written on the outside is the one you use in town, rather than your Arcology username.
+	<br><br>
+	You open the note to find only two words inside: <i>Go home.</i>
+<<default>>
+	<<if $xchange.arcology.voyage.to is "town">>
+		The ship stops some distance from the town, and you board a smaller black boat for the rest of the trip.
+		<br><br>
+		The pilot takes you towards the Mer Street docks. As you get closer, you begin to recognise the buildings near the harbour. The boat slows down beside a pier, allowing you to step onto it.
+		<br><br>
+		After spending time in Arcology, the town seems much smaller. There are no huge towers or bright lights everywhere, only the familiar streets and buildings you remember.
+	<<elseif $xchange.arcology.voyage.next is "Arcology Arrival 1">>
+		The ship stops while thick mist still covers the sea. A smaller black boat is waiting beside the boarding door, ready to take you the rest of the way.
+		<br><br>
+		You climb aboard after <<luName>>, and the pilot steers away from the ship into the mist. Whatever is waiting ahead, you can't see it yet.
+	<<else>>
+		The ship stops while thick mist still covers the sea. A smaller black boat is waiting beside the boarding door, ready to take you the rest of the way.
+		<br><br>
+		You climb aboard, and the pilot starts moving away from the ship. As the mist begins to clear, you can see Arcology in the distance.
+		<br><br>
+		The entire city is floating on a huge white base, protected by a massive transparent dome. You can see the tall buildings inside, with lights shining from their windows even at this distance.
+	<</if>>
+<</switch>>
+<br><br>
+<<link [[Next|Arcology Voyage Land 2]]>><</link>>
+<br>
+
+:: Arcology Voyage Land 2
+<<effects>>
+<<set _voyageNext to $xchange.arcology.voyage.next>>
+<<if $xchange.arcology.voyage.to is "town">>
+	<<if $xchange.arcology.implant>>
+		The holographic display at the edge of your vision begins to disappear as you leave Arcology's network. You can also feel the implant behind your ear getting cooler.
+		<br>
+	<</if>>
+	<<holoNotice "INTERFACE" "CITY NETWORK DISCONNECTED. CACHED DATA ONLY." "warn">>
+<<elseif $xchange.arcology.implant>>
+	The implant behind your ear grows warm as the city network finds you again.
+	<br>
+	<<holoNotice "INTERFACE" "CITY NETWORK CONNECTED." "ok">>
+<<elseif $xchange.arcology.voyage.next is "Arcology Arrival 1">>
+	The boat moves on through the mist, the engine turned down low.
+<<else>>
+	The boat slows beside the white pier, and the pilot waits for you to step off.
+<</if>>
+<br><br>
+<<link [[Next|_voyageNext]]>><<set $xchange.arcology.trips to ($xchange.arcology.trips or 0) + 1>><<unset $xchange.arcology.voyage, $xchange.arcology.citizen, $xchange.arcology.eventBack>><<endevent>><<set $eventskip to 1>><</link>>
+<br>

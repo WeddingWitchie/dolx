@@ -256,6 +256,8 @@
 		"colosseumBet",
 		"colosseumDebt",
 		"silverStrangerFavor",
+		/* Arcology's Unit Exchange trades at its live market price; a surcharge would make every round trip lose most of its value. */
+		"arcologyExchange",
 	];
 
 	setup.inflation.isEnabled = function () {

@@ -1,4 +1,4 @@
-/* globals SimpleAudio, Weather */
+/* globals SimpleAudio, Weather, Save, Wikifier */
 window.AmbienceAudio = (() => {
 	const weatherTracks = {
 		lightPrecipitation: ["rain", "light-precipitation"],
@@ -21,6 +21,18 @@ window.AmbienceAudio = (() => {
 	let lastLightning = -Infinity;
 	let lightningIndex = 0;
 
+	/* One AudioContext for the game: the weather filter and synthesized effects share it. */
+	function audioContext() {
+		if (!context && (window.AudioContext || window.webkitAudioContext)) {
+			context = new (window.AudioContext || window.webkitAudioContext)();
+			filter = context.createBiquadFilter();
+			filter.type = "lowpass";
+			filter.Q.value = 0.7;
+			filter.connect(context.destination);
+		}
+		return context;
+	}
+
 	function getTrack(name, folder = "rain") {
 		const key = folder ? `${folder}/${name}` : name;
 		if (!tracks.has(key)) {
@@ -28,14 +40,7 @@ window.AmbienceAudio = (() => {
 			SimpleAudio.tracks.add(id, [`audio/sfx/ambience/${folder ? folder + "/" : ""}${name}.mp3`]);
 			const track = SimpleAudio.tracks.get(id);
 			// Browsers treat file:// media as cross-origin and silence it through Web Audio.
-			if (window.location.protocol !== "file:" && (window.AudioContext || window.webkitAudioContext)) {
-				if (!context) {
-					context = new (window.AudioContext || window.webkitAudioContext)();
-					filter = context.createBiquadFilter();
-					filter.type = "lowpass";
-					filter.Q.value = 0.7;
-					filter.connect(context.destination);
-				}
+			if (window.location.protocol !== "file:" && audioContext()) {
 				context.createMediaElementSource(track.audio).connect(filter);
 			}
 			track.audio.addEventListener("timeupdate", () => {
@@ -48,13 +53,20 @@ window.AmbienceAudio = (() => {
 		return tracks.get(key);
 	}
 
+	/* How much of the outside weather reaches the player, and how muffled it is. Always worked out from scratch, so moving around never compounds it.
+	   The whole island is under Arcology's dome: its streets sound like a town interior, its buildings more muffled still. The ship keeps town rules. */
+	function surroundings() {
+		if (setup.arcology?.inCity()) return setup.arcology.isStreet() ? { gain: 0.3, cutoff: 650 } : { gain: 0.15, cutoff: 350 };
+		return V.outside ? { gain: 1, cutoff: 22000 } : { gain: 0.3, cutoff: 650 };
+	}
+
 	function volume(muffled = true) {
-		return (V.options.ambience_volume ?? 1) * (muffled && !V.outside ? 0.3 : 1);
+		return (V.options.ambience_volume ?? 1) * (muffled ? surroundings().gain : 1);
 	}
 
 	function play(track, loop, muffled = true) {
 		if (context) {
-			filter.frequency.setTargetAtTime(V.outside ? 22000 : 650, context.currentTime, 0.08);
+			filter.frequency.setTargetAtTime(surroundings().cutoff, context.currentTime, 0.08);
 			if (context.state === "suspended") {
 				context.resume().catch(() => {});
 				$(document)
@@ -88,7 +100,7 @@ window.AmbienceAudio = (() => {
 	}
 
 	function update() {
-		if (filter) filter.frequency.setTargetAtTime(V.outside ? 22000 : 650, context.currentTime, 0.08);
+		if (filter) filter.frequency.setTargetAtTime(surroundings().cutoff, context.currentTime, 0.08);
 		const wanted = new Set();
 		const enabled = V.options?.audio === 1 && (V.options.ambience_volume ?? 1) > 0 && V.location && V.location !== "banner";
 		if (enabled) {
@@ -139,6 +151,8 @@ window.AmbienceAudio = (() => {
 	}
 
 	$(document).on(":onWeatherChange.ambience", update);
+	// The previous save's theme must not inherit the loaded save's volume and keep playing; the new passage picks its own.
+	Save.onLoad.add(() => Wikifier.wikifyEval('<<bgm "stop">>'));
 
-	return { update, lightning, effect };
+	return { update, lightning, effect, context: audioContext, surroundings };
 })();
