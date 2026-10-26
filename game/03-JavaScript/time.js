@@ -2404,8 +2404,22 @@ function dailyPlayerEffects() {
 	statChange.updatePlayerTraumaState();
 
 	/* Too many orgasms in one day leave cramps the next. $daily is cleared after this runs. */
-	if (V.daily.orgasms >= 15) {
-		V.orgasmCrampMessage = V.daily.orgasms;
+	const sexSkills = [
+		"seductionskill",
+		"oralskill",
+		"chestskill",
+		"handskill",
+		"bottomskill",
+		"penileskill",
+		"vaginalskill",
+		"analskill",
+		"thighskill",
+		"feetskill",
+	];
+	// Use learned skills, so temporary skill penalties do not reduce physical tolerance.
+	const orgasmCrampThreshold = 20 + Math.floor(sexSkills.reduce((total, skill) => total + V[skill], 0) / sexSkills.length / 40);
+	if (V.daily.orgasms >= orgasmCrampThreshold) {
+		V.orgasmCrampMessage = { severe: V.daily.orgasms >= orgasmCrampThreshold + 15 };
 		V.effectsmessage = 1;
 	}
 

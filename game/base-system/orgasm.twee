@@ -2,10 +2,8 @@
 
 <<widget "orgasm">>
 	<<set $orgasmInProgress to true>>
-	<<orgasmstat>><<orgasmcount 1>>
-	/* Reduces stress relief after each orgasm in the same session.
-	Each orgasm gives less relief than the last, down to a minimum of 30%. */
-	<<set _orgasmReliefDecay to Math.max(1 - (($orgasmcount - 1) * 0.15), 0.3)>>
+	<<set _deniedOrgasm to false>>
+	<<orgasmstat>>
 	<<if $orgasmdown gt 0>><<set _continuousOrgasm to 1>><</if>>
 	<<if $player.sex is "m">>
 		<<set $orgasmdown to 1>><<set $orgasmCum to 1>>
@@ -57,6 +55,11 @@
 			<</if>>
 		<</if>>
 	<</if>>
+
+	<<orgasmcount 1 _deniedOrgasm>>
+	/* Reduces stress relief after each orgasm in the same session.
+	Each orgasm gives less relief than the last, down to a minimum of 30%. */
+	<<set _orgasmReliefDecay to Math.max(1 - (($orgasmcount - 1) * 0.15), 0.3)>>
 
 	<!-- Freed cravings: an "allow orgasm" setting let this orgasm through, but the trait's need went unmet, so it comes out hollow like a forced one. -->
 	<<if !_deniedOrgasm and !$statFreeze and !$hc and !$sexRitual and !$xchange.breakthroughOrgasm and $xchange.freedCravings?.kinds and $timeStamp - $xchange.freedCravings.at lte 600>>
@@ -1572,6 +1575,6 @@
 	<<if _args[0]>>
 		<<set $orgasmcount += _args[0]>>
 		<<set $orgasmcount = Math.clamp($orgasmcount, 0, 25)>>
-		<<if _args[0] gt 0 and !$statFreeze and !$hc>><<set $daily.orgasms = ($daily.orgasms || 0) + _args[0]>><</if>>
+		<<if _args[0] gt 0 and !_args[1] and !$statFreeze and !$hc>><<set $daily.orgasms = ($daily.orgasms || 0) + _args[0]>><</if>>
 	<</if>>
 <</widget>>

@@ -884,14 +884,15 @@ function effects() {
 		}
 
 		if (V.orgasmCrampMessage) {
-			if (V.orgasmCrampMessage >= 20) {
+			// Numeric messages may still be pending in saves from before skill scaling.
+			if (V.orgasmCrampMessage.severe || V.orgasmCrampMessage >= 20) {
 				sWikifier(`<span class="red">You climaxed far too many times yesterday. Your groin cramps and aches with every step.</span>`);
 				statChange.pain(10);
-				statChange.tiredness(300);
+				statChange.tiredness(20);
 			} else {
 				sWikifier(`<span class="red">You climaxed too many times yesterday. Your groin feels sore and crampy.</span>`);
 				statChange.pain(5);
-				statChange.tiredness(150);
+				statChange.tiredness(10);
 			}
 			delete V.orgasmCrampMessage;
 		}

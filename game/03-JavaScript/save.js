@@ -1683,7 +1683,7 @@ function settingsObjects(type) {
 					inflationOnsetPct: { min: 11, max: 30, decimals: 0, displayName: "Inflation onset (%):" },
 					inflationBadPct: { min: 28, max: 100, decimals: 0, displayName: "Inflation bad economy (%):" },
 					inflationCrisisPct: { min: 56, max: 200, decimals: 0, displayName: "Inflation crisis (%):" },
-					inflationExtremePct: { min: 113, max: 400, decimals: 0, displayName: "Inflation extreme (%):" },
+					inflationExtremePct: { min: 115, max: 400, decimals: 0, displayName: "Inflation extreme (%):" },
 					inflationParodyPct: { min: 450, max: 3000, decimals: 0, displayName: "Inflation parody spiral (%):" },
 					inflationBaileyRentPct: { min: 3, max: 300, decimals: 0, displayName: "Inflation extra rent start (%):" },
 					inflationBaileyCrisisTier: { strings: ["onset", "bad", "crisis", "extreme", "parody"], displayName: "Inflation refusal/hunt tier:" },
