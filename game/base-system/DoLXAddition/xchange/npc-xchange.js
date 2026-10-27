@@ -132,7 +132,7 @@ window.npcRepairBodyText = npcRepairBodyText;
 /**
  * Whitelist gate for pilling NPCs in combat. Generic (unnamed) enemies stay pillable as before.
  * Named NPCs are restricted:
- *   - Kylar, Robin, Sydney and Gwylan can always be pilled.
+ *   - Kylar, Robin, Sydney, Gwylan and Poppy can always be pilled.
  *   - Bailey can always be pilled, but erupts on the spot (see <<xchange-pilled-fury>>).
  *   - Whitney can only be pilled when fond and not too dominant (love >= 25, dom <= 15).
  *   - Any other named NPC cannot be pilled (they angrily slap the pill away).
@@ -154,7 +154,7 @@ function npcXchangePillable(id) {
 	if (V.statFreeze && name !== "Raul") return false;
 	const isNamed = V.NPCNameList && V.NPCNameList.includes(name);
 	if (!isNamed) return true; // generic/unnamed enemies
-	if (name === "Kylar" || name === "Robin" || name === "Sydney" || name === "Bailey" || name === "Gwylan") return true;
+	if (name === "Kylar" || name === "Robin" || name === "Sydney" || name === "Bailey" || name === "Gwylan" || name === "Poppy") return true;
 	if (name === "Whitney") {
 		const w = C.npc && C.npc.Whitney;
 		return !!w && w.love >= 25 && w.dom <= 15;

@@ -1,0 +1,455 @@
+﻿:: Widgets speech-Poppy [widget]
+<<widget "speech-poppy">>
+	<<set _npc_speech to true>>
+	<<speechPool "Poppy" "noMouthAction">>
+	<<set _virginityTarget to _args[0] or "Poppy">>
+	<<set _poppy to statusCheck("Poppy")>>
+	<<set _neckName to "">>
+	<<set _poppyStatus to T.poppyStatus or "">>
+	<<set _poppyLover to Number($poppyromance) gte 0>>
+	<<set _poppyBreeding to $settings.pregnancySpeechEnabled and (playerCanBreedWith("Poppy") or NPCPregnancyPossibleWithPlayer("Poppy"))>>
+	<<set _poppyPenisSize to 0>>
+	<<if $NPCList[_n] and $NPCList[_n].penissize isnot undefined>>
+		<<set _poppyPenisSize to $NPCList[_n].penissize>>
+	<</if>>
+	<<set _poppySpeech to "">>
+
+	<<if $worn.neck and $worn.neck.name>>
+		<<set _neckName to $worn.neck.name>>
+	<</if>>
+
+	<<if $speechpillreveal is 1>>
+		<<addSpeechLine "reveal">>
+		<<set $speechpillreveal to 0>>
+		<<set _poppySpeech to either(
+			`Poppy's eyes go to the X-Change $xchangePillWord in your hand. "And what are you planning to do with that, my jewel?"`,
+			`<<He>> eyes your X-Change $xchangePillWord, then you. "You could have just asked. I might even have said yes."`,
+			`Poppy laughs under <<his>> breath. "You brought a pill to bed? You really do plan for everything."`
+		)>>
+		<<print _poppySpeech>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if $speechpill is "herm">>
+		<<addSpeechLine "reveal">>
+		<<set $speechpill to 0>>
+		<<set _poppySpeech to either(
+			`Poppy looks down at <<himself>> and blinks. "Both? Well. That's going to take some getting used to."`,
+			`<<He>> runs a hand down <<his>> new body, <<his>> tail swishing. "You couldn't pick one, so you gave me both? Greedy."`,
+			`Poppy lets out a shaky laugh. "If anyone at the soup kitchen asks, this was your idea."`
+		)>>
+		<<print _poppySpeech>>
+		<<npcincr Poppy lust 5>><<glust>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if $speechpill is 1>>
+		<<addSpeechLine "reveal">>
+		<<set $speechpill to 0>>
+		<<set _poppySpeech to either(
+			`Poppy stares at <<his>> changed body for a moment, then grins at you. "So this is how you like me. I'll remember that."`,
+			`<<He>> flexes <<his>> fingers and tests <<his>> new weight. "Hm. Not bad. You'll have to show me how everything works."`,
+			`Poppy's tail curls around your leg. "You could have warned me first, darling. Now you have to take responsibility."`
+		)>>
+		<<print _poppySpeech>>
+		<<npcincr Poppy lust 5>><<glust>>
+		<</addSpeechLine>>
+	<</if>>
+
+	<<if ($speechPenisVirgin is 1 and $player.virginity.penile is _virginityTarget) or ($speechVaginaVirgin is 1 and $player.virginity.vaginal is _virginityTarget)>>
+		<<addSpeechLine "virginity">>
+		<<if _poppyPenisSize gte 5 and $speechVaginaVirgin is 1>>
+			<<set _poppySpeech to either(
+				`<<He>> stops, stroking your hair until your breathing slows. "Your first time, and with me of all people. Slowly, my jewel. We have all night."`,
+				`Poppy holds still and kisses your forehead. "Breathe. I'm not going anywhere, and neither are you."`
+			)>>
+		<<else>>
+			<<set _poppySpeech to either(
+				`<<He>> gasps, then grins. "Saving yourself for me? I'm flattered, darling."`,
+				`Poppy goes still. "You never said... I'd have lit candles, you know."`,
+				`<<He>> laughs softly against your neck. "My first everything was a mess. I'm glad yours is with someone who cares."`
+			)>>
+		<</if>>
+		<<print _poppySpeech>>
+		<<npcincr Poppy lust 3>><<gglust>>
+		<<if _poppy and _poppy.love gte 40>>
+			<<npcincr Poppy love 5>><<gglove>>
+		<</if>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if $speechAnusVirgin is 1 and $player.virginity.anal is _virginityTarget>>
+		<<addSpeechLine "virginity">>
+		<<set _poppySpeech to either(
+			`<<He>> shivers, smiling like <<hes>> trying not to look too pleased. "You're full of surprises, my jewel."`,
+			`Poppy rubs slow circles into your hip. "Relax for me. Tensing up only makes it harder."`,
+			`<<He>> leans over you, <<his>> tail brushing your back. "Tell me if it's too much. I mean it."`
+		)>>
+		<<print _poppySpeech>>
+		<<npcincr Poppy lust 2>><<gglust>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if $speechOralVirgin is 1 and $player.virginity.oral is _virginityTarget>>
+		<<addSpeechLine "virginity">>
+		<<set _poppySpeech to either(
+			`<<He>> strokes your cheek with <<his>> thumb. "Good. Keep going. You look lovely like this."`,
+			`Poppy brushes your hair out of your face. "Take your time. Nobody's grading you."`
+		)>>
+		<<print _poppySpeech>>
+		<<npcincr Poppy lust 2>><<gglust>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if $speechKissVirgin is 1 and $player.virginity.kiss is _virginityTarget>>
+		<<addSpeechLine "virginity">>
+		<<set _poppySpeech to either(
+			`<<He>> blinks, then laughs softly. "Your first kiss too? Now you're making me feel possessive."`,
+			`Poppy touches your lips with a fingertip. "That was your first? Then I'd better make the next one worth it."`
+		)>>
+		<<print _poppySpeech>>
+		<<npcincr Poppy love 3>><<gglove>>
+		<</addSpeechLine>>
+	<</if>>
+
+	<<if $speechHermAroused is 1>>
+		<<addSpeechLine "reveal">>
+		<<set _poppySpeech to either(
+			`Poppy's eyebrows rise. "Both? Oh, you've been keeping secrets from me."`,
+			`<<He>> looks you over with open interest. "Well. That gives me a lot more to play with."`
+		)>>
+		<<print _poppySpeech>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if $speechCrossdressAroused is 1>>
+		<<addSpeechLine "reveal">>
+		<<set _poppySpeech to either(
+			`Poppy pauses, then smiles. "Not what I expected under there. I'm not complaining."`,
+			`<<He>> tilts <<his>> head. "You dress beautifully. Did you think I'd mind what's underneath?"`
+		)>>
+		<<print _poppySpeech>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if $speechCrossdressDisappointed is 1>>
+		<<addSpeechLine "reveal">>
+		<<set _poppySpeech to either(
+			`Poppy blinks, then shrugs. "Oh. Well, I was hoping for something else, but you're still you."`,
+			`<<He>> hums. "Not what I expected. I'll adjust. I always do."`
+		)>>
+		<<print _poppySpeech>>
+		<</addSpeechLine>>
+	<</if>>
+
+	<<if $speechLINameDrop is 1>>
+		<<addSpeechLine "namedrop">>
+		<<set $speechLINameDrop to 0>>
+		<<switch _loveInterest>>
+			<<case "Whitney">>
+				<<He>> narrows <<his>> eyes. "Whitney? Seriously? That's who you're thinking about?"<<npcincr Poppy patience -1>><<lpatience>>
+			<<case "Gwylan">>
+				<<He>> makes a face. "That collar-witch? Hm. I suppose <<nnpc_hes "Gwylan">> got decent taste."
+			<<case "Robin">>
+				<<He>> hums, though <<his>> smile tightens. "Robin seems sweet. Still, I'd rather you say my name."
+			<<case "Kylar">>
+				<<He>> stiffens. "Kylar. Right. Let's not talk about that person while you're with me."<<npcincr Poppy lust -15>><<lllust>><<npcincr Poppy patience -1>><<lpatience>>
+			<<case "Avery">>
+				<<He>> gives a small, sharp laugh. "Avery? Careful, jewel. I might start feeling competitive."<<npcincr Poppy lust 2>><<gglust>>
+			<<case "Eden">>
+				<<He>> tilts <<his>> head. "Eden? You do find trouble in the strangest places."
+			<<case "Bailey">>
+				<<set _poppySpeech to either(
+					`<<He>> stops moving entirely. "You're in my bed and you're saying Bailey's name? <<nnpc_He "Bailey">> looked after me when nobody else would. Don't you dare turn <<nnpc_him "Bailey">> into a bedroom joke."`,
+					`Poppy's smile drops. "Bailey. Really." <<He>> grips your chin. "Leave <<nnpc_him "Bailey">> out of this. <<nnpc_He "Bailey">> has done more for me than you know, and I won't have you mocking <<nnpc_him "Bailey">> while you're with me."`,
+					`<<He>> pulls back to stare at you. "Say that name like that again and you're the one I'm cross with."`
+				)>>
+				<<print _poppySpeech>><<npcincr Poppy lust -15>><<lllust>><<npcincr Poppy patience -2>><<lpatience>>
+			<<case "Sydney">>
+				<<He>> smiles a little sadly. "Little Sydney? I was like <<nnpc_him "Sydney">> once. Be gentle with <<nnpc_him "Sydney">>."
+			<<case "Black Wolf" "Great Hawk">>
+				<<He>> wrinkles <<his>> nose. "I'm already part animal, darling. Isn't that enough for you?"
+			<<default>>
+				<<He>> presses closer. "Whoever you're thinking about, stop. Stay here with me, my jewel."
+		<</switch>>
+		<</addSpeechLine>>
+	<</if>>
+
+	<<if $speechNoticeSexToy is 1>>
+		<<addSpeechLine "sexToy">>
+		<<set $speechNoticeSexToy to 0>>
+		<<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "sex toys" : "sex toy")>>
+		<<set _poppySpeech to either(
+			`<<He>> eyes your $_sexToy and smiles. "Using toys too? You're really trying to spoil me."`,
+			`Poppy plucks at your $_sexToy with a finger. "Did you clean that? I'm asking because I care."`,
+			`<<He>> laughs. "You brought backup. Should I be insulted or impressed?"`
+		)>>
+		<<print _poppySpeech>>
+		<<npcincr Poppy lust 2>><<gglust>>
+		<</addSpeechLine>>
+	<</if>>
+
+	<<if $speechcondomremoved>>
+		<<addSpeechLine "condomRemoved">>
+		<<if _poppyBreeding>>
+			<<set _poppySpeech to either(
+				`Poppy watches you toss the condom aside and goes very quiet. "You know what could happen. Are you sure, my jewel?"`,
+				`<<He>> hesitates, then grins. "No condom? You're either very brave or very silly. I like both."`,
+				`<<He>> catches your chin. "If you end up with kits, I'm not letting you raise them alone. You know that, right?"`
+			)>>
+		<<else>>
+			<<set _poppySpeech to either(
+				`Poppy raises an eyebrow as the condom hits the floor. "Impatient, aren't we?"`,
+				`<<He>> laughs. "Fine, fine. Nothing between us. Happy now?"`,
+				`<<He>> watches it go and shakes <<his>> head with a smile. "I'll find that under the bed in a week."`
+			)>>
+		<</if>>
+		<<print _poppySpeech>>
+		<<if $speechcondomremoved is "sabotaged">>
+			<span class="blue"><<He>> says nothing about the condom already being damaged.</span>
+		<</if>>
+		<<npcincr Poppy lust 5>><<gglust>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if $speechLegLock is 1>>
+		<<addSpeechLine "legLock">>
+		<<if _poppyBreeding>>
+			<<set _poppySpeech to either(
+				`Poppy's breath hitches as your legs lock around <<him>>. "If you hold me like that, I'm not pulling out."`,
+				`<<He>> laughs breathlessly. "Trapped by my own jewel. You really want to keep me inside, don't you?"`
+			)>>
+		<<else>>
+			<<set _poppySpeech to either(
+				`Poppy grins as your legs close around <<him>>. "Caught. I wasn't going anywhere anyway."`,
+				`<<He>> leans into your hold. "Clingy tonight. I don't mind."`
+			)>>
+		<</if>>
+		<<print _poppySpeech>>
+		<<npcincr Poppy lust 5>><<gglust>>
+		<</addSpeechLine>>
+	<</if>>
+
+	<<if $speechscratch is 1>>
+		<<addSpeechLine "playerHits">>
+		<<set $speechscratch to 0>>
+		<<if _poppyLover>>
+			<<set _poppySpeech to either(
+				`Poppy hisses at the scratch, then laughs. "Claws, darling? Fine, but I'm making you put the cream on later."`,
+				`<<He>> looks at the red lines on <<his>> arm. "I have to wear short sleeves at the kitchen tomorrow, you know."`
+			)>>
+			<<npcincr Poppy lust 3>><<glust>>
+		<<else>>
+			<<set _poppySpeech to either(
+				`Poppy jerks back from the scratch. "Don't. I've had enough of being clawed at."`,
+				`<<He>> catches your wrist. "Easy. I know what it's like to be hunted. Don't make me feel like that here."`
+			)>>
+			<<npcincr Poppy patience -1>><<lpatience>>
+		<</if>>
+		<<print _poppySpeech>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if $speechPlayerHits is 1>>
+		<<addSpeechLine "playerHits">>
+		<<set $speechPlayerHits to 0>>
+		<<set _poppySpeech to either(
+			`Poppy rubs the spot you hit. "Ow. If you wanted me to stop, words work too."`,
+			`<<He>> blinks at you, more hurt than angry. "Did I do something wrong?"`
+		)>>
+		<<print _poppySpeech>>
+		<<npcincr Poppy patience -1>><<lpatience>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if $speechAskRough is 1>>
+		<<addSpeechLine "askRough">>
+		<<set $speechAskRough to 0>>
+		<<set _poppySpeech to either(
+			`Poppy laughs. "Rougher? You're sure? I've been holding back for your sake."`,
+			`<<He>> tightens <<his>> grip on your hips. "Since you asked so nicely."`,
+			`<<His>> eyes narrow playfully. "Don't come crying to me tomorrow when you can't sit."`
+		)>>
+		<<print _poppySpeech>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if $speechPlead is 1 and $consensual is 1>>
+		<<addSpeechLine "plead">>
+		<<set _poppySpeech to either(
+			`Poppy slows down at once. "Too much? All right. Tell me what you need."`,
+			`<<He>> stills and cups your face. "Hey, hey. I'm listening."`
+		)>>
+		<<print _poppySpeech>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if $speechMoan is 1 and random(1, 2) is 1>>
+		<<addSpeechLine "moan">>
+		<<set _poppySpeech to either(
+			`Poppy grins. "Louder. The neighbours already know about us."`,
+			`<<He>> nips your ear. "Say that again. I like hearing it."`,
+			`Poppy's tail thumps against the sheets. "You're going to make me forget my own name."`
+		)>>
+		<<print _poppySpeech>>
+		<</addSpeechLine>>
+	<</if>>
+
+	<<if $combatgoal is "strip" and $rng lte 25>>
+		<<addSpeechLine "strip">>
+		<<set _poppySpeech to either(
+			`Poppy tugs at your clothes. "These are cute, but they're in the way."`,
+			`<<He>> folds your clothes over <<his>> arm out of habit. "There. Now I can see you properly."`,
+			`Poppy works a button loose. "Hold still. I'm not tearing this. I'd only have to mend it."`
+		)>>
+		<<print _poppySpeech>>
+		<</addSpeechLine>>
+	<</if>>
+
+	<<if $speechExposeGenitals is 1 and playerChastity()>>
+		<<addSpeechLine "expose">>
+		<<set _poppySpeech to either(
+			`Poppy frowns at your <<printChastity>>. "Who put you in that? If it was Bailey, I want to know."`,
+			`<<He>> taps your <<printChastity>>. "This doesn't look like your idea. Do you want it off?"`
+		)>>
+		<<print _poppySpeech>>
+		<</addSpeechLine>>
+	<</if>>
+
+	<<if !($speechSaidLines?.Poppy or []).some(entry => entry.category is "chastity") and $worn.neck and ($worn.neck.collared is 1 or _neckName is "familiar collar" or _neckName.includes("Whitney's collar"))>>
+		<<addSpeechLine "chastity">>
+
+			<<if _neckName.includes("Whitney's collar")>>
+				<<if typeof $poppyromance is "number" and $poppyromance gte 0>>
+					<<He>> notices the collar you're wearing and makes a weird expression. "Whitney's... toy?" <<He>> asks with judgement in <<his>> tone. "Seriously..."
+					<br><br>
+					Poppy sticks <<his>> hand into <<his>> pocket and pulls out a pocket knife. With a flick of <<his>> wrist, the collar is cut through.
+					<br><br>
+					<<He>> yanks the collar off and stuffs it into <<his>> pocket. "Never wear that again, you hear me?"
+					<<run V.worn.neck = clone(setup.clothes.neck.find(c => c.name === "naked") || setup.clothes.neck[0])>>
+					<<npcincr Poppy patience -2>><<lpatience>>
+				<<else>>
+					<<He>> notices the collar you're wearing and makes a weird expression. "Whitney's... toy?" <<He>> asks with judgement in <<his>> tone. "I didn't know you were into that sort of thing, or that close to that... delinquent. Whatever makes you happy, I suppose."
+					<br><br>
+					Poppy sticks <<his>> hand into <<his>> pocket and pulls out a pocket knife. With a flick of <<his>> wrist, the collar is cut through. <<He>> yanks the collar off and stuffs it into <<his>> pocket. "Never wear that again, you hear me?"
+					<<run V.worn.neck = clone(setup.clothes.neck.find(c => c.name === "naked") || setup.clothes.neck[0])>>
+					<<npcincr Poppy patience -2>><<lpatience>>
+				<</if>>
+
+			<<elseif _poppyStatus.includes("LowPatience")>>
+				<<He>> glares at the collar on your neck, clearly bothered by it. <<He>> grits <<his>> teeth and clenches <<his>> fists, as if ready to lash out, though it never comes.
+				<br>
+				Poppy rolls <<his>> eyes with a scoff and looks away.
+				<<npcincr Poppy patience -6>>
+				<<if C.npc.Poppy and C.npc.Poppy.patience gte 0>>
+					<<lllpatience>>
+				<<else>>
+					<<ggganger>>
+				<</if>>
+
+			<<elseif _neckName is "familiar collar">>
+				<<if typeof $poppyromance is "number" and $poppyromance gte 0>>
+					<<He>> notices the familiar collar you're wearing. "That collar you're wearing... could you tell Gwylan to remove it when you visit? That'd make me happy."<<npcincr Poppy patience -2>><<lpatience>>
+				<<else>>
+					<<He>> notices the familiar collar you're wearing. "Oh! You're Gwylan's? I'm happy for you. I've crossed paths with <<nnpc_him "Gwylan">> before. <<nnpc_Hes "Gwylan">> nice enough."
+				<</if>>
+
+			<<else>>
+				<<He>> notices the collar you're wearing and makes a weird expression. "I didn't know you were into that sort of thing." <<He>> manages to smile, albeit awkwardly.
+			<</if>>
+
+		<</addSpeechLine>>
+	<</if>>
+
+	<<if $speechMouthPenetrated is 1 and random(1, 3) is 1>>
+		<<addSpeechLine "oral">>
+		<<if _poppyPenisSize gte 5>>
+			<<set _poppySpeech to either(
+				`Poppy's hand settles in your hair, not pushing. "Don't force it. Breathe through your nose."`,
+				`<<He>> watches you with a worried little frown. "Too much? You can stop whenever you like."`
+			)>>
+		<<else>>
+			<<set _poppySpeech to either(
+				`Poppy sighs and leans back. "Mm. You're getting good at this."`,
+				`<<He>> runs <<his>> fingers through your hair. "Look up at me. There, that's the face I wanted."`,
+				`Poppy's tail sways lazily. "No rush, my jewel. I'm enjoying the view."`
+			)>>
+		<</if>>
+		<<print _poppySpeech>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if ($speechVaginaPenetrated is 1 or $speechAnusPenetrated is 1) and random(1, 3) is 1>>
+		<<addSpeechLine "penetrated">>
+		<<if _poppyPenisSize gte 5>>
+			<<set _poppySpeech to either(
+				`Poppy holds still to let you adjust. "I know. I know. Just breathe."`,
+				`<<He>> kisses your shoulder. "You're taking me so well. Slowly, now."`
+			)>>
+		<<elseif _poppyBreeding>>
+			<<set _poppySpeech to either(
+				`Poppy presses <<his>> forehead to yours. "Keep going like this and you know what'll happen."`,
+				`<<He>> laughs into your neck. "Think we'd make a good family? Don't answer that yet."`
+			)>>
+		<<else>>
+			<<set _poppySpeech to either(
+				`Poppy's breath catches. "You feel wonderful. Don't you dare stop."`,
+				`<<He>> brushes a strand of hair from your face. "There you are. I've been waiting all day for this."`,
+				`Poppy grins. "Bailey would be furious if <<nnpc_he "Bailey">> knew where I was right now."`
+			)>>
+		<</if>>
+		<<print _poppySpeech>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if ($speechHandjobPenis is 1 or $speechHandjobVagina is 1) and random(1, 3) is 1>>
+		<<addSpeechLine "touch">>
+		<<set _poppySpeech to either(
+			`Poppy hums. "Warm hands. Keep them there."`,
+			`<<He>> catches your hand and guides it. "A little slower. There."`,
+			`Poppy squirms. "You know exactly where I'm ticklish, don't you."`
+		)>>
+		<<print _poppySpeech>>
+		<</addSpeechLine>>
+	<</if>>
+	<<if $speechPlayerOrgasm is 1 and random(1, 2) is 1>>
+		<<addSpeechLine "playerOrgasm">>
+		<<set _poppySpeech to either(
+			`Poppy kisses your damp forehead. "There. Didn't that feel nice?"`,
+			`<<He>> laughs softly as you shake. "Look at you. My jewel, all undone."`,
+			`Poppy strokes your back while you come down. "Take your time. I've got you."`
+		)>>
+		<<print _poppySpeech>>
+		<</addSpeechLine>>
+	<</if>>
+
+	<<if _silent isnot 1>>
+		<<addSpeechLine "idle">>
+			<<set $poppysexcycle to $poppysexcycle or 0>>
+			<<switch $poppysexcycle>>
+				<<case 0>>
+					"I love doing this with you. You feel so good," <<he>> murmurs.
+				<<case 1>>
+					"The noises you make are adorable," <<he>> says, grinning.
+				<<case 2>>
+					"Did I find your sweet spot, darling?" <<he>> asks.
+				<<case 3>>
+					"We could keep going until morning," <<he>> says, breathless and amused.
+				<<case 4>>
+					<<if !$settings.pregnancySpeechEnabled>>
+						"I could get used to waking up next to you," <<he>> says.
+					<<elseif $awarelevel gte 5>>
+						"If we have kits, I hope they're as cute as you," <<he>> says.
+					<<else>>
+						"If we have babies, I hope they're as cute as you," <<he>> says.
+					<</if>>
+				<<case 5>>
+					"Stay close, my jewel. I want to feel every little reaction," <<he>> whispers.
+				<<case 6>>
+					"You smell like my perfume now," <<he>> says, nosing at your neck. "Good."
+				<<case 7>>
+					"Nobody's asking me for anything right now," <<he>> sighs. "Except you. I don't mind you."
+				<<case 8>>
+					"I used to think this was a sin," <<he>> says with a crooked smile. "I don't regret falling."
+				<<case 9>>
+					"Don't tell anyone at the kitchen about this," <<he>> says. "They'd never let me hear the end of it."
+				<<case 10>>
+					"My tail's going everywhere. Ignore it," <<he>> laughs.
+				<<default>>
+					"I don't want this to stop," <<he>> breathes.
+			<</switch>>
+			<<set $poppysexcycle to ($poppysexcycle + 1) % 12>>
+		<</addSpeechLine>>
+	<<else>>
+		<<addSpeechLine "idle">>
+			Ah... ngh! <<he>> gasps.
+		<</addSpeechLine>>
+	<</if>>
+	<<speechSay>>
+<</widget>>

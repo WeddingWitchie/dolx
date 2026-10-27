@@ -87,6 +87,9 @@
 	<<include "Poppy Show Ultrasound">>
 <<elseif playerAwareTheyArePregnant() and !knowsAboutPregnancy("pc", "Poppy") and playerBellySize() gte 7 and $poppyFlat.home and $poppyFlat.room is "living_room" and $weekly.flatBumpNoticedDay isnot Time.days>>
 	<<include "Poppy Notice Bump">>
+<<elseif npcIsXChanged("Poppy") and C.npc.Poppy.xchange and (C.npc.Poppy.xchange.genderflipEffect or C.npc.Poppy.xchange.hermEffect or C.npc.Poppy.xchange.genderificationEffect) and !$daily.poppyPilledFlat and $poppyFlat.home and $poppyFlat.room is "living_room" and random(1, 3) is 1>>
+	<<set $daily.poppyPilledFlat to true>>
+	<<include "Flats Poppy Pilled">>
 <<elseif $xchange.blackmail.courier is "poppy" and !$xchange.blackmail.courierAfk and $xchange.blackmail.hasMaterial and $xchange.blackmail.cooldown lte 0 and !$xchange.blackmail.activeQuest and !$xchange.blackmail.conclusionPending and $poppyFlat.home and $poppyFlat.room is "living_room" and Time.dayState isnot "night" and !$possessed>>
 	<<include "Blackmail Poppy Delivery">>
 <<elseif $xchange.blackmail.courier is "poppy" and $xchange.blackmail.courierAfk and $xchange.blackmail.hasMaterial and $xchange.blackmail.cooldown lte 0 and !$xchange.blackmail.activeQuest>>
@@ -1914,3 +1917,33 @@ You wake up to find yourself on the couch in Poppy's living room. You don't reme
 	<br><br>
 	<<link [[Next|Rent Intro]]>><<set $phase to 0>><<endevent "phaseless">><</link>>
 <</if>>
+
+/* While Poppy is under a body-changing X-Change pill. At most once a day, from the living room. */
+:: Flats Poppy Pilled
+<<endevent "phaseless">><<npc "Poppy">><<person1>><<run markPoppyInteraction()>>
+<<switch random(1, 3)>>
+	<<case 1>>
+		Poppy steps out of the bedroom in one of <<his>> old outfits. It doesn't sit right anywhere. <<He>> tugs at the hem, turns sideways, and sighs.
+		<br><br>
+		<<He>> catches you staring. "Don't look so innocent. You did this, so you're coming shopping with me." <<He>> plucks at a seam. "And you're carrying the bags."
+	<<case 2>>
+		Poppy is sitting on the couch with a row of perfume vials on the coffee table, sniffing <<his>> own wrist with a frown.
+		<br><br>
+		"It's wrong," <<he>> says, holding the wrist out for you. "Same blend I've worn for years, and it smells completely different on this skin. Here, tell me I'm not imagining it."
+		<br><br>
+		You lean in. <<He>> isn't imagining it. Poppy reads it on your face and laughs. "I'll have to start from scratch. Fine. It's an excuse to make something new."
+	<<case 3>>
+		Poppy is curled up on the couch, tail draped over <<his>> legs, poking at <<his>> own body like it's a puzzle.
+		<br><br>
+		<<if C.npc.Poppy.xchange.hermEffect>>
+			"Everything's still here," <<he>> says without looking up, "and then some. I keep forgetting the extra part until I sit down wrong."
+		<<else>>
+			"Nobody at the soup kitchen recognised me," <<he>> says without looking up. "One of them asked if I was Poppy's sibling."
+		<</if>>
+		<br><br>
+		<<He>> pats the cushion beside <<him>>. "Sit. If I have to get used to this, you have to keep me company while I do."
+<</switch>>
+<br><br>
+<<poppyOpiumPulse>>
+<<link [[Next|Flats Poppy Living Room]]>><</link>>
+<br>
