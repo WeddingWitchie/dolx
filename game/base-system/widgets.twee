@@ -3631,7 +3631,8 @@
 <</widget>>
 
 <<widget "rentday">>
-	<<set $_text_output to ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][$rentDay-1]>>
+	<<set _rentDay to ((Time.weekDay - 1 + $rentTime) % 7 + 7) % 7>>
+	<<set $_text_output to ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][_rentDay]>>
 	<<print $_text_output>>
 <</widget>>
 
@@ -5808,7 +5809,7 @@
 <<widget "cheatStart">>
 	<<set $cheatsEnabled to true>><<money 500000 "debug">>
 	<<set $rentMoney to 10000>><<rentmod>>
-	<<set $rentTime to 7>><<set $rentDay to Time.weekDay>>
+	<<set $rentTime to 7>>
 	<<set $rentStage to 1>>
 <</widget>>
 
@@ -6781,10 +6782,11 @@
 	<<set $mathsprojectwon to 0>>
 	<<set $englishPlayWell to 0>>
 
-	<<unset $prof.spray>>
-	<<unset $prof.net  >>
-	<<unset $prof.baton>>
-	<<unset $prof.whip >>
+	<<unset $prof.spray  >>
+	<<unset $prof.net    >>
+	<<unset $prof.baton  >>
+	<<unset $prof.whip   >>
+	<<unset $prof.pickaxe>>
 
 	<<set Skin.color.natural to "light">>
 	<<set Skin.color.tan to 0>>
@@ -6875,11 +6877,13 @@
 		/* Clears old traps if needed */
 		<<if $rentThug.traps.length gte 4>><<set $rentThug.traps.deleteAt([0])>><</if>>
 
-		<<if _refreshTrap>>
-			<span class="blue"><i>Bailey's thugs are now actively looking for you on <<print _location.toUpperFirst()>> Street. You probably shouldn't return here for some time.</i></span>
-		<<else>>
-			<span class="blue"><i>Since you were seen by Bailey's thugs on <<print _location.toUpperFirst()>> Street, they are likely to be looking for you around here for some time.</i></span>
+		<<if !$settings.blindStatsEnabled>>
+			<<if _refreshTrap>>
+				<span class="blue"><i>Bailey's thugs are now actively looking for you on <<print _location.toUpperFirst()>> Street. You probably shouldn't return here for some time.</i></span>
+			<<else>>
+				<span class="blue"><i>Since you were seen by Bailey's thugs on <<print _location.toUpperFirst()>> Street, they are likely to be looking for you around here for some time.</i></span>
+			<</if>>
+			<br><br>
 		<</if>>
-		<br><br>
 	<</if>>
 <</widget>>

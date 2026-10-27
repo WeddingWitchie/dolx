@@ -1,4 +1,4 @@
-/* global V T Time statChange npcPregnancyRoll inseminate conceiveNow availablePlayerPregnancySlot orificeHasParasites getActivePregnancies */
+/* global V Time statChange npcPregnancyRoll inseminate conceiveNow availablePlayerPregnancySlot orificeHasParasites getActivePregnancies */
 /**
  * Force an impregnation of the NPC in a slot, skipping the conception roll.
  * The record is tagged so randomPregnancyProgress clears it at term instead of sending the child to Bailey.
@@ -9,13 +9,7 @@
 window.colosseumBreedNpc = function (slot) {
 	const npc = V.NPCList[slot];
 	if (!npc?.fullDescription) return false;
-	T.npcForceImpregnation = true;
-	let pregnancyId;
-	try {
-		pregnancyId = npcPregnancyRoll(npc.fullDescription, npc.type, "pc", "human", "vagina", "deep", V.location, 1, slot);
-	} finally {
-		T.npcForceImpregnation = false;
-	}
+	const pregnancyId = npcPregnancyRoll(npc.fullDescription, npc.type, "pc", "human", "vagina", "deep", V.location, 1, slot, true);
 	if (!Number.isInteger(pregnancyId) || !V.pregnancies[pregnancyId]) return false;
 	V.pregnancies[pregnancyId].colosseum = 1;
 	V.xchange.colosseum.sired = (V.xchange.colosseum.sired ?? 0) + 1;

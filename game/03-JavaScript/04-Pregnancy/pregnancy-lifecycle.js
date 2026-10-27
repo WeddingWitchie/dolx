@@ -9,16 +9,17 @@
  * @param {"vagina"|"anus"} [orifice="vagina"] which orifice conceives
  * @param {TrackedNpc[]} [trackedNPCs] multiple donors when paternity is uncertain
  * @param {boolean} [awareOf=false] whether the player knows they are pregnant
+ * @param {number} [litterSize] how many children the pregnancy has, rolled randomly when left out
  * @returns {boolean} true if a pregnancy was created
  */
-function playerPregnancy(npc, npcType, donorKnown = false, orifice = "vagina", trackedNPCs, awareOf = false) {
+function playerPregnancy(npc, npcType, donorKnown = false, orifice = "vagina", trackedNPCs, awareOf = false, litterSize) {
 	if (!playerSpeciesPregnancyEnabled(npcType)) return false; // species disabled in settings, or a species that can't conceive
 	// Parasites block the orifice. Reject direct conception attempts here too.
 	if (orificeHasParasites(orifice)) return false;
 	const womb = orifice === "vagina" && playerHasBetaWombs() && getActivePregnancy("pc", "vagina", 1) ? 2 : 1;
 	if (orifice === "vagina" && getActivePregnancy("pc", "vagina", womb)) return false;
 	const donors = trackedNPCs ? trackedNPCs.map(t => ({ name: t.source, species: t.type })) : [{ name: npc, species: npcType }];
-	const pregnancyId = createPregnancy("pc", "human", npc, npcType, donors, Time.date.timeStamp, orifice, V.location, womb);
+	const pregnancyId = createPregnancy("pc", "human", npc, npcType, donors, Time.date.timeStamp, orifice, V.location, womb, litterSize);
 	if (awareOf) setKnowsPregnancy(pregnancyId, "pc"); // this pregnancy only, not every active one
 	if (donorKnown) setKnowsDonor(pregnancyId, "pc");
 	return true;
@@ -215,9 +216,9 @@ function endPlayerPregnancy(birthLocation, location) {
 
 	birthRecordedLitter(pregnancy.pregnancyId, birthLocation, location);
 
-	// Record the birth on the player's per-orifice body stats. These drive the hymen and
-	// vaginal-looseness lines, recovery, and the anal pregnancy gate. Kept off records on purpose bc
-	// Virginity-restoration events (schism, scarlet) reset them to 0
+	// Record the birth on the player's per-orifice body stats, affects hymen and
+	// vaginal-looseness lines, recovery, and the anal pregnancy gate. They need to live here and not on the records
+	// because virginity-restoration events (Schism, Scarlet) reset them to 0.
 	const bodyStats = V.sexStats[pregnancy.orifice].pregnancy;
 	bodyStats.totalBirthEvents += 1;
 	bodyStats.givenBirth += getChildrenOf(pregnancy.pregnancyId).length;
@@ -449,9 +450,7 @@ window.endNpcPregnancyTest = endNpcPregnancyTest;
 
 /**
  * Copies a generated NPC out of their $NPCList slot into $storedNPCs, keyed by the given name and the
- * lowest free number after it ("pregnancy_#"). Twee callers read the key back from _lastStoredName.
- *
- * `<<storeNPC $penistarget "pregnancy">>`
+ * lowest free number after it ("pregnancy_#").
  *
  * @param {number} slot the $NPCList index to store
  * @param {string} name what to store them under
@@ -490,11 +489,9 @@ function storeNPC(slot, name) {
 			vagina: npc.vagina,
 		},
 	};
-	T.lastStoredName = key;
 	return key;
 }
 window.storeNPC = storeNPC;
-DefineMacro("storeNPC", storeNPC);
 
 /**
  * Ages every stored NPC's records pregnancy.

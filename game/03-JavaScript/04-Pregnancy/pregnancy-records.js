@@ -85,9 +85,10 @@ window.pushChildRecord = pushChildRecord;
  * @param {"vagina"|"anus"} orifice which orifice the pregnancy is in
  * @param {string} conceivedLocation where the conception happened
  * @param {1|2} [womb=1] which vaginal womb carries a PC pregnancy; ignored for other carriers/orifices
+ * @param {number} [litterSize] how many children the pregnancy has, rolled randomly when left out
  * @returns {number} the new pregnancyId
  */
-function createPregnancy(carrier, carrierSpecies, donor, donorSpecies, possibleDonors, conceivedDate, orifice, conceivedLocation, womb = 1) {
+function createPregnancy(carrier, carrierSpecies, donor, donorSpecies, possibleDonors, conceivedDate, orifice, conceivedLocation, womb = 1, litterSize) {
 	// layCare brings laying time down and hatchDelay brings hatching time down.
 	// addEggCare feeds whichever stage the clutch is currently in.
 	const isEggClutch = donorSpecies === "hawk" || donorSpecies === "harpy";
@@ -107,7 +108,7 @@ function createPregnancy(carrier, carrierSpecies, donor, donorSpecies, possibleD
 		layCare,
 		gestationVariance: 1 + random(-PregnancyConstants.gestation.variancePercent, PregnancyConstants.gestation.variancePercent) / 100,
 	});
-	generateChildren(pregnancyId);
+	generateChildren(pregnancyId, litterSize);
 	// A PC pregnancy pauses the menstrual cycle. Normally it also voids every other pending
 	// conception. Beta's second womb is the sole exception, and keeps its own pending slot.
 	if (carrier === "pc") {

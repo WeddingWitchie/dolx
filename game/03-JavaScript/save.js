@@ -1607,7 +1607,7 @@ function settingsObjects(type) {
 					maleChanceSplit: { bool: true, displayName: "NPC attraction split by gender appearance:" },
 					incompletePregnancyEnabled: { bool: true, displayName: "Incomplete pregnancy content:" },
 					npcPregnancyEnabled: { bool: true, displayName: "Generic NPC pregnancy:" },
-					nnpcPregnancyEnabled: { bool: true, displayName: "NNPC/LI pregnancy:" },
+					nnpcPregnancyEnabled: { bool: true, displayName: "NNPC pregnancy:" },
 					analPregnancy: { strings: [false, "exceptional", "always"], displayName: "PC anal pregnancy:" },
 					npcAnalPregnancyEnabled: { bool: true, displayName: "NPC anal pregnancy:" },
 					maleChanceMale: { min: 0, max: 100, decimals: 0, displayName: "NPCs who are attracted to men:", randomize: "encounter" },

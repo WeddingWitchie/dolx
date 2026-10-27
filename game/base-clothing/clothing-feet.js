@@ -2869,7 +2869,7 @@ function initFeet() {
 			description: "Extra thick.",
 			cost: 16000,
 			shop: ["clothing"],
-			type: ["normal"],
+			type: ["normal", "heels"],
 			combat: {
 				reference: "courtheels",
 			},
