@@ -395,18 +395,23 @@ You drift on your back until your breathing slows. The sky above you is wide and
 <<waterdragonTravelContinue>>
 
 :: Water Dragon Island Arrival 1
-<<effects>>
-The pull that has been bringing you here grows stronger, no longer a distant ache but a deep, steady tug beneath your ribs. By now you are so tired the sea seems to move you more than you move yourself.
-<br><br>
-Then, through rain-mist and spray, an island rises ahead.
-<br><br>
-It feels familiar. 
-<<if $spear_vessel>>
-	You know you've set foot here before, and yet some buried part of you also knows the familiar feeling isn't from that.
+<<if setup.seaRemembers.access()>>
+	<<include "Island Return">>
 <<else>>
-	You know with perfect certainty that you have never seen it before and yet some buried part of you knows it all the same.
-<</if>><br><br>
-<<link [[Next|Water Dragon Island Arrival 2]]>><</link>>
+	<<effects>>
+	The pull that has been bringing you here grows stronger, no longer a distant ache but a deep, steady tug beneath your ribs. By now you are so tired the sea seems to move you more than you move yourself.
+	<br><br>
+	Then, through rain-mist and spray, an island rises ahead.
+	<br><br>
+	It feels familiar.
+	<<if $spear_vessel>>
+		You know you've set foot here before, and yet some buried part of you also knows the familiar feeling isn't from that.
+	<<else>>
+		You know with perfect certainty that you have never seen it before and yet some buried part of you knows it all the same.
+	<</if>>
+	<br><br>
+	<<link [[Next|Water Dragon Island Arrival 2]]>><</link>>
+<</if>>
 
 :: Water Dragon Island Arrival 2
 <<effects>>
@@ -755,7 +760,12 @@ You fall.
 /* ELDER INTERVENTION (triggers on the 5th dragon defeat) */
 :: Island Defeat Dragon Intervene
 <<effects>>
-<<generateRole 4 0 "old islander">><<saveNPC 4 "waterdragon_elder">><<person5>>
+<<if $per_npc.waterdragon_elder>>
+	<<loadNPC 4 "waterdragon_elder">>
+<<else>>
+	<<generateRole 4 0 "old islander">><<saveNPC 4 "waterdragon_elder">>
+<</if>>
+<<person5>>
 The <<person3>><<persons>> still before you, breath ragged when the courtyard goes quiet.
 <br><br>
 It isn't the quiet of the drums stopping because the drums weren't even being played. This is the quiet of a room when somebody senior walks in.
@@ -919,6 +929,7 @@ But <<he>> doesn't wait for an answer.
 <<set $island.dragon_lore to true>>
 <<set $island.dragon_defeat_count += 1>>
 <<if $spear_vessel>>
+	<<island_elder_topics>>
 	<<link [[Rest, then go|Islander Elder Leave]]>><<pass 35>><</link>>
 <<else>>
 	<<link [[Follow|Islander Elder Spear Intro]]>><</link>>
@@ -981,6 +992,7 @@ The same round room. The same brazier. The same tea that smells of brine and flo
 <br><br>
 "Stay as long as you need. When you go, I will make sure the path out is clear."
 <br><br>
+<<island_elder_topics>>
 <<link [[Rest, then go|Islander Elder Leave]]>><<pass 35>><</link>>
 
 :: Islander Elder Leave
@@ -1127,7 +1139,8 @@ It is a strange relief to say it out loud to someone the story belongs to."
 	<br><br>
 	You still can't read them, but they feel less alien than they should.<<ggcomprehension>><<islander_language 20>><<gawareness>><<awareness 1>>
 	<br><br>
-	<<tficon "waterdragon">><<link [[Next|Island]]>><<endevent>><<island_explore_end>><</link>>
+	<<island_markings_offer>>
+	<<link [[Keep exploring|Island]]>><<endevent>><<island_explore_end>><</link>>
 <</widget>>
 
 <<widget "waterdragon_island_event_spring">>

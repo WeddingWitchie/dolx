@@ -922,6 +922,7 @@ window.insanitySensitivityAdjustment = insanitySensitivityAdjustment;
 function applyPermanentInsanityTalents() {
 	if (V.statFreeze) return;
 	if (!V.AMCTraits || typeof V.AMCTraits !== "object" || Array.isArray(V.AMCTraits)) return;
+	setup.seaRemembers.restoreReward();
 
 	if (!permanentInsanityTalentLockActive()) {
 		// Turning Insanity off refunds the free talents. Without this, both talents in max-1 pairs can stay active for free.
@@ -967,7 +968,8 @@ function sumTalents() {
 		V.AMCTraits.science +
 		V.AMCTraits.maths +
 		V.AMCTraits.english +
-		V.AMCTraits.history
+		V.AMCTraits.history -
+		(V.seaRemembers?.reward === "athletics" && V.AMCTraits.athletics === 2 ? 1 : 0)
 	);
 }
 window.sumTalents = sumTalents;

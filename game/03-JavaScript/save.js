@@ -865,6 +865,7 @@ function importSettingsData(data) {
 
 	/* Imported talents are the player's picks now, so the snapshot taken before Insanity forced them all on is out of date. */
 	if (overrides.general?.AMCTraits != null) delete V.AMCTraitsPreInsanity;
+	setup.seaRemembers.restoreReward();
 
 	/* Reject / Accepted / Preferred are imported as independent flags, so an import or a Random start can leave contradictions behind. */
 	if (typeof window.identityNormalisePresentation === "function") window.identityNormalisePresentation();

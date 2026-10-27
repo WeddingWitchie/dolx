@@ -273,9 +273,9 @@ function autismEnforceTalentLimits() {
 	if (typeof permanentInsanityTalentLockActive === "function" && permanentInsanityTalentLockActive()) return false;
 	let cleared = false;
 	for (const [group, stats] of Object.entries(autismTalentGroups)) {
-		const taken = stats.reduce((count, stat) => count + (V.AMCTraits[stat] === 2 ? 1 : 0), 0);
+		const taken = stats.reduce((count, stat) => count + (V.AMCTraits[stat] === 2 && V.seaRemembers?.reward !== stat ? 1 : 0), 0);
 		if (taken <= autismTalentLimit(group)) continue;
-		for (const stat of stats) if (V.AMCTraits[stat] === 2) V.AMCTraits[stat] = 1;
+		for (const stat of stats) if (V.AMCTraits[stat] === 2 && V.seaRemembers?.reward !== stat) V.AMCTraits[stat] = 1;
 		cleared = true;
 	}
 	return cleared;

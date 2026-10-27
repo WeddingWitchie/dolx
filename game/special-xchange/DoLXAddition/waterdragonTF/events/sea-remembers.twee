@@ -1,0 +1,864 @@
+:: Island Return
+<<if setup.seaRemembers.access()>>
+	<<run setup.seaRemembers.init()>><<location "island">><<set $outside to 1>><<effects>>
+	<<island_init>><<set $sea to 0>>
+	<<if $waterdragonJourneyDay gt 0>>
+		You pull yourself out of the water onto the beach. You have spent days swimming towards the island, stopping only when you could no longer continue. Now that you are on land, your legs are too tired to carry you straight away. You sit on the sand until you have enough strength to stand, then follow the beach towards the trees.
+		<<set _arrivalFatigue to Math.max(6, Math.floor(C.tiredness.max * 0.05))>>
+		<<set $tiredness = Math.clamp($tiredness + _arrivalFatigue, 0, C.tiredness.max)>>
+	<<else>>
+		You step from the ship onto the stone landing. The crew pass supplies down behind you while masked islanders carry them towards the trees. One stops to look at you, then picks up another crate without speaking.
+		<br><br>
+		You leave them to their work and take the path leading from the landing into the trees.
+	<</if>>
+	<br><br>
+	From the path, you recognise the cliffs and the castle built above them. You came back by choice, but you haven't forgotten how the islanders treated you last time.
+	<<if $island.dragon_elder_met>>
+		<br><br>
+		The Elder said the islanders had been told to stop. Even so, you stop walking when a mask turns towards you from between the trees. It slips back into the woods as soon as you look. You carry on along the path, keeping the water in sight.
+	<<elseif $island.dragon_lore>>
+		<br><br>
+		You remember hearing that the dragons crossed the ocean to live here, then slowly disappeared. The islanders never discovered why. Knowing their history does little to reassure you about the people who may still be watching from the woods.
+	<</if>>
+	<<if Transformations.isFullWaterDragon()>>
+		<br><br>
+		A deep call comes from somewhere beneath the shallow water. You stop to listen, turning your tail towards the sea without meaning to. The sound fades, but you keep listening for it.
+	<</if>>
+	<br><br>
+	<<set $waterdragonJourneyDay to 0>>
+	<<if $island.home>>
+		<<link [[Next|Island]]>><<endevent>><</link>>
+	<<else>>
+		<<link [[Next|Island Treeline Search]]>><<endevent>><</link>>
+	<</if>>
+	<br>
+<<else>>
+	This part of the quest is not available right now.
+	<br><br>
+	<<link [[Next|Island]]>><</link>>
+	<br>
+<</if>>
+
+:: Island Elder
+<<effects>>
+<<if setup.seaRemembers.access()>>
+	<<run setup.seaRemembers.init()>>
+	<<if $per_npc.waterdragon_elder>>
+		<<loadNPC 0 "waterdragon_elder">>
+	<<else>>
+		<<generateRole 0 0 "old islander">><<saveNPC 0 "waterdragon_elder">>
+	<</if>>
+	<<person1>>
+	<<if ["Island Elder History", "Island Elder Echoes", "Island Heir"].includes(previous())>>
+		The Elder sets the kettle back above the fire. <<if $seaRemembers.clues.length>>Your drawing lies between the cups, its corners weighted with stones.<</if>>
+	<<else>>
+		The Elder sits beside the fire in the round room. At the sound of your footsteps, <<he>> lifts the kettle from its hook and sets a second cup on the stone bench.
+		<br><br>
+		<<if $island.dragon_elder_met>>
+			"You came back." <<He>> glances at the open door before pouring. "They have been told to leave you alone. Tell me if they forget."
+		<<else>>
+			"The spear has gone," <<he>> says. "What brings you back to us?" <<He>> gestures towards the bench, keeping the doorway clear.
+		<</if>>
+	<</if>>
+	<br><br>
+	<<island_elder_topics>>
+	<<link [[Ask about the island's history|Island Elder History]]>><</link>>
+	<br>
+	<<link [[Leave|Island]]>><<endevent>><</link>>
+<<else>>
+	This part of the quest is not available right now.
+	<br><br>
+	<<link [[Next|Island]]>><</link>>
+<</if>>
+
+:: Island Elder History
+<<effects>>
+
+<<if $island.dragon_lore>>
+	"Our families used to leave an empty bowl beside the water whenever they ate," the Elder explains. "It was meant for the dragons who lived with our ancestors. People continued doing it long after the last dragon had disappeared."
+	<br><br>
+	You ask whether the islanders have discovered anything more about their disappearance.
+	<br><br>
+	The Elder puts the cup down before answering. "We still don't know what happened to them. Some people believe our ancestors caused it, but we have no proof. I don't want you to mistake our guilt for an answer."
+<<else>>
+	The Elder keeps both hands around the cup. "The dragons lived beside humans in warm waters far to the southeast. Then Auriga corrupted one of them. The corrupted dragon was called Bakunawa. The others saved it, but the people feared what another dragon might become. They forced them all to leave."
+	<br><br>
+	The Elder stops to pour more tea. You wait while the cup is filled.
+	<br><br>
+	"The dragons crossed the ocean and settled on this island. They believed they were being punished for what had happened to Bakunawa. Our ancestors arrived later, and for many years the two groups lived together."
+	<br><br>
+	The Elder puts the kettle aside. "Then the number of dragons began to fall. Our ancestors noticed that fewer dragons remained each year, but they never found out why. Some believed living near humans was harming them. Others disagreed. The dragons eventually disappeared, and our ancestors passed that uncertainty down to us."
+<</if>>
+<br><br>
+<<if $seaRemembers.clues.length>>
+	You describe the markings you found along the shore. The Elder asks you to show where the lines were cut into the stone, then examines your drawing. "Those channels would have filled with sand if nobody cleaned them," the Elder says. "People must have continued maintaining them after they stopped understanding the writing."
+<<else>>
+	Someone calls to another islander outside. The Elder waits until their voices move away from the room before continuing. "You don't have to believe everything we say about the records. You can examine the carvings yourself."
+<</if>>
+<br><br>
+<<link [[Next|Island Elder]]>><<set $island.dragon_lore to true>><</link>>
+<br>
+
+:: Island Warriors
+<<effects>>
+The Elder puts your drawing beside an old copy of the stone carvings. Both show the same swimmer, but the old copy includes a line beneath the figure that is missing from the damaged stone you found.
+<br><br>
+"The steps near the water have become dangerous," the Elder explains, pointing towards the coast. "Water rises around them even when the sea is going down. I've told everyone to use the path along the ridge, but some people still take the shorter route when they're carrying baskets."
+<br><br>
+<<if $seaRemembers.shoreChoice is "helped">>
+	"I heard that you pulled someone out of the water," the Elder says. "The basket was lost, but nobody drowned, because of you. Thank you, especially after everything that happened to you here."
+<<elseif $seaRemembers.shoreChoice is "left">>
+	"The islander you saw on the steps made it back with a torn leg," the Elder says. "I'll ask someone to block that route until we can make it safe. I understand why you didn't approach them."
+<<else>>
+	The Elder points to a dark stain on the old copy. "This drawing was made before I was born. The entire lower step is underwater now, even when the tide goes out."
+<</if>>
+<br><br>
+"There's an old warning about a gate beneath the coast," the Elder says. "It tells us to keep the gate closed when the water rises. If someone opens it during a flood, seawater could enter the tunnels beneath the castle. That's why I won't ask anyone to go down and try the controls."
+<br><br>
+You point out the missing line beneath the swimmer. The Elder moves the old drawing closer so you can copy the part that was lost. It shows a shell beside a small channel, with arrows pointing away from a door.
+<br><br>
+"The old islander who lives beneath the castle has more records," the Elder tells you. "Please speak to the old islander before you try to open anything. The instructions are damaged, and we may have misunderstood them. You'll need to check where the water is actually going."
+<br><br>
+<<link [[Check the outlet first|Island Elder Answer]]>><<set $seaRemembers.attitude to "cautious">><</link>>
+<br>
+<<link [[Preserve the dragons' work|Island Elder Answer]]>><<set $seaRemembers.attitude to "history">><</link>>
+<br>
+<<link [[Look for something useful|Island Elder Answer]]>><<set $seaRemembers.attitude to "self">><</link>>
+<br>
+<<link [[Keep the steps safe for everyone|Island Elder Answer]]>><<set $seaRemembers.attitude to "helpful">><</link>>
+<br>
+<<link [[Investigate without permission|Island Elder Answer]]>><<set $seaRemembers.attitude to "defiant">><</link>>
+<br>
+
+:: Island Elder Answer
+<<effects>>
+<<if $seaRemembers.attitude is "cautious">>
+	"Checking the water first would be sensible," the Elder says. The two of you mark the outlet on your drawing. "Find out where the water leaves the tunnel, and come back if anything is blocking it."
+<<elseif $seaRemembers.attitude is "history">>
+	"You can copy as much of the writing as you need," the Elder says, moving the old drawing closer. "Please don't try to remove the carved stones. Some of them are damaged, and you could get hurt."
+<<elseif $seaRemembers.attitude is "self">>
+	"I can't offer you money for investigating," the Elder says. "There are training exercises described in the old records, though. If you're interested in those, please make sure you understand the water channels before attempting them."
+<<elseif $seaRemembers.attitude is "helpful">>
+	"Keeping the steps safe is important," the Elder agrees. "I'll have someone warn people away from the broken section while you investigate. If you can't repair the problem, return and tell me what you found. You don't have to put yourself in danger to finish it."
+<<else>>
+	The Elder moves away from the drawing to let you finish copying it. "I can't stop you from investigating on your own," the Elder says. "I only ask that you take the warning seriously. We don't know how safe the tunnels are."
+<</if>>
+<br><br>
+You leave with your drawing and follow the path overlooking the coast. The sea is getting lower, but another wave washes over the damaged steps below you. Farther along the cliff, you can still see the entrance to the sea tunnel beneath the castle.
+<br><br>
+<<link [[Next|Island]]>><<endevent>><</link>>
+<br>
+
+:: Island Shore Rescue
+<<effects>>
+<<if $seaRemembers.shoreChoice is "helped">>
+	You lie on your stomach near the edge of the path, keeping one leg against a large rock so you won't slide forward. You pick up a fallen branch and lower one end towards the islander. <<He>> grabs it with both hands just as another wave washes over the steps. You pull while <<he>> struggles to get one knee onto the higher stone. Once <<he>> can reach the path, you help <<him>> climb up beside you. Your arms hurt from the effort, and you need a moment before you can stand.<<gtiredness>>
+	<br><br>
+	The islander moves away from you but continues holding the branch. Water drips from beneath <<his>> mask as <<he>> looks down at the broken basket. After a moment, <<he>> puts the branch on the ground and points towards the castle, showing you which path to take. You move aside so <<he>> can get past.
+<<elseif $seaRemembers.shoreChoice is "warned">>
+	You point out the damaged part of the upper step, then show the islander a tree root growing out of the rock nearby. <<He>> looks where you are pointing before reaching for the root and pulling <<himself>> towards it. <<His>> basket catches on the lower step. Rather than risk losing <<his>> grip, <<he>> lets the basket go and climbs higher. The next wave reaches <<his>> waist as <<he>> scrapes one knee against the stone.
+	<br><br>
+	You remain on the path until the islander climbs up to safety. <<He>> points towards the castle before hurrying past you, still wearing <<his>> mask. When you look back, the basket has been carried out of sight by the water.
+<<else>>
+	You stay away from the damaged edge of the path while the islander struggles to climb. <<He>> reaches for the upper step but cannot get a secure grip. After trying again, <<he>> manages to grab a tree root with both hands and pull <<himself>> above the water. <<His>> leg is bleeding by the time <<he>> reaches the path. You step aside as <<he>> limps towards the castle.
+	<br><br>
+	You watch the abandoned basket move through the water below. It bumps against a large stone block before sinking. A moment later, you feel a small movement through the stone beneath your feet and hear a noise from somewhere below the steps.
+<</if>>
+<br><br>
+You look back towards the open sea. Although the water level is falling there, waves continue to wash higher over the damaged steps. You stay on the safe part of the path while copying the carved swimmer and the small channel beneath it. Further on, the path bends along the coast towards the castle.
+<br><br>
+<<link [[Next|Island]]>><<endevent>><</link>>
+<br>
+
+:: Island Records Compared
+<<effects>>
+The old islander puts your copy of the Elder's drawing beside an older repair record. You notice that the two drawings disagree. The Elder's warning tells people to close the large gate, but the repair record shows a smaller channel that carries water around it. A damaged patch on the older page makes the two channels look like a single opening.
+<br><br>
+You move the pages closer to compare the symbols. The shell marks the smaller drain, while the wave marks the large gate facing the sea. The star appears beside a support that keeps the gate in place. The warning and the repair instructions may both be correct: the main gate must stay closed during a flood, but the smaller drain needs to be kept clear.
+<br><br>
+"The drawing also shows a narrow ledge beside the drain," the old islander says, pointing to it. "If that ledge is still there, you may be able to reach the controls without going through the large gate. Check which opening water comes out of before you enter either one."
+<br><br>
+<<link [[Copy the separate channels|Island Names 2]]>><<set $seaRemembers.clues.pushUnique("records")>><</link>>
+<br>
+
+:: Island Outlet
+<<effects>>
+You crouch on a rock above the water and drop a piece of seaweed between the two openings. The water pulls it towards the larger opening marked with a wave. A moment later, dirty water comes out of the smaller opening marked with a shell and pushes the seaweed back towards the bay.
+<br><br>
+You wait for another wave, then repeat the test. This time you notice that water only comes out of the smaller opening when the water level falls below a mark in the rock. Sand and small stones have collected along its upper edge, and there seems to be another blockage deeper inside.
+<br><br>
+You add the water-level mark to your drawing. To reach the blockage, you will need to enter beside the smaller opening when the water is flowing out. You will also need somewhere to hold on if the current suddenly changes.
+<br><br>
+<<link [[Next|Island Tides]]>><</link>>
+<br>
+
+:: Island Shelf
+<<effects>>
+You climb onto the rock marked with a star and clear the seaweed away from the carving. Below it, several places have been cut into the stone for people to hold while climbing towards the smaller opening. One is covered by a loose block. You carefully move the block aside, then test the exposed handhold before putting all your weight on it.
+<br><br>
+From here, you can see a narrow ledge along one side of the smaller opening. You should be able to keep close to the wall while the water drains beside you. The larger opening has nowhere to stand or hold on. It leads directly down into a dark tunnel.
+<br><br>
+You add the ledge and handholds to your drawing. They could help you stay in place if the current changes, but you still need to work out when the water is safe enough to enter.
+<br><br>
+<<link [[Next|Island Tides]]>><</link>>
+<br>
+
+:: Island Sluice
+<<effects>>
+<<if setup.seaRemembers.exclusive() and $seaRemembers.route and $seaRemembers.current is 5 and $seaRemembers.stone is 3 and $seaRemembers.echo is 3>>
+	<<if setup.seaRemembers.isRestored()>>
+		The large sea gate is now open, and water is draining through the smaller channel beneath it. The repaired supports keep the gate in place. You can reach the upper room by following the handholds without swimming through the strongest part of the current.
+		<br><br>
+		<<link [[Enter the rite chamber|Island Limit]]>><</link>>
+	<<else>>
+		<<if !$seaRemembers.mechanism>>
+			You take hold of the wall beside the gate controls. Daylight reaches through a gap beneath the coastal steps, lighting sand packed against the fallen stone. With each wave, more grit washes down from above.
+			<br><br>
+			You compare the controls with your copy of the memory chamber's marks: the shell beside the drain handle, the star above the support bar, then the wave on the large gate. Beneath the last handle, fresh scratches cut through an older warning. The gate has been pulling against its frame.
+			<br><br>
+		<</if>>
+		<<if $seaRemembers.mechanism is "supported">>
+			The small drain is now clear, and the support bar is secured in the slot beneath the star. You let go of the bar to make sure it can hold the gate without your help. The handle marked with a wave has stopped shaking, just as it did in the memory before the guardian opened the large gate.
+			<br><br>
+			<<link [[Raise the gate slowly (0:20)|Island Water Released]]>><<island_pass 20>><<run setup.seaRemembers.operate("open")>><</link>>
+			<br>
+			<<link [[Pull the support free (0:10)|Island Gate Surge]]>><<island_pass 10>><<tiredness 10>><<run setup.seaRemembers.operate("wrong")>><</link>>
+		<<elseif $seaRemembers.mechanism is "vented">>
+			You have opened the small drain, allowing muddy water to flow around the fallen stone. Sand is slowly washing out from beneath it. You can now reach the support bar below the star, although the large gate still shakes whenever a wave hits it from outside.
+			<br><br>
+			<<link [[Set the support bar (0:10)|Island Sluice]]>><<island_pass 10>><<run setup.seaRemembers.operate("brace")>><</link>>
+			<br>
+			<<link [[Raise the gate early (0:10)|Island Gate Surge]]>><<island_pass 10>><<tiredness 10>><<run setup.seaRemembers.operate("wrong")>><</link>>
+		<<else>>
+			You reach for the handle marked with a shell. Sand has collected around it, making it difficult to move. A mark cut into the stone shows how far you need to turn it to open the small drain. You position yourself beside the controls, away from the heavy gate, and prepare to pull.
+			<br><br>
+			<<link [[Lower the drain handle (0:10)|Island Sluice]]>><<island_pass 10>><<run setup.seaRemembers.operate("vent")>><</link>>
+			<br>
+			<<link [[Force the gate open (0:10)|Island Gate Surge]]>><<island_pass 10>><<tiredness 10>><<run setup.seaRemembers.operate("wrong")>><</link>>
+		<</if>>
+	<</if>>
+	<br>
+	<<link [[Leave the controls and surface|Island Retreat]]>><</link>>
+<<else>>
+	This part of the quest is not available right now.
+	<br><br>
+	<<link [[Next|Island Depths]]>><</link>>
+<</if>>
+<br>
+
+:: Island Gate Surge
+<<effects>>
+Before you finish moving the handle, the heavy gate begins to slide. You release the handle and quickly pull yourself behind the side wall. The gate drops against the stone below it, sending sand and small rocks through the drain. You hear one of the supports take the weight, but the stones above your head stay in place.
+<br><br>
+You hold on to the wall until the water stops moving so violently, then look back at the controls. The small drain has closed again. Although the supports you repaired are still intact, you will need to open the drain and secure the support bar before trying to lift the large gate. Your arms hurt from pulling yourself out of the way.<<gtiredness>>
+<br><br>
+<<link [[Return to the handles|Island Sluice]]>><</link>>
+<br>
+<<link [[Surface to rest|Island Retreat]]>><</link>>
+<br>
+
+:: Island Water Released
+<<effects>>
+<<if setup.seaRemembers.isRestored()>>
+	You begin lifting the handle marked with a wave. As the gate opens slightly, you feel the pressure of the water against the handle, so you stop and hold it in place. Sand washes out from beneath the gate. You wait until less sand is coming through, then carefully raise the handle again.
+	<br><br>
+	The fallen stone moves into the space cleared by the drain. When the water begins flowing faster, you press the handle against your shoulder to keep it steady. The support bar bends slightly under the extra weight, so you move up to a higher handhold and keep your body away from the moving gate.
+	<br><br>
+	Water now passes through the open gate and flows down into the small drain. The support bar holds steady. Above you, water empties from the gap beneath the coastal steps, exposing stone that had been underwater. You move the handle into its final position, then slowly let go. The gate stays open.
+	<br><br>
+	From the upper handholds, you can now see the route people once used to cross the chamber. One set of handholds follows the wall above the water, leaving room for someone carrying supplies. Another set is closer together and lower down, making it easier for smaller swimmers to use. Beside them is a small place where people could rest, with stone bowls set along the wall. You remember seeing a guardian stay behind to operate the gate while everyone else crossed. You stop in the same resting place until your arms are strong enough for the swim back.
+	<<if $seaRemembers.legacy is "reject">>
+		You check each handle against the mark beside it, repeating the order in your head. These are the movements you intend to record once you are ashore. The voices from the recess can stay beneath the water.
+	<<elseif $seaRemembers.legacy is "listen">>
+		Before leaving, you follow the lower handholds to the resting place. A bowl sits within reach of someone who would have waited here. You turn it over, empty the sand, and set it back beside the wall. You want to remember this part when you make your record of the passage.
+	<</if>>
+	<br><br>
+	A door beside the controls has opened, leading to a room with three training channels. The water inside is separate from the flow through the gate, so it should be safe to return there later. For now, you decide to swim back to the bay and check whether repairing the drain has made the coastal steps safer.
+	<br><br>
+	<<link [[Next|Island Retreat]]>><</link>>
+<<else>>
+	This part of the quest is not available right now.
+	<br><br>
+	<<link [[Next|Island Sluice]]>><</link>>
+<</if>>
+<br>
+
+:: Island Sea Restored
+You follow the upper handholds back towards the bay. Water is still flowing past the opening, but it no longer pulls you towards the cliff. You climb onto a rock ledge and look down at the coastal steps. You can see the lowest step through the shallow water, and the loose stones above it are no longer moving with every wave.
+<br><br>
+On the other side of the bay, an islander carrying a basket stops at the top of the steps. You watch the islander lower a stick into the water to check its depth. After another wave passes, the islander begins climbing down carefully.
+<br><br>
+<<if $seaRemembers.shoreChoice is "helped">>
+	You find the branch you used to help the islander earlier. You use it to keep your balance while climbing the path, then lay it across the damaged section of the steps so people will notice the gap.
+<<elseif $seaRemembers.attitude is "self">>
+	Before climbing, you check that your copied notes are still protected from the water. The training room is now accessible, and you can return to practise there whenever you are ready. You have not shown anyone on the coast what you discovered in the memory chamber.
+<<else>>
+	You climb above the steps and compare the current water level with your drawing. The drain is working, but it could become blocked again. You mark the places where people can check for sand and loose stones from the shore without swimming into the tunnels.
+<</if>>
+<br><br>
+Water is draining away from the steps again. You know now what went wrong and how the old gate was meant to be worked, though not what happened to the dragons who used these tunnels. The question is how much of it to tell the islanders.
+<br><br>
+<<link [[Share your account and return to camp (0:10)|Island]]>><<island_pass 10>><<set $seaRemembers.account to "shared">><<set $seaRemembers.complete to true>><<set $seaRemembers.chapter to 7>><<endevent>><<island_explore_end>><</link>>
+<br>
+<<link [[Keep your account private and return to camp|Island]]>><<set $seaRemembers.account to "private">><<set $seaRemembers.complete to true>><<set $seaRemembers.chapter to 7>><<endevent>><<island_explore_end>><</link>>
+<br>
+
+:: Island Hermit
+<<effects>>
+<<if setup.seaRemembers.access()>>
+	<<run setup.seaRemembers.init()>><<set _hermitKnown to !!$per_npc.old_islander>>
+	<<if $per_npc.old_islander>>
+		<<loadNPC 0 "old_islander">>
+	<<else>>
+		<<generateRole 0 0 "old islander">><<saveNPC 0 "old_islander">>
+	<</if>>
+	<<person1>>
+	<<if ["Island Records", "Island Hermit Epilogue"].includes(previous())>>
+		The old islander rolls the scroll around its wooden rod and reaches for the kettle. "Another cup? There should be some left."
+	<<else>>
+		A narrow ledge follows the sea tunnel beneath the castle. You keep a hand against the wall as it bends out of the daylight, then follow the firelight spilling across the stone ahead.
+		<br><br>
+		The old islander looks up from a scroll beside the fire. <<His>> long white shirt hangs over brown trousers, gathered at the waist by a belt.
+		<<if _hermitKnown>>
+			"Back again?" <<He>> moves a stack of pages off the bench. "Sit down. I'll see what's left in the jar."
+		<<else>>
+			"A visitor?" <<He>> puts the scroll aside. "They don't often come down here. Mind the pages, won't you?"
+		<</if>>
+		<br><br>
+		<<He>> opens a dusty jar and tips a few tea leaves into the pot. "A bit stale, I fear. Better than none." While <<he>> tends the fire, you find a dry place for your drawing among the papers on the table.
+	<</if>>
+	<br><br>
+	<<island_hermit_topics>>
+	<<link [[Ask about the old records|Island Records]]>><</link>>
+	<br>
+	<<link [[Ask for a boat home|Islander Return Refrain]]>><<if $per_npc.sleeper>><<loadNPC 1 "sleeper">><<else>><<generateRole 1 0 "sleeper">><<saveNPC 1 "sleeper">><</if>><<person1>><</link>>
+	<br>
+	<<link [[Return through the sea tunnel|Island]]>><<endevent>><</link>>
+<<else>>
+	This part of the quest is not available right now.
+	<br><br>
+	<<link [[Next|Island]]>><</link>>
+<</if>>
+
+:: Island Records
+<<effects>>
+The old islander clears a space among the papers and unrolls two scrolls. Corrections crowd the edge of one; a brown water stain covers the bottom of the other. <<He>> sets a cup over the curling corner so you can examine the writing.
+<br><br>
+"These haven't survived very well," <<he>> says, carefully pressing down the edge of one scroll. "This record describes the dragon corrupted by Auriga, the one called Bakunawa. The other dragons saved it, but the people living near them forced all the dragons to leave."
+<br><br>
+<<He>> moves <<his>> finger along the writing until <<he>> reaches the damaged part of the page.
+<br><br>
+"They crossed the ocean and arrived on this island long before the castle was built," <<he>> continues. "At first, they lived in the natural caves and reefs. This stonework appears in later records, after the islanders' ancestors arrived. These pages describe people and dragons working on the coastal passages, with the dragons tending the parts beneath the water."
+<br><br>
+You ask whether the records explain why the dragons disappeared.
+<br><br>
+The old islander shakes <<his>> head and turns another page towards you. "I've looked through everything I have. There are plenty of records from when the dragons were still here, but fewer and fewer as time goes on. The later pages are too damaged for me to say what happened. I'm sorry I can't give you a better answer."
+<br><br>
+<<link [[Next|Island Hermit]]>><</link>>
+<br>
+
+:: Island Names
+<<effects>>
+The old islander searches a shelf, moving jars aside until <<he>> finds a narrow scroll behind them. "This may be the one." <<He>> unrolls it beside your drawing and brushes dust from a row of figures.
+<br><br>
+The scroll repeats three words beside different drawings. One shows someone holding a heavy gate, another shows a swimmer turning around a rock, and the last shows a face reflected in a shell.
+<br><br>
+"I think these mean body, movement, and spirit," <<he>> explains, pointing to the drawings in order. "The first exercise seems to involve strength. The second teaches a swimmer how to move through changing water. I'm less certain about the third, but it may involve concentration."
+<br><br>
+You examine the drawings more closely. In one, a person keeps a gate open while several others pass through. Another shows someone handing a bowl to a person waiting beside the water. Small written instructions connect the pictures.
+<br><br>
+"Warriors," the old islander reads, following a word beneath the drawings. <<He>> places a repair record beside it. The same word appears next to a list of damaged supports. "An odd place to find them. No weapons here, unless this bit has been lost." <<He>> smooths the torn edge with a finger, but the rest of the page is missing.
+<br><br>
+<<link [[Next|Island Names 2]]>><</link>>
+<br>
+
+:: Island Names 2
+<<effects>>
+Beneath the drawings, you find a map of the coast. A shell marks an opening facing the shore, a wave marks another opening beside a pointed rock, and a star marks a place below a ledge. The symbols are joined by arrows, but part of the page has been torn away.
+<br><br>
+You tell the old islander what the Elder said about keeping the large gate closed. <<He>> reads the damaged writing beside the map before answering.
+<br><br>
+"The Elder is right that the large gate needs to stay closed during a flood," <<he>> explains. "But this drawing shows a smaller channel that should be opened first to let water drain away. If fallen stones have blocked it, keeping both openings closed could make water build up behind the gate. That might explain why the coastal steps are flooding even at low tide."
+<br><br>
+<<He>> points to a narrow line beside the smaller opening. "There used to be another way into the tunnel near the drain. I can show you where that part of the coast is. You'll need to examine the openings yourself before deciding whether it's safe to enter. Please don't try to force the large gate open just because I've suggested an explanation."
+<br><br>
+<<if previous() is "Island Names">>
+You copy the coast and the three marks onto a spare sheet. The old islander finds a piece of waxed cloth to wrap it in. "Keep the water off this one. The original has had quite enough of it."
+<</if>>
+<br><br>
+<<link [[Ask how to read the arrows|Island Names Clue]]>><</link>>
+<br>
+<<link [[Ask about the writing|Island Names Limit]]>><</link>>
+<br>
+<<link [[Compare the two accounts|Island Records Compared]]>><</link>>
+<br>
+<<link [[Take a copy and return to camp|Island]]>><<endevent>><</link>>
+<br>
+
+:: Island Names Clue
+<<effects>>
+The old islander points to the arrows beneath the shell. "These show water leaving the tunnel. The arrows beside the wave point towards the inside, so that opening lets seawater in. We need to know whether the water still moves in those directions. You should check before swimming into either opening."
+<br><br>
+You unfold your copy and add the direction of each flow beside its mark. The old islander checks the arrows before you wrap it again.
+<br><br>
+"Let me know which way it runs now," <<he>> says, placing the original above the damp edge of the table. "The water may have found another way through since this was written."
+<br><br>
+<<link [[Next|Island Names 2]]>><</link>>
+<br>
+
+:: Island Names Limit
+<<effects>>
+The old islander holds the scroll closer to the fire and points out several words that have been crossed out and replaced. Someone tried to correct the writing many years after the original record was made.
+<br><br>
+"This part seems to describe how much a person can improve through ordinary training," <<he>> explains. "It also mentions choosing one ability to develop further. I can't tell you exactly how the exercise works, because someone wrote over part of the instructions."
+<br><br>
+<<He>> carefully lays the scroll flat again. You can see that two different people wrote on the page, but neither left a name.
+<br><br>
+<<link [[Next|Island Names 2]]>><</link>>
+<br>
+
+:: Island Tides
+<<effects>>
+<<if setup.seaRemembers.exclusive() and $seaRemembers.chapter gte 3 and $island.explore_locations.includes("bay")>>
+	<<if ["Island Outlet", "Island Shelf", "Island Tide Wrong"].includes(previous())>>
+		You spread your drawing on the ledge and look between the two openings below. Foam gathers under the wave carving before a trickle of muddy water escapes beneath the shell.
+	<<else>>
+		You follow the bay towards the cliff, comparing its outline with the old islander's drawing. A shell carved above the water brings you to a stop. Beneath it, seaweed lifts away from a narrow opening, then drops against the rock again.
+	<</if>>
+	<br><br>
+	There are two openings below the cliff. Water and foam are being pulled into the larger opening, beneath a carving of a wave. The smaller opening is marked with the shell. Dirty water comes out of it for a short time before stopping again. Seaweed blocks your view, so you cannot tell how far either tunnel goes.
+	<br><br>
+	A star marks the ledge above them. From there, you could watch the water without putting yourself in its path.
+	<br><br>
+	<<if !$seaRemembers.clues.includes("outlet")>>
+		<<link [[Watch the openings (0:10)|Island Outlet]]>><<island_pass 10>><<set $seaRemembers.clues.pushUnique("outlet")>><</link>>
+		<br>
+	<</if>>
+	<<if !$seaRemembers.clues.includes("shelf")>>
+		<<link [[Examine the star and masonry (0:10)|Island Shelf]]>><<island_pass 10>><<set $seaRemembers.clues.pushUnique("shelf")>><</link>>
+		<br>
+	<</if>>
+	<<if $seaRemembers.clues.includes("outlet") and ($seaRemembers.clues.includes("shelf") or $seaRemembers.clues.includes("records"))>>
+		<<link [[Enter as the outlet drains (0:20)|Island Entrance Found]]>><<island_pass 20>><<set $seaRemembers.route to true>><</link>>
+		<br>
+	<</if>>
+	<<link [[Try the broad opening (0:20)|Island Tide Wrong]]>><<island_pass 20>><<tiredness 20>><</link>>
+	<br>
+	<<link [[Try the narrow opening (0:10)|Island Tide Wrong]]>><<island_pass 10>><<tiredness 10>><</link>>
+	<br><br>
+	<<link [[Return to camp|Island]]>><<endevent>><<island_explore_end>><</link>>
+	<br>
+<<else>>
+	This part of the quest is not available right now.
+	<br><br>
+	<<link [[Next|Island]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
+:: Island Tide Wrong
+<<effects>>
+You swim towards the opening, but the water suddenly pulls one of your arms towards a narrow gap in the rock. You grab the edge of the ledge with your free hand and press your feet against the stone. It takes some effort to pull yourself back. As you do, sand washes into the opening and the flow stops for a moment. Then dirty water rushes out again.
+<br><br>
+You climb onto the ledge and rest until your arms stop hurting. The water around the smaller opening changes direction whenever a wave reaches the cliff, so the arrows on the old map are not enough to tell you when it is safe to enter. You check that your copied notes are still dry.<<gtiredness>>
+<br><br>
+<<link [[Check the openings again|Island Tides]]>><</link>>
+<br>
+<<link [[Return to camp|Island]]>><<endevent>><<island_explore_end>><</link>>
+<br>
+
+:: Island Entrance Found
+<<effects>>
+You watch the smaller opening until another flow of dirty water comes out. As the water level falls, you swim beneath the ledge and stay close to the wall beside it. You move the seaweed aside and find a narrow entrance made from fitted stone blocks. It leads into the cliff next to the drain. You can hear water rushing through the larger tunnel on the other side of the wall.
+<br><br>
+Your fingers find a handhold just inside. You grip it while the next wave passes the outer opening, watching the water lift sand from the drain beside you. The wall keeps the strongest flow away from your body. You look back once to fix the ledge and pointed rock in your mind before turning towards the dark passage.
+<br><br>
+You have found the <span class="gold">guardians' sea passage</span>. The drain is still partly blocked somewhere deeper inside.
+<br><br>
+<<link [[Enter the opening|Island Depths]]>><</link>>
+<br>
+<<link [[Return to camp|Island]]>><<endevent>><<island_explore_end>><</link>>
+<br>
+
+:: Island Depths
+<<location "island">><<set $outside to 0>><<effects>>
+<<if setup.seaRemembers.exclusive() and $seaRemembers.route>>
+	<<if setup.seaRemembers.isRestored()>>
+		You follow the handholds into the cave. Water runs through the cleared drain below, carrying the last loose grit past the repaired supports. The gate stays steady as a wave rolls through the outer passage.
+	<<else>>
+		The handholds lead into a natural cave reinforced with fitted stone. Mud trails from the joints whenever a wave presses into the outer channel.
+		<br><br>
+		<<if $seaRemembers.current lt 5>>
+			A fallen block chokes the drain ahead. Water squeezes through the gap beneath it, pulling at a loose metal support. A row of handholds continues around the stone pillars towards the barrier controls.
+		<<else>>
+			The crossing rings remain lit. Sand trickles through the drain you released beneath the barrier, though the main gate still shudders against its frame.
+		<</if>>
+	<</if>>
+	<br><br>
+	Above the water, a shelf provides a dry place to rest. You pull yourself onto it and check the route ahead before letting go of the stone.
+	<br><br>
+	<<if $seaRemembers.current lt 5>>
+		<<link [[Swim towards the first gate|Island Current Approach]]>><</link>>
+	<<elseif $seaRemembers.stone lt 3>>
+		Beyond the last crossing ring, cracks run through the barrier's supports. You can reach them from the sheltered side of the frame.
+		<br><br>
+		<<link [[Continue to the barrier|Island Stone Approach]]>><</link>>
+	<<elseif $seaRemembers.echo lt 3>>
+		The repaired barrier is holding in place. You swim past it and notice a faint light moving across the water farther inside the passage.
+		<br><br>
+		<<link [[Swim through the opening|Island Echo Approach]]>><</link>>
+	<<elseif !setup.seaRemembers.isRestored()>>
+		The damaged supports are now secure, but the large sea gate is still closed. You swim past the symbols from the memory chamber and notice that one of the gate's handles moves every time a wave hits it.
+		<br><br>
+		<<link [[Reach the sea gate|Island Sluice]]>><</link>>
+	<<else>>
+		Water is flowing through the drain below you, and the repaired supports are keeping the gate steady. You follow the upper handholds towards the training room you discovered behind the gate.
+		<br><br>
+		<<link [[Continue into the last chamber|Island Limit]]>><</link>>
+	<</if>>
+	<br>
+	<<link [[Return to the surface|Island Retreat]]>><</link>>
+	<br>
+<<else>>
+	The way you found remains recorded. You cannot enter the deep chambers in your present body.
+	<br><br>
+	<<link [[Return to camp|Island]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
+:: Island Current Approach
+<<effects>>
+<<if setup.seaRemembers.exclusive() and $seaRemembers.route and $seaRemembers.current lt 5>>
+	You lower yourself into the drainage channel. Sand streams down one side of the first pillar, then sweeps upwards beyond the next. When you push away from the wall, the flow turns your shoulder towards the stone. You catch the nearest handhold before it can carry you into the pillar.
+	<br><br>
+	A dragon has been carved beside your hand. As your palm brushes it, light runs along the handholds and gathers into a small dragon-shaped outline in the water. It turns when you turn, marking the space your body needs between the pillars. Beyond them, a ring lights up beside the barrier's drain bolt.
+	<br><br>
+	The route bends through three passages, with a sheltered ring at the end of each. Near the far end, grit lifts from the wall before a surge sweeps through the gaps. You wait for it to pass, keeping your fingers hooked around the entrance hold, then draw your legs beneath you for the first crossing.
+	<br><br>
+	<<link [[Next|Island Current]]>><</link>>
+<<else>>
+	<<link [[Next|Island Depths]]>><</link>>
+<</if>>
+
+:: Island Current
+<<effects>>
+<<if setup.seaRemembers.exclusive() and $seaRemembers.route and $seaRemembers.current lt 5>>
+	<div class="sr-game" data-sr-game="current"></div>
+	<div class="sr-retreat"><<link [[Retreat to the air shelf|Island Retreat]]>><</link>></div>
+<<else>>
+	The way you found remains recorded. You cannot enter the deep chambers in your present body.
+	<br><br>
+	<<link [[Next|Island Depths]]>><</link>>
+<</if>>
+
+:: Island Stone Approach
+<<effects>>
+<<if setup.seaRemembers.exclusive() and $seaRemembers.current is 5 and $seaRemembers.stone lt 3>>
+	<<if $seaRemembers.stone gt 0>>
+		The joints you repaired have stopped shifting. Farther along the frame, water still forces the loose stones apart. You move beneath the next damaged support and put a hand against it.
+	<<else>>
+		A crack opens along the nearest support as a wave presses against the gate. You put your palm to the joint and feel the stones shift. Two more supports move with it, taking the weight of the fallen block above.
+	<</if>>
+	<br><br>
+	You place a hand against the nearest damaged joint and push a loose stone piece back into position. It slides into a slot and stays there when you remove your hand. You notice older repair marks beside the other joints, showing where more pieces need to be pushed into place.
+	<br><br>
+	A brace runs beneath the support, with two notches left before its handle reaches a locking catch. It could take some pressure off the joint while you work. Above it, a thin crack forks into the adjoining stone. You reach up before the next wave can force it wider.
+	<br><br>
+	<<link [[Next|Island Stone]]>><</link>>
+<<else>>
+	The way you found remains recorded. You cannot enter the deep chambers in your present body.
+	<br><br>
+	<<link [[Next|Island Depths]]>><</link>>
+<</if>>
+
+:: Island Stone
+<<effects>>
+<<if setup.seaRemembers.exclusive() and $seaRemembers.current is 5 and $seaRemembers.stone lt 3>>
+	<div class="sr-game" data-sr-game="stone"></div>
+	<div class="sr-retreat"><<link [[Release the barrier and retreat|Island Retreat]]>><</link>></div>
+<<else>>
+	The way you found remains recorded. You cannot enter the deep chambers in your present body.
+	<br><br>
+	<<link [[Next|Island Depths]]>><</link>>
+<</if>>
+
+:: Island Echo Approach
+<<effects>>
+<<if setup.seaRemembers.exclusive() and $seaRemembers.stone is 3 and $seaRemembers.echo lt 3>>
+	Beyond the repaired supports, a shell, a wave and a star glow in a recess beside the gate. They match the marks on your drawing. You follow a carved line from the shell towards the handles, but the writing beside it breaks off where the stone has worn away.
+	<br><br>
+	When you touch the shell, light travels along the line and stops at the damaged writing. The three carvings glow in turn. You press the first, then the second, feeling a catch move beneath the wall as the light advances another small distance.
+	<br><br>
+	A voice calls from behind you. Figures carrying bundles pass through the doorway, their feet clear of the silt beneath them. One stops beside the lower handholds to offer a bowl to someone waiting there. You turn to follow the movement and lift your hand from the stone. The figures vanish. When you reach for the carvings again, the sequence begins from the start.
+	<br><br>
+	<<link [[Next|Island Echo]]>><</link>>
+<<else>>
+	The way you found remains recorded. You cannot enter the deep chambers in your present body.
+	<br><br>
+	<<link [[Next|Island Depths]]>><</link>>
+<</if>>
+
+:: Island Echo
+<<effects>>
+<<if setup.seaRemembers.exclusive() and $seaRemembers.stone is 3 and $seaRemembers.echo lt 3>>
+	<div class="sr-game" data-sr-game="echo"></div>
+	<div class="sr-retreat"><<link [[Leave the memories and surface|Island Retreat]]>><</link>></div>
+<<else>>
+	The way you found remains recorded. You cannot enter the deep chambers in your present body.
+	<br><br>
+	<<link [[Next|Island Depths]]>><</link>>
+<</if>>
+
+:: Island Trial Result
+<<effects>>
+<<if $seaRemembers.result and setup.seaRemembers.access() and ["current", "stone", "echo"].includes($seaRemembers.result.game) and (!$seaRemembers.result.success or $seaRemembers[$seaRemembers.result.game] is ($seaRemembers.result.game is "current" ? 5 : 3))>>
+	<<if $seaRemembers.result.success>>
+		<<if $seaRemembers.result.game is "current">>
+			You catch the final ring and pull yourself behind the last pillar. The next surge lifts sand through the gap you just crossed, but the stone takes its force. You keep hold of the ring until the water settles around your legs.
+			<br><br>
+			You stop to rest beside a row of handholds worn smooth by years of use. Another row has been cut lower down the wall, with smaller spaces between the holds. It looks as though children or smaller swimmers could have used them. Beneath the lower row, you find an instruction carved into the stone: <i>Wait here for the others.</i> You remain there until your arms have recovered, then continue towards the barrier.
+			<br><br>
+			The final ring has also pulled a small metal bolt partway out of the barrier. You remove it completely. Sand washes through a drain near your feet, and one of the damaged supports stops moving long enough for you to reach its repair handles.
+		<<elseif $seaRemembers.result.game is "stone">>
+			You press the last loose stone piece into position, closing the remaining crack. You keep your hand against the repaired joint while the water presses on the barrier, making sure it stays in place. Then you slowly let go. All three supports are holding, and the gate no longer moves when the waves reach it.
+			<br><br>
+			A stone panel near the bottom of the barrier moves aside, revealing old repair marks. Beside some of them are drawings of bowls, and farther along are pictures showing where bundles could be stored above the water. You examine the final unfinished row before swimming through the newly opened passage.
+			<br><br>
+			With the three supports repaired, a narrow opening beside the main gate is now safe to use. You can reach the symbols carved into the nearby wall without getting close to the moving parts of the gate.
+		<<else>>
+			When you complete the last sequence, more figures appear beside the gate controls. You watch one guardian open the handle marked with a shell and wait until the smaller drain carries away the sand. Another guardian pushes a support into place beneath the star. Only after the support is secure does the first guardian turn the handle marked with a wave.
+			<br><br>
+			The gate opens. Smaller figures take the lower handholds, passing bundles from one resting place to the next. Someone loses a grip, and the guardian at the frame reaches down without letting go of the support bar. The other stays at the controls while the last of the group struggles through the doorway. Only then do they release the gate.
+			<br><br>
+			You reach towards the doorway, but your hand passes through the last figure. The water is empty again. Beneath your palm, the shell glows beside the drain line; farther along, the star marks the support bar. You touch them in order once more, fixing the movements in your mind before leaving the recess.
+		<</if>>
+	<<else>>
+		<<if $seaRemembers.result.game is "current">>
+			A sudden change in the current carries the little dragon-shaped light away from you. You reach for the nearest metal ring and pull yourself into the protected space beside it. Your shoulder hurts where you hit the stone while trying to reach the ring, but the rings you activated earlier are still lit.
+		<<elseif $seaRemembers.result.game is "stone">>
+			A crack spreads across the barrier farther than you can reach. You pull your hands away before the moving stones can trap them, then swim back to the approach passage as the water pushes against you. The parts you repaired earlier are still holding, so you can return and try again.
+		<<else>>
+			You reach towards the star symbol, then realise that the shell was supposed to come first. The images around you change too quickly to follow, and you lose track of the sequence. You close your eyes, hold on to the wall, and wait until the images disappear. When you look again, the sequences you completed earlier are still glowing.
+		<</if>>
+		<br><br>
+		You follow the handholds back to the small space above the water, where you can breathe and rest. Once you have recovered, you can return to the unfinished trial or leave the tunnels and swim back to the bay.
+	<</if>>
+	<br><br>
+	<<if $seaRemembers.result.success>>
+		<<if $seaRemembers.result.game is "current">>
+			<<link [[Continue to the barrier|Island Stone Approach]]>><</link>>
+		<<elseif $seaRemembers.result.game is "stone">>
+			<<link [[Swim through the opening|Island Echo Approach]]>><</link>>
+		<<else>>
+			<<link [[Reach the sea gate|Island Sluice]]>><</link>>
+			<br>
+			<<link [[Remember the people who crossed here|Island Sluice]]>><<set $seaRemembers.legacy to "listen">><</link>>
+			<br>
+			<<link [[Keep only the instructions|Island Sluice]]>><<set $seaRemembers.legacy to "reject">><</link>>
+		<</if>>
+	<<else>>
+		<<if $seaRemembers.result.game is "current">>
+			<<link [[Recover and return to the gate (0:30)|Island Current]]>><<island_pass 30>><</link>>
+		<<elseif $seaRemembers.result.game is "stone">>
+			<<link [[Recover and return to the barrier (0:30)|Island Stone]]>><<island_pass 30>><</link>>
+		<<else>>
+			<<link [[Recover and return to the symbols (0:30)|Island Echo]]>><<island_pass 30>><</link>>
+		<</if>>
+	<</if>>
+	<br>
+	<<link [[Return to the surface|Island Retreat]]>><</link>>
+	<br>
+<<else>>
+	The way you found remains recorded. You cannot enter the deep chambers in your present body.
+	<br><br>
+	<<link [[Next|Island Depths]]>><</link>>
+<</if>>
+
+:: Island Retreat
+<<effects>>
+<<if setup.seaRemembers.isRestored() and !$seaRemembers.complete and !$seaRemembers.reward>>
+	<<include "Island Sea Restored">>
+<<else>>
+	You follow the glowing handholds through the passage towards the entrance. As you get closer to the bay, you can hear waves hitting the rocks outside. You swim out from beneath the ledge and climb onto the beach, then sit above the water while you rest. When you have recovered enough to walk, you follow the coastal path back to camp. The lit handholds will still mark how far you got.
+	<br><br>
+	<<link [[Next|Island]]>><<endevent>><<island_explore_end>><</link>>
+<</if>>
+
+:: Island Limit
+<<effects>>
+<<if setup.seaRemembers.exclusive() and $seaRemembers.echo is 3 and setup.seaRemembers.isRestored()>>
+	You enter a small room beyond the repaired gate. Three narrow channels have been cut into the floor, each leading to a large stone in the centre of the room. There is a shallow space in the stone that is just big enough for your hand.
+	<br><br>
+	You clear some sand away from the writing above it. The drawings show a person completing all three training exercises, then choosing one to practise further. Each channel ends beneath the place where you would put your hand. It looks as though you can choose only one.
+	<br><br>
+	<<if $seaRemembers.reward>>
+		The channel you chose is still full; the other two have dried. You have already received Tempered <<print $seaRemembers.reward[0].toUpperCase() + $seaRemembers.reward.slice(1)>>.<br>
+	<<else>>
+		You rest a hand in the hollow. Water gathers beneath your palm without entering any of the channels. Beside them, the last intact line repeats a requirement from the scroll: a skilled swimmer, trained to the limit of the chosen discipline. The repaired passage remains open behind you. You can leave the rite until you are ready.
+		<br><br>
+		<<for _srSkill range ["physique", "athletics", "willpower"]>>
+			<<capture _srSkill>>
+				<<set _srCap to _srSkill is "physique" ? $physiquesize : (_srSkill is "willpower" ? $willpowermax : 1000)>>
+				<<set _srName to _srSkill[0].toUpperCase() + _srSkill.slice(1)>>
+				<b><<if _srSkill is "physique">>Body<<elseif _srSkill is "athletics">>Motion<<else>>Spirit<</if>>: Tempered _srName</b>: <<print Math.floor(State.variables[_srSkill])>>/<<print Math.floor(_srCap)>>.
+				<br>
+				<<link `"Consider Tempered " + _srName` "Island Confirm">><<set $seaRemembers.pending to _srSkill>><</link>>
+				<<if setup.seaRemembers.ready(_srSkill)>>
+					You meet the requirements for this choice.
+				<<else>>
+					<<if $swimmingskill lt 1000>>You need 1,000 Swimming. <</if>>
+					<<if State.variables[_srSkill] lt _srCap>>You need _srName at <<print Math.floor(_srCap)>>. <</if>>
+				<</if>>
+				<<if $AMCTraits[_srSkill] is 2>>
+					You already have this talent. You can still finish the challenge, but you will not receive another copy of the bonus.
+				<</if>>
+				<br>
+			<</capture>>
+		<</for>>
+	<</if>>
+	<br>
+	<<link [[Return to the approach|Island Depths]]>><<unset $seaRemembers.pending>><</link>>
+<<elseif setup.seaRemembers.exclusive() and $seaRemembers.echo is 3>>
+	The large gate is still closed, and water is pressing against its supports. The final training room is on the other side. You will need to operate the gate in the order shown in the memory chamber before you can enter.
+	<br><br>
+	<<link [[Next|Island Sluice]]>><</link>>
+<<else>>
+	The way you found remains recorded. You cannot enter the deep chambers in your present body.
+	<br><br>
+	<<link [[Next|Island Depths]]>><</link>>
+<</if>>
+
+:: Island Confirm
+<<effects>>
+<<if setup.seaRemembers.exclusive() and setup.seaRemembers.isRestored() and !$seaRemembers.reward and $seaRemembers.echo is 3 and ["physique", "athletics", "willpower"].includes($seaRemembers.pending)>>
+	<<set _srName to $seaRemembers.pending[0].toUpperCase() + $seaRemembers.pending.slice(1)>>
+	You move your hand towards the channel marked for _srName. Once water runs through it, the other two will stay dry for good.
+	<br><br>
+	Do you want to choose <b>Tempered _srName</b> permanently?
+	<br><br>
+	<<if setup.seaRemembers.ready($seaRemembers.pending)>>
+		<<link [[Confirm the breakthrough|Island Rite]]>><<set $seaRemembers.claimedScene to setup.seaRemembers.claim($seaRemembers.pending)>><</link>>
+	<<else>>
+		The water won't move for you yet. You need Swimming _srName at its normal maximum. The completed trials stay completed while you train.
+	<</if>>
+	<br>
+	<<link [[Reconsider|Island Limit]]>><<unset $seaRemembers.pending>><</link>>
+<<else>>
+	This part of the quest is not available right now.
+	<br><br>
+	<<link [[Next|Island Limit]]>><</link>>
+<</if>>
+
+:: Island Rite
+<<effects>>
+<<if $seaRemembers.claimedScene and $seaRemembers.reward>>
+	<<unset $seaRemembers.claimedScene>>
+	You press your palm into the opening in the stone. Water begins flowing through the channel you chose and pushes against your hand. You keep your palm in place even as the pressure increases. After a few moments, the water slows and the other two channels empty.
+	<br><br>
+	You lift your palm from the hollow. The water keeps running through the chosen channel, though the other two have emptied. After flexing your fingers, you push away from the stone and swim towards the doorway.
+	<<if $seaRemembers.reward is "physique">>
+		You brace both hands against the doorway and push, taking the weight through your shoulders as you did beneath the damaged frame. Your muscles tire, but you keep the position without letting your elbows fold. You release the stone before pushing yourself further; the passage home still lies ahead.
+	<<elseif $seaRemembers.reward is "athletics">>
+		You turn sideways to swim through the narrow doorway. The current changes direction as you pass, but you remember how you moved through the first trial. You adjust your swimming and reach the next handhold without striking the wall.
+	<<else>>
+		As you reach the doorway, you hear the distant call that followed you to the island. You stop swimming and hold on to the stone until the sound fades. Once you can concentrate on the passage ahead, you decide which handhold to reach for next.
+	<</if>>
+	At the doorway, you turn to check the channels once more. Only the one you chose is flowing.
+	<br><br>
+	You have earned <span class="gold">Tempered <<print $seaRemembers.reward[0].toUpperCase() + $seaRemembers.reward.slice(1)>></span>, allowing you to train it beyond its normal limit. The Elder will want to hear of it.
+	<br><br>
+	<<link [[Next|Island Retreat]]>><</link>>
+<<else>>
+	This part of the quest is not available right now.
+	<br><br>
+	<<link [[Next|Island Limit]]>><</link>>
+<</if>>
+
+:: Island Elder Echoes
+<<effects>>
+You tell the Elder about the figures you saw in the memory chamber, including the people carrying supplies and those operating the gate. The Elder listens carefully and asks whether you heard anyone mention a name.
+<br><br>
+You explain that you heard voices but could not understand any names. The Elder looks disappointed. "I hoped we might finally learn who used those passages," the Elder says. "Perhaps there are more records we haven't found yet."
+<br><br>
+The Elder adds more fuel to the fire while you sit nearby. You warm your hands and accept another cup of tea before getting ready to leave.
+<br><br>
+<<link [[Next|Island Elder]]>><</link>>
+
+:: Island Heir
+<<effects>>
+<<if setup.seaRemembers.access() and setup.seaRemembers.isRestored() and $seaRemembers.heir and $seaRemembers.reward>>
+	You show the Elder which channel you chose behind the gate. <<He>> turns the drawing towards the fire, tracing the mark with a finger. "So that part of the record was right." <<He>> sets it beside the coastal plan. "You've done more than copy their exercises. I hope they serve you well."
+	<br><br>
+	<<earnFeat "Heir of the Tide">>
+	You keep the skill improvement you chose even after leaving the island or changing your transformation.
+	<br><br>
+	<<link [[Next|Island Elder]]>><<set $seaRemembers.heir to $seaRemembers.reward>><</link>>
+<<elseif setup.seaRemembers.access() and setup.seaRemembers.isRestored()>>
+	Beside the Elder's cup sits a bowl of water, with a little sand settled at the bottom. <<He>> moves it between you so you can see. "I went down to the coast after the water level dropped," the Elder tells you. "The steps are safer now, but some of the stones are still loose. I've asked everyone to check the path before carrying anything across it."
+	<br><br>
+	<<if $seaRemembers.account is "private" or $seaRemembers.legacy is "reject">>
+		You explain how to keep the smaller drain open without describing the figures in the recess. When the Elder asks about the rest of the chamber, you turn the drawing back to the coastal steps. The Elder brings out the coastal map instead. "You don't have to tell me everything," the Elder says. "Please show me what people need to check to keep the path safe."
+	<<else>>
+		You describe the two rows of handholds inside the tunnel and the bowls kept beside the old repair marks. The Elder takes a similar bowl from a shelf and examines the bottom. "Our families have continued leaving these bowls out for the dragons," the Elder says. "I was taught that it was a way to welcome them. I didn't know the bowls were also used by people waiting to cross the passage."
+	<</if>>
+	<br><br>
+	You point to the blocked drain on the drawing and show how it trapped water behind the gate. "Your warning was right," you say. "Opening the gate under that pressure would have torn the frame loose. But keeping the drain shut was flooding the steps."
+	<br><br>
+	The Elder follows the channel on your drawing with one finger. "We didn't realise that leaving the drain blocked was making the steps more dangerous," the Elder says. "I should have compared my records with the ones beneath the castle earlier. I'll speak to the old islander about that."
+	<br><br>
+	<<if $seaRemembers.attitude is "defiant" or $seaRemembers.attitude is "self">>
+		"I know you came to investigate for your own reasons," the Elder adds. "I won't ask you to become responsible for repairing the island's tunnels. We need to learn how to maintain the steps ourselves."
+	<<else>>
+		The Elder asks what the islanders should check to prevent the passage from becoming blocked again. You mark the drain and the loose stones above it on the coastal drawing. "We can check these places from the shore," the Elder says. "That means nobody has to swim through the gate just to see whether there's a problem."
+	<</if>>
+	<br><br>
+	A masked islander appears in the doorway while you are talking, sees you sitting with the Elder, and leaves without a word. The Elder watches the doorway for a moment before turning back to you. "Some islanders still don't know how to behave around you," the Elder says. "I need to speak to them about that. You don't have to be involved, though. You're welcome to finish your tea before you leave."
+	<br><br>
+	<<if $seaRemembers.reward>>
+		<<earnFeat "Heir of the Tide">>
+		You keep the skill improvement you chose even after leaving the island or changing your transformation.
+	<<else>>
+		"There is still the last exercise," the Elder adds, turning to its drawing. "This line asks for a swimmer trained to the limit of the chosen discipline. Keep practising before you try it."
+	<</if>>
+	<br><br>
+	<<link [[Next|Island]]>><<set $seaRemembers.heir to ($seaRemembers.reward or true)>><<set $seaRemembers.complete to true>><<set $seaRemembers.chapter to 7>><<endevent>><</link>>
+<<else>>
+	This part of the quest is not available right now.
+	<br><br>
+	<<link [[Next|Island Elder]]>><</link>>
+<</if>>
+
+:: Island Hermit Epilogue
+<<effects>>
+"The water level outside my room has dropped," the old islander says when you return. <<He>> puts the kettle beside the repair records and takes out the drawing you examined together. "I've been looking at this again. Were you able to find the smaller drain?"
+<br><br>
+You show <<him>> where the drain runs beneath the large gate and explain how the fallen stone had blocked it. The old islander gives you a blank sheet so you can draw the missing section. <<He>> compares your drawing with the damaged record. "Now I can see where this line was supposed to go," <<he>> says. "I couldn't work out which opening it connected to."
+<br><br>
+<<if $seaRemembers.account is "private" or $seaRemembers.legacy is "reject">>
+	When <<he>> asks what else you found, you leave out the figures in the recess. You describe the damaged supports instead, and the old islander turns the page to make room for your corrections. "You've already shown me enough to correct the repair instructions," <<he>> says. "You can keep the rest of your notes to yourself."
+<<else>>
+	You describe the figures you saw carrying bowls and bundles through the passage while a guardian operated the gate. The old islander examines a row of marks along the edge of the record. "I thought these were counts of supplies for the warriors," <<he>> says. "They may have been counting how many people needed to cross." <<He>> writes your account beside the original translation, keeping both versions readable.
+<</if>>
+<br><br>
+"We also need to include the Elder's warning," <<he>> adds. "Clearing the drain was important, but forcing the large gate open before securing the supports could have caused serious damage. People need both instructions."
+<br><br>
+You help <<him>> place the new drawing beside the old records. Although you have learned how the passage worked, the records still end before anyone explained why the dragons disappeared. The old islander carefully stores your notes with the others.
+<br><br>
+<<link [[Next|Island Hermit]]>><</link>>
+<br>
+
+:: Island Markings
+<<effects>>
+You kneel beside the carved stone and brush the loose dirt away with your hand. Beneath it, you find a drawing of someone swimming. The figure has one hand pressed against a stone wall. A second figure is shown turning away from an area of rough water.
+<br><br>
+<<if Transformations.isFullWaterDragon()>>
+	You trace the tail on the carved swimmer, then try moving your own tail into the same position. When you turn sideways, you find it easier to balance on the uneven ground without moving your feet. The carving may be showing a way to control your body in moving water.
+	<br><br>
+	You copy the drawing before putting the loose dirt back around the exposed stone. Someone who studies the island's records might know what the movement was used for.
+<<else>>
+	You copy the drawing before putting the loose dirt back around the exposed stone. The positions of the swimmer's arms and body are clearly shown, which suggests the carving may be an instruction. An islander familiar with the old records might know more about it.
+<</if>>
+<br><br>
+You notice that small pieces have recently broken away from the bottom of the stone. Wet sand has also been washed onto the path, farther inland than the sea normally reaches. Beside the swimmer, a carved channel points along the coast towards the castle.
+<br><br>
+<<link [[Next|Island]]>><<endevent>><</link>>
+<br>

@@ -12,6 +12,12 @@
 	altDescCond: "conditional" //Conditional evaluated to decide whether or not to display the altDescText (the feat must be owned in the current save for this to happen, regardless of the conditional)
 */
 setup.feats = {
+	"Heir of the Tide": {
+		title: "Heir of the Tide",
+		desc: "Complete the ancient warrior rite beneath the island and return to the Elder.",
+		difficulty: 3,
+		filter: ["All", "General"],
+	},
 	"An Island Invitation": {
 		title: "Welcome to Arcology",
 		desc: "Unlock Arcology and register your island identity.",

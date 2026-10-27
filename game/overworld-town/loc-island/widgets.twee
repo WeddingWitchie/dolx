@@ -612,6 +612,7 @@ You find a walnut tree, with fresh nuts lying about the base.
 	You look past it, and see another walnut tree, and another, arranged in a line. They look cared for, like an orchard.
 	<br><br>
 
+	<<island_markings_offer>>
 	<<link [[Gather walnuts (0:05)|Island Walnut Gather]]>><<island_pass 5>><<set $island.walnut += 3>><</link>><<ggwalnut>>
 	<br>
 	<<link [[Leave|Island]]>><<island_explore_end>><</link>>
@@ -688,7 +689,8 @@ You find a walnut tree, with fresh nuts lying about the base.
 	You search beneath the boughs of thick trees, illuminated by an even, seemingly source-less light. It's gloomy, but usable sticks are easy enough to spot. You emerge from the wood with three in your arms.<<gwood>><<set $island.wood += 3>>
 	<br><br>
 
-	<<link [[Next|Island]]>><<island_explore_end>><</link>>
+	<<island_markings_offer>>
+	<<link [[Keep exploring|Island]]>><<island_explore_end>><</link>>
 <</widget>>
 
 <<widget "island_events_hunted">>
@@ -839,17 +841,43 @@ You find a walnut tree, with fresh nuts lying about the base.
 <</widget>>
 
 <<widget "island_events_bay">>
-	<<set $island.explore_locations.pushUnique("bay")>>
-	<<set $island.raft to 1>>
-	You find a sheltered bay. There's no sign of the monstrosities that plague the other beaches. It's peaceful.<<lstress>><<stress -6>>
-	<br><br>
-	Near the treelines lies a wooden frame. It looks like an incomplete raft. It would take a lot of wood, but you could finish it and leave the island.
-	<br><br>
-
-	<span class="gold">You've discovered the bay.</span>
-	<br><br>
-
-	<<link [[Next|Island]]>><<island_explore_end>><</link>>
+	<<if !$island.explore_locations.includes("bay")>>
+		<<set $island.explore_locations.pushUnique("bay")>>
+		<<set $island.raft to 1>>
+		You find a sheltered bay. There's no sign of the monstrosities that plague the other beaches. It's peaceful.<<lstress>><<stress -6>>
+		<br><br>
+		Near the treelines lies a wooden frame. It looks like an incomplete raft. It would take a lot of wood, but you could finish it and leave the island.
+		<br><br>
+		<span class="gold">You've discovered the bay.</span>
+		<br><br>
+	<<else>>
+		You reach the sheltered bay. The treeline gives way to sand, near the place where you found the raft frame. There is no sign of the creatures that haunt the open beaches.
+		<br><br>
+	<</if>>
+	<<if setup.seaRemembers.access() and $seaRemembers?.chapter gte 3>>
+		<<if setup.seaRemembers.isRestored()>>
+			Water drains through the opening below the reef tooth in a steady stream. The loose stones above it have stopped knocking together. A masked islander tests the lowest step with a stick, then carries a bundle across. Nobody waves you over.
+		<<else>>
+			Foam gathers beside the reef tooth, then vanishes beneath the cliff. A stone knocks against another below the water. You can feel the pull change before the next wave reaches shore.
+		<</if>>
+		<<if setup.seaRemembers.exclusive()>>
+			<<if $seaRemembers.route>>
+				You recognise the reef tooth and the ledge below it. The route into the cliff remains clear.
+				<br><br>
+				<<swimicon>><<link [[Dive along the marked route (0:10)|Island Depths]]>><<island_pass 10>><</link>>
+				<br>
+			<<else>>
+				The old islander's drawing follows this part of the shore. You can see a mark cut into the stone near the water.
+				<br><br>
+				<<investigateicon>><<link [[Compare the marks with the drawing (0:10)|Island Tides]]>><<island_pass 10>><</link>>
+				<br>
+			<</if>>
+		<<else>>
+			Your notes remain safe, but you cannot follow the deep water in your present body.
+			<br><br>
+		<</if>>
+	<</if>>
+	<<link [[Keep exploring|Island]]>><<island_explore_end>><</link>>
 	<br>
 <</widget>>
 
@@ -1401,4 +1429,76 @@ You find a walnut tree, with fresh nuts lying about the base.
 			<<link [[Demolish (1:00)|Island Build]]>><<island_pass 60>><<set $island[$island.home][_args[0]] to undefined>><<set $island[$island.home].space += 1>><</link>>
 		<</if>>
 	</div>
+<</widget>>
+
+<<widget "island_markings_offer">>
+	<<if setup.seaRemembers.access() and !$seaRemembers?.clues.includes(0)>>
+		A stone near the path bears three worn cuts. They follow the grain until one turns sharply across it. Roots and water could not have made them.
+		<br><br>
+		<<link [[Study the old markings (0:10)|Island Markings]]>><<island_pass 10>><<run setup.seaRemembers.noteMarkings()>><<island_explore_end>><<endevent>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "island_events_old_markings">>
+	<<if $island.explore is "wood">>
+		Between two thick roots, you find the edge of a carved stone. Its exposed face is dry despite the damp leaves around it.
+	<<else>>
+		<<if !$seaRemembers?.shoreChoice and !setup.seaRemembers.isRestored()>>
+			<<generateRole 0 0 "islander">><<person1>>
+			A wave spills across a line of old steps below the path. Instead of running back to sea, it turns sharply beneath the cliff. An islander on the lowest step drops a basket and grabs the rock as the water pulls <<his>> feet away. <<He>> drags one knee onto the step, but cannot reach the path.
+			<br><br>
+			A broken stone beside you bears the outline of a swimmer. Fresh chips lie over its worn cuts. The water tugs again, harder than the waves outside the inlet.
+			<br><br>
+			<<link [[Pull the islander up with a branch (0:15)|Island Shore Rescue]]>><<run setup.seaRemembers.noteMarkings()>><<set $seaRemembers.shoreChoice to "helped">><<island_pass 15>><<tiredness 20>><<island_explore_end>><</link>>
+			<br>
+			<<link [[Show a way up the higher steps (0:05)|Island Shore Rescue]]>><<run setup.seaRemembers.noteMarkings()>><<set $seaRemembers.shoreChoice to "warned">><<island_pass 5>><<island_explore_end>><</link>>
+			<br>
+			<<link [[Stay back and watch the current (0:10)|Island Shore Rescue]]>><<run setup.seaRemembers.noteMarkings()>><<set $seaRemembers.shoreChoice to "left">><<island_pass 10>><<island_explore_end>><</link>>
+		<<else>>
+			A fallen piece of cliff exposes the worn face of a stone above the shore. Fresh water has carried grit across the path below it.
+		<</if>>
+	<</if>>
+	<br><br>
+	<<if $island.explore is "wood" or $seaRemembers?.shoreChoice or setup.seaRemembers.isRestored()>><<island_markings_offer>><</if>>
+	<<link [[Keep exploring|Island]]>><<endevent>><<island_explore_end>><</link>>
+	<br>
+<</widget>>
+
+<<widget "island_elder_topics">>
+	<<if setup.seaRemembers.access()>>
+		<<run setup.seaRemembers.init()>>
+		<<if setup.seaRemembers.exclusive() and $seaRemembers.clues.includes(0)>>
+			<<if $seaRemembers.chapter lt 2>>
+				<<link [[Show the old markings|Island Warriors]]>><<set $seaRemembers.chapter to 2>><<island_pass 20>><</link>>
+				<br>
+			<</if>>
+			<<if $seaRemembers.echo is 3>>
+				<<link [[Discuss the water's memories|Island Elder Echoes]]>><</link>>
+				<br>
+			<</if>>
+		<</if>>
+		<<if setup.seaRemembers.isRestored() and $seaRemembers.heir isnot ($seaRemembers.reward or true)>>
+			<<link [[Discuss the restored sea passage|Island Heir]]>><</link>>
+			<br>
+		<</if>>
+		<<if $seaRemembers.heir>>
+			The Elder has placed your drawing beside a plan of the coastal path. Outside the room, the islanders still watch you pass.
+			<br><br>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "island_hermit_topics">>
+	<<if setup.seaRemembers.access()>>
+		<<run setup.seaRemembers.init()>>
+		<<if setup.seaRemembers.exclusive() and $seaRemembers.chapter gte 2>>
+			<<link [[Warrior records|Island Names]]>><<island_pass 30>><<set $seaRemembers.chapter to Math.max(3, $seaRemembers.chapter)>><</link>>
+			<br>
+		<</if>>
+		<<if $seaRemembers.complete>>
+			<<link [[Final chamber|Island Hermit Epilogue]]>><</link>>
+			<br>
+		<</if>>
+	<</if>>
 <</widget>>
