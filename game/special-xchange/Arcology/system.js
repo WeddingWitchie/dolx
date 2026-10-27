@@ -158,19 +158,26 @@ setup.arcology = {
 		return (line + "<".repeat(44)).slice(0, 44);
 	},
 
-	/* Bars drawn from the characters of the ID, so the same ID always gives the same pattern. */
+	/* Code 39 narrow/wide patterns: https://github.com/zxing/zxing/blob/master/core/src/main/java/com/google/zxing/oned/Code39Reader.java */
 	barcode(text) {
-		let x = 0;
+		const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-";
+		const patterns = [
+			0x034, 0x121, 0x061, 0x160, 0x031, 0x130, 0x070, 0x025, 0x124, 0x064, 0x109, 0x049, 0x148, 0x019, 0x118, 0x058, 0x00d, 0x10c, 0x04c, 0x01c, 0x103, 0x043,
+			0x142, 0x013, 0x112, 0x052, 0x007, 0x106, 0x046, 0x016, 0x181, 0x0c1, 0x1c0, 0x091, 0x190, 0x0d0, 0x085,
+		];
+		if (!text || [...text].some(ch => !alphabet.includes(ch))) return "";
+		let x = 10;
 		let bars = "";
-		for (const ch of text) {
-			const code = ch.charCodeAt(0);
-			for (let i = 0; i < 4; i++) {
-				const w = 1 + ((code >> i) & 1) + ((code >> (i + 3)) & 1);
-				if (i % 2 === 0) bars += `<rect x="${x}" y="0" width="${w}" height="10"/>`;
+		for (const ch of `*${text}*`) {
+			const code = ch === "*" ? 0x094 : patterns[alphabet.indexOf(ch)];
+			for (let i = 0; i < 9; i++) {
+				const w = code & (1 << (8 - i)) ? 3 : 1;
+				if (i % 2 === 0) bars += `<rect x="${x}" y="0" width="${w}" height="32"/>`;
 				x += w;
 			}
+			x++;
 		}
-		return `<svg class="holo-id-barcode" viewBox="0 0 ${x} 10" preserveAspectRatio="none" aria-hidden="true">${bars}</svg>`;
+		return `<svg class="holo-id-barcode" viewBox="0 0 ${x + 9} 32" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true">${bars}</svg>`;
 	},
 
 	/* The island drifts, so the trip length follows a slow cycle over the days (two to five days) with a little noise. Same day, same rough answer. */

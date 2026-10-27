@@ -2,7 +2,6 @@
 /* Virtual pet artwork and animation. Never changes game state: battle rounds are observed by wrapping Tamagotchi's
  * battle calls and replayed once the next passage shows. Timeouts are cleared on every passage change. */
 (() => {
-	const STROKE = 2.6;
 	const cache = new Map();
 	const forms = () => setup.petForms;
 
@@ -51,33 +50,22 @@
 
 	/* ---- the drawing kit handed to every form's draw() ---- */
 	function kit(p) {
-		const line = `stroke="${p.o}" stroke-width="${STROKE}" stroke-linejoin="round" stroke-linecap="round"`;
 		const k = {
 			p,
-			P: (d, fill) => `<path d="${d}" fill="${fill}" ${line}/>`,
-			E: (cx, cy, rx, ry, fill) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}" ${line}/>`,
+			P: (d, fill) => `<path d="${d}" fill="${fill}"/>`,
+			E: (cx, cy, rx, ry, fill) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}"/>`,
 			F: (d, fill, opacity) => `<path d="${d}" fill="${fill}"${opacity == null ? "" : ` opacity="${opacity}"`}/>`,
 			FE: (cx, cy, rx, ry, fill, opacity) =>
 				`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}"${opacity == null ? "" : ` opacity="${opacity}"`}/>`,
 			L: (d, colour = p.o, width = 2.2) =>
 				`<path d="${d}" fill="none" stroke="${colour}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round"/>`,
 			g: (cls, origin, inner, delay) => `<g class="${cls}" style="transform-origin:${origin}${delay ? `;animation-delay:${delay}s` : ""}">${inner}</g>`,
-			shine: (cx, cy, rx, ry) => k.FE(cx, cy, rx, ry, "#fff", 0.35),
-			blush: (cx, cy) => k.FE(cx, cy, 4, 2.4, "#ff6f8a", 0.45),
-			/* Eyes blink as a group. brow tilts a brow above: negative lowers its front end, positive its back end.
-			 * glow: a bright eye with a dark pupil (wild things, Oakguard). slit: the golem's visor lights. */
+			/* All forms use small dot eyes; the sentinel keeps its visor. */
 			eye(x, y, r, o = {}) {
-				let open;
-				if (o.slit) open = `<rect x="${x - r * 1.3}" y="${y - r * 0.45}" width="${r * 2.6}" height="${r * 0.9}" rx="${r * 0.4}" fill="${p.eye}"/>`;
-				else if (o.glow)
-					open =
-						k.FE(x, y, r, r * 1.1, p.eye) + k.FE(x + r * 0.15, y, r * 0.42, r * 0.62, "#140c10") + k.FE(x + r * 0.35, y - r * 0.4, r * 0.25, r * 0.25, "#fff");
-				else
-					open =
-						k.FE(x, y, r, r * 1.18, p.eye) +
-						k.FE(x + r * 0.32, y - r * 0.42, r * 0.42, r * 0.42, "#fff") +
-						k.FE(x - r * 0.3, y + r * 0.42, r * 0.18, r * 0.18, "#fff");
-				const brow = o.brow ? k.L(`M${x - r * 1.1} ${y - r * 1.55 + o.brow * 1.1} L${x + r * 1.1} ${y - r * 1.55 - o.brow * 1.1}`, p.o, 2) : "";
+				r *= 0.55;
+				const open = o.slit
+					? `<rect x="${x - r * 1.3}" y="${y - r * 0.45}" width="${r * 2.6}" height="${r * 0.9}" rx="${r * 0.4}" fill="${p.eye}"/>`
+					: k.FE(x, y, r, r * 1.1, p.eye);
 				const shut = `<path class="pa-eye-shut" d="M${x - r} ${y} Q${x} ${y + r * 0.8} ${x + r} ${y}" fill="none" stroke="${
 					p.o
 				}" stroke-width="2" stroke-linecap="round"/>`;
@@ -87,7 +75,7 @@
 					: `<path class="pa-eye-happy" d="M${x - r} ${y + r * 0.35} Q${x} ${y - r * 0.95} ${x + r} ${y + r * 0.35}" fill="none" stroke="${
 							p.o
 					  }" stroke-width="2.2" stroke-linecap="round"/>`;
-				return `<g class="pa-eye" style="transform-origin:50% 50%"><g class="pa-eye-open">${open}</g>${shut}${happy}</g>${brow}`;
+				return `<g class="pa-eye" style="transform-origin:50% 50%"><g class="pa-eye-open">${open}</g>${shut}${happy}</g>`;
 			},
 		};
 		return k;
@@ -98,14 +86,14 @@
 		const F = forms();
 		const [kind, id] = String(key).split(":");
 		if (kind === "golem") {
-			const glow = F.runeColour[id] || F.runeColour.normal;
-			return { def: F.golem, p: { ...F.golem.palette, rune: glow, eye: glow }, fx: id in F.runeColour ? id : "normal" };
+			const glow = Object.hasOwn(F.runeColour, id) ? F.runeColour[id] : F.runeColour.normal;
+			return { def: F.golem, p: { ...F.golem.palette, rune: glow, eye: glow }, fx: Object.hasOwn(F.runeColour, id) ? id : "normal" };
 		}
 		if (kind === "wild") {
-			const def = F.wild[id] || Object.values(F.wild)[0];
+			const def = Object.hasOwn(F.wild, id) ? F.wild[id] : Object.values(F.wild)[0];
 			return { def, p: def.palette, fx: def.type };
 		}
-		const def = F.pets[id] || F.pets.embit;
+		const def = Object.hasOwn(F.pets, id) ? F.pets[id] : F.pets.embit;
 		if (kind === "mirror") return { def, p: mirrorPalette(def.palette), fx: def.type, mirror: true };
 		return { def, p: def.palette, fx: def.type };
 	}
@@ -162,21 +150,20 @@
 		cls.push("pa--f-" + (kind === "golem" ? "golem" : String(id || "").toLowerCase()));
 		if (kind === "mirror") cls.push("pa--mirror");
 		const scale = o.scale && o.scale !== 1 ? ` style="--pa-scale:${o.scale}"` : "";
-		return `<div class="${cls.join(" ")}" data-pa="${esc(key)}" data-fx="${r.fx}"${scale} aria-hidden="true">${svg(key)}<div class="pa-fx"></div></div>`;
+		return `<div class="${esc(cls.join(" "))}" data-pa="${esc(key)}" data-fx="${r.fx}"${scale} aria-hidden="true">${svg(key)}<div class="pa-fx"></div></div>`;
 	}
 
 	/* ---- keys for game objects ---- */
-	const petKey = species => "pet:" + (forms().pets[species] ? species : "embit");
+	const petKey = species => "pet:" + (Object.hasOwn(forms().pets, species) ? species : "embit");
 	function enemyKey(e) {
 		if (!e) return "wild:";
 		if (e.kind === "boss") {
 			const base = String(e.name || "").replace(/^Mirror /, "");
 			const id = Object.keys(forms().pets).find(k => forms().pets[k].name === base) || (V.tamagotchi && V.tamagotchi.species);
-			return "mirror:" + (forms().pets[id] ? id : "embit");
+			return "mirror:" + (Object.hasOwn(forms().pets, id) ? id : "embit");
 		}
 		if (e.kind === "miniboss") return "golem:" + e.type;
-		const named = forms().wild[e.name];
-		if (named) return "wild:" + e.name;
+		if (Object.hasOwn(forms().wild, e.name)) return "wild:" + e.name;
 		return "wild:" + (Object.keys(forms().wild).find(k => forms().wild[k].type === e.type) || "");
 	}
 
@@ -202,10 +189,11 @@
 		const foeState = b.over && b.result === "win" ? "down" : "";
 		return (
 			`<div class="pa-battle"><div class="pa-stage pa-stage--${esc(b.enemy.kind || "wild")}">` +
+			`<svg class="pa-habitat" viewBox="0 0 600 220" preserveAspectRatio="none" aria-hidden="true"><path d="M0 132Q90 85 190 128T390 115T600 127V220H0Z" fill="#294539"/><path d="M0 172Q150 145 310 174T600 162V220H0Z" fill="#3b5336"/><path d="M0 204Q140 178 300 201T600 194V220H0Z" fill="#486140"/><path d="M40 173l5-10 3 11m484-2 5-12 2 11M260 187l4-8 3 9" fill="none" stroke="#71865a" stroke-width="2"/></svg>` +
 			(b.enemy.kind === "boss" ? `<div class="pa-moon"></div>` : "") +
 			`<div class="pa-slot pa-slot--pet">${html(petKey(V.tamagotchi.species), { size: "battle", state: petState })}</div>` +
 			`<div class="pa-slot pa-slot--foe">${html(enemyKey(b.enemy), { size: big ? "boss" : "battle", flip: true, state: foeState })}</div>` +
-			`<button type="button" class="pa-skip" hidden>Skip animation</button></div>` +
+			`</div>` +
 			Tamagotchi.battleHtml() +
 			`</div>`
 		);
@@ -216,11 +204,7 @@
 		const t = V.tamagotchi;
 		const def = t && forms().pets[t.species];
 		if (!def || !def.from) return "";
-		return (
-			`<div class="pa-evolve" data-from="pet:${def.from}" data-to="pet:${t.species}">` +
-			html("pet:" + t.species, { size: "evolve" }) +
-			`<button type="button" class="pa-skip" hidden>Skip animation</button></div>`
-		);
+		return `<div class="pa-evolve" data-from="pet:${def.from}" data-to="pet:${t.species}">` + html("pet:" + t.species, { size: "evolve" }) + `</div>`;
 	}
 
 	/* ---- observing battle rounds ---- */
@@ -306,8 +290,13 @@
 		timers.push(setTimeout(fn, ms));
 	}
 	function cancel() {
-		for (const id of timers) clearTimeout(id);
-		timers = [];
+		if (timers.length) {
+			for (const id of timers) clearTimeout(id);
+			timers = [];
+			document.querySelectorAll("#passages .pa-burst, #passages .pa-impact").forEach(el => el.remove());
+			const stage = document.querySelector("#passages .pa-busy");
+			if (stage) lock(stage, false);
+		}
 		finishNow = null;
 	}
 	const TRANSIENT = ["attack", "hurt", "charge", "revive", "enter", "boss-enter", "evolving", "evolved", "happy"];
@@ -325,6 +314,10 @@
 		if (svgEl) svgEl.outerHTML = svg(key);
 		el.dataset.pa = key;
 		el.dataset.fx = resolve(key).fx;
+		for (const cls of [...el.classList]) if (cls.startsWith("pa--f-")) el.classList.remove(cls);
+		const [kind, id] = key.split(":");
+		el.classList.add("pa--f-" + (kind === "golem" ? "golem" : id.toLowerCase()));
+		el.classList.toggle("pa--mirror", kind === "mirror");
 	}
 
 	/* A short burst of element particles over a creature. kind: fire, water, grass, electric, normal, heal, guard. */
@@ -340,9 +333,17 @@
 		bloom:
 			'<svg viewBox="0 0 12 12"><circle cx="6" cy="2.6" r="2.4" fill="#ffb3c8"/><circle cx="9.4" cy="6" r="2.4" fill="#ffb3c8"/><circle cx="6" cy="9.4" r="2.4" fill="#ffb3c8"/><circle cx="2.6" cy="6" r="2.4" fill="#ffb3c8"/><circle cx="6" cy="6" r="2" fill="#ffe36a"/></svg>',
 	};
-	function burst(el, kind) {
+	function burst(el, kind, damage = 0) {
 		const layer = el && el.querySelector(".pa-fx");
 		if (!layer) return;
+		if (damage > 0) {
+			const number = document.createElement("span");
+			number.className = "pa-impact";
+			number.textContent = "−" + damage;
+			number.setAttribute("aria-hidden", "true");
+			layer.appendChild(number);
+			at(800, () => number.remove());
+		}
 		const box = document.createElement("div");
 		box.className = "pa-burst pa-burst--" + kind;
 		if (kind === "guard") {
@@ -359,7 +360,7 @@
 			}
 		}
 		layer.appendChild(box);
-		setTimeout(() => box.remove(), 800);
+		at(800, () => box.remove());
 	}
 
 	function bars(stage) {
@@ -382,18 +383,23 @@
 		if (label) label.textContent = cur + "/" + max;
 	}
 
+	function holdMove(event) {
+		event.preventDefault();
+		event.stopImmediatePropagation();
+	}
 	function lock(stage, on) {
 		const after = document.querySelector("#passages .pa-after");
 		if (after) {
 			after.inert = on;
 			after.classList.toggle("pa-held", on);
+			if (on) after.addEventListener("click", holdMove, true);
+			else after.removeEventListener("click", holdMove, true);
 		}
 		stage.classList.toggle("pa-busy", on);
-		const skip = stage.querySelector(".pa-skip");
-		if (skip) skip.hidden = !on;
+		if (!on) stage.onclick = null;
 	}
 
-	/* Plays a list of [ms, fn] steps, then finish(). Skipping (button, tap, Escape) jumps straight to finish(). */
+	/* Plays a list of [ms, fn] steps, then finish(). Tapping the stage or pressing Escape jumps to finish(). */
 	function run(stage, steps, end, finish) {
 		cancel();
 		lock(stage, true);
@@ -405,10 +411,8 @@
 		finishNow = done;
 		for (const [ms, fn] of steps) at(ms, fn);
 		at(end, done);
-		const skip = stage.querySelector(".pa-skip");
-		if (skip) skip.onclick = () => finishNow && finishNow();
-		stage.onclick = event => {
-			if (event.target !== skip && finishNow) finishNow();
+		stage.onclick = () => {
+			if (finishNow) finishNow();
 		};
 	}
 
@@ -498,7 +502,7 @@
 			steps.push([
 				t + 230,
 				() => {
-					burst(foeEl, action.type);
+					burst(foeEl, action.type, Math.max(0, B.ehp - foeMid));
 					sfx(actionSound(action));
 					state(foeEl, "hurt", 380);
 					setBar(bar.foeHp, foeMid, B.emax);
@@ -575,7 +579,7 @@
 			steps.push([
 				t + 230,
 				() => {
-					burst(petEl, type);
+					burst(petEl, type, hit);
 					sfx("pet-hit-" + type);
 					at(110, () => sfx("pet-hurt"));
 					state(petEl, "hurt", 380);
@@ -653,10 +657,18 @@
 	if (typeof jQuery !== "undefined") {
 		jQuery(document).one(":storyready", install);
 		jQuery(document).on(":passageinit", cancel);
+		jQuery(document).on(":onloadsave", () => {
+			cancel();
+			lastRound = null;
+			introShown = "";
+		});
 		jQuery(document).on(":passagedisplay", () => {
 			const stage = document.querySelector("#passages .pa-stage");
 			if (stage) playBattle(stage);
-			else lastRound = null;
+			else {
+				lastRound = null;
+				introShown = "";
+			}
 			const evolve = document.querySelector("#passages .pa-evolve");
 			if (evolve) playEvolution(evolve);
 		});
@@ -677,17 +689,6 @@
 		icon,
 		battleStage,
 		evolution,
-		/* Every creature key the game can show, for checking every drawing. */
-		keys: () => [
-			...Object.keys(forms().pets).map(id => "pet:" + id),
-			...Object.keys(forms().pets).map(id => "mirror:" + id),
-			...Object.keys(forms().runeColour)
-				.filter(t => t !== "normal")
-				.map(t => "golem:" + t),
-			...Object.keys(forms().wild).map(id => "wild:" + id),
-		],
-		busy: () => !!finishNow,
-		skip: () => finishNow && finishNow(),
 	});
 })();
 
@@ -702,44 +703,35 @@
 			name: "Embit",
 			type: "fire",
 			kind: "pet",
-			head: { x: 86, y: 58, r: 20 },
-			palette: { o: "#5a1e0e", body: "#f26b3a", dark: "#c8461f", belly: "#ffd59a", eye: "#2a1410", ...fire },
+			head: { x: 68, y: 44, r: 25 },
+			palette: { o: "#713e37", body: "#df865c", dark: "#b76446", belly: "#ffe0ae", eye: "#48303a", ...fire },
 			draw: k =>
 				k.g(
 					"pa-tail",
-					"100% 70%",
-					k.P("M42 90 C27 94 12 88 10 74 C9 66 14 61 20 63 C24 65 22 70 22 74 C23 81 31 84 42 81 Z", k.p.body) +
+					"90% 85%",
+					k.P("M43 101C22 110 8 99 12 81Q14 74 18 80C20 92 28 93 44 88Z", k.p.dark) +
 						k.g(
 							"pa-flame",
 							"50% 100%",
-							k.P("M19 64 C10 60 8 48 14 37 C16 44 20 44 21 37 C28 46 29 57 19 64 Z", k.p.flame) +
-								k.F("M19 61 C15 58 14 51 17 46 C19 50 22 50 22 47 C24 52 23 58 19 61 Z", k.p.flameIn)
+							k.P("M15 83C3 74 10 65 13 60Q13 68 18 65C24 73 23 80 15 83Z", k.p.flame) + k.F("M15 80Q10 75 15 69Q22 77 15 80", k.p.flameIn)
 						)
 				) +
-				k.P("M37 92 C35 100 37 107 45 107 C51 107 52 101 50 95 Z", k.p.dark) +
-				k.P("M40 75 L44 64 L50 73 Z", k.p.dark) +
-				k.P("M51 71 L56 60 L61 70 Z", k.p.dark) +
+				k.E(47, 92, 23, 17, k.p.dark) +
+				k.g("pa-breathe", "50% 100%", k.P("M44 63Q45 53 62 57Q83 60 84 88L81 107H44Q35 83 44 63", k.p.body) + k.P("M57 67Q68 60 77 68L75 101H55Z", k.p.belly)) +
+				k.P("M49 80Q56 75 59 84L60 107H48Z", k.p.body) +
+				k.P("M72 81Q78 77 82 84L85 107H73Z", k.p.body) +
+				k.E(46, 106, 12, 4, k.p.belly) +
+				k.E(78, 106, 8, 4, k.p.belly) +
 				k.g(
-					"pa-breathe",
-					"50% 100%",
-					k.P("M31 87 C31 75 43 69 57 70 C65 70 67 64 68 60 L83 64 C81 74 82 82 81 90 C80 101 67 105 55 104 C41 104 31 99 31 87 Z", k.p.body) +
-						k.FE(63, 93, 14, 9, k.p.belly) +
-						k.P("M66 88 C64 93 64 99 65 103 C66 109 77 109 79 103 C80 99 78 93 77 90", k.p.body) +
-						k.L("M68 106 L68 103 M72 107 L72 104 M76 106 L76 103", k.p.belly, 1.6)
-				) +
-				k.g(
-					"pa-bob",
-					"30% 100%",
-					k.P("M67 72 C64 64 63 54 70 48 C76 42 83 41 89 43 C100 45 106 53 109 61 C111 70 105 77 94 77 C83 79 74 76 70 73", k.p.body) +
-						k.F("M84 72 C92 76 102 75 106 69 C104 75 98 78 90 77 C86 76 84 75 84 72 Z", k.p.belly) +
-						k.P("M76 46 C76 40 80 38 83 42 Z", k.p.dark) +
-						k.P("M85 44 C86 38 90 37 92 42 Z", k.p.dark) +
-						k.eye(81, 57, 5.6, { brow: -1 }) +
-						k.eye(95, 56, 4.6, { brow: 1 }) +
-						k.L("M93 68 Q99 73 105 67") +
-						k.F("M98 70 L100 74 L102 70 Z", "#fff") +
-						k.FE(106, 61, 1.2, 1.2, k.p.o) +
-						k.blush(86, 67)
+					"pa-head",
+					"50% 90%",
+					k.P("M44 32L41 19L53 27M76 26L86 16L85 36", k.p.dark) +
+						k.P("M38 43Q35 22 59 21Q84 19 91 39Q100 55 86 64Q63 76 44 62Q37 56 38 43", k.p.body) +
+						k.P("M55 46Q68 40 80 44Q98 44 94 56Q92 67 74 67Q55 67 52 58Q49 51 55 46", k.p.belly) +
+						k.eye(54, 41, 4.4) +
+						k.eye(76, 39, 4.1) +
+						k.FE(87, 47, 1.2, 1, k.p.o) +
+						k.L("M64 57Q71 62 78 57", k.p.o, 1.2)
 				),
 		},
 		blazilisk: {
@@ -747,178 +739,132 @@
 			type: "fire",
 			kind: "pet",
 			from: "embit",
-			head: { x: 94, y: 28, r: 20 },
-			palette: { o: "#4a1508", body: "#ec5a2c", dark: "#b8381a", belly: "#ffd08a", horn: "#fbe7c6", eye: "#2a1008", ...fire },
+			head: { x: 70, y: 36, r: 26 },
+			palette: { o: "#713e37", body: "#d97c55", dark: "#ad593e", belly: "#ffe0ae", eye: "#48303a", ...fire },
 			draw: k =>
 				k.g(
 					"pa-tail",
-					"100% 100%",
-					k.P("M28 99 C14 98 6 88 10 78 C12 72 18 72 20 77 C20 84 24 89 32 91 Z", k.p.body) +
-						k.g(
-							"pa-flame",
-							"50% 100%",
-							k.P("M15 76 C4 70 4 54 12 42 C13 51 18 51 19 44 C28 54 28 69 15 76 Z", k.p.flame) +
-								k.F("M15 72 C10 68 10 59 14 53 C16 58 19 58 20 55 C22 61 21 68 15 72 Z", k.p.flameIn)
-						)
+					"90% 90%",
+					k.P("M43 103Q9 110 11 86Q11 76 19 78Q28 91 46 84Z", k.p.dark) +
+						k.g("pa-flame", "50% 100%", k.P("M16 81Q3 74 10 59Q14 68 19 61Q29 75 16 81", k.p.flame) + k.F("M16 78Q11 72 16 67Q23 75 16 78", k.p.flameIn))
 				) +
 				k.g(
 					"pa-breathe",
 					"50% 100%",
-					k.P(
-						"M20 96 C20 86 38 80 56 80 C65 80 70 82 75 82 C78 77 78 73 74 66 C67 55 66 44 72 34 C69 26 74 18 82 15 C87 12 93 12 98 14 C108 16 116 22 118 29 C119 36 110 41 99 41 C96 41 93 41 91 40 C86 49 88 57 94 66 C106 82 100 100 76 106 C69 108 63 108 58 108 C36 108 20 104 20 96 Z",
-						k.p.body
-					) +
-						k.F("M30 100 C40 104 76 104 88 99 C80 106 40 107 30 100 Z", k.p.dark) +
-						k.P("M34 82 L38 73 L44 81 Z", k.p.dark) +
-						k.P("M48 80 L53 70 L58 80 Z", k.p.dark) +
-						k.F("M89 43 C84 52 87 61 92 69 C101 82 97 96 80 102 C93 91 94 80 86 68 C80 58 80 49 85 43 Z", k.p.belly) +
-						k.L("M86 98 L83 94 M92 90 L88 87 M95 80 L91 79", k.p.dark, 1.6) +
-						k.g(
-							"pa-flame",
-							"0% 50%",
-							k.P("M77 42 C66 40 60 46 58 54 C64 50 68 52 70 56 C66 58 64 64 66 70 C70 64 74 66 78 64 Z", k.p.flame) +
-								k.F("M74 47 C68 47 64 51 63 55 C67 53 70 55 71 58 Z", k.p.flameIn)
-						) +
-						k.P("M92 68 C100 66 106 70 105 76 L101 75 L102 79 L97 76 L96 80 L93 75 Z", k.p.body)
+					k.P("M37 80Q36 72 32 65L47 72ZM46 71Q45 62 43 56L58 64Z", k.p.dark) +
+						k.P("M40 73Q44 64 56 63L54 47L79 48Q75 72 86 82Q103 101 78 107H41Q24 103 30 88Q32 78 40 73", k.p.body) +
+						k.P("M57 55L73 54Q65 74 78 88Q85 99 67 101H46Q36 97 42 91Q61 93 62 85Q53 69 57 55", k.p.belly) +
+						k.P("M54 68Q47 67 45 74L43 80Q42 84 46 85Q51 84 55 79L58 72Z", k.p.body) +
+						k.L("M45 76Q42 82 47 84Q51 83 54 79", k.p.dark, 1.2)
 				) +
 				k.g(
-					"pa-bob",
-					"20% 100%",
-					k.P("M82 16 L66 4 L74 20 Z", k.p.horn) +
-						k.P("M88 14 L78 2 L82 18 Z", k.p.horn) +
-						k.F("M92 37 C100 40 110 39 116 34 C114 40 106 43 98 42 C94 42 92 40 92 37 Z", k.p.belly) +
-						k.eye(88, 26, 4.8, { brow: -2 }) +
-						k.eye(101, 25, 3.8, { brow: 2 }) +
-						k.L("M100 35 Q107 38 114 33") +
-						k.F("M104 36 L105.5 40 L107 36 Z", "#fff") +
-						k.F("M109 35 L110.5 38.5 L112 35 Z", "#fff") +
-						k.FE(115, 28, 1.2, 1.2, k.p.o)
+					"pa-head",
+					"50% 90%",
+					k.P("M44 28Q36 16 38 7L55 18M76 16L91 6Q94 19 86 31", k.p.belly) +
+						k.P("M41 35Q37 16 62 15Q89 14 94 35Q103 55 82 62Q56 68 44 54Q39 47 41 35", k.p.body) +
+						k.P("M55 39Q64 34 78 38Q99 37 98 49Q96 61 77 61Q56 63 52 51Q49 45 55 39", k.p.belly) +
+						k.eye(55, 34, 4.4) +
+						k.eye(79, 32, 4.4) +
+						k.FE(91, 40, 1.4, 1, k.p.o) +
+						k.L("M65 51Q73 57 81 51", k.p.o, 1.2)
 				),
 		},
-
 		/* ---- Water line ---- */
 		pudduck: {
 			name: "Pudduck",
 			type: "water",
 			kind: "pet",
-			head: { x: 74, y: 50, r: 19 },
-			palette: { o: "#17406b", body: "#62b6f0", dark: "#3d88cb", belly: "#dcf1ff", beak: "#ffa53a", eye: "#10213a", fx: "water", drop: "#9fdcff" },
+			head: { x: 67, y: 42, r: 25 },
+			palette: { o: "#32566b", body: "#8ccbcf", dark: "#5fa5b6", belly: "#ecf5e8", beak: "#efc17c", eye: "#30475c", fx: "water", drop: "#81d8ef" },
 			draw: k =>
-				k.P("M42 108 C44 102 48 100 52 100 C56 100 60 102 62 108 C58 106 56 108 52 106 C48 108 46 106 42 108 Z", k.p.beak) +
-				k.P("M60 108 C62 102 66 100 70 100 C74 100 78 102 80 108 C76 106 74 108 70 106 C66 108 64 106 60 108 Z", k.p.beak) +
+				k.P("M39 100L27 109H54L59 102M68 102L65 109H90L81 99", k.p.beak) +
+				k.g("pa-breathe", "50% 100%", k.P("M29 88Q27 66 51 62Q80 55 90 78Q101 106 68 107H48Q28 105 29 88", k.p.body) + k.FE(65, 87, 22, 18, k.p.belly)) +
+				k.g("pa-wing", "65% 8%", k.P("M46 72Q35 73 32 82Q29 93 40 98Q52 97 57 87Q51 84 48 78Q49 74 46 72Z", k.p.dark)) +
 				k.g(
-					"pa-breathe",
-					"50% 100%",
-					k.P("M37 76 C29 72 27 65 31 60 C34 66 38 69 41 70 Z", k.p.body) +
-						k.P("M33 82 C33 68 45 61 57 62 C63 62 64 55 65 53 L82 56 C79 64 85 70 87 81 C90 96 77 105 61 105 C45 105 33 97 33 82 Z", k.p.body) +
-						k.FE(67, 89, 15, 13, k.p.belly) +
-						k.g(
-							"pa-wing",
-							"20% 15%",
-							k.P("M47 73 C40 75 40 84 44 90 C48 96 54 97 59 94 C54 90 55 82 51 77", k.p.dark) + k.L("M48 84 L53 86 M49 90 L55 91", k.p.belly, 1.4)
-						)
-				) +
-				k.g(
-					"pa-bob",
-					"40% 100%",
-					k.g("pa-leaf", "50% 100%", k.P("M71 34 C66 25 70 18 77 15 C75 21 79 26 77 33 Z", k.p.dark)) +
-						k.P("M60 63 C52 58 52 43 61 36 C68 29 82 31 88 40 C96 51 91 61 82 66 C77 69 69 69 65 66", k.p.body) +
-						k.P("M86 50 C94 47 103 49 106 54 C101 59 93 59 86 57 Z", k.p.beak) +
-						k.L("M88 54 Q96 55 104 54", "#c46a10", 1.4) +
-						k.eye(71, 46, 4.8) +
-						k.eye(83, 45, 4) +
-						k.blush(76, 56) +
-						k.shine(64, 40, 5, 3)
-				) +
-				k.g("pa-drop", "50% 50%", k.P("M28 50 C24 56 24 60 28 60 C32 60 32 56 28 50 Z", k.p.drop), -0.4) +
-				k.g("pa-drop", "50% 50%", k.P("M98 70 C95 75 95 78 98 78 C101 78 101 75 98 70 Z", k.p.drop), -1.5) +
-				/* Now and then a couple of bubbles drift up from its beak. */
-				k.g("pa-bubble", "50% 100%", k.E(108, 46, 2.6, 2.6, "rgb(200 238 255 / 70%)") + k.E(112, 38, 1.8, 1.8, "rgb(200 238 255 / 70%)")),
+					"pa-head",
+					"50% 90%",
+					k.P("M44 29Q40 18 48 13Q49 24 58 22Q62 16 68 18L63 25", k.p.dark) +
+						k.P("M37 43Q36 23 61 22Q88 20 92 42Q98 61 80 68Q55 76 42 63Q35 56 37 43", k.p.body) +
+						k.P("M52 42Q61 35 68 43Q76 35 85 42Q92 56 81 62Q64 68 53 60Q44 52 52 42", k.p.belly) +
+						k.eye(56, 43, 4.1) +
+						k.eye(77, 42, 4.1) +
+						k.P("M63 49Q72 45 83 50Q88 54 81 58Q69 62 61 56Q58 52 63 49", k.p.beak) +
+						k.L("M65 54Q73 56 80 53", k.p.o, 1)
+				),
 		},
 		pondswan: {
 			name: "Pondswan",
 			type: "water",
 			kind: "pet",
 			from: "pudduck",
-			head: { x: 95, y: 26, r: 12 },
+			head: { x: 87, y: 24, r: 15 },
 			palette: {
-				o: "#173a63",
-				body: "#e4f4ff",
-				wing: "#72baf2",
-				dark: "#2f78c4",
-				beak: "#ffa53a",
-				eye: "#10213a",
+				o: "#32566b",
+				body: "#d9eeeb",
+				dark: "#8fc4ca",
+				feather: "#b9dbd9",
+				belly: "#f7f7e9",
+				beak: "#efc17c",
+				eye: "#30475c",
 				fx: "water",
-				drop: "#9fdcff",
-				water: "#5fb4ea",
+				drop: "#81d8ef",
 			},
 			draw: k =>
-				k.L("M18 107 Q30 103 42 107 T66 107 T90 107 T112 107", k.p.water, 2) +
+				k.FE(60, 110, 47, 2.6, k.p.dark, 0.4) +
 				k.g(
-					"pa-bob",
+					"pa-breathe",
 					"50% 100%",
-					k.g("pa-wing", "70% 90%", k.P("M44 82 C30 64 32 40 46 26 C50 42 58 56 70 74 Z", k.p.dark)) +
-						k.P(
-							"M22 92 C22 78 40 70 60 72 C69 73 77 72 80 64 C83 58 80 53 78 47 C74 35 79 22 88 18 C96 14 104 18 105 25 C106 31 101 35 96 35 C89 38 89 44 93 51 C99 61 101 77 98 89 C99 100 84 104 60 104 C40 104 22 101 22 92 Z",
-							k.p.body
-						) +
+					k.g("pa-wing", "12% 55%", k.P("M80 84Q97 78 103 60Q111 75 105 87Q98 98 83 99Z", k.p.feather)) +
+						k.P("M28 92Q11 93 8 82Q21 87 29 81Z", k.p.feather) +
+						k.P("M22 84Q26 70 54 74Q71 78 78 70Q81 63 73 53C57 34 70 13 86 15L91 29Q77 31 84 44C103 61 99 82 84 96Q71 109 43 106Q18 105 22 84", k.p.body) +
+						k.P("M29 92Q55 93 80 83Q88 100 65 104H42Q31 103 29 92", k.p.belly) +
 						k.g(
 							"pa-wing",
-							"70% 90%",
-							k.P("M46 89 C39 74 43 51 58 40 C60 55 68 67 80 82 C74 90 58 95 46 89 Z", k.p.wing) +
-								k.L("M48 76 L56 78 M50 68 L58 71 M54 60 L61 64", k.p.body, 1.5)
-						) +
-						k.g(
-							"pa-leaf",
-							"30% 100%",
-							k.P("M90 19 C85 10 88 4 95 2 C93 8 95 13 94 19 Z", k.p.wing) +
-								k.P("M86 21 C78 15 78 8 82 4 C83 11 86 15 89 19 Z", k.p.dark) +
-								k.F("M93 4 C94 6 94 8 93 10 C92 8 92 6 93 4 Z", "#fff")
-						) +
-						k.P("M103 25 C110 25 116 27 118 30 C112 33 106 33 102 30 Z", k.p.beak) +
-						k.FE(103, 23.5, 2.6, 2.2, k.p.o) +
-						k.eye(96, 24, 3.4) +
-						k.L("M93 21 L91 19", k.p.o, 1.2) +
-						k.shine(50, 80, 9, 3)
+							"85% 74%",
+							k.P("M59 78Q66 92 54 99Q35 105 24 92Q12 73 11 35Q20 53 29 59Q25 43 29 28Q37 49 45 61Q46 48 51 44Q54 66 59 78Z", k.p.feather) +
+								k.P("M16 52Q23 69 47 90Q30 85 23 74Q17 64 16 52Z", k.p.belly) +
+								k.P("M30 46Q35 65 54 88Q40 81 34 67Q30 55 30 46Z", k.p.body) +
+								k.P("M48 60Q51 74 58 87Q53 83 48 73Z", k.p.belly) +
+								k.P("M34 88Q44 94 58 87Q62 95 51 99Q40 100 34 94Z", k.p.body)
+						)
 				) +
-				k.g("pa-drop", "50% 50%", k.P("M112 76 C109 81 109 84 112 84 C115 84 115 81 112 76 Z", k.p.drop), -0.8) +
-				k.g("pa-drop", "50% 50%", k.P("M14 84 C11 89 11 92 14 92 C17 92 17 89 14 84 Z", k.p.drop), -1.9),
+				k.g(
+					"pa-head",
+					"40% 85%",
+					k.P("M78 16Q76 8 81 5L85 12Q91 7 94 9L92 17", k.p.dark) +
+						k.P("M72 25Q71 12 86 12Q102 12 103 26Q104 39 88 40Q74 39 72 25", k.p.body) +
+						k.FE(89, 30, 12, 8, k.p.belly) +
+						k.eye(89, 23, 3.9) +
+						k.P("M98 26Q108 26 115 31Q108 36 98 33Z", k.p.beak) +
+						k.L("M101 31L110 32", k.p.o, 0.9)
+				),
 		},
-
 		/* ---- Grass line ---- */
 		sprout: {
 			name: "Sprout",
 			type: "grass",
 			kind: "pet",
-			head: { x: 60, y: 66, r: 24 },
-			palette: { o: "#25501b", body: "#a9dc7a", dark: "#78b54d", face: "#e2f7c8", leaf: "#4fbf4a", eye: "#1a2a12", fx: "grass", seed: "#8a5a34" },
+			head: { x: 60, y: 62, r: 26 },
+			palette: { o: "#3a5e41", body: "#94bb79", dark: "#6b915e", face: "#e5edc8", leaf: "#6ba779", eye: "#35503c", fx: "grass", seed: "#9d7958" },
 			draw: k =>
-				k.P("M42 106 C42 100 48 99 52 102 C54 106 50 109 42 106 Z", k.p.seed) +
-				k.P("M78 106 C78 100 72 99 68 102 C66 106 70 109 78 106 Z", k.p.seed) +
-				k.g("pa-leaf", "100% 50%", k.P("M42 80 C30 75 20 80 20 89 C29 91 38 89 43 85 Z", k.p.leaf), -0.6) +
-				k.g("pa-leaf", "0% 50%", k.P("M78 80 C90 75 100 80 100 89 C91 91 82 89 77 85 Z", k.p.leaf), -1.4) +
+				k.P("M37 96Q45 94 51 99L51 104Q54 109 47 109H34Q28 107 34 103Z", k.p.seed) +
+				k.P("M70 99Q76 94 84 96L87 103Q93 108 86 109H73Q67 109 70 104Z", k.p.seed) +
+				k.g("pa-breathe", "50% 100%", k.P("M35 75Q34 57 50 55H73Q90 60 85 85L82 100Q74 107 61 107Q44 108 37 99Z", k.p.dark)) +
+				k.g("pa-leaf", "100% 50%", k.P("M40 82Q28 74 21 80Q14 86 23 93Q30 98 40 91Z", k.p.leaf)) +
+				k.g("pa-leaf", "0% 50%", k.P("M80 82Q92 74 99 80Q106 87 97 94Q90 98 80 91Z", k.p.leaf), -1) +
 				k.g(
-					"pa-breathe",
-					"50% 100%",
-					k.P("M60 54 C80 54 88 72 86 88 C84 102 74 108 60 108 C46 108 36 102 34 88 C32 72 40 54 60 54 Z", k.p.body) +
-						k.F("M38 92 C42 104 78 104 82 92 C80 102 72 107 60 107 C48 107 40 102 38 92 Z", k.p.dark) +
-						k.FE(60, 80, 19, 15, k.p.face) +
-						k.eye(52, 78, 5) +
-						k.eye(68, 78, 5) +
-						k.L("M56 87 Q60 90 64 87") +
-						k.blush(45, 85) +
-						k.blush(75, 85) +
-						k.FE(44, 88, 0.9, 0.9, k.p.dark) +
-						k.FE(76, 88, 0.9, 0.9, k.p.dark) +
-						k.shine(48, 64, 6, 3)
-				) +
-				k.g(
-					"pa-leaf",
-					"0% 100%",
-					k.L("M60 56 C60 47 60 41 62 34", k.p.o, 3) +
-						k.P("M61 38 C50 26 38 30 36 37 C46 43 54 43 61 38 Z", k.p.leaf) +
-						k.P("M62 36 C70 22 84 22 88 29 C80 37 70 39 62 36 Z", k.p.leaf) +
-						k.L("M60 38 C52 36 46 35 40 36 M63 35 C70 31 78 29 85 29", k.p.dark, 1.4)
+					"pa-head",
+					"50% 90%",
+					k.P("M30 57Q29 36 59 35Q88 33 91 57L87 79Q83 94 60 94Q35 95 32 80Z", k.p.body) +
+						k.P("M41 58Q50 49 60 56Q72 48 80 59Q90 76 77 83Q61 91 45 82Q33 75 41 58", k.p.face) +
+						k.eye(48, 65, 4.1) +
+						k.eye(73, 65, 4.1) +
+						k.L("M54 75Q60 80 67 75", k.p.o, 1.2) +
+						k.g(
+							"pa-leaf",
+							"50% 100%",
+							k.L("M60 38V26", k.p.dark, 3) + k.P("M60 29Q33 34 33 16Q49 10 60 29", k.p.leaf) + k.P("M60 29Q64 7 85 14Q85 32 60 29", k.p.leaf)
+						)
 				),
 		},
 		oakguard: {
@@ -926,163 +872,134 @@
 			type: "grass",
 			kind: "pet",
 			from: "sprout",
-			head: { x: 60, y: 34, r: 18 },
+			head: { x: 60, y: 40, r: 26 },
 			palette: {
-				o: "#2e1a0c",
-				body: "#8b5b34",
-				dark: "#6a4224",
-				plate: "#b07a4c",
-				moss: "#5fae4a",
-				leaf: "#4fbf4a",
-				leafDark: "#3a8f36",
-				eye: "#d8ff6a",
+				o: "#4b3a2d",
+				body: "#a07c56",
+				dark: "#795b40",
+				plate: "#c39e70",
+				moss: "#90b77d",
+				leaf: "#6ba779",
+				leafDark: "#528667",
+				eye: "#354d3b",
 				fx: "grass",
 			},
 			draw: k =>
-				k.P("M35 90 L52 90 L54 106 L46 104 L40 108 L33 105 Z", k.p.dark) +
-				k.P("M68 90 L85 90 L87 105 L80 108 L74 104 L66 106 Z", k.p.dark) +
-				k.g(
-					"pa-arm",
-					"80% 10%",
-					k.P("M40 50 C24 51 13 69 16 88 Q20 93 25 89 C25 78 30 68 42 63 Z", k.p.body) +
-						k.L("M18 88 L14 96 M21 89 L21 98 M24 89 L28 96", k.p.dark, 2.4) +
-						k.FE(26, 56, 6, 4, k.p.moss)
-				) +
-				k.g(
-					"pa-arm",
-					"20% 10%",
-					k.P("M80 50 C96 51 107 69 104 88 Q100 93 95 89 C95 78 90 68 78 63 Z", k.p.body) +
-						k.L("M102 88 L106 96 M99 89 L99 98 M96 89 L92 96", k.p.dark, 2.4) +
-						k.FE(94, 56, 6, 4, k.p.moss),
-					-1
-				) +
+				k.P("M33 90L28 109L40 106L48 109L48 92M73 91L72 109L82 106L92 109L86 89", k.p.dark) +
+				k.g("pa-arm", "80% 10%", k.P("M37 62Q13 66 17 89Q21 101 28 94L35 77Z", k.p.body)) +
+				k.g("pa-arm", "20% 10%", k.P("M83 62Q107 66 103 89Q99 101 92 94L85 77Z", k.p.body), -1) +
 				k.g(
 					"pa-breathe",
 					"50% 100%",
-					k.P("M30 60 C30 50 38 45 44 43 C44 30 50 24 60 24 C70 24 76 30 76 43 C82 45 90 50 90 60 L88 92 C80 98 40 98 32 92 Z", k.p.body) +
-						k.P("M42 58 L60 52 L78 58 L76 74 L60 80 L44 74 Z", k.p.plate) +
-						k.P("M46 76 L60 82 L74 76 L72 90 L60 94 L48 90 Z", k.p.plate) +
-						k.L("M60 53 L60 79 M60 83 L60 93", k.p.dark, 1.6) +
-						k.FE(36, 50, 9, 5, k.p.moss) +
-						k.FE(84, 50, 9, 5, k.p.moss) +
-						k.P("M80 44 C80 40 84 38 86 42 C88 40 92 42 90 45 Z", "#e05d5d")
+					k.P("M31 70Q31 55 60 55Q90 55 90 72L86 96Q61 108 34 96Z", k.p.body) +
+						k.P("M44 70Q60 61 76 70L74 94Q60 101 46 94Z", k.p.plate) +
+						k.L("M60 73V93", k.p.dark, 1.3)
 				) +
 				k.g(
-					"pa-bob",
-					"50% 100%",
-					k.F("M46 33 L74 33 L74 36 L46 36 Z", k.p.dark) +
-						k.eye(54, 39, 3.4, { glow: true }) +
-						k.eye(66, 39, 3.4, { glow: true }) +
-						k.L("M55 45 L65 45", k.p.dark, 1.6) +
+					"pa-head",
+					"50% 90%",
+					k.P("M33 39Q32 22 58 22Q86 20 88 39L85 56Q80 69 60 69Q38 69 34 56Z", k.p.body) +
+						k.FE(60, 48, 22, 16, k.p.plate) +
+						k.eye(48, 44, 4.2) +
+						k.eye(72, 44, 4.2) +
+						k.L("M54 54Q60 59 66 54", k.p.o, 1.2) +
 						k.g(
 							"pa-leaf",
 							"50% 100%",
-							k.E(46, 22, 9, 6, k.p.leafDark) +
-								k.E(74, 22, 9, 6, k.p.leafDark) +
-								k.E(52, 16, 10, 7, k.p.leaf) +
-								k.E(68, 16, 10, 7, k.p.leaf) +
-								k.E(60, 12, 10, 7, k.p.leaf) +
-								k.L("M60 10 C60 6 60 4 61 2", k.p.o, 2) +
-								k.P("M61 4 C56 0 52 2 51 4 C55 6 58 6 61 4 Z", k.p.leafDark) +
-								k.P("M61 3 C65 -1 70 0 71 2 C67 5 64 5 61 3 Z", k.p.leafDark)
+							k.E(37, 27, 14, 10, k.p.leafDark) +
+								k.E(83, 26, 14, 10, k.p.leafDark) +
+								k.E(48, 19, 16, 12, k.p.leaf) +
+								k.E(72, 18, 16, 12, k.p.leaf) +
+								k.E(60, 12, 14, 10, k.p.moss)
 						)
 				),
 		},
-
 		/* ---- Electric line ---- */
 		voltpup: {
 			name: "Voltpup",
 			type: "electric",
 			kind: "pet",
-			head: { x: 76, y: 54, r: 20 },
-			palette: { o: "#5a3d06", body: "#ffd23f", dark: "#e0a516", belly: "#fff3b5", mark: "#3a3550", eye: "#1e1830", fx: "electric", spark: "#7fe6ff" },
+			head: { x: 65, y: 39, r: 26 },
+			palette: { o: "#435077", body: "#dfbd70", dark: "#aa854f", belly: "#faf0d7", mark: "#5b526e", eye: "#384260", fx: "electric", spark: "#9cdbeb" },
 			draw: k =>
-				k.g("pa-tail", "100% 100%", k.P("M34 84 L20 74 L28 71 L14 56 L34 68 L26 70 L38 80 Z", k.p.body)) +
-				k.E(41, 93, 12, 12, k.p.dark) +
-				k.P("M33 102 C33 99 49 99 49 102 C49 108 33 108 33 102 Z", k.p.body) +
+				k.g("pa-tail", "100% 80%", k.P("M39 101Q12 111 9 96L8 89L18 94L15 83Q24 85 25 95L42 91Z", k.p.dark)) +
+				k.P("M43 78Q22 77 21 92Q18 104 33 107H45Q53 104 49 99L44 96Q53 89 43 78Z", k.p.dark) +
 				k.g(
 					"pa-breathe",
 					"50% 100%",
-					k.P("M34 88 C34 75 45 68 57 70 C62 70 61 63 63 60 L80 62 C76 72 81 81 77 94 C75 104 65 107 52 107 C41 107 34 100 34 88 Z", k.p.body) +
-						k.FE(63, 94, 9, 10, k.p.belly) +
-						k.P("M61 90 C60 94 58 101 59 105 Q62 109 67 106 C69 102 68 96 69 93", k.p.body) +
-						k.P("M73 87 C74 94 71 101 72 105 Q76 108 80 105 C81 101 79 94 78 90", k.p.body)
+					k.P("M46 61Q61 55 78 63Q91 79 85 107H43Q37 79 46 61", k.p.body) + k.P("M47 65Q61 58 80 65L74 88L62 82L53 88Z", k.p.belly)
 				) +
+				k.P("M51 83Q57 82 62 88L61 101L63 105Q65 109 59 109H49Q45 108 48 103Z", k.p.belly) +
+				k.P("M68 84Q74 79 79 82L81 101L84 105Q86 109 80 109H70Q66 109 68 104Z", k.p.belly) +
+				k.P("M32 100Q39 97 45 101L47 105Q50 110 42 110H30Q25 109 27 105Z", k.p.body) +
 				k.g(
-					"pa-bob",
-					"30% 100%",
-					k.g("pa-ear", "50% 100%", k.P("M60 46 Q58 34 55 15 Q66 24 75 39 Z", k.p.body) + k.F("M57.5 24 L55 15 L62.5 22.5 Z", k.p.mark)) +
-						k.g("pa-ear", "50% 100%", k.P("M76 40 Q78 23 82 9 Q89 22 92 42 Z", k.p.body) + k.F("M80.5 18 L82 9 L85 18.5 Z", k.p.mark), -0.7) +
-						k.P("M59 66 C54 60 53 49 60 42 C67 34 82 34 89 41 C95 47 98 59 92 66 C86 74 71 77 63 71", k.p.body) +
-						k.E(91, 62, 10, 8, k.p.belly) +
-						k.L("M70 37 L74 42 L70 45 L75 50", k.p.mark, 2.4) +
-						k.FE(99, 58, 3.4, 2.6, k.p.mark) +
-						k.L("M91 66 Q95 70 99 66") +
-						k.P("M94 68 C94 73 98 73 98 68 Z", "#ff7a8a") +
-						k.eye(73, 50, 5.2) +
-						k.eye(86, 49, 4.4) +
-						k.shine(66, 44, 5, 3)
-				) +
-				k.g("pa-spark", "50% 50%", k.L("M104 40 L99 46 L104 47 L99 53", k.p.spark, 2.2), -0.3) +
-				k.g("pa-spark", "50% 50%", k.L("M24 40 L29 45 L24 46 L29 52", k.p.spark, 2.2), -1.1),
+					"pa-head",
+					"50% 90%",
+					k.g("pa-ear", "60% 100%", k.P("M41 34Q32 21 36 9L58 21Z", k.p.mark) + k.F("M40 16L51 23L43 27Z", "#df9290")) +
+						k.g("pa-ear", "40% 100%", k.P("M74 21L91 8Q96 24 87 36Z", k.p.mark) + k.F("M80 23L88 16L87 28Z", "#df9290"), -1.2) +
+						k.P("M36 45Q33 20 62 20Q93 17 95 44L93 59Q91 72 65 72Q38 72 36 57Z", k.p.body) +
+						k.P("M45 40Q49 30 59 37Q66 31 73 37L83 45Q98 48 92 61Q88 68 65 68Q42 69 40 58Q37 48 45 40", k.p.belly) +
+						k.eye(52, 43, 4.1) +
+						k.eye(75, 43, 4.1) +
+						k.P("M59 49Q64 46 70 49Q73 53 65 57Q57 54 59 49", k.p.mark) +
+						k.g("pa-pant", "50% 0%", k.P("M61 60H69L68 69Q65 74 62 69Z", "#d97c82")) +
+						k.L("M65 57V60M55 60Q60 65 65 60Q70 65 75 60", k.p.o, 1.1)
+				),
 		},
 		thundrover: {
 			name: "Thundrover",
 			type: "electric",
 			kind: "pet",
 			from: "voltpup",
-			head: { x: 100, y: 38, r: 18 },
+			head: { x: 83, y: 36, r: 20 },
 			palette: {
-				o: "#4a3204",
-				body: "#ffcf33",
-				dark: "#d99d12",
-				mark: "#34304a",
-				cloud: "#8d9cba",
-				cloudDark: "#66759a",
-				eye: "#1e1830",
+				o: "#435077",
+				body: "#dbb45f",
+				dark: "#b58b4e",
+				belly: "#faf0d7",
+				shade: "#e8d6b0",
+				mark: "#625675",
+				eye: "#384260",
 				fx: "electric",
-				spark: "#7fe6ff",
+				spark: "#9cdbeb",
 			},
 			draw: k =>
-				k.g("pa-tail", "100% 100%", k.P("M28 62 L12 50 L20 46 L4 28 L26 42 L18 46 L32 56 Z", k.p.body) + k.F("M8 32 L4 28 L12 33 Z", k.p.mark)) +
-				k.P("M34 72 L28 105 L39 105 L44 78 Z", k.p.dark) +
-				k.P("M72 74 L70 105 L80 105 L80 72 Z", k.p.dark) +
+				k.g(
+					"pa-tail",
+					"90% 90%",
+					k.P("M42 88Q13 95 8 73L4 51Q17 58 24 55L18 36Q35 45 36 61L43 56Q51 72 42 88", k.p.body) +
+						k.P("M4 51Q15 59 24 55L18 36Q24 39 28 44L30 59L20 64L26 76Q12 70 4 51", k.p.belly) +
+						k.P("M29 65L36 62L33 70L39 68L34 79L29 81L31 73L26 75Z", k.p.mark)
+				) +
+				k.P("M40 80Q35 89 36 100L34 104Q32 109 39 109H47Q51 108 47 104L49 91L53 82ZM71 78L72 100L70 104Q70 109 77 109H85Q89 108 84 103L82 78Z", k.p.dark) +
 				k.g(
 					"pa-breathe",
 					"50% 100%",
-					k.P(
-						"M24 64 C24 53 38 49 56 49 C64 49 69 50 73 52 C76 42 81 34 88 30 C94 24 100 24 104 26 C111 28 116 33 118 39 C119 45 111 49 102 49 C96 50 92 48 91 47 C87 55 87 62 88 68 C88 76 82 80 70 80 L40 80 C30 80 24 74 24 64 Z",
-						k.p.body
-					) +
-						k.L("M38 52 L42 60 L37 62 L41 70 M52 50 L55 58 L51 60 L54 68", k.p.mark, 2.4) +
-						k.P("M42 71 C44 82 42 95 43 103 Q47 108 53 105 L54 78", k.p.body) +
-						k.P("M79 66 C83 80 83 96 86 104 Q91 108 96 104 C94 92 93 78 88 68", k.p.body) +
-						k.FE(48, 105, 6, 2.4, k.p.mark) +
-						k.FE(90, 105, 6, 2.4, k.p.mark)
+					k.P("M33 72Q35 56 54 57L74 61Q85 46 96 49Q105 58 101 76Q98 90 81 91L46 89Q31 87 33 72", k.p.body) +
+						k.P("M45 63L54 68L49 75L58 80L52 84L42 75L47 69Z", k.p.mark)
+				) +
+				k.P("M49 80Q59 80 64 88L60 101L60 104Q65 109 59 109H49Q44 108 48 103L51 95Q46 90 49 80Z", k.p.body) +
+				k.P("M87 75Q98 72 102 79L101 100L104 104Q108 109 101 109H91Q86 109 89 104L90 91Z", k.p.body) +
+				k.P("M49 103Q54 105 61 103L60 104Q65 109 59 109H49Q44 108 48 103ZM90 103Q96 105 102 102L104 104Q108 109 101 109H91Q86 109 89 104Z", k.p.belly) +
+				k.g(
+					"pa-breathe",
+					"50% 100%",
+					k.P("M66 44Q77 37 94 43L106 55L98 58L104 69L94 68L93 83L82 75L72 81L72 69L58 70L65 60L56 54Z", k.p.belly) +
+						k.P("M68 53L75 60L69 65L81 64L83 75L90 66L98 68L91 57Z", k.p.shade)
 				) +
 				k.g(
-					"pa-float",
-					"50% 50%",
-					k.E(70, 50, 9, 8, k.p.cloudDark) +
-						k.E(80, 58, 10, 9, k.p.cloud) +
-						k.E(76, 42, 9, 8, k.p.cloud) +
-						k.E(86, 46, 10, 9, k.p.cloud) +
-						k.L("M78 50 L74 56 L79 57 L75 63", k.p.spark, 2)
-				) +
-				k.g(
-					"pa-bob",
-					"10% 100%",
-					k.g("pa-ear", "50% 100%", k.P("M88 30 L84 6 L98 26 Z", k.p.body) + k.F("M85 13 L84 6 L89 13 Z", k.p.mark)) +
-						k.g("pa-ear", "50% 100%", k.P("M98 27 L103 4 L108 28 Z", k.p.body) + k.F("M101.5 11 L103 4 L105 11 Z", k.p.mark), -0.6) +
-						k.L("M92 30 L96 34 L93 36 L97 40", k.p.mark, 2) +
-						k.FE(117, 37, 2.6, 2, k.p.mark) +
-						k.L("M104 45 Q110 47 115 44") +
-						k.F("M108 46 L109.2 49 L110.4 46 Z", "#fff") +
-						k.eye(99, 36, 4, { brow: -2 }) +
-						k.eye(109, 35, 3.2, { brow: 2 })
-				) +
-				k.g("pa-spark", "50% 50%", k.L("M14 70 L19 75 L14 76 L19 82", k.p.spark, 2.2), -0.5) +
-				k.g("pa-spark", "50% 50%", k.L("M60 30 L56 36 L61 37 L57 43", k.p.spark, 2.2), -1.3),
+					"pa-head",
+					"35% 90%",
+					k.g("pa-ear", "60% 100%", k.P("M66 30Q58 17 62 2Q76 9 80 25Z", k.p.body) + k.P("M66 10L74 25L68 24Z", k.p.mark)) +
+						k.g("pa-ear", "40% 100%", k.P("M82 23Q86 8 98 0Q102 19 94 32Z", k.p.body) + k.P("M94 9L92 25L86 26Z", k.p.mark), -1) +
+						k.P("M62 37Q60 23 79 22Q99 19 103 36L113 42Q119 47 109 53Q92 61 75 54Q62 51 62 37", k.p.body) +
+						k.P("M84 39Q92 42 98 40L113 43Q119 47 109 53Q91 60 78 51Z", k.p.belly) +
+						k.eye(78.5, 35.5, 4.6) +
+						k.eye(93, 35, 3.7) +
+						k.L("M73 31Q77 29 81 31M90.5 30.5Q93 29.5 96 31", k.p.mark, 1.3) +
+						k.P("M110 41Q118 40 117 45L113 48L108 45Z", k.p.mark) +
+						k.L("M97 50Q104 54 111 49", k.p.o, 1.2)
+				),
 		},
 	};
 
@@ -1091,40 +1008,44 @@
 	const golem = {
 		name: "Golem Sentinel",
 		kind: "miniboss",
-		head: { x: 60, y: 30, r: 16 },
-		palette: { o: "#1f2028", body: "#8d909e", dark: "#666a7a", light: "#b4b7c4", moss: "#6b8a4a", eye: "#ffe23f", rune: "#ffe23f" },
+		head: { x: 60, y: 33, r: 21 },
+		palette: { o: "#515b70", body: "#a7b2c4", dark: "#7c8ba3", light: "#d1d9df", moss: "#90ab89", eye: "#e9ca78", rune: "#e9ca78" },
 		draw: k =>
-			k.g("pa-float", "50% 50%", k.P("M10 34 L20 30 L24 38 L16 44 Z", k.p.dark), -0.4) +
-			k.g("pa-float", "50% 50%", k.P("M100 26 L110 28 L110 38 L100 36 Z", k.p.dark), -1.6) +
-			k.P("M35 83 L53 83 L54 104 Q52 109 44 108 L32 108 Z", k.p.dark) +
-			k.P("M67 83 L85 83 L88 108 L76 108 Q68 109 66 104 Z", k.p.dark) +
+			k.P("M34 84H52L53 100Q58 108 50 110H29Q25 109 28 104L30 96ZM68 84H86L90 97L92 104Q95 110 87 110H72Q65 109 67 103Z", k.p.dark) +
+			k.P("M29 102Q40 104 52 101L54 105Q56 110 50 110H29Q25 109 28 104ZM68 101Q80 104 91 102L92 104Q95 110 87 110H72Q65 109 67 103Z", k.p.light) +
 			k.g(
 				"pa-arm",
-				"70% 5%",
-				k.P("M38 43 L16 48 L12 74 L28 78 L36 57 Z", k.p.body) + k.P("M8 72 L30 72 L32 92 L6 92 Z", k.p.dark) + k.L("M14 80 L28 80", k.p.o, 1.6)
+				"80% 10%",
+				k.P("M35 45Q17 42 13 57L10 78Q5 80 6 92Q11 101 28 96L32 78L38 63Z", k.p.dark) +
+					k.P("M13 51Q22 43 34 48L32 66L10 64Z", k.p.body) +
+					k.L("M11 84L24 86", k.p.o, 1.5)
 			) +
 			k.g(
 				"pa-arm",
-				"30% 5%",
-				k.P("M82 43 L104 48 L108 74 L92 78 L84 57 Z", k.p.body) + k.P("M90 72 L112 72 L114 92 L88 92 Z", k.p.dark) + k.L("M92 80 L106 80", k.p.o, 1.6),
+				"20% 10%",
+				k.P("M85 45Q103 42 107 57L110 78Q115 80 114 92Q109 101 92 96L88 78L82 63Z", k.p.dark) +
+					k.P("M86 48Q98 43 107 51L110 64L88 66Z", k.p.body) +
+					k.L("M96 86L109 84", k.p.o, 1.5),
 				-0.8
 			) +
 			k.g(
 				"pa-breathe",
 				"50% 100%",
-				k.P("M24 44 L96 44 L88 92 L32 92 Z", k.p.body) +
-					k.F("M24 44 L96 44 L94 54 L26 54 Z", k.p.light) +
-					k.L("M40 60 L46 70 L42 80 M80 58 L76 66 L82 76", k.p.dark, 1.6) +
-					k.FE(30, 46, 8, 4, k.p.moss) +
-					k.g("pa-rune", "50% 50%", k.P("M60 56 L72 68 L60 80 L48 68 Z", k.p.rune) + k.L("M60 62 L60 74 M55 68 L65 68", k.p.o, 1.6))
+				k.P("M29 53Q30 44 43 44H77Q90 44 91 54L87 89Q82 97 60 97Q37 96 33 89Z", k.p.body) +
+					k.P("M30 52Q60 42 90 52L88 61H32Z", k.p.light) +
+					k.P("M39 63L44 84L41 91L34 85ZM81 63L77 84L80 91L87 85Z", k.p.dark) +
+					k.g("pa-rune", "50% 50%", k.P("M60 58L73 72L60 87L47 72Z", k.p.rune) + k.L("M60 65V80M54 72H66", k.p.o, 1.6)) +
+					k.FE(38, 49, 8, 4, k.p.moss)
 			) +
 			k.g(
 				"pa-bob",
 				"50% 100%",
-				k.P("M44 24 L76 24 L78 48 L42 48 Z", k.p.body) +
-					k.F("M44 24 L76 24 L76.6 30 L43.4 30 Z", k.p.light) +
-					k.eye(53, 35, 3.4, { slit: true }) +
-					k.eye(67, 35, 3.4, { slit: true })
+				k.P("M39 25Q39 15 49 15H71Q81 15 81 25V45H39Z", k.p.body) +
+					k.P("M40 24Q60 18 80 24V29H40Z", k.p.light) +
+					k.P("M43 31Q60 27 77 31V39H43Z", k.p.o) +
+					k.eye(52, 34, 5, { slit: true }) +
+					k.eye(68, 34, 5, { slit: true }) +
+					k.L("M54 43H66", k.p.dark, 1.3)
 			),
 	};
 
@@ -1132,328 +1053,386 @@
 	const wild = {
 		Cinderbeast: {
 			type: "fire",
-			head: { x: 86, y: 58, r: 17 },
-			palette: { o: "#1c1010", body: "#4a3a3a", dark: "#35292a", light: "#6e5a58", crack: "#ff8a2a", eye: "#ffb02e", ...fire },
+			head: { x: 78, y: 54, r: 23 },
+			palette: { o: "#503b3e", body: "#926d65", dark: "#715254", light: "#c3987d", crack: "#ffc16c", eye: "#ffe0a3", ...fire },
 			draw: k =>
-				k.g("pa-flame", "50% 100%", k.P("M42 60 C36 52 38 44 44 38 C44 44 48 46 50 42 C54 50 52 58 42 60 Z", k.p.flame), -0.3) +
-				k.g("pa-flame", "50% 100%", k.P("M58 56 C52 48 54 40 60 34 C60 40 64 42 66 38 C70 46 68 54 58 56 Z", k.p.flame), -0.9) +
-				k.P("M34 92 L32 106 L46 106 L46 94 Z", k.p.dark) +
-				k.P("M70 94 L70 106 L84 106 L82 92 Z", k.p.dark) +
+				k.P("M27 87Q23 102 28 108H42L47 91M72 90L74 108H90Q94 97 87 85", k.p.dark) +
 				k.g(
 					"pa-breathe",
 					"50% 100%",
-					k.E(56, 80, 32, 24, k.p.body) + k.L("M38 74 L44 80 L40 88 M60 66 L56 74 L62 80 M72 86 L78 92", k.p.crack, 2.2) + k.FE(60, 92, 14, 7, k.p.light)
+					k.g("pa-flame", "50% 100%", k.P("M31 69Q17 47 28 31Q31 41 36 38Q47 55 31 69Z", k.p.flame)) +
+						k.g("pa-flame", "50% 100%", k.P("M50 62Q34 38 47 21Q49 33 55 29Q65 48 50 62Z", k.p.flame), -0.7) +
+						k.P("M21 77Q22 55 51 51Q82 49 91 73Q102 99 76 106H43Q18 102 21 77", k.p.body) +
+						k.FE(55, 91, 22, 13, k.p.light) +
+						k.L("M33 69L42 76L38 85M55 59L52 69L60 74", k.p.crack, 2.6)
 				) +
 				k.g(
 					"pa-bob",
-					"30% 100%",
-					k.E(78, 44, 6, 6, k.p.body) +
-						k.E(96, 46, 6, 6, k.p.body) +
-						k.P("M72 70 C66 62 69 49 78 45 C88 40 99 46 103 55 C108 67 98 74 88 74 C82 74 77 72 75 70", k.p.body) +
-						k.E(97, 64, 9, 7, k.p.light) +
-						k.FE(104, 61, 2.6, 2, k.p.o) +
-						k.eye(83, 54, 3.6, { glow: true, brow: -2 }) +
-						k.eye(94, 53, 3, { glow: true, brow: 2 }) +
-						k.L("M96 68 Q100 70 104 67")
+					"40% 90%",
+					k.E(62, 37, 8, 8, k.p.dark) +
+						k.E(91, 36, 8, 8, k.p.dark) +
+						k.P("M53 51Q52 34 77 33Q101 32 103 53L103 65Q100 80 79 79Q55 78 53 63Z", k.p.body) +
+						k.FE(86, 64, 19, 11, k.p.light) +
+						k.eye(67, 52, 4.8) +
+						k.eye(91, 50, 4.5) +
+						k.L("M60 45L70 48M86 46L96 42", k.p.o, 2.1) +
+						k.P("M88 58Q96 54 100 59Q98 65 92 64Z", k.p.o) +
+						k.L("M78 70Q89 66 99 69", k.p.o, 1.5) +
+						k.P("M80 69L83 76L87 68", "#fff1d7")
 				),
 		},
 		Magmite: {
 			type: "fire",
-			head: { x: 98, y: 84, r: 10 },
-			palette: { o: "#1c0e0a", body: "#5a4040", dark: "#3e2c2c", lava: "#ff7a1a", leg: "#2e2020", eye: "#ffe07a", ...fire },
+			head: { x: 96, y: 78, r: 17 },
+			palette: { o: "#56424b", body: "#a0827b", dark: "#735d65", lava: "#ffc07a", leg: "#675261", eye: "#ffe5ad", ...fire },
 			draw: k =>
-				k.L("M34 91 Q29 97 26 106 M46 93 Q43 99 42 108 M58 93 Q57 101 58 108 M70 93 Q72 100 74 108", k.p.leg, 3.4) +
 				k.g(
 					"pa-breathe",
 					"50% 100%",
-					k.P("M22 96 C22 68 42 54 62 54 C84 54 100 68 100 96 Z", k.p.body) +
-						k.L("M34 92 C36 80 44 72 52 66 M58 60 C62 72 62 84 58 94 M70 62 C78 70 84 80 86 92", k.p.lava, 2.6) +
-						k.F("M40 64 C46 58 56 56 62 57 C54 59 46 62 40 68 Z", "#7a5a58")
+					k.L("M30 88Q22 92 20 99L24 108M47 90Q47 99 43 108M70 90Q72 100 77 108M87 86Q94 95 101 102L98 108", k.p.leg, 5) +
+						k.P("M18 85Q17 53 42 47Q67 39 88 58Q102 70 96 94H29Q19 94 18 85", k.p.body) +
+						k.L("M38 51L46 63L41 76L47 91M62 49L57 62L70 71L64 91M80 58L77 70L87 78", k.p.lava, 3) +
+						k.P("M19 83Q54 91 97 83L96 91Q94 95 83 95H31Q20 94 19 88Z", k.p.dark)
 				) +
 				k.g(
 					"pa-bob",
-					"0% 100%",
-					k.P("M88 92 C84 86 88 80 96 79 C105 77 111 83 109 90 C108 96 96 99 90 94", k.p.dark) +
-						k.L("M96 80 C94 72 90 68 86 66 M102 80 C104 72 108 68 112 66", k.p.o, 1.8) +
-						k.g(
-							"pa-flame",
-							"50% 100%",
-							k.P("M86 66 C82 62 84 58 86 56 C88 58 90 62 86 66 Z", k.p.flame) + k.P("M112 66 C108 62 110 58 112 56 C114 58 116 62 112 66 Z", k.p.flame)
-						) +
-						k.eye(96, 87, 2.8, { glow: true }) +
-						k.eye(104, 87, 2.4, { glow: true })
+					"20% 85%",
+					k.P("M82 73Q84 61 98 63Q113 65 112 82Q111 96 96 96Q80 94 82 73", k.p.dark) +
+						k.L("M91 66L87 53M104 65L110 52", k.p.o, 2.4) +
+						k.E(87, 51, 3, 4, k.p.flame) +
+						k.E(111, 50, 3, 4, k.p.flame) +
+						k.eye(91, 77, 4.4) +
+						k.eye(105, 77, 4.4) +
+						k.L("M87 71L94 73M102 73L108 70M93 88L103 86", k.p.o, 1.5)
 				),
 		},
 		Ashfang: {
 			type: "fire",
-			head: { x: 82, y: 52, r: 16 },
-			palette: { o: "#241e24", body: "#8c8790", dark: "#6a6470", light: "#c9c3cc", fang: "#ff9a3a", eye: "#ff6a2a", ...fire },
+			head: { x: 85, y: 53, r: 23 },
+			palette: { o: "#514555", body: "#aaa0ac", dark: "#817486", light: "#e6d8d2", fang: "#fff0d8", eye: "#ed9b62", ...fire },
 			draw: k =>
 				k.g(
 					"pa-tail",
-					"100% 90%",
-					k.P("M40 94 C22 96 10 84 14 70 C16 62 24 60 28 66 C24 72 26 82 40 86 Z", k.p.dark) +
-						k.g("pa-flame", "50% 100%", k.P("M18 68 C12 62 14 54 20 50 C20 56 24 58 26 54 C28 60 26 66 18 68 Z", k.p.flame))
+					"100% 80%",
+					k.P("M36 89Q13 95 9 77Q7 68 10 61Q18 61 21 72Q22 81 40 74Z", k.p.dark) +
+						k.g("pa-flame", "50% 100%", k.P("M12 69C4 65 2 53 8 41Q10 49 15 45Q25 58 16 69Z", k.p.flame))
 				) +
 				k.g(
 					"pa-breathe",
 					"50% 100%",
-					k.E(46, 95, 15, 12, k.p.dark) +
-						k.P("M36 106 C36 100 44 98 52 101 L52 107 L36 107 Z", k.p.dark) +
-						k.P("M58 58 C66 52 78 53 80 62 C77 75 78 89 76 107 L52 107 C50 90 50 70 58 58 Z", k.p.body) +
-						k.F("M62 66 C70 68 74 76 71 86 C66 80 62 74 62 66 Z", k.p.light) +
-						k.L("M62 92 L62 106", k.p.o, 1.6)
+					k.P(
+						"M35 82Q31 86 33 95L31 103Q27 107 31 109H41Q45 108 44 104L45 92L49 84M74 80Q72 89 77 99L77 104Q74 109 80 109H89Q93 108 89 104L87 94L88 82",
+						k.p.dark
+					) +
+						k.P("M26 76Q29 58 50 58L75 63Q91 59 96 76Q99 96 76 96H42Q22 94 26 76", k.p.body) +
+						k.P(
+							"M43 79Q54 77 58 87Q60 92 55 98L53 103Q61 107 55 109H44Q38 109 41 103L44 95Q36 88 39 83ZM86 76Q95 72 100 80L99 97L102 103Q109 109 102 109H91Q85 109 88 103L89 92L84 82Z",
+							k.p.body
+						)
 				) +
 				k.g(
-					"pa-bob",
-					"30% 100%",
-					k.P("M70 42 L66 22 L80 36 Z", k.p.body) +
-						k.P("M84 36 L90 18 L94 38 Z", k.p.body) +
-						k.P("M66 52 C66 40 78 36 88 38 C98 40 110 46 114 52 C110 58 98 62 88 62 C76 64 66 60 66 52 Z", k.p.body) +
-						k.F("M92 56 C100 58 108 56 113 53 C108 59 100 62 92 61 Z", k.p.light) +
-						k.P("M100 60 L102 66 L104 60 Z", k.p.fang) +
-						k.P("M107 58 L108.6 63 L110 58 Z", k.p.fang) +
-						k.FE(113, 51, 2.2, 1.8, k.p.o) +
-						k.eye(84, 48, 3.4, { glow: true, brow: -2 }) +
-						k.eye(95, 47, 2.8, { glow: true, brow: 2 })
+					"pa-head",
+					"30% 90%",
+					k.P("M63 40L59 18Q73 20 78 32M85 31L101 14L101 45", k.p.dark) +
+						k.P("M61 48Q60 32 81 31Q101 29 105 48L115 58Q118 68 103 71Q80 74 67 62Z", k.p.body) +
+						k.P("M83 52Q93 48 104 54L115 58Q119 66 104 70Q86 72 80 61Z", k.p.light) +
+						k.eye(77, 46, 4.6) +
+						k.eye(96, 44, 3.8) +
+						k.L("M71 40L80 43M92 41L99 38", k.p.o, 1.7) +
+						k.E(113, 58, 4, 3, k.p.o) +
+						k.L("M91 64L109 65", k.p.o, 1.4) +
+						k.P("M94 64L97 73L101 65M105 65L107 71L110 65", k.p.fang)
 				),
 		},
 		Drizzlefin: {
 			type: "water",
-			head: { x: 78, y: 60, r: 14 },
-			palette: { o: "#123c52", body: "#4fb0d8", dark: "#2f86b0", belly: "#c6ecfb", cloud: "#e9f2f8", eye: "#0e2030", fx: "water", drop: "#9fdcff" },
+			head: { x: 79, y: 66, r: 22 },
+			palette: { o: "#365a73", body: "#7ebfcd", dark: "#5395b0", belly: "#d9efe8", cloud: "#eef4eb", eye: "#334963", fx: "water", drop: "#9cdaea" },
 			draw: k =>
-				k.FE(60, 107, 22, 3, "#000", 0.12) +
 				k.g(
 					"pa-float",
 					"50% 50%",
-					k.g("pa-tail", "100% 50%", k.P("M38 59 C28 57 19 52 12 50 L17 64 L12 78 C24 73 31 71 38 69 Z", k.p.dark)) +
-						k.P("M28 64 C28 52 44 46 60 46 C78 46 92 54 94 64 C92 74 78 82 60 82 C44 82 28 76 28 64 Z", k.p.body) +
-						k.F("M40 72 C50 80 76 80 88 70 C82 80 70 82 60 82 C50 82 44 78 40 72 Z", k.p.belly) +
-						k.P("M53 73 Q53 82 50 88 Q61 85 67 77", k.p.dark) +
-						k.E(48, 40, 9, 7, k.p.cloud) +
-						k.E(60, 36, 11, 9, k.p.cloud) +
-						k.E(72, 40, 9, 7, k.p.cloud) +
-						k.eye(80, 60, 5.4) +
-						k.L("M86 70 Q90 72 93 69") +
-						k.L("M66 54 Q68 62 66 70", k.p.dark, 1.6)
-				) +
-				k.g("pa-drop", "50% 50%", k.P("M52 46 C49 51 49 54 52 54 C55 54 55 51 52 46 Z", k.p.drop), -0.3) +
-				k.g("pa-drop", "50% 50%", k.P("M66 46 C63 51 63 54 66 54 C69 54 69 51 66 46 Z", k.p.drop), -1.2),
+					k.g("pa-tail", "100% 50%", k.P("M35 60Q18 59 8 48Q5 62 15 71Q7 80 9 88Q24 84 37 75Z", k.p.dark)) +
+						k.E(57, 38, 10, 7, k.p.cloud) +
+						k.E(68, 35, 12, 9, k.p.cloud) +
+						k.E(80, 38, 10, 7, k.p.cloud) +
+						k.P("M27 64Q30 44 60 43Q91 41 103 63Q109 83 83 93Q52 102 32 84Q25 77 27 64", k.p.body) +
+						k.P("M35 76Q59 88 96 76Q90 94 65 96Q44 94 35 76", k.p.belly) +
+						k.P("M53 86L46 101Q62 100 69 90Z", k.p.dark) +
+						k.eye(79, 62, 5.2) +
+						k.L("M72 55L82 58", k.p.o, 1.8) +
+						k.P("M91 72Q103 66 103 75Q100 83 92 79Z", k.p.o) +
+						k.P("M93 71L96 76L99 70", k.p.belly) +
+						k.L("M62 59Q59 68 63 75", k.p.dark, 1.5)
+				) + k.g("pa-drop", "50% 50%", k.P("M51 37Q44 47 51 48Q57 47 51 37", k.p.drop), -0.4),
 		},
 		Tidemaw: {
 			type: "water",
-			head: { x: 62, y: 66, r: 30 },
+			head: { x: 60, y: 67, r: 31 },
 			palette: {
-				o: "#0f2240",
-				body: "#2f5f9a",
-				dark: "#22487a",
-				belly: "#8fc0e8",
-				tooth: "#f6f6f0",
-				lure: "#bff7ff",
-				eye: "#0b1626",
+				o: "#384e72",
+				body: "#7296bf",
+				dark: "#455f87",
+				belly: "#b7d5e4",
+				mouth: "#394563",
+				tooth: "#f9efdc",
+				lure: "#d7f5e9",
+				eye: "#354766",
 				fx: "water",
-				drop: "#9fdcff",
+				drop: "#9cdaea",
 			},
 			draw: k =>
-				k.g("pa-leaf", "0% 100%", k.L("M70 58 C72 40 86 30 98 34", k.p.o, 2.4) + k.g("pa-rune", "50% 50%", k.E(100, 36, 5, 5, k.p.lure))) +
+				k.P("M30 78Q11 72 8 86Q16 99 33 95M90 78Q111 70 113 86Q107 100 88 95", k.p.dark) +
 				k.g(
 					"pa-breathe",
 					"50% 100%",
-					k.P("M18 96 C18 70 38 56 62 56 C86 56 104 70 104 96 C104 104 92 108 62 108 C32 108 18 104 18 96 Z", k.p.body) +
-						k.P("M26 88 C40 98 84 98 100 86 C98 100 84 106 62 106 C40 106 28 100 26 88 Z", k.p.belly) +
-						k.L("M26 88 C40 98 84 98 100 86", k.p.o, 2.4) +
-						k.F("M34 92 L37 98 L40 93 Z M48 95 L51 101 L54 95.5 Z M66 95.5 L69 101 L72 95 Z M82 93 L85 98.5 L88 92 Z", k.p.tooth) +
-						k.E(44, 58, 8, 7, k.p.body) +
-						k.E(78, 58, 8, 7, k.p.body) +
-						k.eye(44, 57, 4) +
-						k.eye(78, 57, 4) +
-						k.F("M30 70 C34 66 40 66 42 70 Z M80 74 C84 70 90 70 92 74 Z", k.p.dark)
+					k.P("M23 77Q22 49 46 43Q80 34 96 64Q115 103 80 107H42Q18 105 23 77", k.p.body) +
+						k.E(42, 46, 8, 7, k.p.body) +
+						k.E(79, 44, 8, 7, k.p.body) +
+						k.eye(42, 47, 4.6) +
+						k.eye(79, 45, 4.6) +
+						k.P("M30 76Q61 61 93 75Q101 97 63 101Q27 100 30 76", k.p.mouth) +
+						k.P(
+							"M34.97 73.79Q40.87 71.38 46.81 70.01L41 84ZM52.45 68.96Q58.72 68.05 65.03 68.29L59 82ZM73.26 69.11Q79.59 70.11 85.97 72.27L79 84ZM44.91 98.33L49 88L56.19 100.57Q49.77 99.91 44.91 98.33ZM63 101L70 90L79.13 97.88Q72.5 100 63 101Z",
+							k.p.tooth
+						) +
+						k.L("M30 76Q61 61 93 75", k.p.belly, 2) +
+						k.g("pa-leaf", "0% 100%", k.L("M70 44Q73 18 91 20", k.p.dark, 2.4) + k.g("pa-rune", "50% 50%", k.E(95, 21, 6, 6, k.p.lure)))
 				),
 		},
 		Brinejaw: {
 			type: "water",
-			head: { x: 60, y: 70, r: 22 },
-			palette: { o: "#0f2c3c", body: "#3a8fb0", dark: "#2a6e8c", claw: "#5fb0d0", spot: "#b6e4f4", eye: "#0b1a24", fx: "water", drop: "#9fdcff" },
+			head: { x: 60, y: 72, r: 25 },
+			palette: { o: "#36566c", body: "#71aabb", dark: "#4f839e", claw: "#91c6ce", spot: "#d8ece2", eye: "#34465b", fx: "water", drop: "#9cdaea" },
 			draw: k =>
-				k.L("M38 86 L24 98 L20 108 M42 90 L32 102 L30 108 M80 90 L90 102 L92 108 M84 86 L98 98 L102 108", k.p.dark, 3.2) +
-				k.g("pa-arm", "90% 90%", k.P("M38 76 C28 70 20 60 24 50 C14 50 8 40 14 32 C20 40 28 40 32 46 C30 54 36 62 44 68 Z", k.p.claw)) +
+				k.L("M37 89L25 103M46 93L41 108M75 91L83 108M85 86L100 103", k.p.dark, 4.5) +
 				k.g(
 					"pa-arm",
-					"10% 90%",
-					k.P("M82 76 C96 70 104 58 100 44 C112 44 118 32 110 22 C104 32 94 32 88 38 C90 48 86 58 78 66 Z", k.p.claw) +
-						k.L("M100 44 C98 40 96 38 92 38", k.p.o, 1.6),
-					-0.7
+					"100% 100%",
+					k.L("M37 78Q27 74 23 64L20 52", k.p.dark, 5.5) + k.P("M20 58Q4 58 5 42Q6 31 13 28L18 43L25 27Q37 36 31 50Q28 57 20 58", k.p.claw)
+				) +
+				k.g(
+					"pa-arm",
+					"0% 100%",
+					k.L("M84 78Q95 72 99 63L102 51", k.p.dark, 5.5) + k.P("M102 57Q88 55 89 40Q90 31 97 26L102 41L109 26Q121 37 114 50Q110 56 102 57", k.p.claw),
+					-0.8
 				) +
 				k.g(
 					"pa-breathe",
 					"50% 100%",
-					k.E(60, 80, 28, 17, k.p.body) +
-						k.FE(48, 76, 4, 3, k.p.spot) +
-						k.FE(70, 74, 3, 2.4, k.p.spot) +
-						k.FE(60, 86, 5, 3, k.p.spot) +
-						k.L("M52 88 Q60 92 68 88")
-				) +
-				k.g("pa-bob", "50% 100%", k.L("M52 73 Q52 63 50 56 M68 73 Q68 63 70 56", k.p.o, 2.4) + k.eye(50, 54, 4) + k.eye(70, 54, 4)),
+					k.P("M29 74Q30 58 58 57Q90 56 93 76L89 94Q59 108 31 94Z", k.p.body) +
+						k.L("M44 65Q42 57 44 51M76 64Q79 56 76 49", k.p.dark, 4.5) +
+						k.E(44, 49, 6, 6, k.p.claw) +
+						k.E(76, 47, 6, 6, k.p.claw) +
+						k.eye(44, 49, 4.4) +
+						k.eye(76, 47, 4.4) +
+						k.L("M39 44L46 46M72 44L79 41", k.p.o, 1.5) +
+						k.P("M39 78Q60 72 83 78Q85 94 61 96Q38 97 39 78Z", k.p.dark) +
+						k.P("M40 89Q45 97 60 98Q76 98 82 88L81 96Q59 106 39 96ZM45 96L49 86L55 99ZM64 99L69 85L76 97Z", k.p.spot)
+				),
 		},
 		Thornbeast: {
 			type: "grass",
-			head: { x: 88, y: 76, r: 16 },
-			palette: { o: "#20280e", body: "#6b7a3a", dark: "#4e5a28", thorn: "#9ab84a", tusk: "#f4ecd2", snout: "#a88a6a", eye: "#ff5a3a", fx: "grass" },
+			head: { x: 90, y: 75, r: 21 },
+			palette: { o: "#4b5940", body: "#9cac70", dark: "#758655", thorn: "#c5d38b", tusk: "#f4e8cc", snout: "#c6ab82", eye: "#c86b53", fx: "grass" },
 			draw: k =>
-				k.P("M30 90 L28 106 L40 106 L40 92 Z", k.p.dark) +
-				k.P("M66 92 L66 106 L78 106 L76 90 Z", k.p.dark) +
-				k.P("M26 72 L32 52 L42 69 Z M38 68 L46 46 L56 66 Z M52 66 L60 44 L70 66 Z M66 68 L74 48 L82 72 Z", k.p.thorn) +
-				k.g("pa-breathe", "50% 100%", k.E(54, 80, 32, 20, k.p.body) + k.L("M36 74 L42 78 M50 70 L56 74 M64 72 L70 76", k.p.dark, 1.6)) +
+				k.P("M28 84L25 106H39L46 86M72 84L74 107H89L87 82", k.p.dark) +
+				k.g(
+					"pa-breathe",
+					"50% 100%",
+					k.P("M18 74Q19 51 53 49Q88 47 94 75Q101 101 72 103H42Q15 101 18 74", k.p.body) +
+						k.P("M26 59Q18 47 29 39Q37 44 40 55M45 51Q43 35 54 29Q65 38 64 51M72 54Q75 40 84 39Q92 49 88 63", k.p.thorn) +
+						k.L("M43 70L52 66M53 86L66 81", k.p.dark, 2)
+				) +
 				k.g(
 					"pa-bob",
-					"20% 100%",
-					k.P("M76 85 C69 78 72 67 81 63 C91 58 102 65 104 75 C106 85 95 91 85 90 C81 90 78 88 77 86", k.p.body) +
-						k.P("M76 64 L72 56 L82 62 Z", k.p.body) +
-						k.E(102, 80, 7, 6, k.p.snout) +
-						k.FE(104, 79, 1.2, 1.6, k.p.o) +
-						k.FE(100, 79, 1.2, 1.6, k.p.o) +
-						k.P("M96 86 C98 80 102 76 106 76 C104 80 102 84 98 88 Z", k.p.tusk) +
-						k.eye(87, 72, 3.2, { glow: true, brow: -2 })
+					"20% 90%",
+					k.P("M75 65Q65 54 73 48L85 57M93 57Q99 48 106 53L103 67", k.p.dark) +
+						k.P("M67 74Q67 57 87 56Q106 56 109 73L112 86Q106 99 88 98Q68 95 67 74", k.p.body) +
+						k.P("M108 91Q116 85 113 78Q122 85 112 97Z", k.p.tusk) +
+						k.P("M88 78Q95 73 106 76Q117 78 116 87Q114 96 102 97Q90 97 86 89Q83 83 88 78Z", k.p.snout) +
+						k.eye(80, 71, 4.4) +
+						k.eye(99, 70, 3.4) +
+						k.L("M74 65L83 68M97 65L103 63", k.p.o, 1.7) +
+						k.E(98, 84, 1.5, 2, k.p.o) +
+						k.E(107, 83, 1.4, 2, k.p.o) +
+						k.P("M89 91Q81 85 86 78Q75 85 86 97Z", k.p.tusk) +
+						k.L("M93 93Q102 90 110 92", k.p.o, 1.1)
 				),
 		},
 		Bramblil: {
 			type: "grass",
-			head: { x: 60, y: 78, r: 28 },
-			palette: { o: "#152a10", body: "#3f7a35", dark: "#2c5a24", vine: "#6aa84f", berry: "#d8334a", eye: "#0e1a0c", fx: "grass" },
+			head: { x: 60, y: 69, r: 28 },
+			palette: { o: "#37533d", body: "#86aa71", dark: "#60855e", vine: "#bfd18e", berry: "#ce7c79", eye: "#34473a", fx: "grass" },
 			draw: k =>
-				k.FE(48, 107, 7, 3, k.p.dark) +
-				k.FE(72, 107, 7, 3, k.p.dark) +
+				k.P("M37 96Q46 94 51 99L51 104Q56 109 48 109H32Q27 108 32 104Z", k.p.dark) +
+				k.P("M73 99Q80 94 88 96L89 104Q95 108 88 109H73Q67 109 72 104Z", k.p.dark) +
 				k.g(
 					"pa-breathe",
 					"50% 100%",
-					k.P("M60 50 L64 54 C80 54 90 66 88 80 L92 84 L86 88 C82 100 72 106 60 106 C46 106 36 98 32 86 L28 82 L32 78 C32 62 44 52 56 52 Z", k.p.body) +
-						k.L("M36 70 C46 62 58 66 62 76 C66 86 80 86 86 76 M38 92 C48 84 60 88 66 96 M50 56 C56 64 54 74 46 80", k.p.vine, 2.2) +
-						k.P("M44 68 L36 58 L48 63 Z M76 67 L86 56 L84 70 Z M84 90 L94 96 L82 98 Z M38 96 L28 100 L34 88 Z", k.p.vine) +
-						k.E(44, 90, 3.4, 3.4, k.p.berry) +
-						k.E(78, 94, 3.4, 3.4, k.p.berry) +
-						k.E(72, 60, 3, 3, k.p.berry) +
-						k.eye(54, 78, 4.4) +
-						k.eye(68, 78, 4.4) +
-						k.L("M56 88 Q61 85 66 88")
+					k.P(
+						"M28 85L16 81L24 69Q18 61 23 51L18 40L33 43Q41 30 54 33L62 23L70 35Q85 34 94 48L105 46L99 62Q108 75 100 86L105 97L90 96Q64 114 36 99L23 102Z",
+						k.p.body
+					) +
+						k.P("M31 92Q61 103 97 88Q99 101 76 105Q49 111 34 100Z", k.p.dark) +
+						k.L("M30 59Q37 39 53 45Q65 54 46 60M74 39Q91 46 85 56M40 88Q46 76 34 73M91 80Q74 77 78 92", k.p.vine, 2.5) +
+						k.eye(47, 68, 4.9) +
+						k.eye(74, 67, 4.9) +
+						k.L("M39 60L49 64M71 63L81 58", k.p.o, 2) +
+						k.L("M50 82L58 78L68 82L76 78", k.p.o, 1.8) +
+						k.E(34, 45, 4, 4, k.p.berry) +
+						k.E(88, 91, 4, 4, k.p.berry)
 				),
 		},
 		Mosshorn: {
 			type: "grass",
-			head: { x: 86, y: 54, r: 14 },
-			palette: { o: "#26200e", body: "#9a8a6a", dark: "#76684c", horn: "#d8ccae", moss: "#5fae4a", eye: "#1a160c", fx: "grass" },
+			head: { x: 85, y: 52, r: 22 },
+			palette: { o: "#5b5342", body: "#b5aa8c", dark: "#8e836c", horn: "#e5d7b3", moss: "#86ab79", face: "#d3c6a4", eye: "#4a4b3b", fx: "grass" },
 			draw: k =>
-				k.L("M36 80 Q38 94 34 105 L40 106 M47 82 Q50 94 47 105 L53 106 M69 82 Q69 94 72 105 L78 106 M79 80 Q82 94 85 105 L91 106", k.p.dark, 4) +
+				k.P("M29 83L24 107H35L42 87M64 84L69 108H80L77 82", k.p.dark) +
 				k.g(
 					"pa-breathe",
 					"50% 100%",
-					k.P("M28 74 C28 64 40 60 56 60 C72 60 84 64 86 74 C86 84 76 90 58 90 C40 90 28 84 28 74 Z", k.p.body) +
-						k.FE(44, 64, 10, 5, k.p.moss) +
-						k.FE(64, 62, 8, 4, k.p.moss) +
-						k.L("M30 72 L22 66", k.p.o, 2.2)
+					k.P("M18 73Q20 54 48 54Q76 52 84 73Q94 98 66 99H38Q15 95 18 73", k.p.body) +
+						k.P("M29 84L34 107H45L45 84M77 78L84 107H95L91 78", k.p.body) +
+						k.P("M24 64Q32 53 39 59Q51 46 58 56Q74 54 77 66Q62 73 44 69Q30 73 24 64", k.p.moss)
 				) +
 				k.g(
-					"pa-bob",
-					"20% 100%",
-					k.P("M82 46 C76 32 82 20 94 20 C102 22 104 30 98 34 C94 30 88 32 90 40 Z", k.p.horn) +
-						k.FE(90, 24, 6, 3.4, k.p.moss) +
-						k.P("M75 68 C71 59 75 48 84 46 C95 42 105 52 106 60 C102 66 94 66 86 64 C82 64 80 65 79 68", k.p.body) +
-						k.P("M92 64 C92 72 96 76 98 78 C94 76 88 72 88 64 Z", k.p.moss) +
-						k.eye(88, 53, 3) +
-						k.FE(104, 57, 1.4, 1.2, k.p.o)
+					"pa-head",
+					"25% 90%",
+
+					k.P("M92 40Q109 36 111 24Q113 12 103 10Q95 9 93 17Q92 23 99 26Q104 26 104 22Q99 23 99 18Q99 15 103 16Q109 20 104 28Q101 32 91 33Z", k.p.horn) +
+						k.P("M68 46L54 41Q51 49 68 55M96 45L111 40Q115 51 99 56", k.p.dark) +
+						k.P("M66 49Q65 34 84 34Q103 34 105 54L105 69Q99 84 83 78Q67 70 66 49", k.p.body) +
+						k.P("M70 35Q80 27 91 34L87 41L77 39Z", k.p.moss) +
+						k.P(
+							"M75 44Q61 45 56 33C50 18 63 8 75 14C87 20 84 36 73 36C64 36 62 27 68 22C73 19 78 24 76 28Q74 24 71 26Q68 30 73 31Q80 32 78 24C75 14 63 18 62 26Q59 37 76 38Z",
+							k.p.horn
+						) +
+						k.FE(93, 67, 14, 10, k.p.face) +
+						k.eye(78, 50, 4.3) +
+						k.eye(96, 49, 3.8) +
+						k.L("M72 44L80 47M93 45L100 42M87 71L100 69", k.p.o, 1.6)
 				),
 		},
 		Boltfang: {
 			type: "electric",
-			head: { x: 60, y: 54, r: 14 },
+			head: { x: 60, y: 51, r: 20 },
 			palette: {
-				o: "#1c1630",
-				body: "#5a4d7c",
-				dark: "#7a68aa",
-				wing: "#ffd84a",
-				mark: "#ffe23f",
-				fang: "#ffffff",
-				eye: "#ffe23f",
+				o: "#514768",
+				body: "#a391bd",
+				dark: "#75658e",
+				wing: "#ddc776",
+				mark: "#f1dd96",
+				fang: "#fbefdb",
+				eye: "#efd88a",
 				fx: "electric",
-				spark: "#7fe6ff",
+				spark: "#a9d9e3",
 			},
 			draw: k =>
-				k.FE(60, 107, 20, 3, "#000", 0.12) +
 				k.g(
 					"pa-float",
 					"50% 50%",
 					k.g(
 						"pa-wing",
-						"100% 30%",
-						k.P("M54 55 C39 40 21 33 6 42 L14 50 L8 58 L18 62 L14 72 C29 67 41 69 54 70 Z", k.p.dark) + k.L("M46 58 L28 48 M46 62 L22 60", k.p.wing, 1.6)
+						"100% 50%",
+						k.P("M48 57Q24 29 4 35Q10 52 3 70Q18 61 24 81Q35 68 48 77Z", k.p.dark) +
+							k.P("M43 59Q25 40 12 40L23 59L11 65Q20 63 25 71Q34 64 43 70Z", k.p.wing) +
+							k.L("M40 60L30 56L33 64L24 62", k.p.mark, 2)
 					) +
 						k.g(
 							"pa-wing",
-							"0% 30%",
-							k.P("M66 55 C81 40 99 33 114 42 L106 50 L112 58 L102 62 L106 72 C91 67 79 69 66 70 Z", k.p.dark) +
-								k.L("M74 58 L92 48 M74 62 L98 60", k.p.wing, 1.6),
-							-0.25
+							"0% 50%",
+							k.P("M72 57Q96 29 116 35Q110 52 117 70Q102 61 96 81Q85 68 72 77Z", k.p.dark) +
+								k.P("M77 59Q95 40 108 40L97 59L109 65Q100 63 95 71Q86 64 77 70Z", k.p.wing) +
+								k.L("M80 60L90 56L87 64L96 62", k.p.mark, 2),
+							-0.7
 						) +
-						k.P("M50 44 L46 30 L56 40 Z", k.p.body) +
-						k.P("M70 44 L74 30 L64 40 Z", k.p.body) +
-						k.E(60, 60, 14, 16, k.p.body) +
-						k.L("M56 66 L60 70 L56 72 L60 76", k.p.mark, 2) +
-						k.eye(55, 54, 3.4, { glow: true }) +
-						k.eye(65, 54, 3.4, { glow: true }) +
-						k.F("M55 63 L57 68 L59 63 Z M61 63 L63 68 L65 63 Z", k.p.fang)
+						k.E(60, 75, 16, 22, k.p.dark) +
+						k.P("M48 90L52 101L60 95L68 101L72 90", k.p.body) +
+						k.g(
+							"pa-head",
+							"50% 90%",
+							k.P("M43 46Q36 32 39 14Q49 18 56 35L55 45ZM65 44L65 35Q71 22 81 14Q86 32 77 46Z", k.p.dark) +
+								k.P("M42 22Q43 31 48 36L51 32Q48 26 42 22ZM72 36L75 38Q80 29 79 24Q74 29 72 36Z", k.p.wing) +
+								k.E(60, 53, 22, 21, k.p.body) +
+								k.eye(50, 49, 4.5) +
+								k.eye(70, 49, 4.5) +
+								k.L("M44 42L52 46M68 46L76 42", k.p.o, 1.7) +
+								k.P("M49 59Q60 55 72 59Q68 72 60 71Q52 70 49 59", k.p.o) +
+								k.P("M52 59L55 67L58 58M63 58L67 67L70 59", k.p.fang)
+						)
 				),
 		},
 		Sparkmaw: {
 			type: "electric",
-			head: { x: 90, y: 40, r: 14 },
-			palette: { o: "#121a36", body: "#2e3f73", dark: "#1f2c56", spot: "#ffe23f", mouth: "#ffb0c0", eye: "#ffe23f", fx: "electric", spark: "#7fe6ff" },
+			head: { x: 85, y: 31, r: 22 },
+			palette: {
+				o: "#3e4b70",
+				body: "#8396bd",
+				dark: "#5c729c",
+				spot: "#eed68b",
+				mouth: "#d79aa8",
+				eye: "#f3dc95",
+				fang: "#f7efd9",
+				fx: "electric",
+				spark: "#a9d9e3",
+			},
 			draw: k =>
 				k.g(
 					"pa-breathe",
 					"50% 100%",
-					k.P(
-						"M14 104 C14 92 30 86 46 92 C60 98 70 94 72 84 C74 72 64 64 66 54 L80 50 C80 62 88 72 86 86 C84 104 64 110 46 106 C34 104 24 108 14 104 Z",
-						k.p.body
-					) +
-						k.P("M30 90 L34 84 L38 90 Z M46 92 L50 86 L54 94 Z M68 66 L74 62 L76 70 Z", k.p.dark) +
-						k.FE(40, 100, 2.6, 2.6, k.p.spot) +
-						k.FE(60, 100, 2.6, 2.6, k.p.spot) +
-						k.FE(78, 80, 2.6, 2.6, k.p.spot)
+					k.P("M15 106Q5 104 9 96Q18 86 44 88Q67 89 60 77Q44 57 57 36L75 44Q65 59 79 74Q96 96 73 105Q48 114 15 106Z", k.p.body) +
+						k.P("M22 102Q46 107 70 100Q59 108 38 108Q26 108 22 102Z", k.p.dark) +
+						k.P("M15 106Q5 104 9 96L6 86L17 89L15 78L27 90L24 96L29 98L25 107Z", k.p.spot) +
+						k.L("M48 94L57 89L51 84M61 58L69 54L64 47", k.p.spot, 3)
 				) +
 				k.g(
 					"pa-bob",
-					"10% 100%",
-					k.P("M67 57 C61 49 63 37 74 31 C79 28 84 27 88 28 C102 28 114 34 116 40 L98 42 L116 46 C112 54 98 58 86 58 C78 58 74 55 72 55", k.p.body) +
-						k.P("M98 42 L116 40 L116 46 Z", k.p.mouth) +
-						k.eye(84, 38, 4, { glow: true, brow: -2 }) +
-						k.g("pa-spark", "50% 50%", k.L("M104 44 L110 40 L108 44 L114 42", k.p.spark, 1.8))
-				) +
-				k.g("pa-spark", "50% 50%", k.L("M24 78 L28 72 L24 72 L28 66", k.p.spark, 2), -0.9),
+					"10% 90%",
+					k.P("M58 32Q58 15 78 14Q101 13 110 30Q116 43 103 51Q84 59 66 47Q58 42 58 32", k.p.body) +
+						k.P("M87 31L101 26L95 18L109 25L110 35Z", k.p.spot) +
+						k.eye(78, 28, 4.8) +
+						k.L("M70 21L80 25", k.p.o, 1.7) +
+						k.P("M82 40Q95 35 110 37Q104 50 90 49Z", k.p.o) +
+						k.P("M85 39L89 47L93 38M101 38L104 45L108 37", k.p.fang) +
+						k.L("M102 47L109 52L116 49", k.p.mouth, 1.4)
+				),
 		},
 		Voltbeast: {
 			type: "electric",
-			head: { x: 92, y: 72, r: 16 },
-			palette: { o: "#1c1e2a", body: "#5a6178", dark: "#444a5e", band: "#ffd23f", coil: "#d8894a", eye: "#ffe23f", fx: "electric", spark: "#7fe6ff" },
+			head: { x: 91, y: 72, r: 23 },
+			palette: {
+				o: "#4b5572",
+				body: "#98a5bc",
+				dark: "#71819e",
+				light: "#bec9d7",
+				band: "#e9ca78",
+				coil: "#be976d",
+				eye: "#f3dc95",
+				fx: "electric",
+				spark: "#a9d9e3",
+			},
 			draw: k =>
-				k.P("M32 90 L30 106 L44 106 L44 92 Z", k.p.dark) +
-				k.P("M64 92 L64 106 L78 106 L76 90 Z", k.p.dark) +
+				k.P("M29 84Q27 91 28 100L25 105Q26 109 33 109H41L44 87ZM69 86Q70 96 73 104Q71 109 79 109H89Q93 108 89 103L86 83Z", k.p.dark) +
 				k.g(
 					"pa-breathe",
 					"50% 100%",
-					k.E(54, 78, 34, 22, k.p.body) +
-						k.F("M40 58 L48 58 L48 99 L40 98 Z M58 56 L66 56 L66 100 L58 100 Z", k.p.band) +
-						k.L("M40 58 L40 98 M48 58 L48 99 M58 56 L58 100 M66 56 L66 100", k.p.o, 1.4)
+					k.P("M18 76Q18 50 49 47Q81 44 94 67Q110 99 75 103H43Q14 101 18 76", k.p.body) +
+						k.P("M33 51L44 48L43 66L53 62L48 87Q43 90 39 89L41 74L32 78ZM62 47L73 50L68 67L79 65L74 89Q70 92 65 91L67 77L57 80Z", k.p.band) +
+						k.P("M23 91Q48 101 87 91Q83 101 58 102H43Q29 101 23 95Z", k.p.dark)
 				) +
 				k.g(
 					"pa-bob",
-					"10% 100%",
-					k.P("M78 85 C72 77 75 64 85 60 C97 55 112 68 114 78 C112 86 102 88 92 88 C86 88 82 86 80 84", k.p.body) +
-						k.L("M104 62 L108 50 M106 60 L112 58 M107 55 L113 53 M108 50 L113 48", k.p.coil, 2.8) +
-						k.g("pa-spark", "50% 50%", k.L("M110 44 L114 38 L111 38 L115 32", k.p.spark, 2)) +
-						k.P("M78 68 Q77 62 78 54 Q86 57 90 64 Z", k.p.body) +
-						k.eye(92, 70, 3.4, { glow: true, brow: -2 }) +
-						k.FE(111, 78, 1.6, 1.4, k.p.o) +
-						k.L("M100 82 Q106 84 110 82")
+					"20% 90%",
+					k.E(78, 54, 8, 9, k.p.dark) +
+						k.P("M71 73Q69 56 88 54Q108 53 113 75L116 85Q111 98 91 96Q73 93 71 73", k.p.body) +
+						k.FE(102, 84, 15, 11, k.p.light) +
+						k.P("M100 61Q98 48 107 41L109 51L115 48L109 64Z", k.p.coil) +
+						k.eye(85, 70, 4.5) +
+						k.L("M78 64L87 67", k.p.o, 1.8) +
+						k.E(111, 81, 1.5, 1.5, k.p.o) +
+						k.L("M97 91L110 89", k.p.o, 1.4)
 				),
 		},
 	};

@@ -648,14 +648,50 @@ html:not(.glitch-fx) .holo {
 
 	position: relative;
 	display: grid;
-	grid-template-areas: "id" "net" "obj" "room" "wallet" "svc";
-	gap: 10px;
+	grid-template-areas: "id" "svc" "obj" "room" "net" "wallet";
+	gap: 14px;
 	max-width: 64em;
 }
 
 .holo-journal .holo {
 	max-width: none;
 	margin: 0;
+	padding: 14px 16px;
+	border-color: #365d70;
+	background: repeating-linear-gradient(to bottom, transparent 0 3px, rgb(158 234 255 / 3%) 3px 4px), #07131e;
+}
+
+.holo-journal .holo-id {
+	background: repeating-linear-gradient(135deg, transparent 0 7px, rgb(127 233 255 / 4%) 7px 8px), linear-gradient(160deg, #0b2533, #07131e 70%);
+}
+
+.holo-journal .holo::after {
+	display: none;
+}
+
+.holo-journal .holo-head {
+	margin: 0 0 12px;
+	padding: 0 0 8px;
+	color: var(--holo-ok);
+	font-size: 0.95em;
+	letter-spacing: 0.1em;
+}
+
+.holo-journal .holo-row {
+	display: grid;
+	grid-template-columns: minmax(6em, 0.65fr) minmax(0, 1fr);
+	gap: 4px 12px;
+	padding: 4px 0;
+}
+
+.holo-journal .holo-row .holo-label {
+	min-width: 0;
+}
+
+.holo-journal .holo-obj + .holo-obj {
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid #365d70;
 }
 
 .holo-journal a {
@@ -666,14 +702,14 @@ html:not(.glitch-fx) .holo {
 @container (min-width: 440px) {
 	.holo-journal {
 		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-		grid-template-areas: "id id" "net wallet" "obj obj" "room room" "svc svc";
+		grid-template-areas: "id id" "svc svc" "obj obj" "room room" "net wallet";
 	}
 }
 
 @container (min-width: 660px) {
 	.holo-journal {
 		grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
-		grid-template-areas: "id id net" "id id wallet" "obj obj room" "svc svc svc";
+		grid-template-areas: "id id net" "id id wallet" "svc svc svc" "obj obj room";
 	}
 }
 
@@ -885,11 +921,15 @@ html:not(.glitch-fx) .holo {
 }
 
 .holo-id-barcode {
-	width: 9em;
-	height: 24px;
+	width: 220px;
+	max-width: 100%;
+	height: 40px;
 	margin-left: auto;
+	padding: 6px 0;
+	box-sizing: border-box;
 	fill: var(--holo-ok);
-	opacity: 0.85;
+	background: transparent;
+	flex-shrink: 0;
 }
 
 /* Decorative machine-readable line. */
@@ -1688,19 +1728,37 @@ html:not(.glitch-fx) .arcology-holo::before {
 }
 
 .dbn-card {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
 	border: 1px solid var(--dbn-line);
 	background: var(--dbn-panel);
+	transition: border-color 0.18s ease;
+}
+
+.dbn-card:has(a):hover,
+.dbn-card:focus-within {
+	border-color: var(--dbn-ink);
+}
+
+.dbn-card:focus-within {
+	outline: 2px solid var(--dbn-ink);
+	outline-offset: 3px;
+}
+
+.dbn-card .dbn-title a::after {
+	position: absolute;
+	inset: 0;
+	content: "";
 }
 
 .dbn-card-body {
 	display: flex;
 	flex: 1;
 	flex-direction: column;
-	gap: 6px;
-	padding: 10px 12px 12px;
+	gap: 12px;
+	padding: 16px;
 }
 
 .dbn-art {
@@ -1758,6 +1816,8 @@ html:not(.glitch-fx) .arcology-holo::before {
 	color: var(--dbn-soft);
 	font-size: 0.92em;
 	line-height: 1.45;
+	padding-left: 12px;
+	border-left: 2px solid var(--dbn-line);
 }
 
 .dbn-foot {
@@ -1773,6 +1833,13 @@ html:not(.glitch-fx) .arcology-holo::before {
 .dbn-count {
 	color: var(--dbn-dim);
 	font-size: 0.82em;
+}
+
+.dbn-read {
+	margin-left: auto;
+	color: var(--dbn-ink);
+	font-family: monospace;
+	font-size: 0.85em;
 }
 
 .dbn-featured .dbn-title {
@@ -1850,14 +1917,14 @@ html:not(.glitch-fx) .arcology-holo::before {
 	display: grid;
 	gap: 10px;
 	min-width: 0;
-	padding: 14px;
+	padding: clamp(12px, 3cqi, 28px);
 	border: 1px solid var(--dbn-line);
 	background: var(--dbn-panel);
 }
 
 .dbn-headline {
 	color: #fff;
-	font-size: 1.5em;
+	font-size: clamp(1.35em, 3.5cqi, 2em);
 	font-weight: bold;
 	line-height: 1.25;
 }
@@ -1881,6 +1948,7 @@ html:not(.glitch-fx) .arcology-holo::before {
 }
 
 .dbn-art-main {
+	order: -1;
 	border: 1px solid var(--dbn-line);
 }
 
@@ -1961,8 +2029,9 @@ html:not(.glitch-fx) .arcology-holo::before {
 	flex-direction: column;
 	gap: 4px;
 	margin: 14px 0;
-	padding: 10px;
+	padding: 16px;
 	border: 1px solid var(--dbn-line);
+	border-left: 3px solid var(--dbn-warn);
 	color: var(--dbn-soft);
 	font-size: 0.9em;
 }
@@ -1974,6 +2043,19 @@ html:not(.glitch-fx) .arcology-holo::before {
 .dbn-text p {
 	margin: 0 0 0.8em;
 	line-height: 1.6;
+}
+
+.dbn-text {
+	width: 100%;
+	max-width: 70ch;
+	margin-inline: auto;
+	color: var(--dbn-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dbn-card {
+		transition: none;
+	}
 }
 
 .dbn-digest li {

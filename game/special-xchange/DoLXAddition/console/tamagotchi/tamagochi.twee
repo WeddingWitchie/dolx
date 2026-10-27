@@ -337,6 +337,8 @@
 	<<if _petChal>>
 		<div class="con-banner pet-goal" role="status"><div class="con-daily-head"><strong><<print _petChal.c.name>></strong><<print setup.petChallenges.chip(_petChal.c.diff)>></div><<print setup.petChallenges.describe(_petChal.c)>><<if _petChal.text>><div class="tama-sub"><<print _petChal.text>></div><</if>><<if _petChal.broken>><div class="red">Challenge missed: <<print _petChal.broken>>. You can still finish the fight.</div><</if>></div>
 	<</if>>
+	<div class="pet-battle-screen">
+	<div class="pet-battle-heading"><strong>Battle</strong><span>Turn <<= _b.over ? _b.turn : _b.turn + 1>></span></div>
 	<<= PetArt.battleStage()>>
 	<div class="pa-after">
 	<div class="tama-log">
@@ -346,21 +348,22 @@
 	</div>
 
 	<<if _b.over>>
-		<<link [[Continue|Home Console Pet Battle Result]]>><</link>>
+		<div class="pet-battle-outcome" role="status"><strong><<= _b.result is "win" ? "Victory" : "Defeat">></strong><span><<= _b.result is "win" ? "Your pet wins the battle." : "Your pet has fallen.">></span></div>
+		<span class="con-btn-link"><<link [[Next|Home Console Pet Battle Result]]>><</link>></span>
 	<<else>>
-		Your move:
-		<br>
-		<<link [[Attack|Home Console Pet Battle]]>><<run Tamagotchi.battleAttack()>><</link>> <i>(basic, free)</i>
-		<br>
-		<<link [[Guard|Home Console Pet Battle]]>><<run Tamagotchi.battleGuard()>><</link>> <i>(halve next hit, recover MP)</i>
-		<br>
-		<<link [[Rest|Home Console Pet Battle]]>><<run Tamagotchi.battleRest()>><</link>> <i>(recover HP &amp; MP)</i>
-		<br>
+		<h3 class="pet-move-heading">Your move</h3>
+		<div class="pet-moves">
+		<div class="pet-move"><<link [[Attack|Home Console Pet Battle]]>><<run Tamagotchi.battleAttack()>><</link>><small>Basic attack · Free</small></div>
+		<div class="pet-move"><<link [[Guard|Home Console Pet Battle]]>><<run Tamagotchi.battleGuard()>><</link>><small>Halve next hit · Recover MP</small></div>
+		<div class="pet-move"><<link [[Rest|Home Console Pet Battle]]>><<run Tamagotchi.battleRest()>><</link>><small>Recover HP &amp; MP</small></div>
+		</div>
 		<<if _t.autoRevive and not _b.reviveUsed>>
 			<i><span class="green">Revive is ready</span>: your pet will get back up once if it falls this battle.</i>
 			<br>
 		<</if>>
+		<div class="pet-moves pet-moves--skills">
 		<<for _s range Tamagotchi.battleSkills()>>
+			<div class="pet-move">
 			<<capture _s>>
 				<<if _b.mp gte _s.mp>>
 					<<link [[_s.name|Home Console Pet Battle]]>><<run Tamagotchi.battleSkill(_s.id)>><</link>>
@@ -368,10 +371,12 @@
 					<span class="grey">_s.name</span>
 				<</if>>
 			<</capture>>
-			| <span class="teal">_s.typeLabel</span><<if _s.heal>>, heal<<else>>, Pow _s.power<</if>>, _s.mp MP
-			<br>
+			<small><span class="teal">_s.typeLabel</span><<if _s.heal>> · Heal<<else>> · Power _s.power<</if>> · _s.mp MP</small>
+			</div>
 		<</for>>
+		</div>
 	<</if>>
+	</div>
 	</div>
 <</if>>
 

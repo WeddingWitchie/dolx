@@ -99,8 +99,9 @@ setup.arcologyNewsArt = {
 		);
 	},
 
-	drone(c, x, y, delay) {
-		return `<g class="na-drift" style="animation-delay:${delay}s"><rect x="${x - 6}" y="${y - 1.5}" width="12" height="3" fill="#9fd8e8"/><line x1="${
+	drone(c, x, y, delay, spotlight = false) {
+		const beam = spotlight ? `<path d="M${x} ${y + 3}L${x - 32} ${y + 45}H${x + 32}Z" fill="${c.ink}" opacity=".08"/>` : "";
+		return `<g class="na-drift" style="animation-delay:${delay}s">${beam}<rect x="${x - 6}" y="${y - 1.5}" width="12" height="3" fill="#9fd8e8"/><line x1="${
 			x - 9
 		}" y1="${y - 3}" x2="${x + 9}" y2="${y - 3}" stroke="#9fd8e8" stroke-width=".8"/><circle class="na-blink" cx="${x}" cy="${y + 3}" r="1.3" fill="${
 			c.hot
@@ -246,8 +247,8 @@ setup.arcologyNewsArt = {
 		}
 		if (f === "sweep" && rec.s === "drones") {
 			s += this.towers(r, c, 172, { tall: 100, col: "#102737", lit: 0.5, step: 10 });
-			s += `<path d="M0 180L150 108H188L320 180" fill="#030b15"/><path d="M105 180L163 112M236 180L180 112" stroke="${c.dim}" opacity=".6"/><path class="na-glow" d="M154 72L86 160H244L172 72Z" fill="${c.ink}" opacity=".08"/>`;
-			s += `<g transform="translate(-195 -80) scale(2.2)">${this.drone(c, 160, 66, 0)}</g>`;
+			s += `<path d="M0 180L150 108H188L320 180" fill="#030b15"/><path d="M105 180L163 112M236 180L180 112" stroke="${c.dim}" opacity=".6"/>`;
+			s += `<g transform="translate(-195 -80) scale(2.2)">${this.drone(c, 160, 66, 0, true)}</g>`;
 			s += this.person(68, 178, 0.8) + this.person(264, 174, 0.65);
 			return this.frame(rec, c, id, s, "cam");
 		}

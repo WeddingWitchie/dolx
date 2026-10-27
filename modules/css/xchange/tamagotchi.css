@@ -317,7 +317,7 @@
 
 /* Embit: impatient, a quick double hop every few seconds; its tail swings wider. */
 .pa--f-embit .pa-mood {
-	animation: pa-impatient 5.5s ease-out infinite;
+	animation: none;
 }
 
 .pa--f-embit .pa-tail {
@@ -326,7 +326,7 @@
 
 /* Pudduck: calm, a slow bob and slow blinks; bubbles now and then. */
 .pa--f-pudduck .pa-mood {
-	animation: pa-bob-slow 3.8s ease-in-out infinite;
+	animation: none;
 }
 
 .pa--f-pudduck .pa-eye {
@@ -345,11 +345,76 @@
 
 /* Voltpup: excited, a fast tail wag, twitchy ears and a quicker strike. */
 .pa--f-voltpup .pa-tail {
-	animation: pa-wag 0.35s ease-in-out infinite alternate;
+	animation: pa-wag 1.1s ease-in-out infinite alternate;
 }
 
 .pa--f-voltpup .pa-ear {
-	animation-duration: 2.4s;
+	animation-duration: 6s;
+}
+
+.pa-head {
+	animation: pa-look 9s ease-in-out infinite;
+}
+
+.pa--f-pudduck .pa-head {
+	animation-duration: 12s;
+}
+
+.pa--f-sprout .pa-head {
+	animation-duration: 11s;
+}
+
+.pa-pant {
+	animation: pa-pant 9s ease-in-out infinite;
+}
+
+@keyframes pa-look {
+	0%,
+	18%,
+	48%,
+	72%,
+	100% {
+		transform: rotate(0);
+	}
+
+	28%,
+	38% {
+		transform: rotate(-7deg);
+	}
+
+	82%,
+	90% {
+		transform: rotate(5deg);
+	}
+}
+
+@keyframes pa-pant {
+	0%,
+	65%,
+	100% {
+		transform: scaleY(0);
+	}
+
+	72%,
+	92% {
+		transform: scaleY(1);
+	}
+}
+
+.pa--sleep .pa-head,
+.pa--sick .pa-head {
+	animation: none;
+}
+
+.pa--sleep .pa-pant,
+.pa--sick .pa-pant,
+.pa--down .pa-pant {
+	display: none;
+}
+
+.pa--attack .pa-head,
+.pa--hurt .pa-head {
+	animation-play-state: paused;
 }
 
 .pa--f-voltpup .pa-spark {
@@ -390,6 +455,39 @@
 	animation-duration: 1s;
 }
 
+.pa--f-thundrover .pa-head,
+.pa--f-pondswan .pa-head {
+	animation-name: pa-watch;
+	animation-duration: 12s;
+}
+
+.pa--f-thundrover .pa-tail {
+	animation-duration: 2.5s;
+}
+
+.pa--f-pondswan .pa-wing {
+	animation-duration: 5.5s;
+}
+
+@keyframes pa-watch {
+	0%,
+	20%,
+	55%,
+	100% {
+		transform: rotate(0);
+	}
+
+	30%,
+	45% {
+		transform: rotate(-3deg);
+	}
+
+	75%,
+	85% {
+		transform: rotate(3deg);
+	}
+}
+
 /* ---- bosses: a looming idle, a rear-back before striking, a heavy fall ---- */
 .pa--mirror .pa-mood,
 .pa--f-golem .pa-mood {
@@ -425,23 +523,6 @@
 .pa--mirror.pa--down .pa-aura {
 	opacity: 0;
 	transition: opacity 0.5s;
-}
-
-@keyframes pa-impatient {
-	0%,
-	78%,
-	100% {
-		transform: none;
-	}
-
-	83%,
-	93% {
-		transform: translateY(-5px);
-	}
-
-	88% {
-		transform: none;
-	}
 }
 
 @keyframes pa-bob-slow {
@@ -800,9 +881,12 @@
 	transition: filter 0.4s;
 }
 
-.pa--down .pa-rig *,
-.pa--still * {
+.pa--down .pa-rig * {
 	animation-play-state: paused;
+}
+
+.pa--still * {
+	animation: none !important;
 }
 
 .pa--cheer .pa-rig {
@@ -1029,6 +1113,253 @@
 }
 
 /* ---- the battle stage ---- */
+.pet-battle-screen {
+	container-type: inline-size;
+	max-width: 640px;
+	padding: 12px;
+	border: 1px solid var(--750);
+	border-radius: 6px;
+	background: var(--900, #161616);
+	box-sizing: border-box;
+}
+
+.pet-battle-heading {
+	display: flex;
+	justify-content: space-between;
+	gap: 8px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid var(--750);
+}
+
+.pet-battle-heading span,
+.pet-move small {
+	color: var(--300);
+	font-size: 0.85em;
+}
+
+.pet-battle-screen .pa-stage {
+	max-width: none;
+	min-height: 220px;
+	align-items: flex-end;
+	padding: 24px 12px 12px;
+	border: 0;
+	border-bottom: 2px solid var(--750);
+	border-radius: 0;
+	background: linear-gradient(#142b35, #233c3c);
+}
+
+.pa-habitat {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
+
+.pet-battle-screen .pa-slot {
+	position: relative;
+	flex: 1 1 0;
+}
+
+.pet-battle-screen .pa-stage--boss {
+	background: linear-gradient(#301a2d, #293037);
+}
+
+.pa-stage--boss .pa-habitat {
+	opacity: 0.45;
+}
+
+.pet-battle-screen .pa-battle .tama-battle {
+	width: 100%;
+	max-width: none;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.pet-battle-screen .tama-fighter {
+	min-width: 0;
+	padding: 8px;
+	overflow-wrap: anywhere;
+}
+
+.pet-battle-screen .tama-fname {
+	min-height: 2.8em;
+	line-height: 1.4;
+}
+
+.pet-battle-screen .tama-bar {
+	height: 20px;
+	border-radius: 2px;
+}
+
+.pet-battle-screen .tama-bar-label {
+	line-height: 20px;
+	font-size: 0.8em;
+	text-shadow: 0 1px 2px #000, 0 -1px 2px #000;
+}
+
+.pet-move-heading {
+	margin: 12px 0 6px;
+	font-size: 1em;
+}
+
+.pet-moves {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 8px;
+	margin: 8px 0;
+}
+
+.pet-moves--skills {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.pet-moves > br,
+.pet-move > br {
+	display: none;
+}
+
+.pet-move {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 4px;
+	min-width: 0;
+	min-height: 64px;
+	padding: 8px 12px;
+	border: 1px solid var(--750);
+	border-left: 3px solid var(--750);
+	background: rgb(255 255 255 / 3%);
+	overflow-wrap: anywhere;
+	box-sizing: border-box;
+	line-height: 1.4;
+}
+
+.pet-move a::after {
+	position: absolute;
+	inset: 0;
+	content: "";
+}
+
+/* The stretched link makes the whole row a tap target. */
+.pet-battle-screen .pet-move a {
+	padding: 0;
+}
+
+.pet-move:has(a):hover,
+.pet-move:focus-within {
+	border-color: #6cf;
+	background: rgb(102 204 255 / 8%);
+}
+
+.pet-move:focus-within {
+	outline: 2px solid #6cf;
+	outline-offset: 2px;
+}
+
+.pet-battle-outcome {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin: 12px 0;
+	padding: 20px 12px;
+	border-block: 1px solid var(--750);
+	text-align: center;
+	animation: pet-result-in 0.35s ease-out both;
+}
+
+.pet-battle-outcome strong {
+	font-size: 1.6em;
+	letter-spacing: 0.06em;
+}
+
+.pa-held .pet-battle-outcome {
+	opacity: 0;
+	animation: none;
+}
+
+.pa-impact {
+	position: absolute;
+	top: 20%;
+	left: 0;
+	right: 0;
+	z-index: 2;
+	color: #fff;
+	font-size: 1.4em;
+	font-weight: bold;
+	text-align: center;
+	text-shadow: 0 2px 2px #000, 1px 0 2px #000, -1px 0 2px #000;
+	animation: pet-impact-rise 0.8s ease-out forwards;
+}
+
+@keyframes pet-impact-rise {
+	from {
+		opacity: 1;
+		transform: translateY(0) scale(1.15);
+	}
+
+	to {
+		opacity: 0;
+		transform: translateY(-24px) scale(1);
+	}
+}
+
+@keyframes pet-result-in {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@container (max-width: 520px) {
+	.pet-moves {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.pet-move {
+		min-height: 56px;
+		padding: 8px 12px;
+		gap: 2px;
+	}
+}
+
+@media (max-width: 600px) {
+	.pet-moves {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.pet-move {
+		min-height: 56px;
+		padding: 8px 12px;
+		gap: 2px;
+	}
+}
+
+@media (max-width: 420px) {
+	.pet-battle-screen {
+		padding: 8px;
+	}
+
+	.pet-battle-screen .pa-stage {
+		min-height: 180px;
+		padding-inline: 0;
+	}
+
+	.pet-battle-screen .pa-battle .tama-battle {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.pet-battle-screen .tama-fname {
+		min-height: 0;
+	}
+}
+
 .pa-stage {
 	position: relative;
 	display: flex;
@@ -1073,20 +1404,6 @@
 	min-width: 0;
 }
 
-.pa-skip {
-	position: absolute;
-	top: 6px;
-	right: 6px;
-	z-index: 1;
-	min-width: 44px;
-	min-height: 44px;
-	padding: 6px 10px;
-}
-
-.pa-skip[hidden] {
-	display: none;
-}
-
 /* While a round plays, the moves read as unavailable; the log stays at full contrast. */
 .pa-held a {
 	opacity: 0.5;
@@ -1111,6 +1428,17 @@
 	display: flex;
 	flex: none;
 	justify-content: center;
+	align-items: flex-end;
+	min-width: 148px;
+	min-height: 148px;
+	padding: 8px;
+	border: 1px solid #435c48;
+	border-radius: 6px;
+	background: radial-gradient(ellipse at 50% 88%, #486140 0 28%, transparent 29%), linear-gradient(#142b35 65%, #294539 65%);
+}
+
+.tama-portrait .pa--card {
+	--pa-size: 176px;
 }
 
 .tama-card-main {
@@ -1209,6 +1537,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+	.pet-battle-outcome,
+	.pet-battle-screen .tama-bar-fill,
 	.pa *,
 	.pa-burst {
 		animation: none !important;
