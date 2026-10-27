@@ -233,7 +233,29 @@
 	<<He>> smiles. "Good. I'll see you back at the mansion. You know what to expect by now."
 <<else>>
 	<<He>> smiles. "Good. I'll pick you up from <span class="green">Domus Street at eight</span>.
-	<<if currentClothingBand() is C.npc.Avery.pronoun or (playerIsXChanged() and !($player.penisExist and $player.vaginaExist) and $player.sex is C.npc.Avery.pronoun and ($xchange.pill.originalBody?.sex ?? $player.sex) isnot C.npc.Avery.pronoun) or (genderIsIgnored() and !playerIsXChanged() and $player.sex is C.npc.Avery.pronoun and perceivedGenderBinary() is C.npc.Avery.pronoun)>><<if playerIsXChanged() and !($player.penisExist and $player.vaginaExist) and $player.sex is C.npc.Avery.pronoun and ($xchange.pill.originalBody?.sex ?? $player.sex) isnot C.npc.Avery.pronoun>>That pill has changed you the wrong way. Reverse it or let it wear off before meeting me.<<elseif $player.sex isnot C.npc.Avery.pronoun>>You look too much like me. Wear something more <<if C.npc.Avery.pronoun is "m">>feminine<<else>>masculine<</if>> before meeting me.<<elseif playerIsXChanged()>>Whatever pill you've taken won't do. Make sure you look the part before meeting me.<<else>><<if genderIsIgnored()>><span class="pink">Remember to pop a pill before meeting me</span>.<<else>><span class="green">Wear something more <<if C.npc.Avery.pronoun is "m">>feminine<<else>>masculine<</if>> before meeting me</span>.<</if>> <<if C.npc.Avery.pronoun is "m">>I'm not walking in with another man on my arm. Half that room banks with me.<<else>>Two women at that table, and nobody looks at the deal. They look at us.<</if>><</if>><</if>> Oh, and <span class="green">be sure to wear something formal</span>. There are dress codes to observe."
+	<<if pillIsPermanent()>>
+		You're already pilled. Good.
+	<<elseif currentClothingBand() is C.npc.Avery.pronoun or (playerIsXChanged() and !($player.penisExist and $player.vaginaExist) and $player.sex is C.npc.Avery.pronoun and ($xchange.pill.originalBody?.sex ?? $player.sex) isnot C.npc.Avery.pronoun) or (genderIsIgnored() and !playerIsXChanged() and $player.sex is C.npc.Avery.pronoun and perceivedGenderBinary() is C.npc.Avery.pronoun)>>
+		<<if playerIsXChanged() and !($player.penisExist and $player.vaginaExist) and $player.sex is C.npc.Avery.pronoun and ($xchange.pill.originalBody?.sex ?? $player.sex) isnot C.npc.Avery.pronoun>>
+			That pill has changed you the wrong way. Reverse it or let it wear off before meeting me.
+		<<elseif $player.sex isnot C.npc.Avery.pronoun>>
+			You look too much like me. Wear something more <<if C.npc.Avery.pronoun is "m">>feminine<<else>>masculine<</if>> before meeting me.
+		<<elseif playerIsXChanged()>>
+			Whatever pill you've taken won't do. Make sure you look the part before meeting me.
+		<<else>>
+			<<if genderIsIgnored()>>
+				<span class="pink">Remember to pop a pill before meeting me</span>.
+			<<else>>
+				<span class="green">Wear something more <<if C.npc.Avery.pronoun is "m">>feminine<<else>>masculine<</if>> before meeting me</span>.
+			<</if>>
+			<<if C.npc.Avery.pronoun is "m">>
+				I'm not walking in with another man on my arm. I have a reputation to maintain.
+			<<else>>
+				Two women arriving together, and everybody starts talking. I don't need that kind of attention.
+			<</if>>
+		<</if>>
+	<</if>>
+	Oh, and <span class="green">be sure to wear something formal</span>. There are dress codes to observe."
 	<br><br>
 	<<He>> drives away.
 <</if>>
@@ -434,15 +456,26 @@ Avery slams the door after you, then gets in the front. The doors lock as you dr
 
 <<person1>>Avery looks up as you approach. <<He>> wears a <<if $pronoun is "m">>smart suit<<else>>fancy gown<</if>>. "There you are, <<pcpetname "Avery">>," <<he>>
 
-/* Without "Ignore gender checks" Avery never forces a pill, so a same-sex PC who also presents the same way lands here and gets told to change instead. */
-<<if (currentClothingBand() is C.npc.Avery.pronoun or (playerIsXChanged() and !($player.penisExist and $player.vaginaExist) and $player.sex is C.npc.Avery.pronoun and ($xchange.pill.originalBody?.sex ?? $player.sex) isnot C.npc.Avery.pronoun)) and ($player.sex isnot C.npc.Avery.pronoun or playerIsXChanged() or !genderIsIgnored())>>
+/* Avery accepts permanent pills regardless of body or presentation. Otherwise, without "Ignore gender checks", Avery asks matching presentations to change clothes instead of forcing a pill. */
+<<if !pillIsPermanent() and (currentClothingBand() is C.npc.Avery.pronoun or (playerIsXChanged() and !($player.penisExist and $player.vaginaExist) and $player.sex is C.npc.Avery.pronoun and ($xchange.pill.originalBody?.sex ?? $player.sex) isnot C.npc.Avery.pronoun)) and ($player.sex isnot C.npc.Avery.pronoun or playerIsXChanged() or !genderIsIgnored())>>
 	says, then looks you over.
-	/* Avery picked the disguise, so the combat crossdress reveal must not surprise her later. */
 	<<set $averySeen.pushUnique("crossdress")>>
 	<<if playerIsXChanged() and !($player.penisExist and $player.vaginaExist) and $player.sex is C.npc.Avery.pronoun and ($xchange.pill.originalBody?.sex ?? $player.sex) isnot C.npc.Avery.pronoun>>
 		"No. That pill has changed you the wrong way. Reverse it or let it wear off, then come back."
 	<<else>>
-		<<if playerIsXChanged()>>"Whatever you've taken, you're still presenting like me."<<else>>"No. You look too much like me."<</if>> <<if C.npc.Avery.pronoun is "m">><<He>> looks away. "Two men in suits. Nobody at that table is going to be thinking about the contract."<<else>><<He>> looks away. "Two women in gowns. Every eye in that room will be on us, not on the deal."<</if>> <<if $transgenderknown.includes("Avery")>>Avery glances at you. "I remember what you told me. This is about how we'll look together." <</if>>
+		<<if playerIsXChanged()>>
+			"Whatever you've taken, you're still presenting like me."
+		<<else>>
+			"No. You look too much like me."
+		<</if>>
+		<<if C.npc.Avery.pronoun is "m">>
+			<<He>> looks away. "Two men arriving together. People will talk, and I have a reputation to maintain."
+		<<else>>
+			<<He>> looks away. "Two women arriving together. Every eye will be on us. I don't need that kind of attention."
+		<</if>>
+		<<if $transgenderknown.includes("Avery")>>
+			Avery glances at you again. "I remember what you told me. This is about how we'll look together."
+		<</if>>
 		<<He>> sighs. "Go change into something more <<if $pronoun is "m">>feminine<<else>>masculine<</if>><<if $pronoun is "f" and ($makeup.lipstick or $makeup.eyeshadow or $makeup.mascara)>>, and take off that makeup while you're at it<</if>>. I'll wait."
 	<</if>>
 	<br><br>
@@ -457,7 +490,9 @@ Avery slams the door after you, then gets in the front. The doors lock as you dr
 /* Whether Avery has any reason to pill you tonight. If you already are the sex Avery wants on your arm, there is nothing to fix.
    Rolled once and reused, so the pregnancy excuse below only comes up when a pill was actually coming. */
 <<set _averyWantsToPill to genderIsIgnored() and !playerIsXChanged() and $player.sex is C.npc.Avery.pronoun and (perceivedGenderBinary() is C.npc.Avery.pronoun or random(0,100) lt 25)>>
-<<if _averyWantsToPill and !xchangePregnancyBlocksPill()>>
+<<if pillIsPermanent()>>
+	says, "You're already pilled. Good. Now," <<he>>
+<<elseif _averyWantsToPill and !xchangePregnancyBlocksPill()>>
 	says, "but first things first." <span class="red">Avery slips a pill down your throat.</span>
 	<br><br>
 	/* A NOW-strength dose: it covers the evening and wears off overnight, rather than costing the player a full day. */
@@ -3288,7 +3323,11 @@ You reach for the money, but <<he>> lifts it away from you. "First things first,
 
 :: Avery Date Refuse
 <<effects>>
-"As you wish," <<he>> says, putting the cash back in <<his>> <<wallet>>.
+<<if $passagePrev is "Avery Date">>
+	You tell Avery you've changed your mind. "As you wish," <<he>> says.
+<<else>>
+	"As you wish," <<he>> says, putting the cash back in <<his>> <<wallet>>.
+<</if>>
 <br><br>
 
 <<if $avery_mansion>>
@@ -3301,7 +3340,7 @@ You reach for the money, but <<he>> lifts it away from you. "First things first,
 	<<link [[Next|Mansion Garage]]>><<endevent>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
-	You climb out the car and walk up the path to the orphanage. Avery watches a moment before driving away.
+	<<if $passagePrev is "Avery Date">>You walk up the path to the orphanage.<<else>>You climb out the car and walk up the path to the orphanage.<</if>> Avery watches a moment before driving away.
 	<br><br>
 	<<storeon "averyCar" "check">>
 	<<if _store_check is 1>>
