@@ -48,5 +48,5 @@ setup.pocketMusicTracks = [
 	"audio/bgm/town/day/Anthem of Rain - Gimme All I Want (Instrumental).mp3",
 	"audio/bgm/town/day/Beat Mekanik - Flashback.mp3",
 	"audio/bgm/town/night/Beat Mekanik - Stars.mp3",
-	"audio/bgm/town/night/Mr Smith - Dusk.mp3",
+	"audio/bgm/town/night/Mr Smith - Dusk.mp3"
 ];

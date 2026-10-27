@@ -2382,7 +2382,7 @@ function isPossibleLoveInterest(name) {
 		case "Poppy":
 			return V.poppyromance >= 0 && C.npc.Poppy && C.npc.Poppy.init === 1;
 		case "Bailey":
-			return V.syndromebailey === true;
+			return V.syndromeBailey === true;
 		default:
 			return false;
 	}
