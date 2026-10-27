@@ -475,7 +475,7 @@ function apparentbottomsizecheck() {
 	if (V.worn.under_lower.rearresize != null) {
 		T.tempbutt += V.worn.under_lower.rearresize;
 	}
-	if (V.worn.lower.rearresize != null) {
+	if (V.worn.over_lower.rearresize != null) {
 		T.tempbutt += V.worn.over_lower.rearresize;
 	}
 	// using the default values of $bottomsizemin and $bottomsizemax, to avoid issues with the values changing during the game
