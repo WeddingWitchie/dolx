@@ -536,6 +536,14 @@ class CombatSystem {
 			};
 		}
 		if (npc.stance === "top") {
+			// A hand or something else already at the vagina: the free penis rubs the thighs instead
+			if (!V.player.vaginaExist || V.vaginause !== 0) {
+				return {
+					show: penisExists,
+					position: "thighs",
+					state: "rubbing",
+				};
+			}
 			return {
 				show: penisExists,
 				position: "vagina",
