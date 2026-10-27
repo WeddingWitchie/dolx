@@ -16,10 +16,11 @@
  *   2. A "lifeboat" copy of a recent save is kept there as well, so an IndexedDB-only failure
  *      may still be recoverable.
  *   3. Persistent-storage status is reported, and the player can request it from the saves menu.
+ *   4. APK builds with the backup plugin keep three recovery copies in native app files.
  *
  * localStorage is not outside the browser's origin storage. Origin-wide eviction or clearing site data
- * can remove the saves, mirror, and lifeboat together. Exporting to a file remains the only independent
- * copy, and the UI says so rather than promising that the browser-side backup survives eviction.
+ * can remove the saves, mirror, and lifeboat together. Native app files survive WebView-only loss,
+ * but clearing app data or uninstalling removes those too. Exported files remain necessary.
  */
 const DoLSaveGuard = (() => {
 	"use strict";
@@ -46,6 +47,10 @@ const DoLSaveGuard = (() => {
 	let lastLifeboatWrite = 0;
 	let lastRefresh = 0;
 	let persistState = { supported: false, persisted: null, checked: false, requested: false };
+	let lastAppBackupAttempt = 0;
+	let appBackupPending = null;
+	let appBackupError = "";
+	let storageError = "";
 
 	/**
 	 * @param {string} key
@@ -90,6 +95,91 @@ const DoLSaveGuard = (() => {
 	 */
 	function isApp() {
 		return typeof window.cordova !== "undefined" && window.cordova != null;
+	}
+
+	function appBackup() {
+		return window.cordova?.plugins?.dolSaveBackup;
+	}
+
+	async function writeAppBackup(force) {
+		const backup = appBackup();
+		if (backup == null || V.ironmanmode) return false;
+		if (!force && Date.now() - lastAppBackupAttempt < SAVE_GUARD_INTERVAL_MS) return false;
+		if (typeof Config.saves.isAllowed === "function" && !Config.saves.isAllowed()) return false;
+		lastAppBackupAttempt = Date.now();
+		let pending;
+		try {
+			const payload = buildPayload();
+			if (payload == null) return false;
+			const serialised = JSON.stringify(payload);
+			pending = (appBackupPending || Promise.resolve()).catch(() => {}).then(() => backup.write(serialised));
+			appBackupPending = pending;
+			await pending;
+			appBackupError = "";
+			return true;
+		} catch (ex) {
+			appBackupError = String(ex);
+			return false;
+		} finally {
+			if (pending != null && appBackupPending === pending) appBackupPending = null;
+		}
+	}
+
+	async function appBackups() {
+		try {
+			return appBackup() == null ? [] : await appBackup().list();
+		} catch (ex) {
+			appBackupError = String(ex);
+			return [];
+		}
+	}
+
+	function renderAppBackups(container, backups) {
+		if (appBackup() == null || V.ironmanmode) return;
+		const section = element("div", { class: "description" }, [
+			element(
+				"p",
+				"APK recovery backups are kept in app files, separately from WebView storage. " +
+					"Uninstalling or clearing app data also deletes these backups. Keep exported files elsewhere."
+			),
+		]);
+		if (appBackupError) section.appendChild(element("p", { class: "red" }, "APK backup error: " + appBackupError));
+		if (backups.length === 0) section.appendChild(element("p", "No APK recovery backup is available yet."));
+		for (const backup of backups) {
+			const status = element("span", "");
+			section.appendChild(
+				element("p", [
+					element("span", `${backup.saveName || backup.title || "unnamed save"}, day ${backup.days}, ${stamp(backup.date)} `),
+					element("input", {
+						type: "button",
+						class: "saveMenuButton saveMenuConfirm",
+						value: "Restore APK backup",
+						async onclick(event) {
+							if (!window.confirm("Load this APK backup? Any unsaved progress will be replaced.")) return;
+							const button = event.currentTarget;
+							button.disabled = true;
+							try {
+								const payload = JSON.parse(await appBackup().read(backup.index));
+								if (payload.date !== backup.date || payload.saveId !== backup.saveId) {
+									throw new Error("The backup changed. Reopen Saves to refresh the list.");
+								}
+								if (restorePayload(payload)) {
+									dismissLoss();
+									closeOverlay();
+								} else status.textContent = " Could not load this backup. Try an older copy or an exported file.";
+							} catch (ex) {
+								appBackupError = String(ex);
+								status.textContent = " Could not read this backup: " + String(ex);
+							} finally {
+								button.disabled = false;
+							}
+						},
+					}),
+					status,
+				])
+			);
+		}
+		container.appendChild(section);
 	}
 
 	function idbInUse() {
@@ -177,9 +267,10 @@ const DoLSaveGuard = (() => {
 	 */
 	function tokenTransaction(db, mode, run) {
 		return new Promise((resolve, reject) => {
-			const request = run(db.transaction(TOKEN_STORE, mode).objectStore(TOKEN_STORE));
-			request.onsuccess = () => resolve(request.result);
-			request.onerror = () => reject(request.error);
+			const transaction = db.transaction(TOKEN_STORE, mode);
+			const request = run(transaction.objectStore(TOKEN_STORE));
+			transaction.oncomplete = () => resolve(request.result);
+			transaction.onabort = transaction.onerror = () => reject(transaction.error || request.error);
 		});
 	}
 
@@ -220,6 +311,7 @@ const DoLSaveGuard = (() => {
 			localStorage.setItem(TOKEN_KEY, token);
 			return local == null ? "fresh" : "cleared";
 		} catch (ex) {
+			storageError = "Checking database reset: " + String(ex);
 			return "unknown";
 		} finally {
 			if (db != null) db.close();
@@ -246,6 +338,7 @@ const DoLSaveGuard = (() => {
 		} catch (ex) {
 			/* A read that throws is a different failure from a read that returns nothing, and we
 			   cannot tell an evicted database from a broken one here. Say nothing rather than guess. */
+			storageError = "Reading save list: " + String(ex);
 			return false;
 		}
 
@@ -364,11 +457,17 @@ const DoLSaveGuard = (() => {
 	 */
 	function restoreLifeboat() {
 		const payload = readJSON(LIFEBOAT_KEY);
-		if (payload == null || !Array.isArray(payload.delta)) return false;
+		return restorePayload(payload);
+	}
+
+	function restorePayload(payload) {
+		if (payload == null || payload.version !== 1 || payload.id !== Story.domId || !Array.isArray(payload.delta)) return false;
+		if (!Number.isInteger(payload.index) || payload.index < 0 || payload.index >= payload.delta.length) return false;
 		try {
 			const state = {
 				history: State.deltaDecode(payload.delta),
 				index: payload.index,
+				idx: payload.idx,
 			};
 			if (payload.seed != null) state.seed = payload.seed;
 			if (payload.expired != null) state.expired = payload.expired;
@@ -460,6 +559,10 @@ const DoLSaveGuard = (() => {
 			mirrorSlots: getMirror()?.slots.length ?? 0,
 			lifeboat: lifeboatInfo(),
 			lifeboatBlocked,
+			appBackups: await appBackups(),
+			appBackupError,
+			storageError,
+			userAgent: navigator.userAgent,
 		};
 		try {
 			if (navigator.storage && typeof navigator.storage.estimate === "function") {
@@ -474,6 +577,7 @@ const DoLSaveGuard = (() => {
 			out.detailRows = idbInUse() ? (await idb.getSaveDetails()).length : null;
 		} catch (ex) {
 			out.detailRows = "error";
+			out.storageError = "Reading save list: " + String(ex);
 		}
 		return out;
 	}
@@ -540,8 +644,8 @@ const DoLSaveGuard = (() => {
 				element(
 					"p",
 					`${report.slots.length} save${report.slots.length === 1 ? " that was" : "s that were"} here on ${stamp(report.lastSeen)} ` +
-						`${report.slots.length === 1 ? "is" : "are"} gone. The game did not delete ${report.slots.length === 1 ? "it" : "them"} - ` +
-						"the IndexedDB save database was reset or removed while its browser-side record remained. This can follow storage damage " +
+						`${report.slots.length === 1 ? "is" : "are"} gone. ` +
+						"The IndexedDB save database was reset or removed while its browser-side record remained. This can follow storage damage " +
 						"or site-data changes; the game cannot determine the exact cause. The missing saves cannot be recovered from IndexedDB."
 				),
 				element(
@@ -550,7 +654,12 @@ const DoLSaveGuard = (() => {
 				),
 				boat != null
 					? element("p", `A backup copy is still here: ${boat.saveName || boat.title || "unnamed save"}, day ${boat.days}, saved ${stamp(boat.date)}.`)
-					: element("p", "No browser-side backup copy was available. An exported file is the only independent copy."),
+					: element(
+							"p",
+							appBackup() == null
+								? "No browser-side backup copy was available. An exported file is the only independent copy."
+								: "No localStorage backup copy was available. Check the APK recovery backups below, or import an exported file."
+					  ),
 				element("p", "The backup and save-list record use the same browser or app storage. They can also disappear if all site data is cleared."),
 				element("div", actions),
 			])
@@ -581,9 +690,7 @@ const DoLSaveGuard = (() => {
 
 			contents.push(
 				element("span", { class: "red" }, status),
-				isApp()
-					? "Your saves will be deleted if the cache is cleared! "
-					: "Your saves will be deleted if your cache is cleared, or if your browser needs to free up space. ",
+				isApp() ? "Clearing app data deletes saves stored in the app. " : "Clearing site data or browser storage reclamation can delete your saves. ",
 				"Export your save to a file to keep a separate backup!"
 			);
 		}
@@ -621,12 +728,13 @@ const DoLSaveGuard = (() => {
 		   Without this, both would append and the notice would appear twice. */
 		const pass = ++noticeRender;
 		container.textContent = "";
-		await Promise.all([refresh(), checkPersistence()]);
+		const [, , backups] = await Promise.all([refresh(), checkPersistence(), appBackups()]);
 		if (pass !== noticeRender || !container.isConnected) return;
 		container.textContent = "";
 		const report = getLossReport();
 		if (report != null) renderLoss(container, report);
 		else renderPersistenceHint(container);
+		renderAppBackups(container, backups);
 	}
 
 	/**
@@ -649,6 +757,10 @@ const DoLSaveGuard = (() => {
 			["Storage persistent", data.persistence.supported ? String(data.persistence.persisted) : "unsupported"],
 			["Storage used", mb(data.usageBytes) + " of " + mb(data.quotaBytes)],
 			["Backup copy", data.lifeboat ? `${stamp(data.lifeboat.date)} (day ${data.lifeboat.days})` : data.lifeboatBlocked ? "blocked - no room" : "none"],
+			["APK file backups", appBackup() == null ? "unavailable in this build" : String(data.appBackups.length)],
+			["APK backup error", data.appBackupError || "none"],
+			["Last storage error", data.storageError || "none"],
+			["WebView / browser", data.userAgent],
 		];
 		container.textContent = "";
 		container.appendChild(
@@ -661,13 +773,14 @@ const DoLSaveGuard = (() => {
 
 	/* wiring */
 
-	/* idb's saveState runs the Save.onSave handlers. The work is deferred so it never sits in the
-	   middle of the save the player asked for. Legacy saves already occupy localStorage and are not
-	   duplicated there. */
+	/* Capture the native recovery snapshot before a passage change can replace the saved state.
+	   File writes are queued; localStorage maintenance stays outside the normal save operation. */
 	Save.onSave.add((save, details) => {
-		if (!idbInUse() || (details?.type !== "slot" && details?.type !== "autosave")) return;
+		if (details?.type !== "slot" && details?.type !== "autosave") return;
 		const deliberate = details != null && details.type === "slot";
+		writeAppBackup(deliberate);
 		setTimeout(() => {
+			if (!idbInUse()) return;
 			writeLifeboat(deliberate);
 			refresh(deliberate);
 		}, 0);

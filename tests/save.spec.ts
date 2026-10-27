@@ -304,6 +304,36 @@ test.describe("Save resilience", () => {
 		expect(data).toHaveProperty("persistence");
 		expect(data).toHaveProperty("detailRows");
 	});
+
+	test("does not replace the local reset token when its database write aborts", async ({ page }) => {
+		await setupGame(page);
+		const result = await page.evaluate(async () => {
+			const guard = (window as any).DoLSaveGuard;
+			await guard.refresh();
+			const before = localStorage.getItem("dolStorageToken");
+			await new Promise<void>((resolve, reject) => {
+				const request = indexedDB.deleteDatabase("dolSaveGuard");
+				request.onsuccess = () => resolve();
+				request.onerror = () => reject(request.error);
+			});
+			const original = IDBObjectStore.prototype.put;
+			IDBObjectStore.prototype.put = function (...args: Parameters<typeof original>) {
+				const request = original.apply(this, args);
+				if (this.transaction.db.name === "dolSaveGuard") {
+					request.addEventListener("success", () => this.transaction.abort());
+				}
+				return request;
+			};
+			try {
+				await guard.refresh();
+				return { before, after: localStorage.getItem("dolStorageToken"), diagnostics: await guard.diagnostics() };
+			} finally {
+				IDBObjectStore.prototype.put = original;
+			}
+		});
+		expect(result.after).toBe(result.before);
+		expect(result.diagnostics.storageError).toContain("Checking database reset");
+	});
 });
 
 test.describe("Save compression dictionaries", () => {
