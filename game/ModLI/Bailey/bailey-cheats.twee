@@ -3,13 +3,6 @@
 <<widget "cheats-bailey">>
 	<<run C.npc.Bailey.dom = typeof C.npc.Bailey.dom === "number" && !isNaN(C.npc.Bailey.dom) ? C.npc.Bailey.dom : 50>>
 	<<run C.npc.Bailey.love = typeof C.npc.Bailey.love === "number" && !isNaN(C.npc.Bailey.love) ? C.npc.Bailey.love : 0>>
-	<<run V.syndromebaileybuild = typeof V.syndromebaileybuild === "number" && !isNaN(V.syndromebaileybuild) ? V.syndromebaileybuild : 0>>
-	<<run V.bailey_offered = typeof V.bailey_offered === "number" && !isNaN(V.bailey_offered) ? V.bailey_offered : 0>>
-	<<run V.bailey_wraith_seen = typeof V.bailey_wraith_seen === "number" && !isNaN(V.bailey_wraith_seen) ? V.bailey_wraith_seen : 0>>
-	<<if $syndromebailey is undefined>><<set $syndromebailey to false>><</if>>
-	<<if $bailey_title_unlocked is undefined>><<set $bailey_title_unlocked to false>><</if>>
-	<<if $bailey_title is undefined>><<set $bailey_title to "Bailey">><</if>>
-	<<if $stockholm_points is undefined>><<set $stockholm_points to {}>><</if>>
 	<div class="settingsToggleItem">
 		<span class="gold">Core Stats</span>
 		<<numberStepper "<<symbol 'dominance-bailey'>> Dominance" `C.npc.Bailey.dom` { callback: value => { C.npc.Bailey.dom = value }, min: 0, max: 100 }>>
@@ -21,22 +14,22 @@
 		/* The scenes already seen set a floor that syncBaileyDom restores every passage, so the stepper starts there instead of silently reverting.
 		Clear the scene record below to drop under it. */
 		<<set _stockholmFloor to baileyStockholmFloor()>>
-		<<numberStepper "Stockholm Points" `V.syndromebaileybuild` { callback: value => { V.syndromebaileybuild = value }, min: _stockholmFloor, max: baileyStockholmFloorMax(), step: 1, percentage: false }>>
+		<<numberStepper "Stockholm Points" `V.syndromeBaileyBuild` { callback: value => { V.syndromeBaileyBuild = value }, min: _stockholmFloor, max: baileyStockholmFloorMax(), step: 1, percentage: false }>>
 		<<if _stockholmFloor gt 0>>
-			<<link [[Clear earned Stockholm points|$passage]]>><<set $stockholm_points to {}>><<set $syndromebaileybuild to 0>><</link>>
+			<<link [[Clear earned Stockholm points|$passage]]>><<set $baileyStockholmPoints to {}>><<set $syndromeBaileyBuild to 0>><</link>>
 			<br>
 			<span class="pink">Forgets which Stockholm scenes you've seen, releasing the minimum of _stockholmFloor.</span>
 			<br>
 		<</if>>
-		<<numberStepper "Times Offered" `V.bailey_offered` { callback: value => { V.bailey_offered = value }, min: 0, step: 1, percentage: false }>>
-		<<numberStepper "Wraith Encounters" `V.bailey_wraith_seen` { callback: value => { V.bailey_wraith_seen = value }, min: 0, step: 1, percentage: false }>>
+		<<numberStepper "Times Offered" `V.baileyOffered` { callback: value => { V.baileyOffered = value }, min: 0, step: 1, percentage: false }>>
+		<<numberStepper "Wraith Encounters" `V.baileyWraithSeen` { callback: value => { V.baileyWraithSeen = value }, min: 0, step: 1, percentage: false }>>
 		<br>
-		<<if $syndromebailey>>
-			<<link [[Deactivate Stockholm|$passage]]>><<set $syndromebailey to false>><<set $bailey_title to "Bailey">><<if $worn.neck.name is "Bailey's collar">><<set $worn.neck.cursed to 0>><<generalUndress "wardrobe" "neck">><</if>><</link>>
+		<<if $syndromeBailey>>
+			<<link [[Deactivate Stockholm|$passage]]>><<set $syndromeBailey to false>><<set $baileyTitle to "Bailey">><<if $worn.neck.name is "Bailey's collar">><<set $worn.neck.cursed to 0>><<generalUndress "wardrobe" "neck">><</if>><</link>>
 			<br>
 			<span class="pink">Removes Bailey's collar from your neck.</span>
 		<<else>>
-			<<link [[Activate Stockholm|$passage]]>><<set $syndromebailey to true>><<set $syndromebaileybuild to Math.max($syndromebaileybuild, 5)>><<run C.npc.Bailey.dom = Math.max(C.npc.Bailey.dom, 100)>><<set $stockholm_points to ($stockholm_points || {})>><<set $baileycollar to 1>><<if $worn.neck.name is "Bailey's collar">><<set $worn.neck.cursed to 1>><<else>><<if $worn.neck.cursed is 1>><<set $worn.neck.cursed to 0>><</if>><<set _collarIdx to setup.clothes.neck.findIndex(function(item) { return item.name === "Bailey's collar"; })>><<if _collarIdx gte 0>><<neckwear _collarIdx>><</if>><</if>><</link>>
+			<<link [[Activate Stockholm|$passage]]>><<set $syndromeBailey to true>><<set $syndromeBaileyBuild to Math.max($syndromeBaileyBuild, 5)>><<run C.npc.Bailey.dom = Math.max(C.npc.Bailey.dom, 100)>><<baileySeenAdd "collar">><<if $worn.neck.name is "Bailey's collar">><<set $worn.neck.cursed to 1>><<else>><<if $worn.neck.cursed is 1>><<set $worn.neck.cursed to 0>><</if>><<set _collarIdx to setup.clothes.neck.findIndex(function(item) { return item.name === "Bailey's collar"; })>><<if _collarIdx gte 0>><<neckwear _collarIdx>><</if>><</if>><</link>>
 			<br>
 			<span class="teal">Fixes Bailey's collar on your neck. Anything worn there is returned to your wardrobe.</span>
 		<</if>>
@@ -44,14 +37,12 @@
 	<div class="settingsToggleItemWide">
 		<span class="gold">Title System</span> <mouse class="tooltip linkBlue">(?)<span>Lets you pick a custom name for the player to call Bailey (a pet name or honorific), used in Bailey's dialogue. Normally earned through the Stockholm storyline, unlock it here to set a title without progressing that content.</span></mouse>
 		<br>
-		<<if $bailey_title_unlocked>>
-			<<link [[Lock Title System|$passage]]>><<set $bailey_title_unlocked to false>><<set $bailey_title to "Bailey">><</link>>
-		<<else>>
-			<<link [[Unlock Title System|$passage]]>><<set $bailey_title_unlocked to true>><</link>>
+		<<if $baileyTitle isnot "Bailey">>
+			<<link [[Lock Title System|$passage]]>><<set $baileyTitle to "Bailey">><</link>>
 		<</if>>
-		<<if $bailey_title_unlocked>>
+		<<if $baileyTitle isnot "Bailey">>
 			<br>
-			<span class="description">Current title: <<= $bailey_title>></span>
-		<</if>>
-	</div>
+			<span class="description">Current title: <<= $baileyTitle>></span>
+		</div>
+	<</if>>
 <</widget>>

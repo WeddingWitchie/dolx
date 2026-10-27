@@ -1,8 +1,8 @@
 /* ══════════════════════════════════════════════════════════════
 STOCKHOLM ACTIVATION SCENE
-The $stockholm_points flags it reads (each earnable once):
+The $baileyStockholmPoints flags it reads (each earnable once):
 	.offer        — First Offer Yourself
-	.offer_defeat — Offered after beating Bailey 5+ times
+	.offerDefeat — Offered after beating Bailey 5+ times
 	.temple       — Defended Bailey to Jordan at the temple
 	.kylar        — Defended Bailey to Jordan during the Kylar rescue
 	.cafe         — Praised/reassured Bailey at the chef opening
@@ -14,7 +14,6 @@ The $stockholm_points flags it reads (each earnable once):
 :: Bailey Stockholm Reveal
 <<pass 15>><<effects>>
 <<person1>>
-<<if $stockholm_points is undefined>><<set $stockholm_points to {}>><</if>>
 
 <<He>> lets go of your arm and sits behind <<his>> desk.
 <br><br>
@@ -25,20 +24,20 @@ The $stockholm_points flags it reads (each earnable once):
 <<He>> reaches into <<his>> jacket and produces a folder with your name on it. <span class="red">They're your identification papers.</span>
 <br><br>
 
-<<if $stockholm_points.temple or $stockholm_points.kylar>>
-	<<He>> opens the folder. "You vouched for me to Jordan and <<nnpc_his "Jordan">> god-botherers.<<if $stockholm_points.temple>> At the temple, that I take care of you.<</if>><<if $stockholm_points.kylar>> In that little freak's basement, you ran your mouth about how much you loved it here.<</if>>"
+<<if $baileyStockholmPoints.temple or $baileyStockholmPoints.kylar>>
+	<<He>> opens the folder. "You vouched for me to Jordan and <<nnpc_his "Jordan">> god-botherers.<<if $baileyStockholmPoints.temple>> At the temple, that I take care of you.<</if>><<if $baileyStockholmPoints.kylar>> In that little freak's basement, you ran your mouth about how much you loved it here.<</if>>"
 	<br><br>
 <</if>>
 
-<<if $stockholm_points.cafe or $stockholm_points.halloween or $stockholm_points.gwylan or $stockholm_points.avery>>
-	<<if $stockholm_points.temple or $stockholm_points.kylar>><<He>> turns a page.<<else>><<He>> opens the folder.<</if>> "<<if $stockholm_points.cafe>>At the café opening, you could've made trouble for me. You vouched for this place instead. <</if>><<if $stockholm_points.halloween>>At the orphanage gala, you spun your little tale about the orphanage when given the opportunity to speak. <</if>><<if $stockholm_points.avery>>That idiot on Danube Street went fishing for dirt on me. You gave <<nnpc_him "Avery">> nothing. <</if>><<if $stockholm_points.gwylan>>The shopkeep says you sound like me. That I raised you wrong.<</if>>"
+<<if $baileyStockholmPoints.cafe or $baileyStockholmPoints.halloween or $baileyStockholmPoints.gwylan or $baileyStockholmPoints.avery>>
+	<<if $baileyStockholmPoints.temple or $baileyStockholmPoints.kylar>><<He>> turns a page.<<else>><<He>> opens the folder.<</if>> "<<if $baileyStockholmPoints.cafe>>At the café opening, you could've made trouble for me. You vouched for this place instead. <</if>><<if $baileyStockholmPoints.halloween>>At the orphanage gala, you spun your little tale about the orphanage when given the opportunity to speak. <</if>><<if $baileyStockholmPoints.avery>>That idiot on Danube Street went fishing for dirt on me. You gave <<nnpc_him "Avery">> nothing. <</if>><<if $baileyStockholmPoints.gwylan>>The shopkeep says you sound like me. That I raised you wrong.<</if>>"
 	<br><br>
 <</if>>
 
 <<He>> closes the folder, tosses it onto the desk, and fixes you with a level stare.
 <br><br>
 
-"You let me put a hood on you and tie you down," <<he>> says, <<his>> mouth partially obscured by <<his>> steepled fingers. "You let me sell you, even when you can afford the rent<<if $stockholm_points.offer_defeat>>, even when you can knock me to the floor<</if>>.<<if $stockholm_points.whitney>> You spread your legs for me while that useful idiot watched.<</if>><<if $stockholm_points.kick>> You licked my shoe in the tunnel.<</if>>"
+"You let me put a hood on you and tie you down," <<he>> says, <<his>> mouth partially obscured by <<his>> steepled fingers. "You let me sell you, even when you can afford the rent<<if $baileyStockholmPoints.offerDefeat>>, even when you can knock me to the floor<</if>>.<<if $baileyStockholmPoints.whitney>> You spread your legs for me while that useful idiot watched.<</if>><<if $baileyStockholmPoints.kick>> You licked my shoe in the tunnel.<</if>>"
 <br><br>
 
 The chair groans beneath <<his>> weight as <<he>> leans back.
@@ -149,8 +148,8 @@ Then <<his>> hand drops. <<He>> reaches into <<his>> coat.
 <br><br>
 
 <<set _collarIdx to setup.clothes.neck.findIndex(function(item) { return item.name === "Bailey's collar"; })>><<if _collarIdx gte 0>><<neckwear _collarIdx>><</if>>
-<<set $baileycollar to 1>>
-<<set $syndromebailey to true>>
+<<baileySeenAdd "collar">>
+<<set $syndromeBailey to true>>
 <<run C.npc.Bailey.dom = 100>>
 <<He>> sits back behind <<his>> desk. <<He>> picks up <<his>> pen.
 <br><br>
@@ -182,7 +181,7 @@ You touch your neck as you leave. <span class="bailey-red">The lotus flower coll
 <<pass 5>><<effects>>
 <<person1>>
 
-<<if $bailey_collar_taken>>
+<<if $baileyCollarTaken>>
 	<<He>> looks at your neck. <<He>> already knows.
 	<br><br>
 
@@ -268,7 +267,7 @@ The lotus sits at the hollow of your neck.
 <br><br>
 
 <<set _collarIdx to setup.clothes.neck.findIndex(function(item) { return item.name === "Bailey's collar"; })>><<if _collarIdx gte 0>><<neckwear _collarIdx>><</if>>
-<<set $bailey_collar_taken to false>>
+<<set $baileyCollarTaken to false>>
 
 <<link [[Next|Orphanage]]>><<endevent>><</link>>
 
@@ -363,19 +362,18 @@ The radio buzzes one final time and the officer's posture changes. <<He>> stands
 :: Bailey Town Reaction [widget]
 /* ══════════════════════════════════════════════════════════════
 TOWN PROJECT REACTIONS  (<<baileyTownReaction>>)
-Flags in $bailey_town: .bridge, .road, .diving, .thicket, .green
+Flags in $baileySeen: "townBridge", "townRoad", "townDiving", "townThicket", "townGreen"
 ══════════════════════════════════════════════════════════════ */
 <<widget "baileyTownReaction">>
 	<<if $town_projects isnot undefined>>
-		<<if $bailey_town is undefined>><<set $bailey_town to {}>><</if>>
 		<<rng>>
 		<<if $rng lte 33>>
 			<<set _projects to []>>
-			<<if $town_projects.bridge gte 3 and !$bailey_town.bridge>><<run _projects.push("bridge")>><</if>>
-			<<if $town_projects.road gte 3 and !$bailey_town.road>><<run _projects.push("road")>><</if>>
-			<<if $town_projects.diving gte 3 and !$bailey_town.diving>><<run _projects.push("diving")>><</if>>
-			<<if $town_projects.thicket gte 3 and !$bailey_town.thicket>><<run _projects.push("thicket")>><</if>>
-			<<if $town_projects.green gte 3 and !$bailey_town.green>><<run _projects.push("green")>><</if>>
+			<<if $town_projects.bridge gte 3 and !$baileySeen.includes("townBridge")>><<run _projects.push("bridge")>><</if>>
+			<<if $town_projects.road gte 3 and !$baileySeen.includes("townRoad")>><<run _projects.push("road")>><</if>>
+			<<if $town_projects.diving gte 3 and !$baileySeen.includes("townDiving")>><<run _projects.push("diving")>><</if>>
+			<<if $town_projects.thicket gte 3 and !$baileySeen.includes("townThicket")>><<run _projects.push("thicket")>><</if>>
+			<<if $town_projects.green gte 3 and !$baileySeen.includes("townGreen")>><<run _projects.push("green")>><</if>>
 
 			<<if _projects.length gt 0>>
 				<<set _pick to _projects[random(0, _projects.length - 1)]>>
@@ -386,10 +384,10 @@ Flags in $bailey_town: .bridge, .road, .diving, .thicket, .green
 				<</if>>
 
 				<<if _pick is "bridge">>
-					<<set $bailey_town.bridge to true>>
+					<<baileySeenAdd "townBridge">>
 					"They rebuilt the bridge on Barb Street." <<He>> doesn't look up from <<his>> paperwork. "That was you."
 					<br><br>
-					<<if $syndromebaileybuild gte 1>>
+					<<if $syndromeBaileyBuild gte 1>>
 						<<He>> nods sharply. "Good. The orphanage is safer for it."
 					<<else>>
 						<<He>> glances at you. "You still owe me rent."
@@ -397,10 +395,10 @@ Flags in $bailey_town: .bridge, .road, .diving, .thicket, .green
 					<br><br>
 
 				<<elseif _pick is "road">>
-					<<set $bailey_town.road to true>>
+					<<baileySeenAdd "townRoad">>
 					"The road to the lake." <<He>> folds <<his>> arms. "That was your little project."
 					<br><br>
-					<<if $syndromebaileybuild gte 1>>
+					<<if $syndromeBaileyBuild gte 1>>
 						<<He>> closes a folder. "The town talks."<<npcincr Bailey love 1>><<glove "Bailey">>
 					<<else>>
 						"Waste your money how you like," <<he>> says. "Just don't forget about rent."
@@ -408,10 +406,10 @@ Flags in $bailey_town: .bridge, .road, .diving, .thicket, .green
 					<br><br>
 
 				<<elseif _pick is "diving">>
-					<<set $bailey_town.diving to true>>
+					<<baileySeenAdd "townDiving">>
 					<<He>> sets down <<his>> pen. "Thirty thousand pounds." <<He>> looks at you. "For an office to fish for junk at the bottom of a lake."
 					<br><br>
-					<<if $syndromebaileybuild gte 1>>
+					<<if $syndromeBaileyBuild gte 1>>
 						"You're building something." <<He>> picks <<his>> pen back up. "Don't let it distract you from what you owe."<<npcincr Bailey love 2>><<glove "Bailey">>
 					<<else>>
 						"Thirty thousand pounds," <<he>> repeats. "And I have to chase you for your dues."
@@ -419,10 +417,10 @@ Flags in $bailey_town: .bridge, .road, .diving, .thicket, .green
 					<br><br>
 
 				<<elseif _pick is "thicket">>
-					<<set $bailey_town.thicket to true>>
+					<<baileySeenAdd "townThicket">>
 					"Someone cleaned up that mess in the residential district." <<He>> glances at you. "You."
 					<br><br>
-					<<if $syndromebaileybuild gte 1>>
+					<<if $syndromeBaileyBuild gte 1>>
 						<<He>> goes back to <<his>> work. "Decent investment."<<npcincr Bailey love 1>><<glove "Bailey">>
 					<<else>>
 						<<He>> goes back to <<his>> work. "Waste of money."
@@ -430,10 +428,10 @@ Flags in $bailey_town: .bridge, .road, .diving, .thicket, .green
 					<br><br>
 
 				<<elseif _pick is "green">>
-					<<set $bailey_town.green to true>>
+					<<baileySeenAdd "townGreen">>
 					"The school called." <<He>> taps <<his>> pen against the desk. "They mentioned you cleared the green."
 					<br><br>
-					<<if $syndromebaileybuild gte 1>>
+					<<if $syndromeBaileyBuild gte 1>>
 						"Good," <<he>> says. "Makes it less of an eyesore."<<npcincr Bailey love 1>><<glove "Bailey">>
 					<<else>>
 						<<He>> dismisses you. "Rent's still due."
@@ -450,7 +448,7 @@ Flags in $bailey_town: .bridge, .road, .diving, .thicket, .green
 :: Skyscraper Save Bailey
 /* ══════════════════════════════════════════════════════════════
    SKYSCRAPER SAVE PATH (Stockholm variant)
-   Replaces Skyscraper Save Rescue 3 when $syndromebaileybuild >= 2. Bailey
+   Replaces Skyscraper Save Rescue 3 when $syndromeBaileyBuild >= 2. Bailey
    comes to PC on the curb; Robin is there because Bailey brought him.
    Rejoins vanilla at Skyscraper Save 4.
    ══════════════════════════════════════════════════════════════ */
@@ -829,7 +827,7 @@ Heavy footsteps respond to your cry, growing closer. The trio recoil and scrambl
 <<person1>>Bailey hasn't moved. <<He>> is looking directly at you with a warm smile that twitches on one side.
 <br><br>
 
-"I'll see you in a week," <<he>> says. Then <<he>> turns, strides down the centre aisle, and leaves the temple.<<npcincr Bailey dom 3>><<gggdom "Bailey">><<npcincr Bailey love 3>><<ggglove "Bailey">><<set $stockholm_points to ($stockholm_points || {})>><<if !$stockholm_points.temple>><<set $syndromebaileybuild to ($syndromebaileybuild || 0) + 1>><<set $stockholm_points.temple to true>><<gbaileystock>><</if>>
+"I'll see you in a week," <<he>> says. Then <<he>> turns, strides down the centre aisle, and leaves the temple.<<npcincr Bailey dom 3>><<gggdom "Bailey">><<npcincr Bailey love 3>><<ggglove "Bailey">><<if !$baileyStockholmPoints.temple>><<set $syndromeBaileyBuild += 1>><<set $baileyStockholmPoints.temple to true>><<gbaileystock>><</if>>
 <br><br>
 
 <<link [[Next|Temple]]>><<endevent>><</link>>
@@ -855,7 +853,7 @@ Heavy footsteps respond to your cry, growing closer. The trio recoil and scrambl
 <</if>>
 <br><br>
 
-Bailey's eyes widen slightly before <<his>> expression softens.<<npcincr Bailey dom 3>><<npcincr Bailey love 3>><<set $syndromebaileybuild to ($syndromebaileybuild || 0) + 1>><<set $stockholm_points to ($stockholm_points || {})>><<set $stockholm_points.kylar to true>><<gggdom "Bailey">><<ggglove "Bailey">><<gbaileystock>>
+Bailey's eyes widen slightly before <<his>> expression softens.<<npcincr Bailey dom 3>><<npcincr Bailey love 3>><<set $syndromeBaileyBuild += 1>><<set $baileyStockholmPoints.kylar to true>><<gggdom "Bailey">><<ggglove "Bailey">><<gbaileystock>>
 <br><br>
 
 <<person3>>Jordan smiles at Bailey. "How reassuring. You're very lucky to have such a devoted ward."
@@ -884,7 +882,7 @@ Bailey's eyes widen slightly before <<his>> expression softens.<<npcincr Bailey 
 
 <<link [[Thank for the rescue|Kylar Abduction Free Rescue Thank]]>><</link>>
 <br>
-<<if $syndromebailey>><span class="bailey-locked-option"><s class="disabled">Get angry</s> <span class="bailey-red bailey-reveal">You can't be angry at Bailey. Not after this.</span></span><<else>><<link [[Get angry|Kylar Abduction Free Rescue Angry]]>><</link>><</if>>
+<<if $syndromeBailey>><span class="bailey-locked-option"><s class="disabled">Get angry</s> <span class="bailey-red bailey-reveal">You can't be angry at Bailey. Not after this.</span></span><<else>><<link [[Get angry|Kylar Abduction Free Rescue Angry]]>><</link>><</if>>
 <br>
 <<link [[Remain silent|Kylar Abduction Free Rescue Silent]]>><</link>>
 <br>
@@ -972,7 +970,7 @@ Quinn smiles and nods along. <<nnpc_He "Quinn">> looks like someone watching thi
 	<br><br>
 <</if>>
 
-<<person1>>You dare a glance at Bailey as you leave the podium. <<He>> is still looking at you<<if C.npc.Bailey.dom gte 70>>, wearing a disarming smile that almost looks real.<<else>>. <<His>> expression gives nothing away.<</if>><<npcincr Bailey love 2>><<npcincr Bailey dom 1>><<set $syndromebaileybuild to ($syndromebaileybuild || 0) + 1>><<set $stockholm_points to ($stockholm_points || {})>><<set $stockholm_points.cafe to true>><<gglove "Bailey">><<gdom "Bailey">><<gbaileystock>>
+<<person1>>You dare a glance at Bailey as you leave the podium. <<He>> is still looking at you<<if C.npc.Bailey.dom gte 70>>, wearing a disarming smile that almost looks real.<<else>>. <<His>> expression gives nothing away.<</if>><<npcincr Bailey love 2>><<npcincr Bailey dom 1>><<set $syndromeBaileyBuild += 1>><<set $baileyStockholmPoints.cafe to true>><<gglove "Bailey">><<gdom "Bailey">><<gbaileystock>>
 <br><br>
 
 The party begins in earnest. What do you want to do?
