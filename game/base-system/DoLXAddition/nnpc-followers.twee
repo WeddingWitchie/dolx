@@ -3,8 +3,7 @@
 <<widget "update-nnpc-follower">>
     <<if $statFreeze>>
         <<if $nnpcFollowerDisplayEnabled>>
-            <<unset $nnpcFollowerDisplayEnabled>>
-            <<unset $follower>>
+            <<unset $nnpcFollowerDisplayEnabled $follower>>
         <</if>>
         <<exit>>
     <</if>>
@@ -12,11 +11,9 @@
     /* Named NPCs with no vanilla follower art at all. Drawing them would ask for files that don't exist and show as broken images. */
     <<set _noVanillaFollowerArt to ["Night Monster"]>>
 
-    <<if $options.NnpcDisplaySystem is "vanilla" && $NPCNameList.includes($NPCList[0].fullDescription) && !_noVanillaFollowerArt.includes($NPCList[0].fullDescription)>>
+    <<if $options.NnpcDisplaySystem is "vanilla" && $NPCList?.[0]?.clothes && $NPCNameList.includes($NPCList[0].fullDescription) && !_noVanillaFollowerArt.includes($NPCList[0].fullDescription)>>
         <<set _followerName to $NPCList[0].fullDescription.toLowerCase()>>
         <<set _followerName to _followerName.replace(" ","_")>>
-
-        <<run statusCheck("Sydney")>>
 
         /* Use the same gender value for the body, hair and clothes so the sprite stays consistent.
         Shared with the DoLP display to prevent the two systems from showing different genders. */
@@ -99,7 +96,7 @@
     <</if>>
 
     <!-- Remove clothing if naked -->
-    <<if $NPCList[0].clothes.upper.name is "naked" or $NPCList[0].chest isnot "clothed">><<unset $follower.clothes>><</if>>
-    <<if $NPCList[0].clothes.lower.name is "naked" or ($NPCList[0].penis isnot "clothed" and $NPCList[0].vagina isnot "clothed")>><<unset $follower.under_clothes>><</if>>
+    <<if !$NPCList[0].clothes.upper or $NPCList[0].clothes.upper.name is "naked" or $NPCList[0].chest isnot "clothed">><<unset $follower.clothes>><</if>>
+    <<if !$NPCList[0].clothes.lower or $NPCList[0].clothes.lower.name is "naked" or ($NPCList[0].penis isnot "clothed" and $NPCList[0].vagina isnot "clothed")>><<unset $follower.under_clothes>><</if>>
     
 <</widget>>

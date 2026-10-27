@@ -216,6 +216,7 @@ declare global {
 		conceivedDate: number,
 		orifice: "vagina" | "anus",
 		conceivedLocation: string,
+		womb?: 1 | 2,
 		litterSize?: number
 	): number;
 	function createChild(pregnancyId: number, species: string, features: Features, gender: "m" | "f" | "h", identical: number | null): number;

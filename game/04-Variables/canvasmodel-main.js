@@ -2539,6 +2539,7 @@ Renderer.CanvasModels.main = {
 
 		"nnpc": {
 			srcfn() {
+				delete T.activeNNPC;
 				// Helpers
 				// NPCs with no art folder of their own, borrowing the generic "others" set.
 				// 'Mickey' is stored with the quotes as part of the name, so strip those before matching.
@@ -2554,49 +2555,6 @@ Renderer.CanvasModels.main = {
 
 				const autoEnabled = V.options?.autoNNPCDisplay?.enabled === true;
 				const inOptions = !!T.optionsEnabled;
-
-				// =====================================================================
-				// POPPY AUTO-DISPLAY (independent of $options.nnpcDisplay / Auto Mode)
-				// =====================================================================
-				if (!inOptions) {
-					let _poppyRaw = null;
-					if (V.NPCList?.[0]?.fullDescription) _poppyRaw = V.NPCList[0].fullDescription;
-					else if (V.npc?.name)     _poppyRaw = V.npc.name;
-					else if (V.person1?.name) _poppyRaw = V.person1.name;
-					else if (V.NPCName)       _poppyRaw = V.NPCName;
-
-					if (norm(_poppyRaw) === "poppy" && C?.npc?.Poppy) {
-						T.activeNNPC = "poppy";
-
-						// Gender from Poppy's actual pronoun (NPCList wins, else C.npc.Poppy)
-						const _pPron = V.NPCList?.[0]?.pronoun ?? C.npc.Poppy.pronoun;
-						const _pGender = (_pPron === "m") ? "male" : "female";
-
-						// Skin from Poppy's actual skincolour
-						const _pSkinRaw = V.NPCList?.[0]?.skincolour ?? C.npc.Poppy.skincolour;
-						const _pSkin = (V.NPCList?.[0]?.skinType ?? C.npc.Poppy.skinType) !== "ghost" && _pSkinRaw >= 70 ? "dark" : "pale";
-
-						// Slot from context (Halloween > Christmas > school/lake/soup > default)
-						let _pSlot = 1;
-						if (V.halloween) {
-							_pSlot = 4;
-						} else if (V.christmas) {
-							_pSlot = 3;
-						} else {
-							const _pPassage = String(V.passage || "").toLowerCase();
-							const _pLoc     = String(V.location || "").toLowerCase();
-							// School: any school-side passage (hallway, classroom, lesson, lunch, etc.)
-							const _isSchool =
-								_pLoc === "school" ||
-								/school|hallway|classroom|lesson|english|math|science|history|swim|housekeeping|p\.?e\.?|lunch|cafeteria|locker/.test(_pPassage);
-							const _isLake = (_pLoc === "lake") || /lake/.test(_pPassage);
-							const _isSoup = /soup\s*kitchen|soupkitchen|charity/.test(_pPassage);
-							if (_isSchool || _isLake || _isSoup) _pSlot = 2;
-						}
-
-						return `img/ui/nnpc/poppy/${_pGender}/${_pSkin}/${_pSlot}.png`;
-					}
-				}
 
 				// =============================
 				// OPTIONS MENU PREVIEW ONLY
@@ -2678,8 +2636,6 @@ Renderer.CanvasModels.main = {
 					rawName = V.npc.name;
 				} else if (V.person1?.name) {
 					rawName = V.person1.name;
-				} else if (V.NPCName) {
-					rawName = V.NPCName;
 				}
 
 				// No NPC detected -> show nothing in auto mode
@@ -2692,8 +2648,8 @@ Renderer.CanvasModels.main = {
 
 				const isBeast = (active === "black_wolf" || active === "great_hawk");
 
-				// Per-NPC config required in auto mode
-				const cfg = V.options.autoNNPCDisplay?.[active];
+				// Poppy's auto portrait follows the scene instead of the saved slot.
+				const cfg = V.options.autoNNPCDisplay?.[active] || (active === "poppy" ? {} : null);
 				if (!cfg || cfg.slot === 0) return;
 
 				// Named-NPC record lookup. C.npc is keyed by proper-cased names ("Whitney", "Black Wolf"), never by the lowercased folder key in `active`.
@@ -2739,12 +2695,17 @@ Renderer.CanvasModels.main = {
 				// Ivory Wraith, Luchifen and "others" use numbered files without gender folders.
 				const genderPath = (active === "ivory_wraith" || active === "luchifen" || active === "others") ? "" : "/" + gender;
 
-				return `img/ui/nnpc/${active}${genderPath}${skin}/${cfg.slot}.png`;
+				let slot = cfg.slot;
+				if (active === "poppy") {
+					slot = 1;
+					if (V.halloween) slot = 4;
+					else if (V.christmas) slot = 3;
+					else if (["school", "lake"].includes(V.location) || /soup\s*kitchen|soupkitchen|charity/i.test(V.passage || "")) slot = 2;
+				}
+				return `img/ui/nnpc/${active}${genderPath}${skin}/${slot}.png`;
 			},
 
 			showfn(options) {
-				// Allow NNPC even during <<effects>>
-				if (T.effects === true) return true;
 				return options.show_nnpc === true;
 			},
 

@@ -862,9 +862,7 @@ DefineMacro("modelprepare-player-body", function () {
 	 *    ██       ██████  ███████ ███████  ██████   ███ ███  ███████ ██   ██
 	 */
 
-	if (V.follower) {
-		T.modeloptions.follower = V.follower;
-	}
+	T.modeloptions.follower = !V.nnpcFollowerDisplayEnabled || (V.options.NnpcDisplaySystem === "vanilla" && !V.statFreeze) ? V.follower || false : false;
 	T.modeloptions.show_nnpc = V.options.NnpcDisplaySystem === "dolp";
 
 	/**

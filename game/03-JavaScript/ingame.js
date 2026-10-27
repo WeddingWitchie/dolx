@@ -2287,6 +2287,7 @@ function npcEquipSet(npc, set) {
 window.npcEquipSet = npcEquipSet;
 
 function npcSpecifiedClothes(npc, name) {
+	if (isNNPCOutfitEquippedHereToday(npc) && npc.clothes.set === name) return;
 	const clothingItem = setup.npcClothesSets.filter(set => set.name === name);
 	if (clothingItem.length > 0) {
 		npcEquipSet(npc, clothingItem[0]);
