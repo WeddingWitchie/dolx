@@ -1,10 +1,10 @@
 :: Widgets Colosseum Breeding [widget]
 <!--
 	Underground Colosseum breeding layer.
-	- The winner of a bout breeds the loser. Pills follow the body: the Bull dose is Blue for a body with no penis
+	- Pills follow the body: the Bull dose is Blue for a body with no penis
 	  and Gray otherwise, the Breeder dose is Pink for a body with no vagina and Gray otherwise. NPCs follow the same rule.
 	- House doses run 2 days. A Purple dose (herm effect) already covers both, so nothing is added on top of it.
-	- $xchange.colosseum.breed is "", "accept", "deny" or "bred" for the bout in progress. New fields are read with ?? 0.
+	- $xchange.colosseum.breed is "", "accept", "skip", "deny" or "bred" for the bout in progress. New fields are read with ?? 0.
 	- Chastity devices carry origin "Colosseum" and are only ever removed here if they still carry it.
 -->
 <<widget "colosseumBeltOn">>
@@ -94,11 +94,13 @@ An attendant drops two keys and two capsules onto the sand by your feet. One key
 <<if playerIsXChanged() and $xchange.pill.hermEffect>>You are still on the Purple dose, so you do not need yours.<<elseif !$player.penisExist and !playerIsXChanged() and !xchangePregnancyBlocksPill() and !xchangePillProtectionActive()>>The blue pill will give you a cock to use.<</if>>
 <<if $NPCList[0].gender is "m">>The pink pill will give <<him>> a womb to carry with.<</if>>
 <br><br>
-The winner is expected to use them. The room waits to see what you do.
+The room waits to see what you do. An attendant points towards the fighters' desk. "You can leave it there and take half the purse and points. Your win still counts."
 <br><br>
 <<link [[Take the pill and breed <<him>>|Underground Colosseum Breed Win]]>><</link>>
 <br>
-<<link [[Leave the capsules on the sand|Underground Colosseum Breed Deny]]>><</link>><<note "The house bans you for good" "red">>
+<<link [[Take the reduced fight purse|Underground Colosseum Result]]>><<set $xchange.colosseum.breed to "skip">><</link>><<note "Half purse and ranking points; no ban">>
+<br>
+<<link [[Reject the house's terms|Underground Colosseum Breed Deny]]>><</link>><<note "No purse or ranking points; the house bans you for good" "red">>
 <br>
 
 :: Underground Colosseum Breed Win
@@ -374,6 +376,7 @@ The receptionist looks you over, from your eyes down to your hips, and does not 
 	<span id="next"><<link [[Next|Underground Colosseum Breeding Finish]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[Next|Underground Colosseum Breeding Sex]]>><</link>></span><<nexttext>>
+	<div id="stop"><<link [[Stop here|Underground Colosseum Breeding Finish]]>><<set $finish to 1>><</link>></div>
 <</if>>
 
 :: Underground Colosseum Breeding Finish
@@ -394,11 +397,9 @@ The receptionist looks you over, from your eyes down to your hips, and does not 
 <<endcombat>>
 <<unset $xchange.colosseum.breedCtx>>
 <<if _stoppedEarly>>
-	<<set $xchange.colosseum.ending to "walked">><<set $xchange.colosseum.banReason to "refused">>
-	The receptionist orders you out for stopping before you finished. <span class="red">The house has banned you for good.</span>
+	An attendant helps your opponent off the sand while you get dressed. Some of the crowd boo, but the gate stays open and you return to the fighters' desk.
 	<br><br>
-	<<colosseumBeltOff>>
-	<<link [[Leave|Industrial Alleyways]]>><<set $eventskip to 1>><<endevent>><</link>>
+	<<link [[Next|Underground Colosseum Pit]]>><<endevent>><</link>>
 	<br>
 <<elseif _ctx is "goon">>
 	The goon lies on the sand with wide open eyes and says nothing more.

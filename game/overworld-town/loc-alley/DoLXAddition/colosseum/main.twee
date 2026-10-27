@@ -633,6 +633,7 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 	<<set _reward to Math.floor(_rewardTable[_rankIndex] * _repeatScale)>>
 	<<if ($daily.colosseumFights ?? 0) gte 3>><<set _reward to Math.floor(_reward * 1.25)>><</if>>
 	<<if ["champion", "inside"].includes($xchange.colosseum.ending)>><<set _reward to Math.floor(_reward * 1.25)>><</if>>
+	<<if $xchange.colosseum.breed is "skip">><<set _pointGain to Math.floor(_pointGain / 2)>><<set _reward to Math.floor(_reward / 2)>><</if>>
 	<<if $xchange.colosseum.matchFix is "throw" or _denied>><<set _pointGain to 0>><<set _reward to 0>><</if>>
 	<<if $xchange.colosseum.matchFix is "betray">><<set _reward to 0>><</if>>
 	<<if _reward gt 0 and Number.isFinite($xchange.colosseum.vipPenalty)>><<set _reward to Math.floor(_reward * $xchange.colosseum.vipPenalty)>><<unset $xchange.colosseum.vipPenalty>><</if>>
@@ -640,7 +641,7 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 	<<set _reward to divineTfIncome(_reward, "colosseum")>>
 	<<if $xchange.colosseum.promotion>>
 		<<set $xchange.colosseum.rank to Math.min(6, $xchange.colosseum.rank + 1)>>
-		<<set $xchange.colosseum.rankPoints to Math.min(1000, $xchange.colosseum.rankPoints + 75)>>
+		<<set $xchange.colosseum.rankPoints to Math.min(1000, $xchange.colosseum.rankPoints + ($xchange.colosseum.breed is "skip" ? _pointGain : 75))>>
 		<<set $xchange.colosseum.promotionReady to 0>>
 	<<else>>
 		<<set _newPoints to Math.min(1000, $xchange.colosseum.rankPoints + _pointGain)>>
@@ -654,6 +655,8 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 	<<if _reward gt 0>><<money _reward "colosseum" { divineTfAdjusted: true }>><</if>><<famescrap `8 + _rankIndex * 12` "colosseum" true>><<fameexhibitionism `1 + _rankIndex` "none" true>>
 	<<if _bredWin>>
 		The referee has already called the bout for you and leaves the sand. The chant goes on around the pit.
+	<<elseif $xchange.colosseum.breed is "skip">>
+		You leave the capsules untouched and return to the fighters' desk. The receptionist records your win and crosses out half the purse and ranking points beside it.
 	<<elseif _denied>>
 		The referee has already called you the winner, but nobody in the room is cheering. A goon walks you back towards the desk by the elbow.
 	<<else>>

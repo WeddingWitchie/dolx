@@ -26,10 +26,11 @@ window.colosseumBreedNpc = function (slot) {
  */
 window.colosseumSettleBreeding = function (slot) {
 	const col = V.xchange.colosseum;
-	const known = col.storedBefore ?? [];
+	// Older in-progress saves may have no snapshot; their existing records are not new arena pregnancies.
+	const known = col.storedBefore;
 	let tagged = 0;
 	for (const key of Object.keys(V.storedNPCs)) {
-		if (known.includes(key)) continue;
+		if (!known || known.includes(key)) continue;
 		for (const record of getActivePregnancies(key)) {
 			V.pregnancies[record.pregnancyId].colosseum = 1;
 			tagged++;
