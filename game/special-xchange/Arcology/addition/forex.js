@@ -154,7 +154,7 @@ setup.arcologyFx = {
 		}
 		if (fx.k % 300 === 0) {
 			fx.h2.push(p);
-			keep(fx.h2, 288);
+			keep(fx.h2, 2016);
 		}
 		if (fx.k % 3600 === 0) {
 			fx.h3.push(p);
@@ -371,6 +371,11 @@ setup.arcologyFx = {
 		const list = fx[key].slice(-count);
 		const last = key === "h0" ? fx.k : fx.k - (fx.k % per);
 		const out = list.map((p, i) => [last - (list.length - 1 - i) * per, p / 100]);
+		if (r === "7D" && fx.h2.length) {
+			const end = fx.k - (fx.k % 300);
+			const recent = fx.h2.map((p, i) => [end - (fx.h2.length - 1 - i) * 300, p / 100]);
+			return out.filter(p => p[0] < recent[0][0]).concat(recent, [[fx.k, this.mid(fx)]]);
+		}
 		if (key !== "h0") out.push([fx.k, this.mid(fx)]);
 		return out;
 	},
@@ -486,8 +491,7 @@ setup.arcologyFx = {
 			$(".fx-act").innerHTML = act.join("") || '<li class="fx-dim">No market reports in the past day.</li>';
 		};
 
-		const chart = fx => {
-			const pts = this.series(fx, this.range);
+		const chart = (fx, pts) => {
 			const svg = $(".fx-svg");
 			if (pts.length < 2) {
 				svg.innerHTML = "";
@@ -518,9 +522,9 @@ setup.arcologyFx = {
 			const k1 = pts[pts.length - 1][0];
 			const X = k => ((k - k0) / Math.max(1, k1 - k0)) * 1000;
 			const Y = p => 300 - ((f(p) - lo) / (hi - lo)) * 300;
-			/* Candles cover fixed clock periods (step numbers divisible by the candle length), so a finished candle never
-			   changes; only the newest one is still forming. Open is the previous candle's close, as on a real exchange. */
-			const span = { "5M": 6, "30M": 40, "1H": 75, "24H": 1800, "7D": 10800 }[this.range];
+			/* Candles cover clock periods aligned to their length. Open is the previous candle's close.
+			   The 7D candle length grows with its history; the other ranges keep a fixed length. */
+			const span = { "5M": 6, "30M": 40, "1H": 75, "24H": 1800, "7D": [1800, 3600, 7200, 10800].find(s => (k1 - k0) / s <= 60) ?? 10800 }[this.range];
 			const groups = new Map();
 			for (const [k, p] of pts) {
 				const b = Math.floor(k / span);
@@ -537,7 +541,7 @@ setup.arcologyFx = {
 				/* The oldest period is partly scrolled off the chart; showing it would make it shrink each second. */
 				if (b * span < k0) continue;
 				const cls = cl >= o ? "up" : "down";
-				const x = X(b * span + span / 2);
+				const x = Math.min(X(b * span + span / 2), 1000 - w * 0.32);
 				const yT = Y(Math.max(o, cl));
 				const yB = Y(Math.min(o, cl));
 				s += `<path class="fx-wick ${cls}" d="M${x.toFixed(1)} ${Y(Math.max(o, ...g)).toFixed(1)}V${Y(Math.min(o, ...g)).toFixed(1)}"/>`;
@@ -564,8 +568,21 @@ setup.arcologyFx = {
 
 		const paint = (force = false) => {
 			if (!host.isConnected || host.closest(".hidden")) return clearInterval(this.timer);
+			const overlay = document.querySelector("#customOverlay:not(.hidden)");
+			if (overlay && !overlay.contains(host)) return;
 			$(".fx-clock").textContent = "LIVE " + new Date().toLocaleTimeString("en-GB");
 			if (document.hidden && !force) return;
+			if (!force && setup.arcology.online() && setup.arcology.hasClearance("guest")) {
+				const news = setup.arcologyNews;
+				const st = news.state();
+				const today = Math.floor(Time.date.timeStamp / news.DAY);
+				const crash = st.ev.find(e => e.f === "crash" && e.ph === "liquidity" && e.nx <= today);
+				if (crash && st.day >= today && !news.catchUp) {
+					news.enter(st, crash, "collapse", today);
+					force = true;
+					window.updateMoment?.();
+				}
+			}
 			const fx = this.sync();
 			if (fx.k === ui.k && !force) return;
 			ui.k = fx.k;
@@ -603,7 +620,7 @@ setup.arcologyFx = {
 			$(".fx-worth").textContent = a.cipher > 0 ? this.gbp(this.quote("sell", a.cipher, fx).total, true) : this.gbp(0, true);
 			host.querySelectorAll(".fx-ranges button").forEach(b => b.setAttribute("aria-pressed", b.dataset.r === this.range));
 			host.querySelectorAll(".fx-tabs button").forEach(b => b.setAttribute("aria-pressed", b.dataset.side === ui.side));
-			chart(fx);
+			chart(fx, pts);
 			lists(fx);
 			order();
 		};
@@ -654,12 +671,23 @@ setup.arcologyFx = {
 				order();
 			}, 400);
 		});
+		jQuery(document)
+			.off(":oncloseoverlay.arcologyFx")
+			.on(":oncloseoverlay.arcologyFx", () => {
+				const hall = document.getElementById("fxHost");
+				if (hall && hall !== host) this.mount(hall);
+				else if (hall) paint(true);
+				else clearInterval(this.timer);
+			});
 		paint(true);
 		this.timer = setInterval(paint, 1000);
 	},
 };
 
-$(document).on(":passagestart.arcologyFx :oncloseoverlay.arcologyFx", () => clearInterval(setup.arcologyFx.timer));
+$(document).on(":passagestart.arcologyFx", () => {
+	clearInterval(setup.arcologyFx.timer);
+	$(document).off(":oncloseoverlay.arcologyFx");
+});
 
 /* A loaded save gets fresh randomness for everything after it, so reloading can't show the market or the news ahead of time.
    Published articles and finished candles are stored, so they stay as they were. */

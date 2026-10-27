@@ -496,12 +496,7 @@ $(document).one(":storyready", function () {
 		el.style.textAlign = "center";
 		el.style.marginTop = "1em";
 		el.style.marginBottom = "1em";
-		el.style.cursor = "pointer";
-		el.title = "Mod credits";
 		el.textContent = "Reiyu's Bailey Expansion v" + BAILEY_EXPANSION_VERSION + " for X-Change — Active";
-		el.addEventListener("click", function () {
-			Wikifier.wikifyEval('<<popup "Bailey Expansion Credits Display" "Reiyu\'s Bailey Expansion">>');
-		});
 		passage.insertBefore(el, passage.firstChild);
 	}
 

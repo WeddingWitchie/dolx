@@ -613,7 +613,16 @@ setup.arcologyNews = {
 				liquidity: { days: [1, 1], mkt: { c: -0.7, now: 0.5, d: 1800, v: 3, wide: 1, fixed: 1 }, spun: true, next: [["collapse", 1]] },
 				collapse: {
 					days: [1, 1],
-					mkt: e => ({ c: -(setup.arcologyNews.families.crash.depth[e.s] - 0.7), now: 0.9, d: 2400, halt: 900, v: 4, wide: 1, ct: "hold", fixed: 1 }),
+					mkt: e => ({
+						c: Math.min(0, -setup.arcologyNews.families.crash.depth[e.s] - setup.arcologyFx.sync().cr),
+						now: 0.9,
+						d: 2400,
+						halt: 900,
+						v: 4,
+						wide: 1,
+						ct: "hold",
+						fixed: 1,
+					}),
 					next: [["statement", 1]],
 				},
 				statement: { days: [1, 1], spun: true, next: [["runs", 1]] },
@@ -753,7 +762,10 @@ setup.arcologyNews = {
 		if (this.catchUp) return;
 		/* A long absence: open stories wind down unreported, then the last month plays out normally. */
 		if (today - st.day > 40) {
-			for (const e of st.ev.slice()) this.close(st, e, "faded", today - 40);
+			for (const e of st.ev.slice()) {
+				if (e.f === "crash" && e.ph === "liquidity") continue;
+				this.close(st, e, "faded", today - 40);
+			}
 			st.day = today - 32;
 		}
 		/* Replaying weeks in one go froze slower phones on load: one day now, the rest a day at a time between frames. */
@@ -774,6 +786,8 @@ setup.arcologyNews = {
 		let published = st.arts.filter(x => x.k === "story" && Math.floor(x.at / this.DAY) === day).length;
 		for (const e of st.ev.slice()) {
 			if (e.nx > day) continue;
+			/* The exchange's live update starts the main collapse where the player can see it. */
+			if (e.f === "crash" && e.ph === "liquidity") continue;
 			if (published >= 5) {
 				e.nx = day + 1;
 				continue;
@@ -824,6 +838,7 @@ setup.arcologyNews = {
 		if (stage === "takeover") st.terr[e.d] = e.o2;
 		const art = { id: `${e.id}-${e.path.length}`, e: e.id, k: "story", f: e.f, s: e.s, c: e.c, d: e.d, o: e.o, ph: stage, sev: e.sev };
 		art.at = day * this.DAY + r.int(7, 19) * 3600 + r.int(0, 5) * 600;
+		if (e.f === "crash" && stage === "collapse") art.at = Time.date.timeStamp;
 		art.n = r.int(0, 999);
 		for (const k of ["o2", "o3", "p", "prev", "hold", "shut"]) if (e[k] !== undefined) art[k] = e[k];
 		if (e.sp && def.spun) art.sp = 1;

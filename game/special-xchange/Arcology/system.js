@@ -341,20 +341,6 @@ setup.arcology = {
 					}, 800),
 					setTimeout(finish, 1200)
 				);
-				const skip = boot.querySelector(".holo-boot-skip");
-				skip.addEventListener("click", () => {
-					finish();
-					a.finishCompose();
-				});
-				// Enter and Space are cancelled by the game's hotkeys at the document, so handle them on the button.
-				skip.addEventListener("keydown", ev => {
-					if (ev.key === "Enter" || ev.key === " " || ev.key === "Escape") {
-						ev.preventDefault();
-						ev.stopPropagation();
-						finish();
-						a.finishCompose();
-					}
-				});
 			}, 0)
 		);
 	},

@@ -1518,11 +1518,11 @@ setup.arcologyNewsText = {
 				const M = this.families.market;
 				const below = rec.q && rec.q[0] < 100;
 				return {
-					title: below ? `Cipher collapses below £1` : this.pick(rec, "t", ["Cipher collapses in panic selling", "Cipher loses most of its value overnight"]),
-					dek: below ? "Breaking. Trading suspended, then resumed under emergency rules." : "Breaking. Trading was suspended during the fall.",
+					title: below ? `Cipher collapses below £1` : this.pick(rec, "t", ["Cipher collapses in panic selling", "Cipher loses most of its value"]),
+					dek: "Breaking. Trading suspended during the fall.",
 					tone: "breaking",
 					body: [
-						`Cipher's value collapsed overnight after it emerged that ${this.families.crash.cause(
+						`Cipher's value collapsed after it emerged that ${this.families.crash.cause(
 							rec,
 							c
 						)}. The Unit Exchange suspended trading for fifteen minutes as the price fell.`,
