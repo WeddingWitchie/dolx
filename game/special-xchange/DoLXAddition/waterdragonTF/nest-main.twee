@@ -10,6 +10,11 @@ hanging grass conceals a narrow split in the rock. Faint blue marks brighten aro
 
 :: Water Dragon Pregnancy Labour
 <<location "beach">><<set $outside to 0>><<effects>>
+<<if !Transformations.waterDragonPregnancy()>>
+	The ground in the hollow feels cool, but you have no desire to lie down here.
+	<br><br>
+	<<getouticon>><<link [[Return to the nest|Water Dragon Nest]]>><</link>>
+<<else>>
 <<set [_dragonPregnancy, _dragonPregnancyGenital] to getPlayerPregnancyForBirth(true)>>
 The marks on the walls brighten and dim in time with your contractions. Dry sea grass gathers itself into a heap beneath you without anyone touching it, and the light in the tide pool grows until it fills the whole hut.
 <br><br>
@@ -18,12 +23,19 @@ The marks on the walls brighten and dim in time with your contractions. Dry sea 
 <<else>>
 	<<link [[Begin|Water Dragon Pregnancy Laying End]]>><<set $waterDragonBirthContext to {location:"waterdragon_nest", count:getChildrenOf(_dragonPregnancy.pregnancyId).length, fertilised:true}>><</link>>
 <</if>>
+<</if>>
 
 :: Water Dragon Pregnancy Laying End
 <<location "beach">><<set $outside to 0>><<effects>>
+/* Finish births already started before this update, but don't start a conversion from a stale passage. */
+<<if !Transformations.waterDragonPregnancy() and !$waterDragonBirthContext?.fertilised>>
+	The ground in the hollow feels cool, but you have no desire to lie down here.
+	<br><br>
+	<<getouticon>><<link [[Return to the nest|Water Dragon Nest]]>><</link>>
+<<else>>
 <<set [_dragonPregnancy, _dragonPregnancyGenital] to getPlayerPregnancyForBirth(true)>>
 <<set $dragonEggIds to getChildrenOf(_dragonPregnancy.pregnancyId).map(child => child.childId)>>
-The last egg comes to rest in the sea grass, bigger than both of your hands together. The shells are warm, and if you look closely you can see something moving inside them. Whatever you were carrying before the change took hold of you, this place has made them yours, and every shell has come out the pearl white of a water dragon.
+The last egg comes to rest in the sea grass, bigger than both of your hands together. The shells are warm, and if you look closely you can see something moving inside them. Every shell has come out the pearl white of a water dragon.
 <<if typeof _dragonPregnancy.hatchDelay isnot "number">><<set _dragonPregnancy.hatchDelay to random(0, PregnancyConstants.birdHatchDelay)>><</if>>
 <<run V.dragonEggIds.forEach(id => {
 	const child = V.childRecords[id];
@@ -44,9 +56,10 @@ The last egg comes to rest in the sea grass, bigger than both of your hands toge
 <<set $waterDragonEggs to Transformations.rollWaterDragonEggCycle()>>
 <<unset $dragonEggIds>><<unset $waterDragonBirthContext>><<unset $birth>><<endcombat>>
 <br><br>
-The marks around the eggs slow down to a steady, even glow. The eggs are safe where they are, and when they hatch the children will carry their human parent's blood and yours together.
+The marks around the eggs slow down to a steady, even glow. You rest a hand on the nearest shell while your breathing settles. The eggs are safe in the warm hollow.
 <br><br>
 <<link [[Curl around the eggs|Water Dragon Nest]]>><</link>>
+<</if>>
 
 :: Water Dragon Nest Discovery
 <<location "coastpath">><<effects>>
@@ -114,7 +127,7 @@ with a thick grass roof over wooden beams. A small door faces the sea.
 :: Water Dragon Nest Discovery 3
 <<location "beach">><<set $outside to 0>><<effects>>
 <<set $waterDragonNest.discovered to true>>
-<<if !(playerIsPregnant() and (isPregnancyEnding() or playerClutchReadyToLay())) and ($settings.playerPregnancyEggLayingEnabled isnot true or !$waterDragonEggs or $waterDragonEggs.daysTillLaying gt 0 or (!$player.vaginaExist and !canBeMPregnant()))>>
+<<if !(Transformations.waterDragonPregnancy() and (isPregnancyEnding() or playerClutchReadyToLay())) and (playerIsPregnant() or $settings.playerPregnancyEggLayingEnabled isnot true or !$waterDragonEggs or $waterDragonEggs.daysTillLaying gt 0 or (!$player.vaginaExist and !canBeMPregnant()))>>
 	The pressure that led you here is gone. The hidden house is quiet, but it will still be here if you need it later.
 	<br><br>
 	<<link [[Enter the house|Water Dragon Nest]]>><</link>>
@@ -138,7 +151,7 @@ The carved marks around the room begin to glow, and you feel yourself relax.
 You pause when something lightly brushes through your hair, but when you look around, no one is there.
 This house was built for <span class="navy">laying dragon eggs and keeping them safe</span>.<<stress -6>><<lstress>>
 <br><br>
-<<if playerIsPregnant() and (isPregnancyEnding() or playerClutchReadyToLay())>>
+<<if Transformations.waterDragonPregnancy() and (isPregnancyEnding() or playerClutchReadyToLay())>>
 	<<link [[Lower yourself into the hollow|Water Dragon Pregnancy Labour]]>><</link>>
 <<else>>
 	<<link [[Prepare the nest|Water Dragon Egg Laying]]>><</link>>
@@ -262,7 +275,7 @@ This house was built for <span class="navy">laying dragon eggs and keeping them 
 		<<wardrobeicon>><<link [[Dry storage chest|Water Dragon Nest Wardrobe]]>><</link>>
 		<br>
 	<</if>>
-	<<if playerIsPregnant() and (isPregnancyEnding() or playerClutchReadyToLay())>>
+	<<if Transformations.waterDragonPregnancy() and (isPregnancyEnding() or playerClutchReadyToLay())>>
 		<span class="red">Your <<if playerClutchReadyToLay()>>clutch is ready to lay<<else>>waters have broken<</if>></span>, and you are already where you need to be.
 		<br><br>
 		<<tficon "waterdragon">><<link [[Lower yourself into the hollow|Water Dragon Pregnancy Labour]]>><<pass 15>><</link>>

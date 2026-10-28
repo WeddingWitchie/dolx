@@ -248,6 +248,12 @@ class Transformations {
 		return (Number(V.waterdragon) || 0) >= 6;
 	}
 
+	static waterDragonPregnancy() {
+		if (!this.isFullWaterDragon()) return false;
+		const pregnancy = getLabouringPregnancy("pc");
+		return !!pregnancy && !["Black Wolf", "Great Hawk", "Alex", "Poppy", "Ivory Wraith"].includes(pregnancy.donor);
+	}
+
 	/* --- Egg laying / dragon labour lockout -------------------------------------------
 	The egg cycle pauses when the player is in a scene or location they cannot freely leave, including:
 	* Flashbacks, dreams, visions, replays, the hopeless cycle, or other temporary states.
