@@ -16,13 +16,13 @@ function registerImagePattern(name, src) {
 	image.src = src;
 }
 
-Renderer.PatternProvider = function (spec) {
+Renderer.PatternProvider = function (spec, frameWidth, frameHeight) {
 	// Return named pattern
 	if (typeof spec === "string") return Renderer.Patterns[spec];
 
 	// Indexed patterns
 	if (spec.type in Renderer.GeneratedPatterns) {
-		const image = Renderer.GeneratedPatterns[spec.type](spec);
+		const image = Renderer.GeneratedPatterns[spec.type](spec, frameWidth, frameHeight);
 		return Renderer.globalC2D.createPattern(image, "repeat");
 	}
 

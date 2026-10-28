@@ -669,7 +669,8 @@ var Renderer;
 		},
 		render(image, layer, context) {
 			context.needsCutout = true;
-			let pattern = Renderer.PatternProvider(layer.blend.pattern);
+			// Frame size lets mask patterns line up with the sprite at any art resolution.
+			let pattern = Renderer.PatternProvider(layer.blend.pattern, image.width / context.rects.subspriteFrameCount, image.height);
 			if (!pattern) {
 				return ensureCanvas(image);
 			}

@@ -45,17 +45,18 @@ function registerHairMaskPattern(name, src) {
 	};
 	mask.src = src;
 
-	registerGeneratedPattern(name, function (spec) {
-		const key = spec.colors.join("|");
+	/* The mask is drawn for one sprite frame. Standard hair art has 128px frames and hi-res art 256px,
+	   so the mask is stretched to the frame being dyed or it would only line up with one of them. */
+	registerGeneratedPattern(name, function (spec, width = 256, height = width) {
+		const key = `${spec.colors.join("|")}|${width}x${height}`;
 		if (key === cachedKey) return cachedPattern;
 
-		const size = 256;
-		const base = Renderer.createCanvas(size, size, spec.colors[0]);
+		const base = Renderer.createCanvas(width, height, spec.colors[0]);
 		if (!mask.complete || mask.naturalWidth === 0) return base.canvas;
 
-		const masked = Renderer.createCanvas(size, size, spec.colors[1]);
+		const masked = Renderer.createCanvas(width, height, spec.colors[1]);
 		masked.globalCompositeOperation = "destination-in";
-		masked.drawImage(mask, 0, 0, size, size);
+		masked.drawImage(mask, 0, 0, width, height);
 		base.drawImage(masked.canvas, 0, 0);
 		cachedKey = key;
 		cachedPattern = base.canvas;
