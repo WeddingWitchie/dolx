@@ -23,6 +23,7 @@ replace (?<!["'\w])_(?=\w) with T.
 function bodyArtType(bodyType) {
 	return bodyType === "andro" ? "slender" : bodyType;
 }
+
 /**
  * MODEL OPTIONS
  * =============
@@ -954,7 +955,7 @@ Renderer.CanvasModels.main = {
 		options.zreachgloveright = options.worn.over_upper.index ? options.zreacharmright + 0.2 : ZIndices.right_cover_arm + 0.5;
 
 		options.zneck = (options.neck_tucked) ? ZIndices.neck_tucked : ZIndices.neck;
-		options.zscarf = options.neck_tucked ? ZIndices.neck_tucked + 0.1 : ZIndices.neck + 0.1;
+		options.zscarf = options.neck_tucked ? ZIndices.neck_tucked + 0.1 : ZIndices.over_upper_arms_cover + 0.1;
 		// The kaiju costume's mask only trims what is outside its outline, so the suit itself has to draw over hair and hats.
 		options.zoverwear = options.worn.over_upper.setup.name === "kaiju costume" ? 46.3 : 0;
 		options.hide_all = false;
@@ -1210,7 +1211,6 @@ Renderer.CanvasModels.main = {
 	},
 	postprocess(options) {
 		options.generatedLayers = {};
-
 		if (options.tanningEnabled) {
 			if (V.options.tanLines) {
 				if (!Skin.cachedLayers) {
@@ -1305,6 +1305,25 @@ Renderer.CanvasModels.main = {
 						};
 					return acc;
 				}, { layers: [], slots: {} });
+		}
+
+		// Mittens outline just the hands, so forearms and sleeves stay beneath the scarf.
+		if (this.layers.scarf.show && !options.hide_all) {
+			options.generatedLayers = { ...options.generatedLayers };
+			for (const side of ["left", "right"]) {
+				const pose = options[`arm_${side}`];
+				if (!(side === "left" ? pose === "cover" : ["cover", "hold"].includes(pose))) continue;
+				for (const name of [`${side}arm`, `hands_${side}`, `hands_${side}_acc`, `hands_${side}_detail`]) {
+					const layer = this.layers[name];
+					if (!layer.show || layer.z >= this.layers.scarf.z) continue;
+					options.generatedLayers[`scarf_${name}`] = {
+						...layer.defaultOptions,
+						show: true,
+						masksrcfn() { return `img/clothes/hands/mittens/${side}-${pose}.png`; },
+						zfn: () => this.layers.scarf.z + 0.2,
+					};
+				}
+			}
 		}
 
 		const bodySizeScale = Number(options.body_size_scale) || 1;
@@ -4831,6 +4850,7 @@ Renderer.CanvasModels.main = {
 		}),
 		"scarf": genlayer_clothing_main('scarf', {
 			srcfn(options) {
+				if (options.worn.scarf.setup.sharedImage) return options.worn.scarf.setup.sharedImage;
 				const isAltPosition = !options.alt_override
 					&& options.worn.scarf.setup.altposition !== undefined
 					&& options.worn.scarf.alt === "alt";
@@ -4869,7 +4889,8 @@ Renderer.CanvasModels.main = {
 				return options.show_clothes
 					&& options.worn.scarf.index > 0
 					&& options.worn.scarf.setup.accImage !== 0
-					&& options.worn.scarf.setup.accessory === 1;
+					&& options.worn.scarf.setup.accessory === 1
+					&& !options.hide_all;
 			},
 			zfn(options) {
 				const setup = options.worn.scarf.setup;

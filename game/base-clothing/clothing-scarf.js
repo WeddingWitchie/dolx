@@ -42,6 +42,7 @@ function initScarf() {
 			name: "scarf",
 			name_cap: "Scarf",
 			variable: "scarf",
+			sharedImage: "img/clothes/neck/scarf/full.png",
 			state: 0,
 			state_base: 0,
 			integrity: 100,
@@ -86,7 +87,6 @@ function initScarf() {
 			location: 0,
 			iconFile: "scarf.png",
 			accIcon: 0,
-			zIndex: "head",
 		}),
 		new ClothesItem({
 			index: 2,
@@ -95,6 +95,7 @@ function initScarf() {
 			name: "wool scarf",
 			name_cap: "Wool scarf",
 			variable: "woolscarf",
+			sharedImage: "img/clothes/neck/woolscarf/full.png",
 			combat: {
 				reference: "scarf",
 			},
@@ -124,7 +125,6 @@ function initScarf() {
 			location: 0,
 			iconFile: "woolscarf.png",
 			accIcon: 0,
-			zIndex: "head",
 		}),
 		new ClothesItem({
 			index: 3,
@@ -133,6 +133,7 @@ function initScarf() {
 			name: "flannel scarf",
 			name_cap: "Flannel scarf",
 			variable: "flannelscarf",
+			sharedImage: "img/clothes/neck/flannelscarf/full.png",
 			combat: {
 				reference: "scarf",
 			},
@@ -163,7 +164,6 @@ function initScarf() {
 			location: 0,
 			iconFile: "flannelscarf.png",
 			accIcon: "flannelscarf_acc.png",
-			zIndex: "head",
 		}),
 		new ClothesItem({
 			index: 4,
@@ -172,6 +172,7 @@ function initScarf() {
 			name: "fox scarf",
 			name_cap: "Fox scarf",
 			variable: "foxscarf",
+			sharedImage: "img/clothes/neck/foxscarf/full.png",
 			combat: {
 				reference: "scarf",
 			},
@@ -201,7 +202,6 @@ function initScarf() {
 			location: 0,
 			iconFile: "foxscarf.png",
 			accIcon: "foxscarf_acc.png",
-			zIndex: "head",
 		}),
 		new ClothesItem({
 			index: 5,
@@ -210,6 +210,7 @@ function initScarf() {
 			name: "pompom scarf",
 			name_cap: "Pompom scarf",
 			variable: "pompomscarf",
+			sharedImage: "img/clothes/neck/pompomscarf/full.png",
 			combat: {
 				reference: "scarf",
 			},
@@ -239,7 +240,6 @@ function initScarf() {
 			location: 0,
 			iconFile: "pompomscarf.png",
 			accIcon: 0,
-			zIndex: "head",
 		}),
 		new ClothesItem({
 			index: 6,
@@ -248,6 +248,7 @@ function initScarf() {
 			name: "ribbon scarf",
 			name_cap: "Ribbon scarf",
 			variable: "ribbonscarf",
+			sharedImage: "img/clothes/neck/ribbonscarf/full.png",
 			combat: {
 				reference: "scarf",
 			},
@@ -293,7 +294,6 @@ function initScarf() {
 			location: 0,
 			iconFile: "ribbonscarf.png",
 			accIcon: 0,
-			zIndex: "head",
 		}),
 		new ClothesItem({
 			index: 7,
@@ -302,6 +302,7 @@ function initScarf() {
 			name: "cashmere scarf",
 			name_cap: "Cashmere scarf",
 			variable: "cashmerescarf",
+			sharedImage: "img/clothes/neck/cashmerescarf/full.png",
 			combat: {
 				reference: "scarf",
 			},
@@ -347,7 +348,6 @@ function initScarf() {
 			location: 0,
 			iconFile: "cashmerescarf.png",
 			accIcon: 0,
-			zIndex: "head",
 		}),
 		new ClothesItem({
 			index: 8,
@@ -356,6 +356,7 @@ function initScarf() {
 			name: "fur boa",
 			name_cap: "Fur boa",
 			variable: "boa",
+			sharedImage: "img/clothes/neck/boa/full.png",
 			combat: {
 				reference: "scarf",
 			},
@@ -409,6 +410,7 @@ function initScarf() {
 			name: "holy stole",
 			name_cap: "Holy stole",
 			variable: "holystole",
+			sharedImage: "img/clothes/neck/holystole/full.png",
 			combat: {
 				reference: "naked",
 			},
@@ -447,6 +449,7 @@ function initScarf() {
 			name: "long holy stole",
 			name_cap: "Long holy stole",
 			variable: "holystolelong",
+			sharedImage: "img/clothes/neck/holystolelong/full.png",
 			combat: {
 				reference: "naked",
 			},
@@ -485,6 +488,7 @@ function initScarf() {
 			name: "kitty neck cushion",
 			name_cap: "Kitty neck cushion",
 			variable: "kitty neck cushion",
+			sharedImage: "img/clothes/neck/kitty neck cushion/full.png",
 			description: "A kitty pillow wrapping around your neck.",
 			cost: 6500,
 			shop: ["clothing"],
@@ -537,6 +541,7 @@ function initScarf() {
 			name: "puppy neck cushion",
 			name_cap: "Puppy neck cushion",
 			variable: "puppy neck cushion",
+			sharedImage: "img/clothes/neck/puppy neck cushion/full.png",
 			description: "A puppy pillow wrapping around your neck.",
 			cost: 6500,
 			shop: ["clothing"],
