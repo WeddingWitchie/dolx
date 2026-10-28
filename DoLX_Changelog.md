@@ -13,267 +13,192 @@
 
 ## Changes and Additions
 
-- **Updated RBE to v0.6.2** by **Reiyu**
+- **Updated Vanilla to v0.5.13.6**
 
-  - Added Bailey's Safe Word, a new Monogamy!Bailey coffee scene, and expanded the Monogamy!Bailey flat fight with its own dialogue.
-  - Updated Bailey's speech and fixed related interactions.
-  - Add missing dialogue, toy reveals, Avery's responses, and correct rent, tax, deposit, and HBSC-debt checks while keeping existing DoLX content by D.N.A.
+- **Added Perfumery**
 
-- **Added Rhythm to the Home Console**
+  - Learn perfume-making through **Poppy's four lessons**, or buy a beginner's manual if Poppy is disabled.
+  - Extract aromas from flowers and food, choose which scent qualities to keep, and save extraction profiles.
+  - Compose **three layer of notes**, adjust spirit and strength, blend manually or quickly, then bottle and mature perfumes.
+  - Name your perfumes, generate different bottle appearances, and save formulas to recreate them later.
+  - Added Poppy's discoveries, gifts, collaborations, and a guided Opium session using the existing Opium effects.
+  - Added Avery's perfume commissions, negotiations, deliveries, and follow-up conversations with Poppy.
+  - Wear perfume from the cabinet, Journal, or POCKET. Scents change and fade over time, wash off, fade faster in rain, and can affect wildlife.
 
-  - Play a new rhythm game from the console at home or in Alex's cottage. Time taps, holds, drags, and simultaneous notes to a moving scan line.
-  - Each song has **Easy**, **Normal**, and **Hard** charts. Earn Perfect, Good, or Miss judgements and track score, accuracy, combo, grade, full combos, and all-Perfect clears. **75% accuracy** is needed to clear a chart.
-  - Includes **eight built-in soundtrack songs**, and supports uploaded music with automatically generated charts.
-  - Supports keyboard (six lanes with custom keybinds), mouse, and touch. Includes a seven-step tutorial, lane labels, reduced effects, pause/restart, and timing adjustments.
-  - Added a **Rhythm Library** for custom songs, charts, scores, and playlists. Make or edit charts, manage playlists, and import/export libraries as JSON. Exports do not contain audio files.
-  - Added **13 challenges**, **11 achievements**, and a daily challenge. Daily rewards are **£200 Easy**, **£350 Normal**, or **£500 Hard**, once per UTC day.
-  - Completing all regular challenges unlocks the Level 3 **Rhythm Master** feat. Custom or edited charts keep scores but cannot farm progression rewards.
-  - The interface and mobile controls have been improved. Other music pauses while playing and resumes when you leave.
-  - Fruit's draggable playfield also now ignores sidebar-swipe gestures during play.
+- **Water Dragon: The Warrior's Rite**
 
-- **Added Dragon Stars for Water Dragons**
+  - Added a late-game island quest for **full Water Dragons** who have completed the spear quest and returned to the island, either by swimming or with Zephyr.
+  - Find carved stones on the shore or in the woods, consult the Elder, and meet the old islander beneath the castle to translate their records.
+  - Follow clues to a hidden passage in the sheltered bay and complete the **Current, Stone, and Echo** trials.
+  - Repair the old sea gate, decide whether to share the discovery with the islanders, then return to the Elder.
+  - Optional final-chamber reward: with **1,000 Swimming** and **Physique, Athletics, or Willpower at its normal maximum**, gain one extra permanent **Tempered** talent without using a talent slot.
+  - Unlocks the **Heir of the Tide** feat. Quest progress is recorded in the Journal, and leaving the tunnels does not reset completed trials.
 
-  - **Dragon Star** is a rare six-pointed blue gem. The first **Dragon Boost** in a fight remains free; every extra Boost in that fight consumes one star.
-  - Stars can rarely be found while searching the nest shore and very rarely while combing the town beach.
-  - Stars appear next to pepper sprays in the sidebar, showing up to three slots and a **+** when more are held.
-  - Added a separate **Dragon stars: Show / Hidden** sidebar option and a Dragon Stars counter in the Cheat menu.
+- **Reworked Horse Racing**
 
-- **Added Ear Slime intrusive thoughts**
+  - Races have fairer odds, more varied events, and rare serious injuries. Placing a bet no longer puts the chosen horse at risk.
+  - Added **Place Bet**: bet on a horse finishing first or second for a better chance to win but a smaller payout.
+  - Betting limits now cap payouts at **£10,000 per slip**. The bookie's suspicion can reduce winnings after race rigging.
+  - Rebalanced Four-leaf Clover and moor Luck bonuses.
+  - Race logs and results are clearer, and watching or skipping a race now produces the same outcome.
 
-  - New **Ear slimes appear as intrusive thoughts** setting lets hypnosis leave voices in your head instead of physical parasites, even with parasites disabled.
-  - A second hypnosis can add another voice. They still give commands, rewards, and punishments, but have no physical growth or chastity effects.
-  - Gwylan's **Hypnotic Silence** can temporarily quiet them; the sunken lake ruin altar removes them permanently.
-  - Related game text changes to match the setting.
+- **Expanded cane use for blindfolded players**
 
-- **Added Blindfold Adaptability**
+  - An intact, equipped cane reduces blindness-related skill-check failure by **20%**.
+  - Relying on a cane slows Blindfold Adaptability training to **one-quarter speed**.
+  - Canes can be used and broken in combat like umbrellas. Breaking or losing one immediately removes the assistance.
 
-  - Blindfolds are sold in the forest and sex toy shops and have their own wardrobe icon.
-  - Being blindfolded gives up to a **30% chance to fail skill checks**. Wearing one for seven days builds **Adaptability**, eventually removing the penalty. Progress fades while the blindfold is off.
-  - Certain transformations speed training, slow the loss, or reduce Stress. Acquired Insanity slowly reduces Trauma while blindfolded.
-  - At full Adaptability and **50%+ Gwylan Love**, ask Gwylan for **Hypnotic Adaptability**, which prevents progress fading while the hypnosis lasts.
-  - Teachers, students, Robin, and Kylar react to blindfolds at school. Strangers follow more often, but full Adaptability allows escape; high-Love Kylar may follow to protect you.
-  - The Traits panel shows Adaptability progress and the current skill-check penalty.
+- **Added new and restored scenes**
 
-- **Expanded Underground Brothel contracts and escape hunts**
+  - Deep forest: a tree with faces may try to grab you. Run, cower, or howl if your Wolf transformation allows it.
+  - Orphanage garden: join other orphans in hide-and-seek.
+  - Adult shop: speak to Sydney while they work at the counter.
+  - Café chef blackmail: remaining defiant on the drive may make the police decide you're too much trouble to sell.
+  - Serpent's Maze: pull away rotten gate boards for a shortcut; the right path now leads to an overgrown garden, reflected on the minimap.
+  - Livestock: refuse Harper's examination outright.
+  - Domus windows: someone behind the curtain may be awake.
+  - Restored interactions with the asylum staircase and livestock barn door.
+  - Fixed the maths-project drugged exit from Alex's cottage so it leads to the farm rather than a town alley.
 
-  - Returning after a previous contract can lead to recognition and a **three-day unpaid contract** instead of being kept in a cell. This becomes more likely with more contract experience.
-  - Escaping previously can add **five unpaid days** to a newly signed contract.
-  - Breaking out of a contract can trigger a week of brothel hunters and corrupt police searching town and forest. Being caught means finishing the remaining contract plus five unpaid days.
+- **Expanded sewing and clothing sales**
 
-- **Harper now offers weekly parasite requests**
+  - The tailor now buys old clothes for **20% of their base price**.
+  - Once you own a sewing kit, discarding clothes from your wardrobe gives **one spool per piece**.
+  - After buying a sewing kit, the tailor offers the **Sewinator-9000** in your orphanage room.
 
-  - After selling Harper **10 parasites**, receive a weekly client request for a parasite species you've encountered, with a minimum activity level.
-  - A matching parasite earns **4×, 6×, or 10×** its usual price. Only one request can be completed per week.
+- **Expanded Poppy scenes and X-Change interactions**
 
-- **Gwylan can remove Hypnotic Crossdressing**
+  - Poppy can now receive X-Change pills during sex, with dialogue when shown a pill and after its effects take hold.
+  - Added dialogue for virginity, pill/body reveals, condoms, leg locks, scratching, requests, chastity, oral, penetration, climax, and other interactions.
+  - Fixed Poppy's final idle line never appearing.
 
-  - You can now ask Gwylan to weaken or remove the trait through hypnosis, rather than relying only on Harper.
+- **Added Insanity reactions to intimidation**
 
-- **Added more Kylar interactions**
+  - Players with permanent or acquired Insanity may laugh hysterically or taunt attackers in selected scenes.
 
-  - At **50+ Love**, Kylar can take you on coffee dates from the park or arcade.
-  - There is also a **25% daily chance** for Kylar to visit during your café shift.
-  - Once Kylar's manor bedroom is unlocked, you can suggest going there instead of the orphanage when Kylar asks for somewhere private.
+- **Expanded Robin's café-renovation interactions**
 
-- **Expanded Whitney's reactions to X-Change height changes**
+  - Robin now stays home while café shifts are cancelled for renovations and still runs the beach drinks stand during normal weekend hours.
+  - Added a conversation about the expansion, with responses depending on Robin's Confidence.
+  - Wages and job dialogue now reflect the closure correctly.
 
-  - Whitney may react to your new height at school **once a week**, with responses depending on Dominance and affection, including teasing, carrying, hugging, or intimidation.
-
-- **Expanded Robin's forest picnic**
-
-  - Robin can breast drinking from the player during the milking scene when Robin's Dominance is suffecient or Lust is 60 or higher.
-
-- **Added rebellious orphans smoking in the loft**
-
-  - After buying cigarettes at the pub, sufficiently rebellious players have a **25% chance** to find orphans smoking in the loft, once daily between **07:00 and 22:00**. This does not use your cigarettes.
-
-- **Added full hygiene options to more bathrooms**
-
-  - The temple, brothel, strip club, and Seaspray Hotel bathrooms now support scooping, washing, brushing teeth, trimming nails, and grooming like the orphanage.
-
-- **Added new Heat/Rut Scream setting**
-
-  - **Can't Scream while in Heat/Rut** removes the Scream action during heat or rut when enabled. **Off by default**.
-  - The Insanity **Full Dissociation** setting now warns clearly that it prevents screaming and fighting back.
-
-- **Added Allure ignores fame setting**
-
-  - Under **Encounter Rate**, use your full Allure for encounter checks instead of reducing most of it based on bad Fame.
-
-- **New keyboard shortcuts for minigames**
-  - Wren's Blackjack now has **Play at max bet**.
-  - The pub dice game has **Confirm max bet** and **Max out the stakes** when a higher bet is possible.
-  - In the Fruit/Suika game, number keys activate powers; starting a mode now focuses the jar so arrow keys and Space work immediately.
+- **Added Android APK save recovery backups**
+  - Updated APKs keep **three recent recovery copies** that can be restored from the Saves screen if normal save slots disappear.
+  - Improved save-loss warnings, storage diagnostics, and recovery handling.
+  - **Important:** uninstalling the APK or clearing its app data also deletes these recovery copies. Exported backups are still necessary.
 
 ## Tweaks and Rebalancing
 
-- **Rebalanced Dragon Boost and pepper spray**
+- **Colosseum post-win scenes are now optional**
 
-  - Dragon Boost now has a **5% chance to instantly knock out** its target. Other hits may glance off for light damage or miss.
-  - Pepper spray deals **8% more damage** and stuns targets for **3 turns**.
-  - Drug-resistant enemies are stunned for **1 turn**. The Ivory Wraith is unaffected.
+  - Winners can take **half the purse and ranking points** without taking a pill or continuing the breeding aftermath.
+  - Added a visible **Stop** option without a permanent ban for ending early.
+  - Clarified choices and early-exit narration, and fixed an old-save issue affecting unrelated NPC pregnancy records.
 
-- **Clothing Dysphoria now develops over time**
+- **Rebalanced next-day cramps**
 
-  - Clothing Dysphoria builds **hourly** while an unaccepted style stays equipped, so tolerance can improve without repeatedly changing outfits.
-  - Updated the tooltip to explain the change.
+  - Increased the daily orgasm threshold before cramps occur and made Sex skills improve tolerance.
+  - Reduced excessive tiredness and stopped denied climaxes from counting towards next-day soreness.
 
-- **Dysphoria is easier to recognise on screen**
+- **Improved Gender Identity and pronoun tolerance**
 
-  - Words and pronouns that cause Dysphoria, plus Dysphoria messages, now glow and move slightly. Comfortable words remain unchanged.
-  - Movement is disabled when reduced motion is requested.
+  - Rejected neutral traits no longer hold back Gender Identity changes or slow physical changes.
+  - Hearing unaccepted pronouns now gradually increases tolerance unless those pronouns are actively rejected.
 
-- **Late slips now require actual lateness**
+- **SSS footwork now removes forest and moor hobbling**
 
-  - Leighton gives a late slip only after the player has been late **twice in a week**, rather than based on Delinquency alone.
-  - Bringing the slip to class excuses the lateness, avoiding an extra detention and Delinquency penalty.
+- **Improved fox and rabbit transformation traits**
 
-- **Updated farm animal Respect**
+  - **Thrill of the Chase** can be restored in the mirror after a Fox Genome Dump.
+  - **Strong Feet** now grants its intended Dancing and Athletics bonuses, both shown under Characteristics.
 
-  - Passive Respect loss is **20% slower**.
-  - Pig Respect no longer passively drops to **seeing you as fucktoy**; encounters and actions can still lower it further. Other existing lower values remain.
-
-- **Updated contraceptive pill and daily notifications**
-
-  - Automatic contraceptive dosing now takes **one pill per day**, preventing overdoses.
-  - Daily-pill and X-Change spiking notifications now appear when they happen, rather than hours later.
-
-- **Changed brothel virginity restoration**
-
-  - Finishing all five trials now lifts the Purity cap back to the virgin maximum **without resetting current Purity** or undoing existing corruption.
-
-- **Updated body and clothing comfort**
-
-  - Sleepwear no longer causes Arousal from rubbing sensitive nipples or genitals; underwear worn beneath it still can.
-  - Fixed rubbing text mentioning clothing already removed.
-  - Chest binders now affect breast insecurity based on how the chest looks while dressed: flattening can prevent big-breast insecurity but may create small-breast insecurity. Exposed breast size still matters.
-
-- **Updated Water Dragon activities**
-
-  - Moonstones and black pearls can be found by combing the **island beach**.
-  - Returning as a Water Dragon no longer gives the same spear again.
-  - Docile assessments and daily brooding now increase Harper's affection in the Pelagos badend.
-
-- **Improved other gameplay interactions**
-
-  - Consenting to plant people now requires **Deviancy 2** instead of 3.
-  - Sex during Gwylan's ritual increases Deviancy; Dryad Nectar collected there counts for Gwylan's current request, without exceeding the requested amount.
-  - Praying at the temple counts as a short rest and reduces Autism Load, while off-focus Willpower training still has its normal cost.
-  - **Aquatic Lungs** bypasses swimming checks and breath-holding text in Winter's ducking-stool demonstration.
-
-- **Made combat difficulty labels clearer**
-
-  - Actions that can fail because the body does not obey now show labels such as **Pull away (Challenging)**.
-  - Labels respect difficulty-visibility settings; success chances are unchanged.
-
-- **Updated the classroom blackmail task**
-
-  - The empty-classroom masturbation task now completes on orgasm, not after five uninterrupted minutes.
-  - Being interrupted after finishing no longer fails it, and merely standing naked does not complete it.
-
-- **Changed antique selling**
-  - **Sell antiques** now keeps the **Ivory Necklace**. A separate **Sell the ivory necklace** option lets you choose whether to give up its payout bonuses and story consequences.
+- **Improved the Virtual Pet minigame interface**
 
 ## Fixes and Improvements
 
-- **Fixed save loading, settings, and character data**
+- **Fixed museum Journal and antique collection errors**
 
-  - Older saves can recover missing gameplay settings and invalid **NaN** values affecting Allure and pregnancy chances.
-  - Compatibility checks now run after the incoming save has loaded.
-  - Fixed older transformed-body shapes, genital-size conversion, and empty or incomplete body caches without resetting player progress.
-  - Corrected setting and price values, and fixed Settings exports overflowing smaller phone screens.
-  - Preserved character, sensitivity, Identity, and system settings during transfers, plus disabled options when saving new-game defaults.
-  - Fixed misleading import warnings and Poppy settings on older saves.
-  - Feat hints now stay open after tapping on mobile.
+  - Unsupported antique entries in older or modded saves no longer break museum displays or affect collection progress.
 
-- **Fixed pregnancy data, births, and Water Dragon eggs**
+- **Fixed clothing filters and missing trait tooltips**
 
-  - Nest setup now runs after pregnancy stats exist; skin-colour conversion safely checks both pregnancy slots.
-  - Water Dragons with Harpy wings, including Melusine chimeras, now lay **Water Dragon eggs**, not Harpy eggs. Affected saves repair after the next in-game day.
-  - Fixed birth scenes with **four or more babies**, including baby counts, cradling, and aftercare text.
-  - Fixed the GooseFem womb tattoo moving off-centre during pregnancy.
+  - Shop filters no longer fail on blindfolds.
+  - Added missing blindfold and shackle trait descriptions in shops and wardrobes.
 
-- **Fixed pregnancy clothing sprites**
+- **Fixed Water Dragon routes and egg-laying**
 
-  - School shirts, pyjama shirts, and dress shirts no longer vanish during pregnancy.
-  - Belly and outfit changes no longer create duplicate clothing or stale clipping, and portrait clothing stays intact.
+  - The coastal route to the hidden beach now appears as soon as eggs are ready, without needing to sleep.
+  - Fixed nest options for fertilised clutches and supported anal egg-laying, while preserving nest progress, lab restrictions, and overdue penalties.
+  - Later egg-laying trips no longer replay the first nest discovery.
+  - Returning to the Water Dragon lab now preserves **Hard mode** and no longer says it was disabled.
 
-- **Fixed NPC gender recognition and pronouns**
+- **Preserved partner pregnancy outcomes for Water Dragons**
 
-  - NPCs recognise the player's preferred gender once told they are trans or after sufficient Love, rather than automatically after seeing them naked.
-  - The setting for recognising gender when naked now works correctly.
-  - Fixed Briar's pronouns, Robin's crossdressing pronouns, Whitney's restraint aftermath pronouns, and an undefined-pronoun error at the Brothel virginity auction.
-  - Robin's gender conversations now respect school and bedtime circumstances.
-  - Fixed gender-based crowd Dysphoria counting Love Interests, Gwylan, or Mickey incorrectly. At least two other qualifying NPCs are still needed.
+  - Babies fathered by **Black Wolf, Great Hawk, Alex, Poppy, or Ivory Wraith** now use their normal birth and child-content routes rather than going to the Water Dragon nest.
 
-- **Fixed Gwylan clothing requests and conversations**
+- **Fixed pet encounter names**
 
-  - New and existing clothing requests now recognise the correct slots, including outfits, and respect hypnosis restrictions on modded clothing.
-  - Older broken requests are repaired where possible, while missing clothing is handled safely without affecting unrelated items.
-  - Fixed an error after asking Gwylan about the Ivory Wraith brand and corrected available options for the relationship.
-  - Fixed Gwylan's hide-and-seek error after furniture falls on them, which could leave characters stuck.
+  - Pet attacks now refer to named NPCs by their names rather than their titles.
 
-- **Fixed Colosseum breeding**
+- **Fixed character sprite layering and animation cleanup**
 
-  - Opponent climax or defeat no longer automatically ends the breeding scene.
-  - Added **End breeding → Stop** to the combat menu.
-  - Stopping before the player's first climax causes a permanent ban.
-  - Pregnancy is no longer forced before the player climaxes.
+  - Arm skin and shoulder tattoos no longer render over jackets or shirts, including raised-arm poses.
+  - Fixed duplicate character layers after changing passages and animations continuing after images were disabled.
+  - Fixed pregnancy/vision clothing crossover: Hopeless Cycle and other painting/vision scenes now remove the player's coat, overskirt, scarf, and bag from the vision character and restore them afterwards.
+  - Fixed two-tone modded hair dyes so the second colour aligns correctly on all hairstyles, in and out of combat.
 
-- **Fixed World Override confirmation**
+- **Fixed corrupted startup variables**
 
-  - The risk-confirmation checkbox now works whenever World Override is opened, not only after a version update.
+  - Semen stats now initialise before startup clamping; bank payment dates wait until the game clock is ready.
+  - Added safeguards against clothing triggering corrupted-variable errors.
 
-- **Fixed the mirror and tattoo menus**
+- **Fixed Ear Slime and parasite issues**
 
-  - If a saved bodywriting category is no longer available, the menu returns to **General** instead of giving an error.
+  - Fixed a quotation-mark error in the café's **Cafe Eat** scene.
+  - Silenced Ear Slimes no longer reward or ruin orgasms, and ruined-orgasm effects no longer carry into later encounters.
+  - Removing Ear Slimes now removes their dependent parasites across all X-Change bodies and repairs leftovers in affected saves.
 
-- **Fixed combat and orgasm-state errors**
+- **Fix NPCs repeatedly grabbing an already-lifted short skirt**
 
-  - Passing the Willpower check now prevents both the stun and orgasm when **You cum even if you resist the stun** is unchecked.
-  - Fixed an **orgasmcurrent** error after Water Dragon egg-laying or being carried away by a slime in the old sewers.
-  - Fixed attackers continuing sex actions after running off with the player's clothes; they now let go before fleeing.
-  - Sex with Bailey no longer incorrectly raises Sex Fame.
+- **Fixed Colosseum sex and aftermath errors**
 
-- **Fixed Avery's events and clothing checks**
+  - Restored oral actions missing in some saves.
+  - Fixed endless **Next** loops and unfair bans when Breeder effects or X-Change Purity prevent the player from finishing.
+  - Refusing a match-fixing bribe no longer skips the breeding aftermath; fixer follow-up and match-state cleanup now work correctly.
+  - Fixed missing NPC warnings in brothel pregnancy encounters and misleading aftermath text.
 
-  - The party choice now says **brown fox** instead of naming Gwylan too early.
-  - Purple-pill herms are no longer incorrectly rejected from Avery's dates.
-  - Cold baths are now available at Avery's mansion.
+- **Fixed pursuer chastity punishments after escape**
 
-- **Fixed shop and clothing-event issues**
+  - Pursuers no longer fit chastity devices or steal keys after the player has escaped.
 
-  - Being caught at a shopping-centre register now leaves the player on **High Street**; the school-library register leaves them on **Oxford Street**, not Domus Street.
-  - Jacket removal options now show the jacket's name instead of **naked**.
-  - The park underwear-running blackmail task now checks that outer clothing has been removed.
+- **Fixed disappearing and stuck clothing**
 
-- **Fixed animal clothing encounters**
+  - Backpacks no longer remain equipped when changing into default Swimwear.
+  - Fixed jackets showing as **naked** in removal menus.
+  - Fixed the park underwear-running blackmail task checking the wrong clothing state.
 
-  - Animals no longer bite a naked player incorrectly or fail to grab underwear after outer clothes are removed.
+- **Fixed Avery's date progression**
 
-- **Fixed Alex dialogue**
+  - Permanently pilled players no longer get stuck during Avery's date.
 
-  - Alex no longer stays silent during sex when no special line applies.
+- **Fixed NPC positioning and beast oral interactions**
 
-- **Fixed farm machinery and clearing**
-  - Fixed invalid clearing times and Fatigue when a loader was enabled without a tractor.
-  - Other attachments now require a tractor, and water-field excavation progress text is corrected.
+  - NPCs pinned during sex now render at the correct position.
+  - Beasts such as Great Hawk and Black Wolf no longer randomly withdraw during oral every turn; they remain until the interaction actually ends.
+
+- **Fixed farm and other scene interactions**
+  - Resisting Harper's livestock examination now uses its own Strength check.
+  - Beach Phallus Project acceptance now opens the changing-room scene.
 
 ## Art and Graphics
 
-- **Improved Virtual Pet minigame art**
+- **Added new hairstyles**
 
-- **Added Aoki Utage pet snake art**
+  - Vanilla hair sides: **Blunt Twintails** and **Outward-flicked**; fringes: **Rounded**, **Layered Sweep**, and **Outward-flicked**, by **kon (konpm)**.
+  - Added the matching **GooseFem** versions by **Leni (lenlenienii)**.
 
-  - Fem pet snake drawn by **Estalia** and edited by **χø£¡ϯԋ**.
-  - Added an **Aoki Utage Water Dragon** by **χø£¡ϯԋ**.
+- **Added Vanilla Modded Faces 14–19** by **Snowy**.
 
-- **Updated GooseMasc art**
+- **Added Mysterious breast tape** by **Flo**.
 
-  - Added pet snake graphics by **kitbullz**.
-  - Added **Okami** transformation artwork by **VViktor (Vvikz0)**.
-
-- **Updated GooseFem art**
-  - Added **Modded Face 28** by **Marin**
-  - Added **Modded Face 29** by **sussyorenji**.
-  - Added pet snake artwork by **Estalia**.
+- **Cleaned up the Mysterious image pack**.
