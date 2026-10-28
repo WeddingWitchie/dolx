@@ -473,7 +473,7 @@
 		else if (def.hub <= 0.8) facts.push("remote");
 		if (def.healthcare >= 2) facts.push("home to a major medical centre");
 		else if (def.healthcare < 1) facts.push("short of medical care");
-		const list = facts.length > 1 ? `${facts.slice(0, -1).join(", ")} and ${facts[facts.length - 1]}` : facts[0];
+		const list = facts.length > 1 ? `${facts.slice(0, -1).join(", ")}${facts.length > 2 ? ", and " : " and "}${facts[facts.length - 1]}` : facts[0];
 		return {
 			id,
 			name: def.name,
@@ -591,8 +591,20 @@
 			const plan = game.status === "active" ? check : canBuy(running, id);
 			const owned = game.upgrades.includes(id);
 			const needs = [];
-			if (u.requires) needs.push(u.requires.map(nameOf).join(" and "));
-			if (u.requiresAny) needs.push(u.requiresAny.map(nameOf).join(" or "));
+			if (u.requires)
+				needs.push(
+					u.requires
+						.map(nameOf)
+						.join(", ")
+						.replace(/, ([^,]+)$/, u.requires.length > 2 ? ", and $1" : " and $1")
+				);
+			if (u.requiresAny)
+				needs.push(
+					u.requiresAny
+						.map(nameOf)
+						.join(", ")
+						.replace(/, ([^,]+)$/, u.requiresAny.length > 2 ? ", or $1" : " or $1")
+				);
 			const view = {
 				id,
 				name: u.name,

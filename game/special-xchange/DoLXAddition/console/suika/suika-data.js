@@ -373,7 +373,7 @@
 			"Dropping",
 			[
 				"Move along the top of the jar to aim. A line shows where the fruit will fall.",
-				"Tap, click or press Space to drop. There is a short wait before the next drop; the held fruit is faded until then.",
+				"Tap, click, or press Space to drop. There is a short wait before the next drop; the held fruit is faded until then.",
 			],
 		],
 		[
@@ -413,7 +413,7 @@
 		[
 			"Chains and combos",
 			[
-				"A chain is every merge that follows from one drop, Shake or Wand pick.",
+				"A chain is every merge that follows from one drop, Shake, or Wand pick.",
 				"In Arcade, merge 2 of a chain adds +2, merge 3 adds +4, and so on up to +10 per merge.",
 			],
 		],
@@ -425,10 +425,10 @@
 			],
 		],
 		[
-			"Pause, restart and save",
+			"Pause, restart, and save",
 			[
 				"Pause stops the jar. Restart asks for a second press during a run.",
-				"Leaving through Back to the console or Menu, Save and exit keeps your run. Resume it next time you open the game. Leaving any other way ends the run.",
+				"Choose Back to the console, or choose Save and exit from the Menu, to keep your run for next time. Leaving by any other route ends the run.",
 			],
 		],
 		[

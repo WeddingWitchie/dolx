@@ -79,6 +79,41 @@ var Renderer;
 	* This list is kept when caches are cleared.
 	*/
 	Renderer.AltPathMisses = new Set();
+	function loadFaceFrecklesFallback(src, layer, onLoad, onError) {
+		const match = typeof src === "string" && src.match(/^(img\/face\/[^/]+)\/([^/]+)\/(freckles\.png|blush-freckles\/freckles-(blush-[1-5]|blusher)\.png)$/);
+		if (!match) return false;
+		const [, root, variant, file, blush] = match;
+		const shared = `${root}/${file}`;
+		if (!blush) {
+			Renderer.ImageLoader.loadImage(shared, layer, onLoad, onError);
+			return true;
+		}
+		const load = path => new Promise((resolve, reject) => {
+			Renderer.ImageLoader.loadImage(path, layer, (_src, _layer, image) => resolve(image), reject);
+		});
+		// Older packs have separate freckles and blush. Compose those without requiring new pack assets.
+		Promise.all([
+			load(`${root}/${variant}/freckles.png`).catch(error => {
+				if (variant === "default") throw error;
+				return load(`${root}/freckles.png`);
+			}),
+			load(`${root}/${variant}/${blush}.png`),
+		]).then(([freckles, colour]) => {
+			const height = Math.max(freckles.height, colour.height);
+			const frames = Math.max(freckles.width / freckles.height, colour.width / colour.height);
+			const canvas = createCanvas(height * frames, height);
+			canvas.imageSmoothingEnabled = false;
+			for (const image of [colour, freckles]) {
+				const imageFrames = image.width / image.height;
+				for (let frame = 0; frame < frames; frame++) {
+					canvas.drawImage(image, (frame % imageFrames) * image.height, 0, image.height, image.height,
+						frame * height, 0, height, height);
+				}
+			}
+			onLoad(src, layer, canvas.canvas);
+		}).catch(() => Renderer.ImageLoader.loadImage(shared, layer, onLoad, onError));
+		return true;
+	}
 	function rendererError(listener, error, context) {
 		if (listener && listener.error) {
 			listener.error(error, context);
@@ -917,6 +952,7 @@ var Renderer;
 					Renderer.ImageLoader.loadImage(fallback, layer, onLoad, onError);
 					return;
 				}
+				if (loadFaceFrecklesFallback(src, layer, onLoad, onError)) return;
 				// Mark this src as erroneous to avoid blinking due to reload attempts
 				Renderer.ImageErrors[cacheKey] = true;
 				Renderer.ImageErrors[src] = true;

@@ -4265,9 +4265,10 @@
 		<<elseif _npcData.nam is "Luchifen">>
 			/* Before the island reveal: a glowing "???" with no title and no stat bars.
 			   After it: the plain name and their love shown as Favor. Still no title. */
-			<div class="relation-box">
-				<div class="relation-top-line">
+			<div @class="'relation-box' + (_isNpcRelationBoxCollapsed ? ' is-collapsed' : '')" @data-npc="_npcData.nam">
+				<div class="relation-top-line" onclick="toggleRelationCollapse(this)">
 					<span class="relation-name"><<silverName>></span>
+					<span class="secondary-relation-collapse-arrow">▾</span>
 				</div>
 				<div class="relation-description">
 					<<npcrelationship "Luchifen">>
@@ -4277,6 +4278,7 @@
 						<<relation-box-stat _getStatConfig("love")>>
 					</div>
 				<</if>>
+				<<relation-box-collapsed _npcData _npcOverrides>>
 			</div>
 		<<else>>
 			<div @class="'relation-box' + (_isNpcRelationBoxCollapsed ? ' is-collapsed' : '')" @data-npc="_npcData.nam">
@@ -4318,6 +4320,9 @@
 				npcStats = T.otherNpcStats;
 				T.collapsedStatSlots = 2;
 			}
+			if (T.npcData.nam === "Luchifen") {
+				npcStats = V.xchange.silverStranger?.nameKnown ? ["love"] : [];
+			}
 
 			T.collapsedVisibleStats = npcStats
 				.filter(function(stat) { return T.npcData[stat] > 0 && T.checkRequirements(stat); })
@@ -4349,7 +4354,7 @@
 		<</script>>
 	<</silently>>
 	<div class="relation-box-collapsed" onclick="toggleRelationCollapse(this)">
-		<span class="relation-box-collapsed-name">_npcData.nam</span>
+		<span class="relation-box-collapsed-name"><<if _npcData.nam is "Luchifen">><<silverName>><<else>>_npcData.nam<</if>></span>
 		<span class="relation-box-collapsed-stats">
 			<<for _ci = 0; _ci lt _collapsedStatSlots; _ci++>>
 				<<if _ci lt _collapsedVisibleStats.length>>

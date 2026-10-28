@@ -114,7 +114,7 @@
 			need: 4,
 		},
 		{
-			title: "Perfect, Good and Miss",
+			title: "Perfect, Good, and Miss",
 			text: () =>
 				"Right on the beat is Perfect, a little off is Good, too far off or not hit at all is a Miss. Every hit adds to your combo and a Miss resets it. The score counts a Perfect in full and a Good as a bit over half: every note Perfect is 1,000,000. Try a short mix.",
 			notes: at([
@@ -176,7 +176,7 @@
 
 		const canvas = h("canvas", {
 			class: "rh-canvas",
-			"aria-label": "Practice field. Hit the notes as the line crosses them, by tap, click or lane key.",
+			"aria-label": "Practice field. Hit the notes as the line crosses them, by tap, click, or lane key.",
 		});
 		const overlay = h("div", { class: "rh-overlay rh-overlay--light", hidden: true });
 		const field = h("div", { class: "rh-field", "data-gesture-owner": "rhythm-tutorial" }, canvas, overlay);

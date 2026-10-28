@@ -311,7 +311,7 @@
 			source: "file",
 			bpm: num(s.bpm, 40, 300, `${where}: BPM`),
 			offset: Math.round(num(s.offset, -10000, 60000, `${where}: beat offset`)),
-			pageBeats: [2, 4, 8].includes(s.pageBeats) ? s.pageBeats : fail(`${where}: page length must be 2, 4 or 8 beats.`),
+			pageBeats: [2, 4, 8].includes(s.pageBeats) ? s.pageBeats : fail(`${where}: page length must be 2, 4, or 8 beats.`),
 			duration: num(s.duration, 1, limits.audioSeconds, `${where}: duration`),
 			trim: s.trim === undefined ? 0 : Math.round(num(s.trim, -500, 500, `${where}: timing offset`)),
 			audio: null,
@@ -369,7 +369,7 @@
 		} catch (e) {
 			fail("That file is not valid JSON.");
 		}
-		if (!isPlain(data) || data.format !== format) fail("That file is not a rhythm chart, playlist or library.");
+		if (!isPlain(data) || data.format !== format) fail("That file is not a rhythm chart, playlist, or library.");
 		if (data.version !== version) fail(`That file uses version ${String(data.version).slice(0, 10)} of the format; this game reads version ${version}.`);
 		if (!["song", "playlist", "library"].includes(data.kind)) fail("That file does not say what it holds.");
 		const songs = data.songs === undefined ? [] : Array.isArray(data.songs) ? data.songs : fail("The song list is malformed.");

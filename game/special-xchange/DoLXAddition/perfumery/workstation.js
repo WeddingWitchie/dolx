@@ -129,11 +129,11 @@
 		filters: { q: "", family: "", affinity: "", kind: "", owned: true, sort: "name" },
 		page: 0,
 	});
-	const layerName = { top: "Top", heart: "Heart", base: "Base" };
+	const layerName = { top: "Opening", heart: "Heart", base: "Base" };
 	const layerHint = {
-		top: "The first smell you notice when you apply the perfume. It usually fades within an hour.",
-		heart: "The main smell of the perfume. You notice it more after the first smell starts to fade.",
-		base: "The smell that lasts the longest. You can still notice it on your skin hours later.",
+		top: "The opening note is the first scent you notice. It fades as the heart of the perfume becomes clearer.",
+		heart: "The heart note gives the perfume its main character. It becomes more noticeable after the opening fades.",
+		base: "The base note is the smell that remains on your skin after the lighter scents fade.",
 	};
 	/* Nine tiles: three rows on every width, so the drawer never turns into a long scroll. */
 	const PAGE = 9;
@@ -142,10 +142,10 @@
 	const clamp01 = n => Math.max(0, Math.min(1, n));
 	const projectionWord = n =>
 		word(n, [
-			[1, "Stays close to the skin"],
-			[1.8, "Noticeable at arm's length"],
-			[2.4, "Fills a room"],
-			[Infinity, "Carries well beyond you"],
+			[1, "Subtle"],
+			[1.8, "Noticeable"],
+			[2.4, "Strong"],
+			[Infinity, "Very strong"],
 		]);
 	const concentrationWord = n =>
 		word(n, [
@@ -162,6 +162,16 @@
 			[88, "Fine"],
 			[Infinity, "Exceptional"],
 		]);
+	const qualityAssessment = p => {
+		const balance = word(p.quality, [
+			[40, "The fragrance is poorly balanced. The recipe, concentration, or blending needs more work."],
+			[60, "Some notes clash with each other. Adjusting their proportions or blending more carefully could help."],
+			[75, "The perfume is balanced, although some notes could blend more smoothly."],
+			[88, "You have made a well-balanced perfume, with the notes working comfortably together."],
+			[Infinity, "You have brought the ingredients together with exceptional care, giving the perfume a smooth, balanced construction."],
+		]);
+		return p.pleasantness < 30 ? `${balance} It still smells unpleasant; good workmanship cannot make every choice of ingredients appealing.` : balance;
+	};
 	const meterWord = n =>
 		word(n, [
 			[0.2, "Faint"],
@@ -172,10 +182,10 @@
 	const hours = minutes => (minutes < 90 ? `about ${Math.round(minutes / 10) * 10} minutes` : `about ${Math.round(minutes / 30) / 2} hours`);
 	/* Workflow order. "notes" is the internal id for Compose. */
 	const stages = [
-		["prepare", "Prepare", "Turn an ingredient into an aroma"],
-		["notes", "Compose", "Place aromas in the perfume"],
-		["blend", "Blend", "Blend the top, heart and base notes"],
-		["bottle", "Bottle", "Seal it and name it"],
+		["prepare", "Prepare", "Collect an ingredient's scent and choose which parts to keep"],
+		["notes", "Compose", "Choose the scents for your perfume's opening, heart, and base"],
+		["blend", "Blend", "Carefully mix the opening, heart, and base notes together"],
+		["bottle", "Bottle", "Check the finished blend, then seal it in a bottle and give it a name"],
 	];
 	/* Where the gold band sits on each blending pass. */
 	const zones = [52, 36, 64];
@@ -198,7 +208,7 @@
 		let serial = s.serial;
 		let liquidOpen = false;
 		/* Timing minigame state: one stop per pass. Lives only while this page is open. */
-		const timing = { scores: [], running: false, raf: 0, start: 0, pos: 0, last: "" };
+		const timing = { scores: [], running: false, raf: 0, start: 0, pos: 0, direction: 1, last: "" };
 		cleanup = () => {
 			abort.abort();
 			cancelAnimationFrame(timing.raf);
@@ -240,11 +250,16 @@
 		function label(id) {
 			const base = setup.foodstuff[m.source(id)]?.name || m.source(id);
 			const title = base[0].toUpperCase() + base.slice(1);
-			if (!id.startsWith("aroma~")) return { title, sub: "Raw material", full: title };
+			if (!id.startsWith("aroma~")) return { title, sub: "Standard aroma", full: title, description: setup.perfumeryExtractionUI.description(id) };
 			const p = setup.perfumeryExtraction.resolve(id);
 			const facets = p.selected.slice(0, 2).join(" and ");
-			const finish = { stability: "lasting", purity: "clear", yield: "soft" }[p.finish] || p.finish;
-			return { title, sub: `${facets[0].toUpperCase() + facets.slice(1)} · ${finish}`, full: m.name(id) };
+			const finish = { stability: "stabilised", purity: "clarified", yield: "extra aroma" }[p.finish] || p.finish;
+			return {
+				title,
+				sub: `${facets[0].toUpperCase() + facets.slice(1)} · ${finish}`,
+				full: m.name(id),
+				description: setup.perfumeryExtractionUI.description(id, p),
+			};
 		}
 		const stockLeft = () => Object.entries(s.extraction.stock).reduce((n, [id, amount]) => n + Math.max(0, amount - used(id)), 0);
 		/* First-time guidance: Poppy at Poppy's table, the manual elsewhere. Gone after the first bottle. */
@@ -264,8 +279,8 @@
 		if (station) {
 			const exercises = [
 				"Lesson 1: Make your first perfume using the ingredients Poppy gave you. Choose your ingredients, mix them, and put the finished perfume into a bottle.",
-				"Lesson 2: Load the perfume you made earlier. Use the same ingredients, but try changing how much of each one you use. You can also move ingredients between the top, middle, and base notes. Make sure at least two ingredients share the same note.",
-				"Lesson 3: Load your previous perfume without changing its ingredients. Open the liquid settings in Blend and try changing the alcohol, perfume strength, or maturing time.",
+				"Lesson 2: Load the perfume you made earlier. Use the same ingredients, but try changing how much of each one you use. You can also move ingredients between the opening, heart, and base notes. Make sure at least two ingredients share the same note.",
+				"Lesson 3: Load your previous perfume without changing its ingredients. Open the liquid settings in Blend and try changing the alcohol, the perfume strength, or the maturing time.",
 				"Lesson 4: Make a floral perfume using different flowers. Try to make the scents work well together, with a base scent that lasts longer.",
 				"You've finished Poppy's lessons! You can visit her at home to talk about the perfumes you've made.",
 			];
@@ -275,7 +290,8 @@
 				gift: "Load the perfume you gave Poppy earlier. Change one part of the recipe and see how it affects the result.",
 				demonstration: "Load one of your saved perfumes. Change one ingredient or setting, then show Poppy what you changed.",
 				rescue: "Load the failed perfume. Find out which ingredient is causing the problem and change the recipe to improve the smell.",
-				rivalry: "Make a perfume with daisy in the top note, rose in the middle note, and orchid in the base note. Try to make a better perfume than Poppy's.",
+				rivalry:
+					"Make a perfume with daisy in the opening note, rose in the heart note, and orchid in the base note. Try to make a better perfume than Poppy's.",
 			};
 			if (s.session?.kind === "lesson" && s.session.stage === "compose") {
 				const box = el("div", undefined, root, "perf-brief");
@@ -338,6 +354,15 @@
 					}. Choose another spirit or buy more at the cosmetics shop.`,
 					fix: ["Choose another spirit", "liquid"],
 				});
+			if (cost)
+				for (const [id, amount] of Object.entries(cost.needed)) {
+					const available = s.extraction.stock[id] || 0;
+					if (available < amount)
+						lacks.push({
+							text: `You need ${plural(amount, "measure")} of ${label(id).title} aroma, but have ${available}.`,
+							fix: ["Prepare more aroma", "prepare"],
+						});
+				}
 			if (s.bottles.length >= 24) lacks.push({ text: "Your cabinet is full (24 bottles). Discard one from the cabinet first." });
 			return { n, cost, blendDone, lacks, ready: !lacks.length };
 		}
@@ -380,13 +405,11 @@
 							? '"You have added enough for your first perfume. Now go to Blend."'
 							: '"Now choose the main scent for your perfume. Select Heart, then tap the aroma you collected to add it."',
 
-						blend: '"Press Start and watch the moving marker. When it reaches the gold area, press Stop. You need to do this three times."',
 						bottle: '"Your perfume is ready to be bottled. Finish bottling it, then let me smell it."',
 				  }
 				: {
 						prepare: "Choose a flower and check its scent. Remove any scent parts you don't want before collecting the aroma.",
 						notes: c.n ? "You have enough for your first perfume. Go to Blend." : "Select Heart, then tap the aroma you collected to add it to your perfume.",
-						blend: "Press Start. When the moving marker reaches the gold area, press Stop. Repeat this three times.",
 						bottle: "Check the ingredients you added, then bottle your perfume.",
 				  };
 			if (!lines[d.tab]) return;
@@ -470,7 +493,7 @@
 			el(
 				"small",
 				p
-					? `${plural(c.n, "measure")} · ${concentrationWord(d.formula.concentration).toLowerCase()} · ${d.formula.solvent} spirit`
+					? `${plural(c.n, "measure")} of aroma at ${d.formula.concentration}% concentration in ${d.formula.solvent} spirit.`
 					: c.n
 					? c.lacks[0]?.text || ""
 					: "Tap an aroma to add it.",
@@ -486,10 +509,28 @@
 				el("i", undefined, track).style.width = `${Math.round(clamp01(v) * 100)}%`;
 				el("b", p ? text || (advanced ? `${Math.round(clamp01(v) * 100)}%` : meterWord(v)) : "-", dd);
 			};
-			meter("Reach", p ? p.intensity / 2.6 : 0, p ? (p.intensity < 0.9 ? "Soft" : p.intensity < 1.8 ? "Moderate" : "Strong") : null);
-			meter("Lasting", p ? p.duration / 720 : 0, p ? hours(p.duration) : null);
+			meter("How noticeable", p ? p.intensity / 2.6 : 0, p ? (p.intensity < 0.9 ? "Subtle" : p.intensity < 1.8 ? "Noticeable" : "Strong") : null);
+			meter("Wear time", p ? p.duration / 720 : 0, p ? hours(p.duration) : null);
 			meter("Sweetness", p ? p.sweet : 0, p ? (p.sweet < 0.3 ? "Low" : p.sweet < 0.65 ? "Medium" : "High") : null);
-			meter("Wildlife interest", p ? Math.max(0, p.animal) : 0, p ? (p.animal < 0.3 ? "Low" : p.animal < 0.65 ? "Medium" : "High") : null);
+			meter("Animal appeal", p ? Math.max(0, p.animal) : 0, p ? (p.animal < 0.3 ? "Low" : p.animal < 0.65 ? "Medium" : "High") : null);
+			const help = el("details", undefined, box, "perf-property-help");
+			el("summary", "What these properties mean", help);
+			el(
+				"p",
+				"Noticeability describes how easily other people can smell the perfume. A stronger perfume can make more people notice you, but some people dislike an overpowering scent.",
+				help
+			);
+			el("p", "Wear time is the duration of one application in dry conditions. Rain makes it fade twice as fast, and washing removes it.", help);
+			el(
+				"p",
+				"Sweetness only describes how sweet the smell is. It does not mean the perfume is better, because different people and animals like different scents.",
+				help
+			);
+			el(
+				"p",
+				"Animal appeal is only part of an animal's response. Where animal encounters are enabled, the whole scent can make you easier or harder to find outside; the animal, concealment, and fading strength also matter.",
+				help
+			);
 			return box;
 		}
 
@@ -498,7 +539,11 @@
 		function renderPrepare() {
 			const panel = panels.prepare;
 			if (extractionUI) return;
-			head(panel, "prepare", "Uses one ingredient from your stock. Nothing is spent until you collect.");
+			head(
+				panel,
+				"prepare",
+				"Explore an ingredient's scent before collecting it. Collection uses one ingredient and takes the time shown; browsing and changing your choices cost nothing."
+			);
 			extractionUI = setup.perfumeryExtractionUI.mount(
 				panel,
 				signal,
@@ -521,7 +566,14 @@
 			panel.replaceChildren();
 			const total = units(d.formula);
 			const ready = stockLeft();
-			head(panel, "notes", `Choose a note, then tap an aroma to add one measure. You have ${plural(ready, "measure")} ready.`);
+			head(
+				panel,
+				"notes",
+				`Choose a note, then select an aroma to add one measure. A measure is one crafting unit of prepared scent; you have ${plural(
+					ready,
+					"measure"
+				)} available. Nothing is used until bottling.`
+			);
 			const bench = el("div", undefined, panel, "perf-workbench");
 			const drawer = el("section", undefined, bench, "perf-drawer");
 			if (!ready && !catalogue.some(e => e.kind === "raw" && left(e) > 0)) {
@@ -534,7 +586,7 @@
 			for (const l of m.layers) chamber(chambers, l, total);
 			const tools = el("div", undefined, panel, "perf-steps");
 			if (d.undo.length) button("Undo", "undo", tools);
-			foot(panel, "prepare", "blend", total ? "Continue to Blend" : "Add an aroma to continue", total > 0);
+			foot(panel, "prepare", total ? "blend" : null, "Continue to blending");
 		}
 		function chamber(parent, l, total) {
 			const count = Object.values(d.formula[l]).reduce((a, b) => a + b, 0);
@@ -604,6 +656,7 @@
 								kind: "source",
 								title: name[0].toUpperCase() + name.slice(1),
 								sub: "Not prepared yet",
+								description: setup.perfumeryExtractionUI.description(src),
 								full: name,
 								family: "",
 								affinity: "",
@@ -653,9 +706,9 @@
 			select("Scent family", "family", [["", "Any family"], ...families.map(x => [x, x])]);
 			select("Suits note", "affinity", [["", "Any note"], ...m.layers.map(l => [l, layerName[l]])]);
 			select("Show", "kind", [
-				["", "Prepared aromas"],
-				["extract", "Prepared aromas only"],
-				["raw", "Raw materials"],
+				["", "All prepared aromas"],
+				["extract", "Custom extracts"],
+				["raw", "Standard aromas"],
 				["source", "Ingredients to prepare"],
 			]);
 			select("Sort", "sort", [
@@ -711,6 +764,7 @@
 				if (src) Object.assign(el("img", undefined, tile, "icon"), { src, alt: "", draggable: false });
 				el("strong", e.title, tile);
 				el("small", source ? `${n} in stock` : `${n} left · ${e.family}`, tile);
+				el("small", e.description, tile, "perf-aroma-description");
 				tile.title = source ? `Prepare ${e.full}` : `${e.full}. Best in the ${e.affinity} note.`;
 			}
 			if (pages > 1) {
@@ -729,14 +783,20 @@
 			const box = el("details", undefined, panel, "perf-liquid");
 			box.open = liquidOpen || (c.n > 0 && !c.cost);
 			box.dataset.liquid = "1";
-			const sum = el("summary", undefined, box);
-			el("strong", "Liquid: ", sum);
-			sum.append(
-				`${sv.name.replace(" perfumer's spirit", "").toLowerCase()} spirit, ${concentrationWord(f.concentration).toLowerCase()}, ${
-					f.capacity
-				}-measure bottle, ${f.age ? `matures ${plural(f.age, "day")}` : "ready at once"}`
+			el("summary", "Bottle settings", box);
+			el(
+				"p",
+				`${sv.name.replace(" perfumer's spirit", "").toLowerCase()} spirit with ${f.concentration}% aroma in a ${f.capacity}-measure bottle. ${
+					f.age ? `Leave it to mature for ${plural(f.age, "day")}.` : "No maturing time is required."
+				}`,
+				box
 			);
-			el("p", "Recommended: clear spirit, moderate, 40-measure bottle, ready at once. Change it only if you want to.", box, "perf-hint");
+			el(
+				"p",
+				"For a straightforward first perfume, use clear spirit at 20% concentration in a 40-measure bottle, with no maturing time. You can keep your current settings or adjust them below.",
+				box,
+				"perf-hint"
+			);
 			const isDefault = f.solvent === "clear" && f.concentration === 20 && f.capacity === 40 && f.age === 0;
 			if (!isDefault) button("Use the recommended setting", "defaults", box);
 			const fieldset = (legend, cls) => {
@@ -754,21 +814,26 @@
 				el("strong", spirit.name, body);
 				el(
 					"span",
-					`${spirit.projection < 1 ? "Noticed up close" : spirit.projection > 1.2 ? "Noticed from far away" : "Noticed nearby"}; ${
-						spirit.evaporation < 1 ? "lasts longer" : spirit.evaporation > 1.1 ? "fades sooner" : "average wear"
+					`${spirit.projection < 1 ? "Makes a gentler scent" : spirit.projection > 1.2 ? "Makes a more noticeable scent" : "Gives moderate scent strength"}; ${
+						spirit.evaporation < 1 ? "slows fading" : spirit.evaporation > 1.1 ? "fades sooner" : "fades at the normal rate"
 					}${spirit.purity > 0.9 ? "; turns sharp when very strong" : ""}.`,
 					body
 				);
 				el("small", `You have ${s.solvent[id]}${c.cost && f.solvent === id ? `; this needs ${c.cost.solvent}` : ""}.`, body);
 			}
-			const conc = fieldset("Strength", "perf-range");
+			const conc = fieldset("Aroma concentration", "perf-range");
 			const rangeLabel = el("label", undefined, conc);
 			el("span", `${concentrationWord(f.concentration)} (${f.concentration}% aroma)`, rangeLabel, "perf-range-value");
 			const range = el("input", undefined, rangeLabel);
 			Object.assign(range, { type: "range", min: "10", max: "40", step: "1", value: String(f.concentration) });
 			range.dataset.control = "concentration";
 			range.setAttribute("aria-valuetext", `${concentrationWord(f.concentration)}, ${f.concentration}%`);
-			el("small", "Stronger lasts longer and uses less spirit, so fewer aromas fit in the bottle.", conc, "perf-hint");
+			el(
+				"small",
+				"Concentration is the proportion of aroma in the finished liquid. Raising it makes the scent stronger and longer lasting. The same aromas need less spirit and make fewer applications, leaving room for more aroma in the same bottle.",
+				conc,
+				"perf-hint"
+			);
 			const caps = fieldset("Bottle size", "perf-options perf-options-row");
 			for (const n of [20, 40, 60]) {
 				const lab = el("label", undefined, caps, "perf-option");
@@ -780,7 +845,10 @@
 			if (c.cost)
 				el(
 					"small",
-					`This makes ${c.cost.volume.toFixed(1)} measures of liquid: ${plural(Math.max(1, Math.floor(c.cost.volume / 4)), "application")}.`,
+					`Your current recipe makes ${c.cost.volume.toFixed(1)} measures of finished liquid, enough for ${plural(
+						Math.max(1, Math.floor(c.cost.volume / 4)),
+						"application"
+					)}. The bottle's capacity is not the amount you have made.`,
 					caps,
 					"perf-hint"
 				);
@@ -809,7 +877,12 @@
 					);
 				}
 			}
-			el("small", "A maturing bottle can't be worn until the days have passed.", ages, "perf-hint");
+			el(
+				"small",
+				"Resting can make the blend smoother, but too much time can dull fresh scents. You cannot wear the bottled perfume until the chosen days have passed.",
+				ages,
+				"perf-hint"
+			);
 			if (c.cost) {
 				const cmp = el("details", undefined, box, "perf-compare");
 				cmp.open = !!d.pinned;
@@ -853,7 +926,7 @@
 			const panel = panels.blend;
 			panel.replaceChildren();
 			const c = check();
-			head(panel, "blend", c.n ? "Press Start, then Stop inside the gold band. Repeat for each note." : null);
+			head(panel, "blend", null);
 			if (!c.n) {
 				const empty = el("div", undefined, panel, "perf-callout");
 				el("p", "There's nothing to blend yet.", empty);
@@ -868,16 +941,24 @@
 				return foot(panel, "notes", null);
 			}
 			if (c.blendDone) {
-				el("h4", "Your blend is ready", side, "perf-done");
-				el("p", `Craftsmanship: ${scoreWord(blending * 100)}${advanced ? ` (${Math.round(blending * 100)}%)` : ""}.`, side);
-				const quality = el("div", undefined, side, "perf-track perf-craftsmanship");
-				quality.setAttribute("aria-hidden", "true");
-				el("i", undefined, quality).style.width = `${Math.round(blending * 100)}%`;
-				if (timing.last) el("p", timing.last, side);
+				el("h4", "The blending is finished", side, "perf-done");
+				const untimed = timing.scores.length === 0;
+				el(
+					"p",
+					untimed
+						? "You finish an untimed blend with steady, modest care. Careful timing could make the mixture smoother."
+						: blending >= 0.86
+						? "You mix everything with a steady hand. The notes are blended smoothly, so the recipe turns out as well as it can."
+						: blending >= 0.65
+						? "You finish mixing, although steadier timing could help the notes blend more smoothly."
+						: "Your timing leaves the mixture uneven. You can try blending again, or bottle it and see how the recipe turns out.",
+					side,
+					"perf-blend-assessment"
+				);
 				el("p", "Continue to Bottle to check your supplies and seal the perfume. Nothing has been spent yet.", side, "perf-hint");
-				button("Blend again", "reblend", side);
+				button("Try blending again", "reblend", side);
 				renderLiquid(side, c);
-				return foot(panel, "notes", "bottle", "Continue to Bottle");
+				return foot(panel, "notes", "bottle", "Continue to bottling");
 			}
 			const pass = timing.scores.length;
 			const track = el("ol", undefined, side, "perf-stage-track");
@@ -888,15 +969,15 @@
 					"small",
 					i < pass
 						? timing.scores[i] >= 0.85
-							? "Perfect"
+							? "Blended smoothly"
 							: timing.scores[i] >= 0.5
-							? "Close"
-							: "Missed"
+							? "Slightly uneven"
+							: "Uneven"
 						: i === pass
 						? timing.running
-							? "Blending"
-							: "Ready"
-						: "Next",
+							? "Blending now"
+							: "Ready to blend"
+						: "Not blended yet",
 					li
 				);
 				if (i < pass) li.className = "perf-stage-done";
@@ -907,7 +988,14 @@
 			});
 			const [passName, layer] = passes[pass];
 			el("h4", `${pass + 1} / ${passes.length} · ${passName} note`, side, "perf-pass-title");
+			el("p", layerHint[layer], side, "perf-note-description");
 			el("p", noteCharacter(layer), side, "perf-need");
+			el(
+				"p",
+				"Start blending and watch the white marker move across the bar. Press Stop when it reaches the golden area. You can wait for another crossing.",
+				side,
+				"perf-timing-instructions"
+			);
 			const bar = el("div", undefined, side, "perf-meter");
 			bar.setAttribute("aria-hidden", "true");
 			const zone = el("i", undefined, bar, "perf-zone");
@@ -916,36 +1004,46 @@
 			const needle = el("b", undefined, bar, "perf-needle");
 			needle.style.transform = `translateX(${timing.pos}%)`;
 			const row = el("div", undefined, side, "perf-steps");
-			button(timing.running ? "Stop" : pass ? "Start the next pass" : "Start blending", timing.running ? "stopBlend" : "startBlend", row, undefined, {
+			button(timing.running ? "Stop" : pass ? "Blend the next note" : "Start blending", timing.running ? "stopBlend" : "startBlend", row, undefined, {
 				cls: "perf-primary perf-blend-go",
 			});
 			const feedback = el(
 				"p",
-				timing.running
-					? "Watch the light marker. Stop while it crosses the gold band."
-					: timing.last || "The marker moves back and forth. You can wait for another crossing.",
+				timing.last || (timing.running ? "You work the mixture gently as the scents begin to mingle." : ""),
 				side,
 				"perf-timing-feedback"
 			);
 			feedback.setAttribute("aria-live", "polite");
+			feedback.hidden = !timing.last && !timing.running;
+			const lastScore = timing.scores.at(-1);
+			if (lastScore !== undefined) feedback.dataset.result = lastScore >= 0.85 ? "smooth" : lastScore >= 0.5 ? "close" : "uneven";
 			if (!timing.running) {
-				const quick = el("div", undefined, side, "perf-quick-blend");
-				button("Quick blend", "gentle", quick);
-				el("small", "Skip the timing for an average result.", quick);
+				const quick = el("details", undefined, side, "perf-quick-blend");
+				el("summary", "Blend without the timing challenge", quick);
+				el(
+					"p",
+					"An untimed blend gives a fixed 55% blending-care result. Timing can do better or worse; accurate stops produce a smoother blend. No extra supplies are spent by either method.",
+					quick
+				);
+				button("Use an untimed blend", "gentle", quick);
 			}
 			renderLiquid(side, c);
 			foot(panel, "notes", null);
 		}
 		function noteCharacter(l) {
 			const ids = Object.keys(d.formula[l]);
-			if (!ids.length) return "No aromas in this note. This pass still affects craftsmanship.";
-			const v = ids.reduce((a, id) => a + m.material(id).volatility, 0) / ids.length;
-			const p = ids.reduce((a, id) => a + m.material(id).persistence, 0) / ids.length;
-			return `${ids.map(id => label(id).title).join(", ")}, ${v > 0.6 ? "light and quick" : p > 0.6 ? "rich and lasting" : "in between"}.`;
+			if (!ids.length) return "You have not assigned an aroma to this note. This blending step still affects the mixture as a whole.";
+			if (ids.length === 1) return label(ids[0]).description;
+			return `For this note, you are working with ${ids
+				.map(id => label(id).title)
+				.join(", ")
+				.replace(/, ([^,]+)$/, ids.length > 2 ? ", and $1" : " and $1")}.`;
 		}
 		function startTiming() {
 			timing.running = true;
 			timing.start = performance.now();
+			timing.pos = 0;
+			timing.direction = 1;
 			/* Each pass is a little faster. Reduced motion slows it right down instead of removing it. */
 			const period = (reduced ? 1600 : 620) - timing.scores.length * 60;
 			renderBlend();
@@ -953,7 +1051,9 @@
 			const needle = panels.blend.querySelector(".perf-needle");
 			const step = now => {
 				if (!timing.running || !needle.isConnected) return;
-				timing.pos = (Math.sin((now - timing.start) / period - Math.PI / 2) + 1) * 50;
+				const next = (Math.sin((now - timing.start) / period - Math.PI / 2) + 1) * 50;
+				timing.direction = next >= timing.pos ? 1 : -1;
+				timing.pos = next;
 				needle.style.transform = `translateX(${timing.pos}%)`;
 				timing.raf = requestAnimationFrame(step);
 			};
@@ -966,7 +1066,14 @@
 			const pass = timing.scores.length;
 			const score = passScore(timing.pos, pass);
 			timing.scores.push(score);
-			timing.last = `${passes[pass][0]}: ${score >= 0.85 ? "perfect timing" : score >= 0.5 ? "close" : "missed the band"}.`;
+			const early = (timing.pos - zones[pass]) * timing.direction < 0;
+			timing.last = `${passes[pass][0]} ${Object.keys(d.formula[passes[pass][1]]).length ? "note" : "step"}: ${
+				score >= 0.85
+					? "You stop at just the right moment, bringing this part of the mixture together smoothly."
+					: score >= 0.5
+					? `You stop a little ${early ? "early" : "late"}. This part of the blend comes together, but could be smoother.`
+					: "The timing is off, leaving this part of the mixture uneven."
+			}`;
 			if (timing.scores.length === 3) {
 				blending = 0.35 + (timing.scores.reduce((a, b) => a + b, 0) / 3) * 0.6;
 				blended = JSON.stringify(d.formula);
@@ -993,29 +1100,31 @@
 				}
 				return;
 			}
-			const p = safe(() => m.calculate(d.formula, blending));
+			const p = safe(() => m.calculate(d.formula, Math.min(1, blending * 0.9 + s.skill / 1000)));
 			const bench = el("div", undefined, top, "perf-workbench perf-workbench-two");
 			bottleStage(bench, p);
 			const side = el("div", undefined, bench);
+			if (p) el("p", qualityAssessment(p), side, "perf-quality-assessment");
 			if (p?.description) el("p", p.description, side);
+			if (d.formula.age)
+				el("p", "This preview describes the perfume after its chosen maturing time. The fresh bottle will smell different while it rests.", side, "perf-hint");
 			if (p) {
 				const facts = el("dl", undefined, side, "perf-facts");
 				const fact = (k, v) => {
 					el("dt", k, facts);
 					el("dd", v, facts);
 				};
-				fact("Quality", scoreWord(p.quality));
-				fact("Strength", projectionWord(p.intensity));
-				fact("Wears", hours(p.duration));
+				fact("How noticeable", projectionWord(p.intensity));
+				fact("Wear time per application", hours(p.duration));
 				fact("Ready", d.formula.age ? `in ${plural(d.formula.age, "day")}` : "Straight away");
 			}
 			const cost = el("div", undefined, side, "perf-costs");
 			el("h4", "Bottling uses", cost);
 			const ul = el("ul", undefined, cost);
 			el("li", `1 empty bottle (you have ${s.containers})`, ul);
-			el("li", `${c.cost.solvent} ${d.formula.solvent} spirit (you have ${s.solvent[d.formula.solvent]})`, ul);
-			for (const [id, n] of Object.entries(c.cost.needed)) el("li", `${n} × ${label(id).title} aroma`, ul);
-			el("li", "20 minutes", ul);
+			el("li", `${plural(c.cost.solvent, "measure")} of ${d.formula.solvent} spirit (you have ${s.solvent[d.formula.solvent]})`, ul);
+			for (const [id, n] of Object.entries(c.cost.needed)) el("li", `${plural(n, "measure")} of ${label(id).title} aroma`, ul);
+			el("li", "Bottling takes 20 minutes.", ul);
 			button("Bottle the perfume", "craft", side, undefined, { cls: "perf-primary perf-big" });
 		}
 		function renderResult(bottle) {
@@ -1027,18 +1136,55 @@
 			head.append(setup.perfumeryIcons.render(bottle.icon, bottle.name));
 			const nameBox = el("div", undefined, head);
 			el("h3", bottle.name, nameBox);
-			const rename = el("label", undefined, nameBox, "perf-rename");
+			const good = (p.nuances || []).filter(k => !setup.perfumeryIdentity.negative[k]);
+			const bad = (p.offNotes || []).map(o => o.name);
+			const balance = word(p.quality, [
+				[40, "clash with each other"],
+				[60, "do not quite mix well"],
+				[75, "mix reasonably well"],
+				[88, "mix smoothly"],
+				[Infinity, "mix very smoothly"],
+			]);
+			const strength = word(p.intensity, [
+				[1, "faint"],
+				[1.8, "noticeable"],
+				[2.4, "strong"],
+				[Infinity, "very strong"],
+			]);
+			el(
+				"p",
+				`You smell a mix of ${good.slice(0, 2).join(" and ") || p.family} scents that ${balance}. The fragrance is ${strength} and should last ${hours(
+					p.duration
+				)} each time you wear it.`,
+				results,
+				"perf-result-summary"
+			);
+			if (bad.length) el("p", bad[0] === "acrid" ? "The first scent is unpleasantly sharp." : p.offNotes[0].cause, results, "perf-result-warning");
+			el("p", `You have enough perfume left for ${plural(bottle.uses, "application")}.`, results, "perf-result-uses");
+			if (!api.ready(bottle))
+				el(
+					"p",
+					`You need to let the perfume rest for another ${plural(
+						Math.ceil((bottle.made + bottle.formula.age * 86400 - V.timeStamp) / 3600),
+						"hour"
+					)} before wearing it.`,
+					results,
+					"perf-result-warning"
+				);
+			const row = el("div", undefined, results, "perf-steps");
+			if (api.ready(bottle) && api.enabled()) button("Wear it now", "apply", row, bottle.id, { cls: "perf-primary" });
+			button("Save the formula", "save", row, bottle.id);
+			button("Make another", "again", row);
+			const details = el("details", undefined, results, "perf-result-details");
+			el("summary", "Full analysis", details);
+			if (!api.ready(bottle)) el("p", "This assessment describes the scent now; it can still change as the bottle matures.", details, "perf-hint");
+			const rename = el("label", undefined, details, "perf-rename");
 			el("span", "Rename", rename);
 			const input = el("input", undefined, rename);
 			Object.assign(input, { value: bottle.name, maxLength: 48 });
 			input.dataset.rename = bottle.id;
-			const row = el("div", undefined, results, "perf-steps");
-			const wear = button(api.ready(bottle) ? "Wear it now" : "Maturing, can't wear yet", "apply", row, bottle.id, { cls: "perf-primary" });
-			wear.disabled = !api.ready(bottle) || !api.enabled();
-			button("Save the formula", "save", row, bottle.id);
-			button("Make another", "again", row);
-			if (p.description) el("p", p.description, results);
-			const facts = el("dl", undefined, results, "perf-facts");
+			if (p.description) el("p", p.description, details);
+			const facts = el("dl", undefined, details, "perf-facts");
 			const fact = (k, v) => {
 				el("dt", k, facts);
 				el("dd", v, facts);
@@ -1048,16 +1194,9 @@
 				fact("Heart", p.phases.heart.replace(/^[^:]+: /, ""));
 				fact("Base", p.phases.drydown.replace(/^[^:]+: /, ""));
 			}
-			const good = (p.nuances || []).filter(k => !setup.perfumeryIdentity.negative[k]).slice(0, 3);
-			const bad = (p.offNotes || []).map(o => o.name).slice(0, 2);
 			if (good.length) fact("Strengths", good.join(", "));
 			if (bad.length) fact("Flaws", bad.join(", "));
 			fact("Pleasantness", `${scoreWord(p.pleasantness)}${knowledge >= 3 ? ` (${Math.round(p.pleasantness)})` : ""}`);
-			fact("Quality", `${scoreWord(p.quality)}${knowledge >= 3 ? ` (${Math.round(p.quality)})` : ""}`);
-			fact("Strength", projectionWord(p.intensity));
-			fact("Wears", hours(p.duration));
-			fact("Applications", String(bottle.uses));
-			fact("Ready", api.ready(bottle) ? "Now" : `In ${Math.ceil((bottle.made + bottle.formula.age * 86400 - V.timeStamp) / 3600)} hours`);
 			if (V.perfumeryVenue === "poppy" && api.availableTeacher()) el("p", api.feedback(bottle), results, "perf-poppy");
 			if (V.perfumery.characters?.poppy?.pending?.bottleId === bottle.id) {
 				el("p", "Poppy doesn't hand the strip back. It looks like there is something to talk about.", results, "perf-poppy");
@@ -1113,7 +1252,7 @@
 				const row = el("details", undefined, journal, "perf-bottle");
 				const sum = el("summary", undefined, row);
 				sum.append(setup.perfumeryIcons.render(setup.perfumeryIcons.forBottle(entry), entry.name));
-				el("span", `${entry.name} · best ${scoreWord(entry.best).toLowerCase()}`, sum);
+				el("span", entry.name, sum);
 				row.ontoggle = () => {
 					if (!row.open || row.childElementCount > 1) return;
 					el("p", api.notes(entry.formula), row);
@@ -1184,7 +1323,7 @@
 			remember();
 			d.formula[note][id] = (d.formula[note][id] || 0) + 1;
 			edited();
-			notice(`Added ${label(id).title} to the ${note} note (${plural(d.formula[note][id], "measure")}).`);
+			notice(`Added ${label(id).title} to the ${layerName[note].toLowerCase()} note (${plural(d.formula[note][id], "measure")}).`);
 		}
 		const focusAfter = selector => root.querySelector(selector)?.focus({ preventScroll: true });
 
@@ -1274,7 +1413,7 @@
 						edited();
 						blending = 0.55;
 						blended = JSON.stringify(d.formula);
-						timing.last = "Quick blend: a modest, even finish.";
+						timing.last = "You mix without testing your timing, settling for a modest, consistent finish.";
 						focus = ".perf-stage-foot .perf-primary";
 					}
 					if (action === "reblend") edited();
@@ -1286,7 +1425,7 @@
 						Object.assign(d, kept, { tab: "bottle" });
 						renderProgress();
 						renderResult(result);
-						notice(`Bottled ${result.name}. The aromas, spirit and a bottle were used; 20 minutes passed.`);
+						notice(`Bottled ${result.name}. The aromas, the spirit, and a bottle were used; 20 minutes passed.`);
 						focusAfter(".perf-result-head h3");
 						return;
 					}
@@ -1301,6 +1440,9 @@
 						api.apply(Number(id));
 						notice("You put on the perfume. It replaces any previous scent.");
 						if (station) {
+							const uses = results.querySelector(".perf-result-uses");
+							if (uses && result)
+								uses.textContent = result.uses ? `You have enough perfume left for ${plural(result.uses, "application")}.` : "The bottle is empty.";
 							b.disabled = true;
 							return;
 						}

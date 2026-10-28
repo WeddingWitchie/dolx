@@ -17,12 +17,12 @@ setup.arcologyNewsText = {
 	reporterBios: {
 		"Ines Corva": "I watch Cipher prices on the Unit Exchange and talk to traders on Market Street. When a price changes, I want to know what caused it.",
 		"Tomas Reyl":
-			"I cover Enforcement, the courts and the Registry. Every morning I read reports about arrests and complaints, including the cases nobody in authority seems willing to explain.",
+			"I cover Enforcement, the courts, and the Registry. Every morning I read reports about arrests and complaints, including the cases nobody in authority seems willing to explain.",
 		"Hana Moreau":
 			"I spend most days in the Flats and the Stack, where many island residents live. People here often tell me what happened before officials make an announcement.",
 		"Dex Okafor": "I worked at the Ironworks for six years before becoming a reporter. I still visit the factories and read the work schedules myself.",
 		"Lio Brandt": "When a shuttle stop closes, I walk to the next open one myself. Readers deserve to know how much extra time the journey takes.",
-		"Mara Kade": "I visit clinics and talk to the people making implants. I ask about the risks, costs and restrictions their advertisements leave out.",
+		"Mara Kade": "I visit clinics and talk to the people making implants. I ask about the risks, costs, and restrictions their advertisements leave out.",
 		"Sun-Yi Park": "I spend my evenings reporting on bars and clubs. Some places open and close before the Registry even updates its list.",
 		"Ade Varga":
 			"I investigate leaked documents and company accounts, especially the ones someone tried to hide. You can send me tips through the Dome Broadcast desk.",
@@ -111,7 +111,7 @@ setup.arcologyNewsText = {
 					: "The invoices show different amounts, but this does not prove anyone acted dishonestly. Investigators still need to check the deliveries and confirm that the documents are genuine.",
 				recall:
 					"The recall applies only to the group of parts named in the notice. Customers should check whether their part is included before paying for a replacement.",
-				stake: "One company now owns a share of the other. Prices, opening hours and services have not changed as a result of the purchase.",
+				stake: "One company now owns a share of the other. Prices, opening hours, and services have not changed as a result of the purchase.",
 				irregular:
 					"The disputed transfers involve customers' money. The company is checking its own accounts, and no independent reviewer has published any findings.",
 			}[rec.s];
@@ -122,7 +122,7 @@ setup.arcologyNewsText = {
 					trial:
 						rec.ph === "fixed"
 							? "The clinic is no longer accepting volunteers for this round of testing. Anyone responding to an old advertisement will have to wait for another announcement. Guests are still not allowed to receive new body implants."
-							: "The clinic has not said whether guests can apply. It also has not explained exactly what the implant does, the risks involved or what happens if a volunteer decides to leave the trial.",
+							: "The clinic has not said whether guests can apply. It also has not explained exactly what the implant does, the risks involved, or what happens if a volunteer decides to leave the trial.",
 					malfunction: "Patients should check the clinic's notice to find out whether the problem affects the implant they have.",
 					backup:
 						"Guests can check their records at the Registry, but they cannot make a backup copy there. The new rules for staff do not change this restriction.",
@@ -152,7 +152,7 @@ setup.arcologyNewsText = {
 			);
 		} else if (rec.f === "feud" && ["clash", "retaliation"].includes(rec.ph)) {
 			body.push(
-				`The fighting is taking place on streets where people live, shop and work. Anyone passing through ${c.D} could be hurt, even without any connection to either crew.`
+				`The fighting is taking place on streets where people live, shop, and work. Anyone passing through ${c.D} could be hurt, even without any connection to either crew.`
 			);
 		} else if (rec.f === "smuggle" && rec.ph === "missing") {
 			body.push("The missing goods have not been found. Investigators have not identified who took them or where they went.");
@@ -273,7 +273,7 @@ setup.arcologyNewsText = {
 					expansion: `The extra floor gives the company more room in ${c.D}, but the company will need more staff to use it. It has not confirmed any new employees or opening hours. Customers therefore do not know whether the extra space will reduce waiting times.`,
 					contract: `${c.O} says ${c.O2} failed to complete the work it was paid to do. The supplier disagrees, and the payment remains disputed. The companies could agree to settle privately without announcing who was responsible. Neither has said how much money is involved, and public services have not changed.`,
 					wages: `Staff are still working, but equipment charges are being taken out of their wages. Workers are questioning the deductions and want to know whether the charges were allowed. Pay statements showing each deduction, together with signed contracts, could help answer that question.`,
-					leak: `Investigators need to find out whether the different invoices refer to the same goods. Delivery charges, separate deliveries or an accounting mistake could explain the different amounts. Comparing each invoice with a delivery record would show whether the company paid twice. The Civic Registry has not confirmed the claim made by the person who provided the documents.`,
+					leak: `Investigators need to find out whether the different invoices refer to the same goods. Delivery charges, separate deliveries, or an accounting mistake could explain the different amounts. Comparing each invoice with a delivery record would show whether the company paid twice. The Civic Registry has not confirmed the claim made by the person who provided the documents.`,
 					irregular: `Customers want to know which accounts were affected and whether their money has been returned. Even if the company corrects its records, that does not tell customers whether they have received a refund. Dome Broadcast is comparing the company's statements with the documents it has seen.`,
 					recall: `Customers can ask the company to check whether a replacement part belongs to the group affected by the recall. Parts sold cheaply on Market Street may have no reliable record of where they came from. The known fault has not been reported in every part the company sells.`,
 					stake: `${c.O} has bought part of ${c.O2}, but the size of the purchase may not give it control over the company. Neither side has announced the amount paid or any change for customers. The next developments will be whether employees are informed, the ownership is officially recorded and ${c.O} buys a larger share.`,
@@ -345,7 +345,7 @@ setup.arcologyNewsText = {
 			];
 		if (rec.f === "feud")
 			return [
-				`${c.Oc} and ${c.O2} are fighting over streets in ${c.D} where people live, trade and pass through every day. Neither crew represents the people living there. Even if one crew claims control of a street corner, fighting may still make the area dangerous.`,
+				`${c.Oc} and ${c.O2} are fighting over streets in ${c.D} where people live, trade, and pass through every day. Neither crew represents the people living there. Even if one crew claims control of a street corner, fighting may still make the area dangerous.`,
 				finished
 					? "The fighting has ended, whether the crews agreed to stop, another crew took over, or Enforcement intervened. None of them means either crew has given up on the district."
 					: "There is no sign yet of the fighting ending. The crews could start again at any time, and neither one's claim to control the street has been confirmed.",
@@ -382,7 +382,7 @@ setup.arcologyNewsText = {
 						"A company statement tells you what the company wants you to know, and plans can change. The Exchange's trade records show what was actually bought and sold.",
 					confirmed:
 						"The Exchange has confirmed that these trades took place. Their effect on the price also depends on how much Cipher other traders are buying or selling, and whether traders expected the news.",
-					analysis: "A past rise does not guarantee another rise. Prices can keep increasing, fall suddenly or stop falling without warning.",
+					analysis: "A past rise does not guarantee another rise. Prices can keep increasing, fall suddenly, or stop falling without warning.",
 				}[kind],
 				"The prices in this report were correct when it was published. Cipher prices can change at any time. You pay more to buy Cipher than you receive when selling it, so check both current prices on the terminal before trading.",
 			];
@@ -1635,7 +1635,7 @@ setup.arcologyNewsText = {
 					dek: "City report.",
 					tone: "alert",
 					body: [
-						"The Compute Floor and the foundry have suspended paid shifts, saying they cannot meet payroll. City Transit has closed its stops at Breakwater Road, the Flats and Signal Row to cut costs.",
+						"The Compute Floor and the foundry have suspended paid shifts, saying they cannot meet payroll. City Transit has closed its stops at Breakwater Road, the Flats, and Signal Row to cut costs.",
 						rec.cz >= 4
 							? "Crews have moved into streets that patrols no longer cover, and fights over cash and goods have been reported in several districts."
 							: "Enforcement has increased patrols around Exchange Square.",
@@ -1750,7 +1750,7 @@ setup.arcologyNewsText = {
 				title: "Your Island Handle and Digital Identity",
 				body: [
 					"Your island handle is the name used by Arcology's digital services and public accounts. The implant fitted behind your ear connects you to Holo and carries your island identity record. Using a different name does not delete your records from the city's system.",
-					"Open Journal → Holo to check your handle, clearance, accommodation and wallet. On the island, the interface connects to the city network. Away from the island, Holo shows the information it saved the last time you connected. You must be connected to the city network to post a news comment.",
+					"Open Journal → Holo to check your handle, clearance, accommodation, and wallet. On the island, the interface connects to the city network. Away from the island, Holo shows the information it saved the last time you connected. You must be connected to the city network to post a news comment.",
 					"The Civic Registry on Civic Boulevard lets guests check their public record once each day. If other people scan your identity or see you involved in a public incident, your account may become easier to recognise. Guest record backup is unavailable; checking your own record does not create a backup.",
 				],
 				question: "Does using a handle hide my original identity?",
@@ -1783,7 +1783,7 @@ setup.arcologyNewsText = {
 				body: [
 					"The X-Change Station is on Relay Street. Its guest counter sells Pink and Blue Basic packs of three for about 6 Cipher, and single Pink or Blue NOW pills for about 2.5 Cipher. Guests can buy one listed product per day.",
 					"Changing your body may make it harder for someone who knew your original appearance to recognise you. It does not replace your implant account or remove attention created by public incidents. Travelling in your original body can make some forms of identification easier.",
-					"Advanced formulas, body customisation and pill modification have separate authorization requirements. The advanced desk is not accepting appointments. Seeing a procedure listed on a screen does not mean the guest counter will let you book it.",
+					"Advanced formulas, body customisation, and pill modification have separate authorization requirements. The advanced desk is not accepting appointments. Seeing a procedure listed on a screen does not mean the guest counter will let you book it.",
 				],
 				question: "Can I buy several products at the guest counter today?",
 				answer: "The guest limit is one listed product each day. A Basic pack contains three pills, but buying that pack still uses today's purchase.",
@@ -1796,7 +1796,7 @@ setup.arcologyNewsText = {
 			cipher: {
 				title: "How Cipher Payments and the Guest Vault Work",
 				body: [
-					"Cipher pays for island services, including guest accommodation, shuttle fares and guest-counter products. Mainland cash is exchanged at the Unit Exchange in Exchange Square rather than paid directly to those services.",
+					"Cipher pays for island services, including guest accommodation, shuttle fares, and guest-counter products. Mainland cash is exchanged at the Unit Exchange in Exchange Square rather than paid directly to those services.",
 					`The exchange quotes a live price that moves through the day. At publication, 1 Cipher = ${rate}. Buying costs slightly more than that quoted price and selling returns slightly less, so check both on the terminal before confirming a transaction.`,
 					"Halden Trust, also in Exchange Square, keeps a guest vault separate from your spendable wallet. At the booths, you can move all your wallet money into the vault or take all the money out of the vault. Withdraw funds before trying to pay a wallet charge; stored funds are not spent automatically.",
 				],
@@ -1843,13 +1843,13 @@ setup.arcologyNewsText = {
 			safety: {
 				title: "Read District Safety Ratings Before Taking a New Route",
 				body: [
-					"Arcology uses five district classifications: policed, monitored, contested, hostile and lawless. They describe differences in patrol coverage and street risk, not a promise that every trip will be safe. Conditions can worsen during a crew dispute or change when patrols arrive.",
-					"Check the district description, current street notices and recent reports before taking an unfamiliar route. Quiet side streets and hostile districts carry risks that a busy public avenue may not. Guests should not assume Enforcement will provide the same protection offered to residents.",
+					"Arcology uses five district classifications: policed, monitored, contested, hostile, and lawless. They describe differences in patrol coverage and street risk, not a promise that every trip will be safe. Conditions can worsen during a crew dispute or change when patrols arrive.",
+					"Check the district description, current street notices, and recent reports before taking an unfamiliar route. Quiet side streets and hostile districts carry risks that a busy public avenue may not. Guests should not assume Enforcement will provide the same protection offered to residents.",
 					"Dome Broadcast reports statements as well as independent accounts. An organization may understate a problem. If a service board or the street itself conflicts with an earlier report, do not treat that report as a guarantee of safety.",
 				],
 				question: "Does a policed rating mean nothing can happen there?",
 				answer:
-					"No classification guarantees safety. It describes the district's general conditions; incidents, your public profile and the route you take still matter.",
+					"No classification guarantees safety. It describes the district's general conditions; incidents, your public profile, and the route you take still matter.",
 				where:
 					"Read the current street description and recent district reports. Authorized map users can also inspect recorded district information, which may be older than present conditions.",
 				comments: [
@@ -1876,7 +1876,7 @@ setup.arcologyNewsText = {
 			cybernetics: {
 				title: "Your Implant Is an Account, Not Full Service Authorization",
 				body: [
-					"Implants and cybernetic equipment are common in Arcology. Staff use scanners to read account information, and some residents use enhanced eyes, limbs or other equipment in their work. Similar-looking people may have very different capabilities.",
+					"Implants and cybernetic equipment are common in Arcology. Staff use scanners to read account information, and some residents use enhanced eyes, limbs, or other equipment in their work. Similar-looking people may have very different capabilities.",
 					"Your basic civilian implant provides island identity and Holo access. Guest registration does not authorize every procedure advertised by clinics or the Registry. The public record check on Civic Boulevard is available to guests, but record backup is explicitly unavailable to guest accounts.",
 					"A news report about a clinic trial describes that organization's activity. It is not confirmation that your account can book an augmentation or backup. Read the actual service desk's authorization notice before making plans.",
 				],
@@ -1911,7 +1911,7 @@ setup.arcologyNewsText = {
 				body: [
 					"Every price on the island is set in Cipher, so a large move on the Unit Exchange reaches the streets within hours. A strong rally makes posted prices look cheap; a fall makes the same goods cost more Cipher than they did that morning.",
 					"Shops do not all react the same way. Some reprice at the counter every time. Others keep a printed list for days, and a seller who notices that list has fallen behind may honour it, change it before you pay, or refuse the sale outright. In a deep fall, some counters stop accepting Cipher and ask for pounds.",
-					"The bigger the move, the wider the damage. A sharp collapse has in the past brought crowds to financial offices, raids on shops holding pounds, scams offering emergency conversions, shuttle stops closing and wages held back. None of that starts with a small dip, and none of it ends the moment the price recovers.",
+					"The bigger the move, the wider the damage. A sharp collapse has in the past brought crowds to financial offices, raids on shops holding pounds, scams offering emergency conversions, shuttle stops closing, and wages held back. None of that starts with a small dip, and none of it ends the moment the price recovers.",
 				],
 				question: "Will prices go back to normal as soon as Cipher recovers?",
 				answer:
@@ -1932,7 +1932,7 @@ setup.arcologyNewsText = {
 				],
 				question: "How do I tell a dangerous street from a quiet one?",
 				answer:
-					"A quiet street still has people going about their business. On a dangerous one, people leave, shutters come down and nobody stops to talk. If you are unsure, go back to a busy, well-lit avenue.",
+					"A quiet street still has people going about their business. On a dangerous one, people leave, shutters come down, and nobody stops to talk. If you are unsure, go back to a busy, well-lit avenue.",
 				where: "Check the district's safety rating on your City Map if you have one, read recent district reports, and pay attention to the street itself.",
 				comments: ["When the Flats go quiet at night, everyone on my floor stays in.", "If the stalls are packing up early, so am I."],
 			},
@@ -1958,7 +1958,7 @@ setup.arcologyNewsText = {
 				],
 				question: "Will a patrol always come if I call?",
 				answer:
-					"No. Arrival depends on the district, the state of the city and how your account is flagged. Two calls a day is the limit, and a refused or late call still counts.",
+					"No. Arrival depends on the district, the state of the city, and how your account is flagged. Two calls a day is the limit, and a refused or late call still counts.",
 				where: "Check your threat assessment in Social → Holo before relying on a call, and the district rating on your City Map.",
 				comments: [
 					"They came for my neighbour in four minutes. In the Underpass they didn't come at all.",
@@ -1983,17 +1983,17 @@ setup.arcologyNewsText = {
 		};
 		return Object.assign(editions[topic], {
 			dek: {
-				identity: "Know what your handle, implant and public record can tell other people.",
+				identity: "Know what your handle, implant, and public record can tell other people.",
 				dome: "The glass enclosure shelters the streets from exterior weather and sound.",
-				xchange: "Guest products, the daily purchase limit and the services that remain restricted.",
+				xchange: "Guest products, the daily purchase limit, and the services that remain restricted.",
 				cipher: "Where to exchange mainland cash, and why stored Cipher is separate from your wallet.",
 				forex: "What the quoted price means, why buying and selling prices differ, and why the rate keeps moving.",
-				transit: "Fares, sponsorship waivers and a dated snapshot of stop availability.",
+				transit: "Fares, sponsorship waivers, and a dated snapshot of stop availability.",
 				safety: "Understand district classifications without mistaking a rating for a guarantee.",
-				assessment: "Public recognition, threat assessment and access clearance have different effects.",
+				assessment: "Public recognition, threat assessment, and access clearance have different effects.",
 				cybernetics: "Basic Holo access does not authorize every advertised clinic or Registry service.",
-				hotel: "Room payment, sponsorship expiry and the limits of guest accommodation.",
-				shocks: "Large moves on the exchange reach shop counters, wages, transport and the streets.",
+				hotel: "Room payment, sponsorship expiry, and the limits of guest accommodation.",
+				shocks: "Large moves on the exchange reach shop counters, wages, transport, and the streets.",
 				streets: "A district that suddenly feels different is telling you something.",
 				prices: "An expensive city for wealthy visitors, and how to read a price that looks wrong.",
 				enforcement: "Two calls a day, uneven patrol coverage, and why a flagged account changes the answer.",
@@ -2121,7 +2121,7 @@ setup.arcologyNewsText = {
 			return { title: w.title, id: x.id, paragraphs: [...history, ...w.body.filter(Boolean).slice(0, 1), ...explanation.slice(0, 1).map(sentence)] };
 		});
 		const places = [...new Set(reports.map(x => this.district(x.d)))];
-		const where = places.length > 1 ? `${places.slice(0, -1).join(", ")} and ${places.at(-1)}` : places[0];
+		const where = places.length > 1 ? `${places.slice(0, -1).join(", ")}${places.length > 2 ? ", and " : " and "}${places.at(-1)}` : places[0];
 		const intro = reports.length
 			? `The week's main stories came from ${where}. Each story below includes what has happened since our previous report.`
 			: "No continuing story stood out this week. Routine notices and Citizen Reminders are in the archive.";
@@ -2150,7 +2150,7 @@ setup.arcologyNewsText = {
 			tone: "digest",
 			byline: "Dome Broadcast desk",
 			title: this.pick(rec, "t", ["The week on the island", "Seven days in review", "This week in the dome"]),
-			dek: sections.length ? "What changed this week, what it means for residents and what is still unknown." : "The week's publication record.",
+			dek: sections.length ? "What changed this week, what it means for residents, and what is still unknown." : "The week's publication record.",
 			body: [intro, ...sections.flatMap(s => s.paragraphs)],
 			sections,
 			note: rec.i ? `Dome Broadcast also reported ${rec.i} public incident${rec.i > 1 ? "s" : ""} involving visitors.` : "",

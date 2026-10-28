@@ -877,7 +877,7 @@ const autismAmbientLines = Object.freeze({
 	},
 	burnout: {
 		loud: [
-			"Voices, footsteps, traffic and other nearby noises reach you at the same time. You struggle to separate the sounds long enough to decide which ones matter.",
+			"You hear voices, footsteps, traffic, and other nearby noises at the same time. You struggle to identify individual sounds long enough to decide which ones matter.",
 			"The sounds around you blur together. Focusing on one takes effort, and you lose track of it whenever another noise interrupts.",
 			"You react to every nearby noise now, even when it has nothing to do with you. You try to focus on one sound at a time, but another interrupts before you can.",
 		],
@@ -886,7 +886,7 @@ const autismAmbientLines = Object.freeze({
 			"You realise you have been walking with your eyes partly closed. When you try to open them properly, the glare makes you narrow them again.",
 		],
 		both: [
-			"The glare hurts your eyes while every nearby sound demands your attention. You keep looking for somewhere darker and quieter because concentrating here is becoming difficult.",
+			"The glare hurts your eyes, and each nearby noise interrupts your thoughts. You look for somewhere darker and quieter where it would be easier to concentrate.",
 			"You struggle to ignore any of the light or noise around you. Your eyes stay narrowed while each new sound pulls your attention away from what you were trying to do.",
 		],
 	},
@@ -1503,12 +1503,12 @@ const autismMaskingProseCooldownHours = 4;
 const autismMaskingProseChance = 40;
 
 const autismMaskingLines = Object.freeze([
-	"You check your expression to make sure it looks right. A minute later, you check again. You cannot tell when your face changes unless you think about it.",
-	"You catch yourself rehearsing a friendlier tone in your head, in case you need to speak. It takes effort to stop checking how you might sound.",
-	"You run through possible replies in your head, preparing for questions nobody has asked yet.",
+	"You check whether your expression looks friendly, then find yourself checking it again a minute later. Keeping track of these changes takes concentration.",
+	"You notice that you are silently rehearsing a friendlier tone in case you need to speak, but find it difficult to stop checking how you might sound.",
+	"You think of possible replies, preparing for questions nobody has asked yet.",
 	"You notice that you have been keeping your shoulders in the same position. You relax them, then immediately wonder how you are supposed to hold them.",
 	"You keep wondering whether your expression looks natural. Each time you adjust it, you start thinking about it again.",
-	"You keep checking where you are looking and how long you hold your gaze there. Even that has become something you have to manage deliberately.",
+	"You keep checking where you are looking and how long you have looked there, trying to decide when to look away.",
 ]);
 
 /* The one "is the mask high" question, so scenes stop inventing their own thresholds. */

@@ -436,7 +436,7 @@
 				box("Faces on the fruit", "faces"),
 				box("Simple drawing", "simple", "Flat colours without shading or texture. Lighter on slow phones."),
 				box("Bold outlines", "bold"),
-				box("High contrast", "contrast", "Black jar, bright line and labels, bold outlines. Overrides the jar theme.")
+				box("High contrast", "contrast", "Black jar, bright lines and labels, and bold outlines. Overrides the jar theme.")
 			)
 		);
 		drawPreview();
@@ -505,7 +505,7 @@
 				{ class: "suika-fieldset" },
 				h("legend", null, "Vibration"),
 				checkbox(
-					"Vibrate on big merges, long chains and game over",
+					"Vibrate on big merges, long chains, and game over",
 					"haptics",
 					canVibrate ? null : "This device or browser cannot vibrate, so this does nothing here."
 				)

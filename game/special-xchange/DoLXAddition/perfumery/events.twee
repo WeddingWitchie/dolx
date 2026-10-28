@@ -1,5 +1,5 @@
 :: Perfumery Encounter Reply
-<<effects>>
+<<effects>><<pass 2>>
 <<set _pe to setup.perfumeryEncounters.finish()>>
 <<if _pe>>
 	<<include `"Perfumery " + (_pe.place is "street" ? "Street " : "Hallway ") + _pe.id`>>
@@ -21,11 +21,11 @@
 		You stop at a crossing beside a <<person>> who keeps looking your way. When the lights change, <<he>> stays beside you instead of crossing. "Sorry, what perfume is that? I could smell it when you were over by the bus shelter."
 	<</if>>
 	<br><br>
-	<<perfumeryEncounterChoice "Thank <<him>>" "thank" `{ stress: -2 }`>><<lstress>><br>
-	<<perfumeryEncounterChoice "Say you made it" "made">><br>
-	<<perfumeryEncounterChoice "Ask what <<he>> likes about it" "opinion">><br>
-	<<perfumeryOfferChoice "Give <<him>>" "give" `{ give: true }`>>
-	<<perfumeryEncounterChoice "Walk on" "leave">>
+	<<link "Thank <<him>>" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("thank", { stress: -2 })>><</link>><<lstress>><br>
+	<<link "Say you made it" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("made", {})>><</link>><br>
+	<<link "Ask what <<he>> likes about it" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("opinion", {})>><</link>><br>
+	<<if _pe.bottle>><<link `"Give <<him>> " + Util.escapeMarkup(_pe.bottle.name)` "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("give", { give: true })>><</link>><br><</if>>
+	<<link "Walk on" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("leave", {})>><</link>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "thank">>
@@ -65,10 +65,10 @@
 	<</if>>
 	<<if _pe.f.foul>>"It smells like <<perfumeryWord _pe.f.foul>>," <<he>> adds.<</if>> Two people nearby step away from you.
 	<br><br>
-	<<perfumeryEncounterChoice "Apologise" "sorry" `{ stress: 2 }`>><<gstress>><br>
-	<<perfumeryEncounterChoice "Explain the failed perfume" "explain">><br>
-	<<perfumeryEncounterChoice "Tell <<him>> to mind <<his>> business" "snap" `{ stress: 1 }`>><<gstress>><br>
-	<<perfumeryEncounterChoice "Walk away" "leave" `{ stress: 2 }`>><<gstress>>
+	<<link "Apologise" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("sorry", { stress: 2 })>><</link>><<gstress>><br>
+	<<link "Explain the failed perfume" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("explain", {})>><</link>><br>
+	<<link "Tell <<him>> to mind <<his>> business" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("snap", { stress: 1 })>><</link>><<gstress>><br>
+	<<link "Walk away" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("leave", { stress: 2 })>><</link>><<gstress>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "sorry">>
@@ -88,10 +88,10 @@
 	A <<person>> sitting outside a café lowers <<his>> newspaper as you walk past and quietly says, "<<print _pe.f.material.toUpperFirst()>>." It takes you a moment to realise <<hes>> talking about your perfume, and you stop. "Sorry. Is that <<print _pe.f.material.toLowerCase()>> I can smell?
 	<<if _pe.v lt 2>>My mother used to grow it."<<else>>I worked at a market stall for twenty years. I still remember that smell."<</if>>
 	<br><br>
-	<<perfumeryEncounterChoice "Say <<hes>> right" "yes">><br>
-	<<perfumeryEncounterChoice "Ask how <<he>> could tell" "how">><br>
-	<<perfumeryEncounterChoice "Say you made it yourself" "made" `{ stress: -2 }`>><<lstress>><br>
-	<<perfumeryEncounterChoice "Keep walking" "leave">>
+	<<link "Say <<hes>> right" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("yes", {})>><</link>><br>
+	<<link "Ask how <<he>> could tell" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("how", {})>><</link>><br>
+	<<link "Say you made it yourself" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("made", { stress: -2 })>><</link>><<lstress>><br>
+	<<link "Keep walking" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("leave", {})>><</link>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "yes">>
@@ -110,13 +110,13 @@
 <<if !_pe.choice>>
 	You hear someone calling for you outside the shopping centre. A <<person>> who was standing near one of the shops walks quickly towards you, a little out of breath. "Excuse me. I noticed your perfume when you walked past. Where did you get it? I've been looking for something like that for months."
 	<br><br>
-	<<perfumeryEncounterChoice "Say you made it" "made">><br>
+	<<link "Say you made it" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("made", {})>><</link>><br>
 	<<if _pe.bottle>>
 		<<set _peLabel to "Offer to sell " + Util.escapeMarkup(_pe.bottle.name) + " (" + formatMoney(_pe.bottle.price) + ")">>
-		<<perfumeryEncounterChoice _peLabel "sell" `{ sell: _pe.buys }`>><br>
+		<<link _peLabel "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("sell", { sell: _pe.buys })>><</link>><br>
 	<</if>>
-	<<perfumeryEncounterChoice "Say it was a present" "lie">><br>
-	<<perfumeryEncounterChoice "Say you're in a hurry" "leave">>
+	<<link "Say it was a present" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("lie", {})>><</link>><br>
+	<<link "Say you're in a hurry" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("leave", {})>><</link>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "made">>
@@ -144,9 +144,9 @@
 		"I could smell you from the other end of the street," <<he>> says, grinning. "Where are you off to?"
 	<</if>>
 	<br><br>
-	<<perfumeryEncounterChoice "Walk faster" "hurry" `{ stress: Time.dayState is "night" and _pe.v lt 2 ? 4 : 3, trauma: Time.dayState is "night" and _pe.v lt 2 ? 2 : 0 }`>><<gstress>><br>
-	<<perfumeryEncounterChoice "Tell <<him>> to leave you alone" "refuse" `{ stress: 2 }`>><<gstress>><br>
-	<<if Time.dayState isnot "night">><<perfumeryEncounterChoice "Go into the nearest shop" "shop" `{ stress: 1 }`>><<gstress>><br><</if>>
+	<<link "Walk faster" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("hurry", { stress: Time.dayState is "night" and _pe.v lt 2 ? 4 : 3, trauma: Time.dayState is "night" and _pe.v lt 2 ? 2 : 0 })>><</link>><<gstress>><br>
+	<<link "Tell <<him>> to leave you alone" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("refuse", { stress: 2 })>><</link>><<gstress>><br>
+	<<if Time.dayState isnot "night">><<link "Go into the nearest shop" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("shop", { stress: 1 })>><</link>><<gstress>><br><</if>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "hurry">>
@@ -167,10 +167,10 @@
 <<if !_pe.choice>>
 	Outside the bakery, a <<persons>> eating a sandwich. As you walk past, <<he>> stops eating and looks around, then turns towards you. "Have you got cake? I can smell cake, but I can't see any."
 	<br><br>
-	<<perfumeryEncounterChoice "Say it's your perfume" "explain">><br>
-	<<perfumeryEncounterChoice "Hold out your wrist" "wrist">><br>
-	<<perfumeryEncounterChoice "Say you already ate it" "joke" `{ stress: -2 }`>><<lstress>><br>
-	<<perfumeryEncounterChoice "Walk on" "leave">>
+	<<link "Say it's your perfume" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("explain", {})>><</link>><br>
+	<<link "Hold out your wrist" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("wrist", {})>><</link>><br>
+	<<link "Say you already ate it" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("joke", { stress: -2 })>><</link>><<lstress>><br>
+	<<link "Walk on" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("leave", {})>><</link>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "explain">>
@@ -193,14 +193,14 @@
 <<if !_pe.choice>>
 	A thin <<beasttype 0>> walking beside the road lifts <<bhis 0>> head as you pass. <<bHe 0>> turns and follows you for a few steps, smelling the air. When you slow down, <<bhe 0>> comes close to your hand<<if $NPCList[0].monster is "monster">>, then looks up at you with a hopeful smile<<else>> and starts wagging <<bhis 0>> tail<</if>>.
 	<br><br>
-	<<perfumeryEncounterChoice "Let <<bhim 0>> sniff" "let" `{ stress: -3 }`>><<lstress>><br>
+	<<link "Let <<bhim 0>> sniff" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("let", { stress: -3 })>><</link>><<lstress>><br>
 	<<if $NPCList[0].monster is "monster">>
-		<<perfumeryEncounterChoice "Offer to stroke <<bhis 0>> hair" "pet" `{ stress: -4 }`>><<lstress>><br>
+		<<link "Offer to stroke <<bhis 0>> hair" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("pet", { stress: -4 })>><</link>><<lstress>><br>
 	<<else>>
-		<<perfumeryEncounterChoice "Crouch down to pet <<bhim 0>>" "pet" `{ stress: -4 }`>><<lstress>><br>
+		<<link "Crouch down to pet <<bhim 0>>" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("pet", { stress: -4 })>><</link>><<lstress>><br>
 	<</if>>
-	<<perfumeryEncounterChoice "Shoo <<bhim 0>> away" "shoo">><br>
-	<<perfumeryEncounterChoice "Keep walking" "leave">>
+	<<link "Shoo <<bhim 0>> away" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("shoo", {})>><</link>><br>
+	<<link "Keep walking" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("leave", {})>><</link>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "let">>
@@ -223,10 +223,10 @@
 <<if !_pe.choice>>
 	At the flower stall on the corner, a <<persons>> wrapping a bunch of tulips. As you pass, <<he>> notices your perfume and looks up. "Can I give you some advice?" <<he>> asks. "I can mostly smell <<perfumeryWord _pe.f.dominant>>. You could try adding a little of something different, so it isn't the only smell."
 	<br><br>
-	<<perfumeryEncounterChoice "Thank <<him>>" "thank">><br>
-	<<perfumeryEncounterChoice "Ask what <<he>> would add" "ask">><br>
-	<<perfumeryEncounterChoice "Say you like it the way it is" "defend">><br>
-	<<perfumeryEncounterChoice "Ignore <<him>>" "ignore">>
+	<<link "Thank <<him>>" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("thank", {})>><</link>><br>
+	<<link "Ask what <<he>> would add" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("ask", {})>><</link>><br>
+	<<link "Say you like it the way it is" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("defend", {})>><</link>><br>
+	<<link "Ignore <<him>>" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("ignore", {})>><</link>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "thank">>
@@ -254,10 +254,10 @@
 <<if !_pe.choice>>
 	You walk past a group of people sitting on a bench. A few steps later, one of them calls after you. When you turn, a <<persons>> walking quickly towards you while <<his>> friends watch from the bench. "Sorry! My friends want to know what perfume you're wearing. We could still smell it after you walked past."
 	<br><br>
-	<<perfumeryEncounterChoice "Say you made it" "made" `{ stress: -2 }`>><<lstress>><br>
-	<<perfumeryEncounterChoice "Tell <<him>> its name" "name">><br>
-	<<perfumeryEncounterChoice "Let <<him>> smell your wrist" "wrist">><br>
-	<<perfumeryEncounterChoice "Wave and keep walking" "leave">>
+	<<link "Say you made it" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("made", { stress: -2 })>><</link>><<lstress>><br>
+	<<link "Tell <<him>> its name" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("name", {})>><</link>><br>
+	<<link "Let <<him>> smell your wrist" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("wrist", {})>><</link>><br>
+	<<link "Wave and keep walking" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("leave", {})>><</link>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "made">>
@@ -276,10 +276,10 @@
 <<if !_pe.choice>>
 	While you wait to cross the road, you realise your perfume no longer smells the way it did when you put it on. When you lift your wrist to check, the part you liked has almost gone, and you can smell <<perfumeryWord `_pe.f.foul ?? "stale"`>> instead. A <<person>> standing beside you has smelled it too, and <<he>> looks down at <<his>> shoes, checks the bottom of one, then glances at you.
 	<br><br>
-	<<perfumeryEncounterChoice "Explain it's your perfume" "explain">><br>
-	<<perfumeryEncounterChoice "Rub your wrist on your sleeve" "rub">><br>
-	<<perfumeryEncounterChoice "Check your own shoe" "pretend" `{ stress: -1 }`>><<lstress>><br>
-	<<perfumeryEncounterChoice "Cross the road quickly" "leave" `{ stress: 1 }`>><<gstress>>
+	<<link "Explain it's your perfume" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("explain", {})>><</link>><br>
+	<<link "Rub your wrist on your sleeve" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("rub", {})>><</link>><br>
+	<<link "Check your own shoe" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("pretend", { stress: -1 })>><</link>><<lstress>><br>
+	<<link "Cross the road quickly" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("leave", { stress: 1 })>><</link>><<gstress>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "explain">>
@@ -298,9 +298,9 @@
 <<if !_pe.choice>>
 	For the last two streets, the same footsteps have stayed close behind you, and you start to wonder whether someone is following you. When you stop under a streetlight to check, the footsteps stop too. Then a <<person>> steps forward into the light. "You smell nice," <<he>> says. "I noticed your perfume at the last corner and wanted to find out where it was coming from."
 	<br><br>
-	<<perfumeryEncounterChoice "Run" "run" `{ stress: _pe.v lt 2 ? 4 : 6, trauma: _pe.v lt 2 ? 0 : 3 }`>><<gstress>><br>
-	<<perfumeryEncounterChoice "Tell <<him>> to go away" "refuse" `{ stress: 3 }`>><<gstress>><br>
-	<<perfumeryEncounterChoice "Keep walking at the same pace" "walk" `{ stress: 3 }`>><<gstress>>
+	<<link "Run" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("run", { stress: _pe.v lt 2 ? 4 : 6, trauma: _pe.v lt 2 ? 0 : 3 })>><</link>><<gstress>><br>
+	<<link "Tell <<him>> to go away" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("refuse", { stress: 3 })>><</link>><<gstress>><br>
+	<<link "Keep walking at the same pace" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("walk", { stress: 3 })>><</link>><<gstress>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "run">>
@@ -322,8 +322,8 @@
 	<<if _peRobinHurt>>
 		Robin passes you in the corridor without looking at you. A few steps farther on, <<nnpc_he "Robin">> slows down and seems to notice your perfume. <<nnpc_He "Robin">> turns <<nnpc_his "Robin">> head slightly towards you but keeps walking without saying anything.
 		<br><br>
-		<<perfumeryEncounterChoice "Call after Robin" "call">><br>
-		<<perfumeryEncounterChoice "Let Robin go" "let">>
+		<<link "Call after Robin" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("call", {})>><</link>><br>
+		<<link "Let Robin go" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("let", {})>><</link>>
 	<<else>>
 		<<if _pe.r.kind is "familiar" and C.npc.Robin.trauma gte 40>>
 			Robin is standing alone by the lockers, holding <<nnpc_his "Robin">> bag against <<nnpc_his "Robin">> chest. When you stop beside <<nnpc_him "Robin">>, <<nnpc_he "Robin">> looks at you and relaxes a little. "That's the perfume you wear when we study together," <<nnpc_he "Robin">> says quietly. "I like it. Can you stay here with me for a minute?"
@@ -341,10 +341,10 @@
 			You meet Robin beside the noticeboard. <<nnpc_He "Robin">> looks at you, then takes a moment to work out what's different. "Is that perfume? I don't think I've smelled that one before."
 		<</if>>
 		<br><br>
-		<<perfumeryEncounterChoice "Say you made it" "made" `{ love: _pe.r.tone is "good" ? 1 : 0 }`>><<if _pe.r.tone is "good">><<glove>><</if>><br>
-		<<perfumeryEncounterChoice "Ask Robin what <<nnpc_he 'Robin'>> thinks" "ask">><br>
-		<<if _pe.r.tone isnot "bad" and C.npc.Robin.love gte 30>><<perfumeryEncounterChoice "Rub your wrist on Robin's" "share" `{ love: 1, stress: -2 }`>><<glove>><<lstress>><br><</if>>
-		<<perfumeryEncounterChoice "Say you have to get to class" "leave">>
+		<<link "Say you made it" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("made", { love: _pe.r.tone is "good" ? 1 : 0 })>><</link>><<if _pe.r.tone is "good">><<glove>><</if>><br>
+		<<link "Ask Robin what <<nnpc_he 'Robin'>> thinks" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("ask", {})>><</link>><br>
+		<<if _pe.r.tone isnot "bad" and C.npc.Robin.love gte 30>><<link "Rub your wrist on Robin's" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("share", { love: 1, stress: -2 })>><</link>><<glove>><<lstress>><br><</if>>
+		<<link "Say you have to get to class" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("leave", {})>><</link>>
 	<</if>>
 <<else>>
 	<<switch _pe.choice>>
@@ -385,9 +385,9 @@
 		<br><br>
 		"Don't you fucking tell anyone about this," <<nnpc_he "Whitney">> says, still holding your arm. "I mean it, slut."
 		<br><br>
-		<<perfumeryEncounterChoice "Ask if <<nnpc_he 'Whitney'>> likes it" "ask" `{ love: 1 }`>><<glove>><br>
-		<<perfumeryEncounterChoice "Stay still" "stay">><br>
-		<<perfumeryEncounterChoice "Push <<nnpc_him 'Whitney'>> off" "push">>
+		<<link "Ask if <<nnpc_he 'Whitney'>> likes it" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("ask", { love: 1 })>><</link>><<glove>><br>
+		<<link "Stay still" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("stay", {})>><</link>><br>
+		<<link "Push <<nnpc_him 'Whitney'>> off" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("push", {})>><</link>>
 	<<else>>
 		Whitney is standing by the lockers with two friends. When you try to walk past, <<nnpc_he "Whitney">> steps in front of you, making you stop. <<nnpc_He "Whitney">> takes a loud breath through <<nnpc_his "Whitney">> nose, then does it again while <<nnpc_his "Whitney">> friends watch.
 		<<if _pe.r.kind is "personal">>
@@ -402,10 +402,10 @@
 			One of the friends makes a kissing noise.
 		<</if>>
 		<br><br>
-		<<perfumeryEncounterChoice "Say you made it" "made">><br>
-		<<perfumeryEncounterChoice "Say Whitney smells of smoke" "back" `{ dom: C.npc.Whitney.dom gte 30 ? 1 : 0, pain: C.npc.Whitney.dom gte 30 ? 2 : 0 }`>><br>
-		<<perfumeryEncounterChoice "Push past" "push" `{ stress: 1 }`>><<gstress>><br>
-		<<perfumeryEncounterChoice "Wait for <<nnpc_him 'Whitney'>> to get bored" "wait" `{ stress: 2 }`>><<gstress>>
+		<<link "Say you made it" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("made", {})>><</link>><br>
+		<<link "Say Whitney smells of smoke" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("back", { dom: C.npc.Whitney.dom gte 30 ? 1 : 0, pain: C.npc.Whitney.dom gte 30 ? 2 : 0 })>><</link>><br>
+		<<link "Push past" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("push", { stress: 1 })>><</link>><<gstress>><br>
+		<<link "Wait for <<nnpc_him 'Whitney'>> to get bored" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("wait", { stress: 2 })>><</link>><<gstress>>
 	<</if>>
 <<else>>
 	<<switch _pe.choice>>
@@ -446,9 +446,9 @@
 		Kylar comes over and starts walking beside you without saying hello. After a few steps, <<nnpc_he "Kylar">> notices your perfume and glances at you. "Y-you smell different today," <<nnpc_he "Kylar">> says. "Is that a new perfume?"
 	<</if>>
 	<br><br>
-	<<perfumeryEncounterChoice "Say you made it yourself" "made" `{ rage: C.npc.Kylar.rage gte 20 ? -2 : 0, love: _pe.r.tone isnot "bad" ? 1 : 0 }`>><<if C.npc.Kylar.rage gte 20>><<lksuspicion>><</if>><br>
-	<<if C.npc.Kylar.love gte 30>><<perfumeryEncounterChoice "Say you wore it for Kylar" "forkylar" `{ love: 1, rage: -1 }`>><<glove>><<lksuspicion>><br><</if>>
-	<<perfumeryEncounterChoice "Say it's none of Kylar's business" "mine" `{ rage: C.npc.Kylar.rage gte 20 ? 2 : 0 }`>><<if C.npc.Kylar.rage gte 20>><<gksuspicion>><</if>>
+	<<link "Say you made it yourself" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("made", { rage: C.npc.Kylar.rage gte 20 ? -2 : 0, love: _pe.r.tone isnot "bad" ? 1 : 0 })>><</link>><<if C.npc.Kylar.rage gte 20>><<lksuspicion>><</if>><br>
+	<<if C.npc.Kylar.love gte 30>><<link "Say you wore it for Kylar" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("forkylar", { love: 1, rage: -1 })>><</link>><<glove>><<lksuspicion>><br><</if>>
+	<<link "Say it's none of Kylar's business" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("mine", { rage: C.npc.Kylar.rage gte 20 ? 2 : 0 })>><</link>><<if C.npc.Kylar.rage gte 20>><<gksuspicion>><</if>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "made">>
@@ -481,10 +481,10 @@
 		Sydney is walking towards the library with several books. You hold the door open, and <<nnpc_he "Sydney">> thanks you before noticing your perfume. "Did you make that yourself? It smells more like real flowers and plants than the perfume they sell in shops."
 	<</if>>
 	<br><br>
-	<<perfumeryEncounterChoice "Explain how you made it" "explain" `{ love: _pe.r.craft gt 0.3 or _pe.r.tone is "good" ? 1 : 0 }`>><<if _pe.r.craft gt 0.3 or _pe.r.tone is "good">><<glove>><</if>><br>
-	<<perfumeryEncounterChoice "Ask what Sydney thinks" "ask">><br>
-	<<perfumeryEncounterChoice "Help carry the books" "help">><br>
-	<<if _peSydCorrupt>><<perfumeryEncounterChoice "Ask if it's distracting" "tease">><br><</if>>
+	<<link "Explain how you made it" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("explain", { love: _pe.r.craft gt 0.3 or _pe.r.tone is "good" ? 1 : 0 })>><</link>><<if _pe.r.craft gt 0.3 or _pe.r.tone is "good">><<glove>><</if>><br>
+	<<link "Ask what Sydney thinks" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("ask", {})>><</link>><br>
+	<<link "Help carry the books" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("help", {})>><</link>><br>
+	<<if _peSydCorrupt>><<link "Ask if it's distracting" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("tease", {})>><</link>><br><</if>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "explain">>
@@ -513,9 +513,9 @@
 <<if !_pe.choice>>
 	A <<person>> who has been walking behind you moves closer until <<hes>> beside you. "Have you got something to eat? I missed breakfast, and I can smell <<perfumeryWord _pe.f.dominant>>."
 	<br><br>
-	<<perfumeryEncounterChoice "Say it's your perfume" "explain">><br>
-	<<perfumeryEncounterChoice "Let <<him>> smell your wrist" "wrist">><br>
-	<<perfumeryEncounterChoice "Say you ate it all" "joke" `{ stress: -2 }`>><<lstress>>
+	<<link "Say it's your perfume" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("explain", {})>><</link>><br>
+	<<link "Let <<him>> smell your wrist" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("wrist", {})>><</link>><br>
+	<<link "Say you ate it all" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("joke", { stress: -2 })>><</link>><<lstress>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "explain">>
@@ -533,10 +533,10 @@
 	You are waiting with other students outside a classroom when the <<person>> beside you begins waving a hand in front of <<his>> nose. "Who's wearing that perfume? It's making my eyes water." Other students turn towards the smell, then look at you.
 	<<if _pe.f.foul>>Someone farther down the queue complains that it smells like <<perfumeryWord _pe.f.foul>>.<</if>>
 	<br><br>
-	<<perfumeryEncounterChoice "Say it's yours" "own" `{ stress: 1 }`>><<gstress>><br>
-	<<perfumeryEncounterChoice "Apologise" "sorry" `{ stress: 2 }`>><<gstress>><br>
-	<<perfumeryEncounterChoice "Go and wash it off (0:05)" "wash" `{ wash: true, pass: 5 }`>><br>
-	<<perfumeryEncounterChoice "Pretend you can't smell anything" "pretend" `{ stress: 2 }`>><<gstress>>
+	<<link "Say it's yours" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("own", { stress: 1 })>><</link>><<gstress>><br>
+	<<link "Apologise" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("sorry", { stress: 2 })>><</link>><<gstress>><br>
+	<<link "Go and wash it off (0:05)" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("wash", { wash: true, pass: 5 })>><</link>><br>
+	<<link "Pretend you can't smell anything" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("pretend", { stress: 2 })>><</link>><<gstress>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "own">>
@@ -555,13 +555,13 @@
 <<if !_pe.choice>>
 	While you're walking up the school stairs, a <<person>> from your year calls to you and stops beside you. "Where did you get that perfume? I really like it. Which shop sells it?"
 	<br><br>
-	<<perfumeryEncounterChoice "Say you made it" "made">><br>
+	<<link "Say you made it" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("made", {})>><</link>><br>
 	<<if _pe.bottle>>
 		<<set _peLabel to "Offer to sell " + Util.escapeMarkup(_pe.bottle.name) + " (" + formatMoney(_pe.bottle.price) + ")">>
-		<<perfumeryEncounterChoice _peLabel "sell" `{ sell: _pe.buys }`>><br>
+		<<link _peLabel "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("sell", { sell: _pe.buys })>><</link>><br>
 	<</if>>
-	<<perfumeryEncounterChoice "Make up a shop" "lie">><br>
-	<<perfumeryEncounterChoice "Say it's a secret" "secret">>
+	<<link "Make up a shop" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("lie", {})>><</link>><br>
+	<<link "Say it's a secret" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("secret", {})>><</link>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "made">>
@@ -584,10 +584,10 @@
 <<if !_pe.choice>>
 	You are passing the lockers when a <<person>> you recognise from science lessons walks over to speak to you. "Someone told me you make your own perfume. Is that true? How do you make it?"
 	<br><br>
-	<<perfumeryEncounterChoice "Explain the basics" "explain" `{ control: 2 }`>><<gcontrol>><br>
-	<<perfumeryEncounterChoice "Let <<him>> smell your wrist first" "wrist">><br>
-	<<perfumeryEncounterChoice "Say it's too hard to explain" "short">><br>
-	<<perfumeryEncounterChoice "Say it's a secret" "secret">>
+	<<link "Explain the basics" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("explain", { control: 2 })>><</link>><<gcontrol>><br>
+	<<link "Let <<him>> smell your wrist first" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("wrist", {})>><</link>><br>
+	<<link "Say it's too hard to explain" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("short", {})>><</link>><br>
+	<<link "Say it's a secret" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("secret", {})>><</link>>
 <<else>>
 	<<switch _pe.choice>>
 	<<case "explain">>
@@ -624,12 +624,12 @@
 	<</if>>
 	<br><br>
 	<<if _peUnusual>>
-		<<perfumeryEncounterChoice "Say you made it yourself" "made">><br>
-		<<perfumeryEncounterChoice "Give a vague answer" "vague">><br>
+		<<link "Say you made it yourself" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("made", {})>><</link>><br>
+		<<link "Give a vague answer" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("vague", {})>><</link>><br>
 	<<else>>
-		<<perfumeryEncounterChoice "Apologise" "sorry">><br>
-		<<perfumeryEncounterChoice "Go and wash it off (0:05)" "wash" `{ wash: true, pass: 5 }`>><br>
-		<<perfumeryEncounterChoice "Argue that perfume is allowed" "argue" `{ detention: 1 }`>><<gdelinquency>><br>
+		<<link "Apologise" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("sorry", {})>><</link>><br>
+		<<link "Go and wash it off (0:05)" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("wash", { wash: true, pass: 5 })>><</link>><br>
+		<<link "Argue that perfume is allowed" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("argue", { detention: 1 })>><</link>><<gdelinquency>><br>
 	<</if>>
 <<else>>
 	<<switch _pe.choice>>
@@ -660,13 +660,13 @@
 	<</if>>
 	<br><br>
 	<<if _pe.v lt 2>>
-		<<perfumeryEncounterChoice "Go over to the <<person>>" "look">><br>
-		<<perfumeryEncounterChoice "Keep the note" "keep" `{ stress: -3 }`>><<lstress>><br>
-		<<perfumeryEncounterChoice "Throw it away" "bin">>
+		<<link "Go over to the <<person>>" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("look", {})>><</link>><br>
+		<<link "Keep the note" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("keep", { stress: -3 })>><</link>><<lstress>><br>
+		<<link "Throw it away" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("bin", {})>><</link>>
 	<<else>>
-		<<perfumeryEncounterChoice "Say thank you" "thank" `{ stress: -2 }`>><<lstress>><br>
-		<<perfumeryEncounterChoice "Tease <<him>>" "tease">><br>
-		<<perfumeryEncounterChoice "Tell <<him>> to back off" "back">>
+		<<link "Say thank you" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("thank", { stress: -2 })>><</link>><<lstress>><br>
+		<<link "Tease <<him>>" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("tease", {})>><</link>><br>
+		<<link "Tell <<him>> to back off" "Perfumery Encounter Reply">><<run setup.perfumeryEncounters.resolve("back", {})>><</link>>
 	<</if>>
 <<else>>
 	<<switch _pe.choice>>

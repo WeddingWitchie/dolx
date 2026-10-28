@@ -48,7 +48,7 @@
 		cream: ["butter", "caramel", "leaf", "crumb", "ferment", "sharp"],
 		scottish_bog_myrtle: ["spice", "leaf", "petal", "root", "peel", "pollen"],
 	};
-	// Weak, scentless, bodily, bait, toxic and story-sensitive stock is never inferred into an accord.
+	// Weak, scentless, bodily, bait, toxic, and story-sensitive stock is never inferred into an accord.
 	const excluded = new Set([
 		"salt",
 		"sugar",
@@ -138,7 +138,7 @@
 		const entry = registry()[id];
 		const m = setup.perfumeryModel;
 		if (!entry || !entry.methods.includes(method) || !Number.isInteger(mask) || mask < 1 || mask > 63 || !["purity", "yield", "stability"].includes(finish))
-			throw new Error("Choose a supported approach, fragments and finish.");
+			throw new Error("Choose a supported approach, fragments, and finish.");
 		const fragments = puzzle(id);
 		const selected = fragments.filter((_, i) => mask & (1 << i));
 		if (selected.length < 2) throw new Error("Keep at least two connected ideas in the scent.");
@@ -226,36 +226,211 @@
 	// Translate facet names into smells for the extraction controls.
 	const facetWords = {
 		petal: "soft flower petals",
-		leaf: "green and leafy",
-		pollen: "dusty, honeyed",
+		leaf: "fresh green leaves",
+		pollen: "dry, honeyed pollen",
 		peel: "bright citrus peel",
-		juice: "fresh and juicy",
+		juice: "juicy fruit",
 		jam: "cooked, jammy fruit",
-		butter: "rich and buttery",
-		crumb: "baked crumb",
+		butter: "rich dairy notes",
+		crumb: "baked crumbs",
 		caramel: "caramel sweetness",
 		cocoa: "dark cocoa",
 		spice: "warm spice",
 		root: "damp earth",
 		umami: "savoury depth",
-		sharp: "sharp and pungent",
-		ferment: "sour, fermented",
-		toast: "toasted",
+		sharp: "a sharp, pungent edge",
+		ferment: "a sour, fermented edge",
+		toast: "toasted grain",
 	};
+	const sourceDescriptions = {
+		apple: "Fresh apple has a light, juicy scent with a little sweetness.",
+		butter: "Butter has a rich, fatty scent that can make a blend smell heavy.",
+		oats: "Oats have a dry, grainy smell with a faint toasted warmth.",
+		cream: "Cream has a soft, rich dairy smell, with sour traces you can remove.",
+		apple_crumble: "Apple crumble smells of baked apple and buttery crumbs, warm and sweet.",
+		pastry: "Pastry smells of butter, baked dough, and lightly toasted crumbs.",
+		honey: "Honey has a thick sweetness, with soft traces of flowers and pollen.",
+		apple_strudel: "Apple strudel smells of juicy fruit and buttery baked pastry.",
+		onion: "Onion has green, earthy, and pungent parts that can make a perfume smell more savoury.",
+		garlic_bulb: "Garlic has a sharp, pungent smell, with green and earthy parts.",
+		white_wine: "White wine smells of juicy fruit and citrus, with a fermented edge.",
+		cheese: "Cheese has a rich dairy scent, with savoury, fermented, and pungent parts.",
+		lemon: "Lemon has a bright citrus scent that suits the perfume's opening note.",
+		truffle: "Truffle has a deep, damp, earthy smell that lasts well in a base note.",
+		arancini: "Arancini smell of buttery crumbs, green traces, and earth.",
+		bacon: "Bacon has a strong savoury smell, with toasted and earthy parts.",
+		shortbread: "Shortbread has a buttery biscuit scent, like warm baked crumbs.",
+		cherry: "Cherry smells of juicy fruit, sweet cooked fruit, and a little green sharpness.",
+		bakewell_tart: "Bakewell tart smells of buttery pastry and sweet fruit.",
+		banana: "Banana has a soft, sweet fruit smell, with green and earthy parts.",
+		banana_bread: "Banana bread smells of sweet fruit and buttery, toasted crumbs.",
+		sausage: "Sausage has a savoury smell, with earthy, toasted, and pungent parts.",
+		bangers_and_mash: "Bangers and mash smell of savoury meat and buttery, sweet cooked potato.",
+		bass: "Bass has a savoury fish scent, with sharp and green parts you can remove.",
+		beef: "Beef has a full savoury smell, with toasted and earthy parts.",
+		mushroom: "Mushroom smells of damp earth, with a savoury depth and a faint fermented edge.",
+		beef_wellington: "Beef Wellington smells of savoury meat, earth, and buttery pastry.",
+		belgian_bun: "Belgian bun smells of juicy fruit and warm baked dough.",
+		blackberry: "Blackberry smells of juicy fruit and jam-like sweetness, with a green edge.",
+		blood_lemon: "Blood lemon smells of bright citrus peel, juicy fruit, and green traces.",
+		bog_orchid: "Bog orchid smells of flower petals and pollen, with green and earthy parts.",
+		bread: "Bread has a warm, crumbly scent, with toasted edges and a little butter.",
+		broccoli: "Broccoli has a green vegetable scent, with earthy and pungent parts.",
+		chocolate: "Chocolate smells of dark cocoa, caramel, and rich butter.",
+		brownie: "Brownie smells of cocoa, caramel, and buttery, toasted crumbs.",
+		cabbage: "Cabbage has a leafy green smell, with earthy and pungent traces.",
+		pork: "Pork has a savoury scent, with toasted and earthy parts.",
+		carbonara: "Carbonara smells of dairy, savoury food, and cooked sweetness.",
+		carnation: "Carnation smells of petals and dry pollen, with green and spicy traces.",
+		wild_carrot: "Wild carrot smells of green leaves, damp earth, and a little warm spice.",
+		carrot_cake: "Carrot cake smells of earthy vegetables, juicy fruit, butter, and caramel.",
+		cauliflower: "Cauliflower has a green, earthy scent, with savoury and pungent parts.",
+		cauliflower_cheese: "Cauliflower cheese smells of leafy vegetables, rich dairy, and toasted crumbs.",
+		cheese_and_crackers: "Cheese and crackers smell of savoury dairy and dry, toasted crumbs.",
+		trout: "Trout smells of savoury fish, with a pungent edge and light green traces.",
+		cheese_topped_trout: "Cheese-topped trout smells of savoury fish and rich dairy.",
+		tomato: "Tomato smells of green leaves and juicy flesh, with earthy and savoury parts.",
+		cheeseburger: "Cheeseburger smells of savoury cooked meat, dairy, and toasted bread.",
+		chelsea_bun: "Chelsea bun smells of buttery dough and caramel, with a toasted edge.",
+		chicken: "Chicken has a savoury smell, with toasted, earthy, and sharp parts.",
+		naan_bread: "Naan bread has a soft baked-dough scent, with buttery and toasted traces.",
+		chicken_tikka_masala: "Chicken tikka masala smells of savoury food, green traces, and toasted warmth.",
+		chilli_pepper: "Chilli pepper smells of green leaves, warm spice, and earth.",
+		chicken_vindaloo: "Chicken vindaloo smells savoury and toasted, with green and earthy parts.",
+		chilli_con_carne: "Chilli con carne has a savoury cooked-food scent, with green and earthy traces.",
+		chips: "Chips smell of toasted edges, rich savoury warmth, and earth.",
+		choc_chip_cookie: "Chocolate-chip cookie smells of buttery crumbs, caramel, and dark cocoa.",
+		chub: "Chub has a savoury fish scent, with sharp and green parts.",
+		clam: "Clam has a savoury seafood smell with a pungent edge.",
+		clam_chowder: "Clam chowder smells of savoury seafood and rich cooked ingredients.",
+		cloudberry: "Cloudberry smells of juicy fruit and jam-like sweetness, with light traces of peel and leaves.",
+		clover: "Clover smells of soft petals, pollen, and green leaves.",
+		cocoa_powder: "Cocoa powder smells of dark cocoa and toasted warmth, with a dry, earthy edge.",
+		cod: "Cod has a savoury fish smell, with sharp and green parts you can remove.",
+		creme_brulee: "Crème brûlée smells of rich dairy, caramel, and warm cooked sweetness.",
+		crumpet: "Crumpet smells of buttery baked dough, toasted crumbs, and a faint fermented edge.",
+		daffodil: "Daffodil smells of petals, dry pollen, and green leaves, with earthy traces.",
+		daisy: "Daisy has a light, fresh, leafy smell that suits an opening note.",
+		date: "Date smells of sweet, jam-like fruit, with a little green and earthy depth.",
+		eel: "Eel smells of savoury seafood, with pungent traces and light green parts.",
+		fish_and_chips: "Fish and chips smell of savoury fish, toasted crumbs, and earth.",
+		flapjack: "Flapjack smells of buttery grain and cooked sweetness, with toasted edges.",
+		flounder: "Flounder has a savoury fish smell, with sharp and green parts.",
+		four_leaf_clover: "Four-leaf clover smells of petals, pollen, and fresh green leaves.",
+		full_english_breakfast: "Full English breakfast has a strong smell of savoury food and toasted ingredients.",
+		grayling: "Grayling has a savoury fish smell, with pungent and green traces.",
+		haddock: "Haddock has a savoury seafood scent, with sharp parts you can keep or remove.",
+		hamburger: "Hamburger smells of savoury cooked food, with toasted and earthy parts.",
+		hen_of_the_woods: "Hen of the woods has a damp, earthy scent with a savoury depth.",
+		herring: "Herring smells of savoury fish, with a pungent edge and light green traces.",
+		hibiscus: "Hibiscus smells of flower petals and dry pollen, with green and earthy parts.",
+		honeyed_pork: "Honeyed pork smells of savoury cooked meat and honey.",
+		hot_cocoa: "Hot cocoa smells of cocoa, rich sweetness, and warm cooked ingredients.",
+		jam: "Jam smells of cooked fruit and caramel, with traces of peel and flowers.",
+		jammie_dodger: "Jammie dodger smells of buttery biscuit crumbs and sweet, jammy fruit.",
+		kedgeree: "Kedgeree smells of savoury cooked food and buttery crumbs, with bright fruit traces.",
+		lady_orchid: "Lady orchid smells of flower petals, pollen, green leaves, and damp earth.",
+		lasagne: "Lasagne has a rich cooked-food scent, with savoury, dairy, and toasted parts.",
+		lemon_meringue_pie: "Lemon meringue pie smells of bright fruit, citrus peel, and buttery cooked sweetness.",
+		lemonade: "Lemonade smells of juicy citrus and peel, with cooked-sweet and fermented traces you can remove.",
+		lily: "Lily has a strong floral scent that works well as the heart note.",
+		lime: "Lime smells of juicy fruit, bright peel, and fresh green leaves.",
+		linguine: "Linguine smells of warm cooked ingredients, with grainy and toasted parts.",
+		lotus: "Lotus has a gentle, fresh floral scent that suits the heart note.",
+		macaroni_cheese: "Macaroni cheese has a rich dairy scent, with savoury and toasted parts.",
+		mackerel: "Mackerel has a savoury fish smell, with pungent and fermented traces.",
+		marsh_saxifrage: "Marsh saxifrage smells of petals and pollen, with green and earthy parts.",
+		melting_moment: "Melting moment smells of buttery biscuit crumbs and warm cooked sweetness.",
+		mince_pie: "Mince pie smells of sweet fruit and buttery pastry, with a toasted edge.",
+		omelette: "Omelette has a rich cooked-food smell, with buttery and toasted parts.",
+		onion_bhaji: "Onion bhaji smells green and earthy, like warm cooked vegetables.",
+		orange: "Orange has a sweet citrus scent that is bright at first and fades quickly.",
+		orange_juice: "Orange juice smells of juicy fruit, citrus peel, and cooked sweetness.",
+		orchid: "Orchid has a rich floral and earthy scent that lasts well in a base note.",
+		pansy: "Pansy smells of petals, dry pollen, and green leaves.",
+		peach: "Peach has a soft, sweet fruit scent that suits the heart of a perfume.",
+		peach_panzanella: "Peach panzanella smells of juicy fruit and warm, grainy cooked food.",
+		pear: "Pear smells of juicy fruit and soft sweetness, with a little green depth.",
+		pepper: "Pepper has green and spicy parts, with an earthy, savoury smell.",
+		perch: "Perch smells of savoury fish, with sharp and green parts you can remove.",
+		pike: "Pike has a savoury seafood smell, with pungent and earthy traces.",
+		pink_rose: "Pink rose smells of flower petals, pollen, green leaves, and earth.",
+		pizza: "Pizza has a rich cooked-food scent, with savoury ingredients and toasted dough.",
+		plum: "Plum smells of juicy fruit and jam-like sweetness, with a little earthy depth.",
+		plum_pudding: "Plum pudding smells of sweet fruit and warm cooked ingredients.",
+		plumeria: "Plumeria smells of sweet, rich flowers that last well in the base of a perfume.",
+		red_wine: "Red wine smells of jammy fruit and flowers, with a fermented edge.",
+		poached_pear: "Poached pear smells of juicy fruit and warm cooked sweetness.",
+		porridge: "Porridge has a soft grain scent, with lightly toasted and earthy parts.",
+		potato_pancake: "Potato pancake smells of earthy vegetables and warm toasted crumbs.",
+		prawn: "Prawn has a savoury seafood scent, with sharp and green traces.",
+		prawn_bisque: "Prawn bisque smells of savoury seafood and rich, warm cooked food.",
+		primrose: "Primrose smells of flower petals, dry pollen, and green leaves.",
+		pumpkin: "Pumpkin smells green and earthy, with a little warm spice.",
+		pumpkin_drink: "Pumpkin drink has green, earthy, and cooked-sweet parts you can keep.",
+		pumpkin_pie: "Pumpkin pie smells of earthy vegetables, buttery pastry, and cooked sweetness.",
+		quiche: "Quiche smells of rich cooked ingredients and buttery, toasted pastry.",
+		red_helleborine: "Red helleborine smells of flower petals and pollen, with green and earthy traces.",
+		red_rose: "Red rose has a soft, sweet floral smell that suits the heart of a blend.",
+		rich_biscuit: "Rich biscuit smells of toasted crumbs and cooked sweetness, with fruity traces.",
+		roach: "Roach has a savoury fish scent, with pungent and green parts.",
+		yorkshire_pudding: "Yorkshire pudding has a buttery baked-dough smell with toasted edges.",
+		stuffing: "Stuffing smells grainy, toasted, and earthy, like its cooked ingredients.",
+		turnip: "Turnip has a green vegetable scent, with earthy, savoury, and sharp parts.",
+		roast_dinner: "Roast dinner smells of savoury food, toasted grain, and rich cooked ingredients.",
+		spinach: "Spinach has a leafy green smell, with damp earth and savoury traces.",
+		salad: "Salad smells of fresh green leaves and juicy fruit, with earthy parts.",
+		salmon: "Salmon has a savoury fish scent, with sharp and fermented parts you can remove.",
+		salmon_wellington: "Salmon Wellington smells of savoury fish, buttery pastry, and earth.",
+		samosa: "Samosa smells of buttery cooked ingredients, with green, earthy, and juicy parts.",
+		sausage_roll: "Sausage roll smells of savoury meat, toasted pastry, and butter.",
+		scone: "Scone has a buttery baked-crumb scent, with toasted and faintly fermented traces.",
+		scottish_bog_myrtle: "Scottish bog myrtle smells of warm spice, green leaves, and soft flowers.",
+		small_bass: "Small bass smells of savoury seafood, with sharp and green parts you can remove.",
+		small_carp: "Small carp has a savoury fish scent, with pungent and earthy traces.",
+		small_herring: "Small herring smells of savoury seafood, with a sharp edge and green parts.",
+		small_trout: "Small trout has a savoury fish smell, with sharp and green parts.",
+		souffle: "Soufflé has a rich dairy scent, with cooked sweetness and buttery crumbs.",
+		spaghetti_bolognese: "Spaghetti bolognese smells of savoury food, earthy vegetables, and toasted warmth.",
+		spiked_rampion: "Spiked rampion smells of flower petals, dry pollen, leaves, and earth.",
+		sponge_cake: "Sponge cake smells of buttery crumbs, cooked sweetness, and fruit.",
+		steak: "Steak has a strong savoury scent, with toasted and earthy parts.",
+		sticky_toffee_pudding: "Sticky toffee pudding smells of sweet fruit, butter, caramel, and toasted crumbs.",
+		strawberry: "Strawberry smells of juicy fruit and jam-like sweetness, with a fresh green edge.",
+		stuffed_pumpkin: "Stuffed pumpkin smells of earthy vegetables, savoury food, and rich cooked sweetness.",
+		sunflower: "Sunflower smells of petals, dry pollen, green leaves, and earth.",
+		sweet_and_sour_chicken: "Sweet and sour chicken smells of savoury cooked food, with green and earthy parts.",
+		swiss_roll: "Swiss roll smells of buttery cake crumbs and sweet, jammy fruit.",
+		tart: "Tart smells of buttery crumbs, cocoa, and cooked sweetness, with toasted edges.",
+		tulip: "Tulip has a fresh, leafy scent and soft flowers that suit the heart note.",
+		turnip_soup: "Turnip soup smells green and earthy, with a toasted, grainy warmth.",
+		valentines_chocolate: "Valentines chocolate smells of cocoa, buttery crumbs, and toasted sweetness.",
+		white_rose: "White rose has a light, fresh floral scent that suits the heart note.",
+		whiting: "Whiting has a savoury fish smell, with sharp and green traces.",
+		wild_honeycomb: "Wild honeycomb has a deep, long-lasting sweetness with earthy traces.",
+	};
+	function description(key, profile = key.startsWith("aroma~") ? setup.perfumeryExtraction.resolve(key) : null) {
+		if (profile && key.startsWith("aroma~")) {
+			const parts = profile.selected.map(part => facetWords[part]);
+			const scents = `${parts.slice(0, -1).join(", ")}${parts.length > 2 ? ", and " : " and "}${parts.at(-1)}`;
+			return `This ${setup.foodstuff[profile.source]?.name || profile.source} extract keeps ${scents}.`;
+		}
+		return sourceDescriptions[key] || `You can separate the ${setup.foodstuff[key]?.name || key} scent into its individual parts.`;
+	}
 	const kindWords = {
 		"natural aromatic": "Natural scent",
 		"strong aromatic": "Strong scent",
 		"reconstructed accord": "Cooked food, rebuilt from its ingredients",
 	};
 	const methodHelp = {
-		capture: "Keeps the light, quick parts. Fewer measures.",
-		balanced: "Keeps a little of everything.",
-		deep: "Favours heavy, lasting parts. Raw ingredients only.",
+		capture: "Collect the lighter parts of the scent, which escape from the ingredient quickly. This method usually collects fewer measures.",
+		balanced: "Give the lighter and heavier parts equal attention while separating the scent.",
+		deep: "Collect more of the heavier parts, which last longer on your skin. This method is available only for uncooked ingredients.",
 	};
 	const finishHelp = [
-		["stability", "Lasting", "Holds together and wears longer."],
-		["purity", "Clear", "Cleaner scent, one fewer measure. Tames harsh parts."],
-		["yield", "More measures", "Two extra measures, but each is softer."],
+		["stability", "Help the scent last", "Help the scent keep its balance and make its heavier parts last longer."],
+		["purity", "Soften harsh parts", "Collect a clearer scent with less pungency, usually at the cost of one measure."],
+		["yield", "Collect more aroma", "Collect two extra measures, with a softer scent in each one."],
 	];
 	const word = (n, steps) => steps.find(([limit]) => n < limit)?.[1] ?? steps[steps.length - 1][1];
 	const cap = s => s[0].toUpperCase() + s.slice(1);
@@ -363,7 +538,13 @@
 			facets.replaceChildren();
 			if (!source) return;
 			el("h4", `2. Keep or remove parts of the ${name(source)} scent`, facets);
-			el("p", "Tap a part to remove it, tap again to keep it. Keep at least two.", facets, "perf-hint");
+			el("p", description(source), facets, "perf-source-description");
+			el(
+				"p",
+				"Select a scent part to leave it out, or select it again to keep it. Keep at least two. Neighbouring parts can support or clash with one another.",
+				facets,
+				"perf-hint"
+			);
 			const parts = engine.puzzle(source);
 			const grid = el("div", undefined, facets, "perf-facets");
 			parts.forEach((f, i) => {
@@ -390,7 +571,12 @@
 				vial.style.setProperty("--extract-fill", `${Math.min(100, result.yield * 14)}%`);
 				const text = el("div", undefined, done);
 				el("h4", `Collected ${result.yield} ${result.yield === 1 ? "measure" : "measures"} of ${name(result.source)} aroma`, text);
-				el("p", `${result.selected.map(cap).join(", ")}. It suits the ${result.affinity} note. One ${name(result.source)} was used.`, text);
+				el("p", description(result.key, result), text);
+				el(
+					"p",
+					`This aroma suits the ${result.affinity === "top" ? "opening" : result.affinity} note. Collecting it used one ingredient from your stock.`,
+					text
+				);
 				if (V.perfumeryVenue === "poppy" && api.availableTeacher())
 					el(
 						"p",
@@ -419,14 +605,18 @@
 				return;
 			}
 			const full = engine.calculate(source, method, 63, finish);
+			el("p", "The filled bars show the scent you are keeping; the thin marks show the whole ingredient before you removed any parts.", finishBox, "perf-hint");
 			profileBars(finishBox, p.families, full.families);
 			const facts = el("dl", undefined, finishBox, "perf-facts");
 			const fact = (k, v) => {
 				el("dt", k, facts);
 				el("dd", v, facts);
 			};
-			fact("Makes", `${p.yield} ${p.yield === 1 ? "measure" : "measures"} of aroma. Each measure is one tap in Compose.`);
-			fact("Suits", `The ${p.affinity} note best, but you can put it in any note.`);
+			fact(
+				"Amount collected",
+				`${p.yield} ${p.yield === 1 ? "measure" : "measures"} of aroma. A measure is one crafting unit; each selection in Compose adds one.`
+			);
+			fact("Best-suited note", `This aroma suits the ${p.affinity === "top" ? "opening" : p.affinity} note, but you can place it in any note.`);
 			fact(
 				"Clarity",
 				word(p.purity, [
@@ -436,11 +626,11 @@
 				])
 			);
 			fact(
-				"Lasting",
+				"Stability",
 				word(p.stability, [
-					[0.5, "Fades quickly once worn."],
-					[0.7, "Lasts an average time."],
-					[Infinity, "Holds well and lasts."],
+					[0.5, "Long maturing is more likely to make this aroma smell unpleasant."],
+					[0.7, "This aroma changes moderately while the perfume matures."],
+					[Infinity, "This aroma changes less while the perfume matures."],
 				])
 			);
 			fact("Costs", `1 ${name(source)} (you have ${have(source)}) and ${p.minutes} minutes.`);
@@ -614,5 +804,5 @@
 			},
 		};
 	}
-	setup.perfumeryExtractionUI = { mount };
+	setup.perfumeryExtractionUI = { mount, description };
 })();

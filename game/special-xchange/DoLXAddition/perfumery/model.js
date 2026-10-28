@@ -541,15 +541,20 @@
 			stale: "After the first scents fade, the perfume starts to smell like old grain or cereal.",
 			pungent: "The smell is very strong, and people can notice it even when they aren't close to you.",
 		};
-		const join = text => text.slice(text.indexOf(":") + 2).replace(/, ([^,]+)$/, " and $1");
-		const description = `A ${p.intensity > 2.3 ? "far-reaching" : p.intensity < 1 ? "close" : "clear"} ${join(phases.opening)} opening gives way to ${join(
+		const join = text => {
+			const parts = text.slice(text.indexOf(":") + 2).split(", ");
+			return parts.length > 2 ? `${parts.slice(0, -1).join(", ")}, and ${parts[parts.length - 1]}` : parts.join(" and ");
+		};
+		const description = `You first smell ${join(phases.opening)} scents before ${join(
 			phases.heart
-		)}, while ${join(phases.drydown)} stays underneath. ${
+		)} scents become more noticeable. As the lighter scents fade, you can still smell ${join(phases.drydown)} scents on your skin. ${
+			p.intensity > 2.3 ? "The perfume has a very strong smell." : p.intensity < 1 ? "The perfume has a faint smell." : "The perfume has a noticeable smell."
+		} ${
 			defects.length
 				? sensory[defects.sort((a, b) => b.severity - a.severity)[0].name]
 				: stable > 0.7
 				? "It changes smoothly from one note to the next."
-				: "The impression shifts as the lighter material fades."
+				: "The smell changes as the lighter scents fade."
 		}`;
 		return {
 			simulationOnly,

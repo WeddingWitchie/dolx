@@ -1557,7 +1557,7 @@ Renderer.CanvasModels.main = {
 			z: ZIndices.faceFreckles,
 
 			srcfn(options) {
-				return `img/face/${options.facestyle}/freckles.png`;
+				return `img/face/${options.facestyle}/${options.facevariant}/freckles.png`;
 			},
 			showfn(options) {
 				return options.show_face && !!options.freckles && options.blush <= 0 && !options.blusher_colour;
@@ -1569,7 +1569,7 @@ Renderer.CanvasModels.main = {
 			filters: ["tan"],
 
 			srcfn(options) {
-				return `img/face/${options.facestyle}/blush-freckles/freckles-blush-${options.blush}.png`;
+				return `img/face/${options.facestyle}/${options.facevariant}/blush-freckles/freckles-blush-${options.blush}.png`;
 			},
 			showfn(options) {
 				return options.show_face && !!options.freckles && options.blush > 0;
@@ -1581,7 +1581,7 @@ Renderer.CanvasModels.main = {
 			filters: ["tan"],
 
 			srcfn(options) {
-				return `img/face/${options.facestyle}/blush-freckles/freckles-blusher.png`;
+				return `img/face/${options.facestyle}/${options.facevariant}/blush-freckles/freckles-blusher.png`;
 			},
 			showfn(options) {
 				return options.show_face && !!options.freckles && !!options.blusher_colour;

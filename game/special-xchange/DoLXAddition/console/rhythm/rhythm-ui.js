@@ -855,7 +855,7 @@
 				"div",
 				{ class: "rh-offer" },
 				h("strong", null, "New to the rhythm game?"),
-				h("span", null, "A short tutorial lets you try the line, taps, holds, drags and pairs on a slow practice beat, with touch, mouse or keys."),
+				h("span", null, "A short tutorial lets you try the line, taps, holds, drags, and pairs on a slow practice beat, with touch, mouse, or keys."),
 				h(
 					"div",
 					{ class: "rh-row" },
@@ -1473,7 +1473,7 @@
 					if (p && p.then) p.then(resolve, reject);
 				});
 			} catch (e) {
-				throw new Error("The browser could not decode that file. Try an MP3, OGG or WAV.");
+				throw new Error("The browser could not decode that file. Try an MP3, OGG, or WAV.");
 			}
 			if (buffer.duration > lim.audioSeconds) throw new Error(`That song is over ${lim.audioSeconds / 60} minutes long. Pick a shorter one.`);
 			if (buffer.duration < 10) throw new Error("That file is under 10 seconds long, too short to chart.");
@@ -1821,7 +1821,7 @@
 			);
 			const confirmDelete = h("div", { class: "rh-row", hidden: true });
 			confirmDelete.append(
-				h("span", null, "Delete this song, its charts and its audio from the library?"),
+				h("span", null, "Delete this song, its charts, and its audio from the library?"),
 				button("Yes, delete it", async () => {
 					try {
 						await L().deleteSong(id);
@@ -2158,7 +2158,7 @@
 										else if (!R().keyAllowed(ev.code))
 											keyMsg.textContent = R().reservedKeys.includes(ev.code)
 												? `${keyLabel(ev.code)} is kept for pausing or for DoL's own shortcuts; pick another key.`
-												: `${ev.key || ev.code} cannot be a lane key; use a letter, punctuation, arrow or number-pad key.`;
+												: `${ev.key || ev.code} cannot be a lane key; use a letter, punctuation, arrow, or number-pad key.`;
 										else {
 											const next = [...R().settings().keys];
 											const other = next.indexOf(ev.code);

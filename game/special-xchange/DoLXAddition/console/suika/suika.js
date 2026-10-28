@@ -640,7 +640,7 @@
 
 	/* First-time tutorial: a card above the jar while a scripted demo drops fruit. `drops` are [delay ms, tier, x]. */
 	const tutorialSteps = Object.freeze([
-		{ title: "Aim and drop", text: "Move along the top to aim, then tap, click or press Space to drop.", drops: [[400, 0, 90]] },
+		{ title: "Aim and drop", text: "Move along the top to aim, then tap, click, or press Space to drop.", drops: [[400, 0, 90]] },
 		{
 			title: "Merge",
 			text: "Two of the same fruit merge into the next one up. Bigger fruit score more.",
@@ -652,7 +652,7 @@
 		{ title: "The red line", text: "If the pile stays above the red line for 2.5 seconds, the run ends. It turns amber when the pile gets close.", drops: [] },
 		{
 			title: "Modes",
-			text: "Classic is the plain game. Arcade adds power-ups and combo points. Zen never ends. Challenges, records and settings are in the Menu.",
+			text: "Classic is the plain game. Arcade adds power-ups and combo points. Zen never ends. Challenges, records, and settings are in the Menu.",
 			drops: [],
 		},
 	]);

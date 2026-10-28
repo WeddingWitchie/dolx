@@ -109,7 +109,7 @@
 			virus: {
 				name: "Virus",
 				line: "Unstable and mutation-oriented.",
-				desc: "A strain that changes as it spreads. At 10%, 40% and 75% of the world reached it evolves on its own, giving you a free evolution you did not choose.",
+				desc: "A strain that changes as it spreads. At 10%, 40%, and 75% of the world reached it evolves on its own, giving you a free evolution you did not choose.",
 				ready: true,
 				effects: {},
 				/* Shown on the World screen next to the name. */
@@ -155,7 +155,7 @@
 			prion: {
 				name: "Prion",
 				line: "Slow and entrenched, strong late.",
-				desc: "A strain that takes hold slowly, spreading a little slower at first. The longer the outbreak survives, the harder it is to remove: Entrenchment grows on days 20, 40 and 60, and each stage slows cure research by another 10%.",
+				desc: "A strain that infects people more slowly at first. The longer the outbreak survives, the harder it is to remove: Entrenchment grows on days 20, 40, and 60, and each stage slows cure research by another 10%.",
 				ready: true,
 				effects: { spread: 0.9 },
 				tag: "Entrenched",
@@ -656,7 +656,7 @@
 				cost: 10,
 				requires: ["sneeze"],
 				exclusive: "respiratoryPath",
-				desc: "Spreads rapidly, but draws attention wherever it goes.",
+				desc: "Spreads rapidly, making the outbreak easier to notice.",
 				effects: { infectivity: 2, spread: 1.2, visibility: 12 },
 			},
 			silent: {
@@ -777,7 +777,7 @@
 				cost: 10,
 				requires: ["delirium"],
 				exclusive: "deliriumPath",
-				desc: "Quieter symptoms draw less attention, but slow spread and travel.",
+				desc: "Milder symptoms make the outbreak harder to notice, but reduce its spread and travel.",
 				effects: { visibility: -20, spread: 0.8, travel: 0.7 },
 			},
 			collapse: {

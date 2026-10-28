@@ -1,5 +1,5 @@
 :: Poppy Perfumery Invitation
-<<perfumeryPoppyPrep "conversation">>
+<<perfumeryPoppyPrep "conversation">><<pass 2>>
 <<if setup.perfumery.canInvite()>>
 	Poppy is reading a book with a narrow strip of paper marking the page. When <<nnpc_he "Poppy">> opens the book there, the strip gives off the powdery smell you always notice around <<nnpc_him "Poppy">>, stronger than the flowers on the table.
 	<br><br>
@@ -63,7 +63,7 @@
 <br><<perfumeryConversationReturn>>
 
 :: Poppy Perfumery Visit
-<<perfumeryPoppyPrep>>
+<<perfumeryPoppyPrep>><<pass 2>>
 <<if setup.perfumery.canVisit()>>
 	Poppy has made room for the perfume-making tray on the coffee table, between the books and little figurines. A folded cloth lies beneath the glass bottles to protect the table. Some old bottles have left round marks on the paper underneath, and Poppy has cleared a space for your notebook.
 	<br><br>
@@ -119,7 +119,7 @@
 <<getouticon>><<link [[Leave the flat (0:01)|Flats]]>><<pass 1>><<endevent>><</link>>
 
 :: Poppy Perfumery Lesson
-<<perfumeryPoppyPrep>>
+<<perfumeryPoppyPrep>><<pass 2>>
 <<if !setup.perfumery.canTeach() or !$perfumery?.invited or $perfumery.lesson gte 4>>
 	Poppy isn't free to teach the next lesson just now. You can come back to your notes and finished samples later.
 <<elseif $perfumery.session and $perfumery.session.stage isnot "concluded">>
@@ -139,7 +139,7 @@
 		<<link [[Try a familiar scent (0:05)|Poppy Perfumery Practice]]>><<run setup.perfumery.beginLesson("familiar")>><</link>>
 	<<case 1>>
 		Your first formula is open on the table. Poppy lays a clean strip across the quantities, then uncovers them one at a time.
-		"Smell your first perfume again. Think about which part you notice first, and which part stays with you."
+		"Smell your first perfume again. Compare the first scent you notice with the one you can still smell after the others fade."
 		<br><br>
 		Poppy brings one scented paper strip close to another, then moves it away again. When they are close together, the stronger flower makes the other one difficult to smell. Poppy checks the labels, realises <<nnpc_he "Poppy">> has mixed up the strips and puts them back in the right places.
 		"That was the stronger one. Yes, I do label them. It only helps if I read the label."
@@ -281,7 +281,7 @@
 			<<if _profile.sweet lt setup.perfumeryModel.calculate(_session.reference).sweet>>
 				Poppy puts the earlier strip down beside yours and smells them again. "Yours gets less sweet after the first smell fades. I kept trying to make every part last." <<nnpc_He "Poppy">> corrects an amount in the notebook. "I hate to admit it, but I think you were right."
 			<<else>>
-				"You've kept the sweetness too." Poppy smells it once more. "If that was deliberate, tell me what you wanted it to hold together. Don't just rescue my mistake because I made it first."
+				"You've kept the sweetness too." Poppy smells it once more. "If that was deliberate, tell me which other scents you wanted to mix it with. Don't keep it just because it was my idea."
 			<</if>>
 		<<elseif _session.approach is "challenge">>
 			<<if _profile.sweet lt 0.35 and _profile.quality gte 65>>
@@ -359,7 +359,7 @@
 <br><<link [[Put the sample back on the table|Poppy Perfumery Visit]]>><</link>>
 
 :: Poppy Perfumery Waiting
-<<perfumeryPoppyPrep>>
+<<perfumeryPoppyPrep>><<pass 2>>
 <<if $perfumery?.session?.conversation is "company">>
 	You ask whether you're taking up too much of Poppy's time. Poppy looks up from the bottle. "If you were, I'd tell you. I do tell you things, you know."
 	<br><br>
@@ -443,7 +443,7 @@
 <br>
 
 :: Poppy Perfumery Extraction
-<<perfumeryPoppyPrep>><<run setup.perfumery.state()>>
+<<perfumeryPoppyPrep>><<run setup.perfumery.state()>><<pass 2>>
 <<if setup.perfumery.canTeach() and $perfumery.lesson gte 4 and (!$perfumery.session or $perfumery.session.stage is "concluded")>>
 	<<if !$perfumery.extraction.lesson>>
 		Poppy has put a rose beside a chocolate-chip cookie. The cookie is on a saucer, well away from the spirit bottles. There is a bite missing.
@@ -467,7 +467,7 @@
 		Poppy opens the notebook at the joined circles. "I've been calling this one too savoury." <<nnpc_He "Poppy">> taps a space beside the flowers. "Perhaps I've been mixing it with the wrong things."
 		<<if $perfumery.skill gte 20>>"Which part would you keep? Tell me before I show you what I did."<<else>>"Try keeping one difficult part. Give it something to stand beside, then tell me if you still want it gone."<</if>>
 		<br><br>
-		You can bring a roasted, savoury or sweet accord into your next shared formula. Poppy will have an opinion, but you don't have to agree with it.
+		You can add a roasted, savoury, or sweet scent to the next perfume you make with Poppy. Poppy will have an opinion, but you don't have to agree with it.
 		<br><br>
 		<<link [[Set out another material|Perfumery Workstation]]>><</link>><br>
 		<<link [[Plan a fragrance together|Poppy Perfumery Collaboration]]>><</link>>
@@ -533,13 +533,15 @@
 <br>
 
 :: Poppy Perfumery Special Body
-<<switch _pe.id>>
+<<switch _pe.id>><<pass 2>>
 <<case "unconventional">>
 	<<if _pe.repeat>>
 		Poppy smells the strip and puts it down with exaggerated care. "You've done it again. Stop that." <<nnpc_He "Poppy">> reads the amounts anyway, mouthing <<print _pe.sources.join(", ")>> under <<nnpc_his "Poppy">> breath.
 		<br><br>
-		<<poppySpecialChoice "Walk Poppy through it" "explain">>
-		<<poppySpecialChoice "Make Poppy guess again" "guess">>
+		<<link "Walk Poppy through it" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("explain")>><</link>>
+		<br>
+		<<link "Make Poppy guess again" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("guess")>><</link>>
+		<br>
 	<<else>>
 		Poppy reads your ingredient list before smelling the perfume. "<<print _pe.sources.join(", ")>>," <<nnpc_he "Poppy">> reads aloud, looking up at you. "You put all of those together?"
 		<br><br>
@@ -547,10 +549,14 @@
 		<br><br>
 		Poppy smells the strip twice more, then lowers it. "I can still smell the other ingredients. Somehow that strange one makes them smell better together." <<nnpc_He "Poppy">> sits back. "How did you work that out? I certainly didn't teach you. I'd remember being that clever."
 		<br><br>
-		<<poppySpecialChoice "Explain the technique" "explain">>
-		<<poppySpecialChoice "Let Poppy guess" "guess">>
-		<<poppySpecialChoice "Admit it was luck" "accident">>
-		<<poppySpecialChoice "Challenge Poppy" "challenge">>
+		<<link "Explain the technique" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("explain")>><</link>>
+		<br>
+		<<link "Let Poppy guess" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("guess")>><</link>>
+		<br>
+		<<link "Admit it was luck" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("accident")>><</link>>
+		<br>
+		<<link "Challenge Poppy" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("challenge")>><</link>>
+		<br>
 	<</if>>
 <<case "disaster">>
 	<<if _pe.repeat>>
@@ -562,9 +568,12 @@
 		<<default>>Poppy wrinkles <<nnpc_his "Poppy">> nose. "Another one for the window ledge."<<if _pe.done?.n gte 3>> "That's three now. I'm starting a collection."<</if>>
 		<</switch>>
 		<br><br>
-		<<poppySpecialChoice "Ask what went wrong" "ask">>
-		<<poppySpecialChoice "Laugh about it" "laugh">>
-		<<poppySpecialChoice "Rescue it together" "rescue">>
+		<<link "Ask what went wrong" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("ask")>><</link>>
+		<br>
+		<<link "Laugh about it" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("laugh")>><</link>>
+		<br>
+		<<link "Rescue it together" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("rescue")>><</link>>
+		<br>
 	<<else>>
 		Poppy smells it before you've even held out the strip. <<nnpc_He "Poppy">> leans back so fast the couch creaks.
 		<br><br>
@@ -581,22 +590,29 @@
 			"I can tell you were trying to make something nice," Poppy says gently, which somehow makes it worse. "There's a pleasant flower smell in there somewhere, but the stronger ingredients make it almost impossible to notice."
 		<</switch>>
 		<br><br>
-		<<poppySpecialChoice "Defend the formula" "defend">>
-		<<poppySpecialChoice "Ask what went wrong" "ask">>
-		<<poppySpecialChoice "Laugh about it" "laugh">>
-		<<poppySpecialChoice "Rescue it together" "rescue">>
-		<<poppySpecialChoice "Claim you meant it" "claim">>
+		<<link "Defend the formula" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("defend")>><</link>>
+		<br>
+		<<link "Ask what went wrong" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("ask")>><</link>>
+		<br>
+		<<link "Laugh about it" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("laugh")>><</link>>
+		<br>
+		<<link "Rescue it together" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("rescue")>><</link>>
+		<br>
+		<<link "Claim you meant it" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("claim")>><</link>>
+		<br>
 	<</if>>
 <<case "familiar">>
 	<<if _pe.repeat>>
 		Poppy goes quiet over the strip again. "You keep coming back to this. You can, you know. Just don't expect me to explain it every time."
 		<br><br>
-		<<poppySpecialChoice "It reminds you of Poppy" "reminds">>
-		<<poppySpecialChoice "Change the subject" "quiet">>
+		<<link "It reminds you of Poppy" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("reminds")>><</link>>
+		<br>
+		<<link "Change the subject" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("quiet")>><</link>>
+		<br>
 	<<else>>
 		Poppy smells the strip, then pauses with it still close to <<nnpc_his "Poppy">> nose. <<nnpc_He "Poppy">> doesn't frown the way <<nnpc_he "Poppy">> usually does when something is wrong, but <<nnpc_he "Poppy">> doesn't smile either.
 		<br><br>
-		Poppy places the strip on the table near the drawer holding <<nnpc_his "Poppy">> own bottle, but leaves the drawer closed. "That powdery smell, the flowers, and the softer scent that stays afterwards..." <<nnpc_He "Poppy">> looks at you. "You've been paying attention to my perfume."
+		Poppy places the strip on the table near the drawer holding <<nnpc_his "Poppy">> own bottle, but leaves the drawer closed. "That powdery smell, the flowers, and the softer scent you can smell afterwards..." <<nnpc_He "Poppy">> looks at you. "You've been paying attention to my perfume."
 		<br><br>
 		<<if $poppySeen.includes("perfumery_signature_strip")>>
 			"You smelled mine. I let you." <<nnpc_He "Poppy">> sets your strip down beside the closed drawer, not inside it. "I didn't think you'd carry it home with you."
@@ -604,16 +620,21 @@
 			"I've never let you try my perfume properly, but you remembered enough of its smell to make something similar." Poppy smiles a little, though <<nnpc_he "Poppy">> keeps the drawer closed.
 		<</if>>
 		<br><br>
-		<<poppySpecialChoice "Ask about Poppy's perfume" "ask">>
-		<<poppySpecialChoice "It reminds you of Poppy" "reminds">>
-		<<poppySpecialChoice "Say you didn't copy it" "sorry">>
+		<<link "Ask about Poppy's perfume" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("ask")>><</link>>
+		<br>
+		<<link "It reminds you of Poppy" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("reminds")>><</link>>
+		<br>
+		<<link "Say you didn't copy it" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("sorry")>><</link>>
+		<br>
 	<</if>>
 <<case "gift">>
 	<<if _pe.repeat>>
 		Poppy tries the strip and smiles before <<nnpc_he "Poppy">> can stop <<nnpc_himself "Poppy">>. "This again. Sweet, then flowers, then something left on the cloth." <<nnpc_He "Poppy">> narrows <<nnpc_his "Poppy">> eyes. "If you're making these for me, you'll spoil me. Or bore me. I haven't decided."
 		<br><br>
-		<<poppySpecialChoice "Give Poppy the bottle" "give">>
-		<<poppySpecialChoice "Keep it for yourself" "keep">>
+		<<link "Give Poppy the bottle" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("give")>><</link>>
+		<br>
+		<<link "Keep it for yourself" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("keep")>><</link>>
+		<br>
 	<<else>>
 		Poppy smells the strip once and stops moving. Then <<nnpc_he "Poppy">> smells it again more slowly, the way <<nnpc_he "Poppy">> tests an ingredient <<nnpc_he "Poppy">> expects to like.
 		<br><br>
@@ -623,24 +644,32 @@
 			"It's close to something I'd wear," Poppy says, smelling the strip again. "Not quite what I would choose. There's one part I'd change, but I can't decide which one yet."
 		<</if>>
 		<br><br>
-		<<poppySpecialChoice "Say it's for Poppy" "give">>
-		<<poppySpecialChoice "Admit you were guessing" "admit">>
-		<<poppySpecialChoice "Say nothing" "keep">>
+		<<link "Say it's for Poppy" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("give")>><</link>>
+		<br>
+		<<link "Admit you were guessing" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("admit")>><</link>>
+		<br>
+		<<link "Say nothing" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("keep")>><</link>>
+		<br>
 	<</if>>
 <<case "teacher">>
 	<<if _pe.repeat>>
 		Poppy pushes the notebook across before you've finished stoppering the bottle. "Show me. Properly, this time; I was too busy being impressed last time to take notes."
 		<br><br>
-		<<poppySpecialChoice "Walk Poppy through it" "reason">>
-		<<poppySpecialChoice "Guide Poppy at the tray" "guide">>
+		<<link "Walk Poppy through it" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("reason")>><</link>>
+		<br>
+		<<link "Guide Poppy at the tray" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("guide")>><</link>>
+		<br>
 	<<elseif _pe.accord>>
 		You talk about the <<print _pe.accord>> accord: what you kept from it, what you left on the saucer, why you put it where it is. Poppy listens without interrupting, though twice <<nnpc_he "Poppy">> opens <<nnpc_his "Poppy">> mouth to say something and closes it again.
 		<br><br>
 		"I'd have kept the sweeter part," <<nnpc_he "Poppy">> says eventually. "I always do. You didn't, and it's better for it." <<nnpc_He "Poppy">> looks at the notebook in <<nnpc_his "Poppy">> lap, then at you. "Will you show me? Not tell me. Show me."
 		<br><br>
-		<<poppySpecialChoice "Guide Poppy at the tray" "guide">>
-		<<poppySpecialChoice "Compare two accords" "compare">>
-		<<poppySpecialChoice "Explain your reasoning" "reason">>
+		<<link "Guide Poppy at the tray" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("guide")>><</link>>
+		<br>
+		<<link "Compare two accords" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("compare")>><</link>>
+		<br>
+		<<link "Explain your reasoning" "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve("reason")>><</link>>
+		<br>
 	<<else>>
 		Poppy smells the strip, puts it down beside your notes, then picks it up to check the smell again. <<nnpc_He "Poppy">> looks through your ingredient list before speaking.
 		<br><br>
@@ -653,7 +682,7 @@
 <</switch>>
 
 :: Poppy Perfumery Special Reply
-<<perfumeryPoppyPrep>>
+<<perfumeryPoppyPrep>><<pass 2>>
 <<set _o to $perfumery.characters?.poppy?.last>>
 <<if !_o>>
 	Poppy has already told you what <<nnpc_he "Poppy">> thinks of that bottle.
@@ -766,7 +795,7 @@
 	<br><br>
 	<<switch _pcm.context>>
 	<<case "dinner">>You describe the dinners: woods and amber, something powdery, nothing that smells of food, close to the skin.
-	<<case "party">>You describe the parties on Danube Street: flowers but not a garden, something bright with resin underneath, nothing musky, nothing that carries across a street.
+	<<case "party">>You explain that Avery wants flowers with a little citrus, resin in the base, and no musk. People nearby should be able to smell the perfume without finding it too strong.
 	<<default>>You say it's for Avery to wear: amber, resin, a little spice, no fruit, no grass, no sugar.
 	<</switch>>
 	<br><br>
@@ -781,7 +810,7 @@
 <br>
 
 :: Poppy Perfumery Commission Advice
-<<perfumeryPoppyPrep>>
+<<perfumeryPoppyPrep>><<pass 2>>
 <<set _pcm to setup.perfumeryCharacters.state().avery.commission>>
 <<if !setup.perfumery.canTeach() or !_pcm or _pcm.stage isnot "active" or _pcm.asked is undefined>>
 	Poppy isn't free to look at your plans right now.
@@ -882,7 +911,7 @@ Poppy opens the drawer where <<nnpc_he "Poppy">> keeps <<nnpc_his "Poppy">> own 
 <<nnpc_He "Poppy">> puts the lid back on, but doesn't push the tin away. "I keep a little for my own bottle. I could help you make one, and it would be yours to keep. Just wear it carefully."
 <<poppyOpiumPulse 1>>
 <<if $perfumery.bottles.length gte 24>>
-	<span class="grey">Your perfume cabinet is full. Use, give away or throw out a bottle before you make another.</span>
+	<span class="grey">Your perfume cabinet is full. Use, give away, or throw out a bottle before you make another.</span>
 	<br>
 <<else>>
 	<<icon "tending/white-rose.png">><<link [[Make it with Poppy (0:05)|Poppy Perfumery Opium Make]]>><<run setup.perfumeryOpium.start()>><</link>><br>
@@ -950,7 +979,7 @@ Poppy opens the drawer where <<nnpc_he "Poppy">> keeps <<nnpc_his "Poppy">> own 
 <br>
 
 :: Poppy Perfumery Opium Result
-<<perfumeryPoppyPrep>>
+<<perfumeryPoppyPrep>><<pass 2>>
 <<set _po to $perfumeryOpium>>
 <<if !_po?.result>>
 	Poppy has already put the tin away.
@@ -970,7 +999,7 @@ Poppy opens the drawer where <<nnpc_he "Poppy">> keeps <<nnpc_his "Poppy">> own 
 	<<elseif _po.fixed is 1>>
 		Poppy smells the stopper. "Close. You'll smell the difference, but nobody else will."
 	<<else>>
-		Poppy smells the stopper and shrugs. "It's yours. Not perfect, but yours." <<nnpc_He "Poppy">> taps the label. "Next time you won't need me to fix it."
+		Poppy smells the stopper and shrugs. "You've finished your bottle." <<nnpc_He "Poppy">> taps the label. "Next time you won't need me to fix it."
 	<</if>>
 	<<if !_po.result.first>>"Another one? Soon you'll smell more like me than I do."<</if>>
 	<br><br>

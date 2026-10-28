@@ -67,70 +67,11 @@
 		You think Bailey is mad because <<bratReasonList>>.
 		<br><br>
 	<</if>>
-	<<autism-bailey>>
-	<<set _rentTotal to ($rentMoney + ($babyRent or 0) + ($bratTax or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
-	<<if ($baileyDeposit or 0) gte _rentTotal or setup.hbsc.canAutoPay("bailey", _rentTotal)>>
-		<<rentpay "bank">>
-		<<link [[Next|Rent Pay Auto]]>><<set $phase to $_robinWasInRoom>><</link>>
+	<<if playerHasAutismSpectrum() and $rentTime lt 0 and autismSpectrumPhase() isnot "settled">>
+		<<autism-bailey "Autism Rent Due Options">>
 	<<else>>
-		<<if setup.hbsc.cancelIfShort("bailey", _rentTotal)>>
-			<span class="red">Your HBSC standing order couldn't cover the rent, so it's been cancelled.</span><br>
-		<</if>>
-		<<if ((setup.inflation ? setup.inflation.rentPayable() : $money) + ($baileyDeposit or 0)) gte _rentTotal>>
-		<<if setup.inflation and setup.inflation.baileyAggressive()>>
-			<<baileyGripDemand>>
-			<<link [[Pay|Rent Pay]]>><<set $phase to $_robinWasInRoom>><</link>>
-			<br>
-			<<if $syndromebailey isnot true>>
-				<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
-				<br>
-			<</if>>
-		<<else>>
-			<<link [[Pay|Rent Pay]]>><<set $phase to $_robinWasInRoom>><</link>>
-			<br>
-			<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
-			<br>
-		<</if>>
-		<<if !(setup.inflation and setup.inflation.baileyAggressive()) and $baileyseduced isnot 1>>
-			<<if hasSexStat("promiscuity", 2)>>
-				<<link [[Seduce|Rent Seduce]]>><<set $phase to ($_rentSeduce ? 1 : 0)>><<trauma 3>><</link>><<promiscuous2>><<gtrauma>>
-				<br>
-			<<elseif $uncomfortable.prostituting is false>>
-				<<set _desperateaction to 1>>
-				<<link [[Seduce|Rent Seduce]]>><<set $phase to ($_rentSeduce ? 1 : 0)>><<trauma 12>><<set $desperateaction to _desperateaction>><</link>><<promiscuous2>><<ggtrauma>>
-				<br>
-			<</if>>
-		<</if>>
-		/* Keep Stockholm progression available under aggressive rent demands; bank debt still requires money. */
-		<<if ($syndromebaileybuild gte 1 or $baileydefeated gte 5) and ($syndromebailey isnot true or !(setup.inflation and setup.inflation.baileyAggressive())) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
-			<span class="bailey-red bailey-stockholm"><<link "Offer yourself" "Bailey Offer Yourself">><</link>></span>
-			<br>
-		<</if>>
-	<<else>>
-		<<speechresolve>>
-		<<person1>>
-		<<switch _speechAttitudeResolved>>
-			<<case "bratty">>
-				You stare at <<him>> in open defiance. "I don't have your money. And I wouldn't give it to you if I did."
-			<<case "meek" "shy">>
-				You hang your head, unable to pay and dreading what's to come. The words die in your throat before they can form.
-			<<case "polite" "flamboyant">>
-				"I'm sorry," you say. But the apology sounds thin the moment it leaves your lips. "I don't have it."
-			<<case "docile">>
-				"I... I don't have it." The admission comes softly, almost as though speaking any louder might make things worse. You lower your gaze at once. 
-			<<case "confident">>
-				"I don't have your money," you say, meeting <<his>> eyes. "Threatening me won't change that."
-			<<case "cruel">>
-				You look <<him>> over with open contempt. "No money. Shame. You came all this way for nothing."
-			<<default>>
-				"I don't have it," you say, with a tightness in your chest that makes each word feel heavier than it should.
-		<</switch>>
-		<br><br>
-
-		<<rentnopay true>>
-		<</if>>
+		<<include "Autism Rent Due Options">>
 	<</if>>
-	<<if !isPregnancyEnding()>><<set $rentTime to 7>><</if>>
 <</widget>>
 
 <<widget "thugrentdue">>
@@ -257,100 +198,11 @@
 		You think Bailey is mad because <<bratReasonList>>.
 		<br><br>
 	<</if>>
-	<<autism-bailey>>
-	<<set _rentTotal to ($rentMoney + ($babyRent or 0) + ($bratTax or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
-	<<if ($baileyDeposit or 0) gte _rentTotal or setup.hbsc.canAutoPay("bailey", _rentTotal)>>
-		<<rentpay "bank">>
-		<<link [[Next|Rent Pay Auto]]>><<if $inRobinsRoom>><<set $inRobinsRoom to true>><</if>><</link>>
+	<<if playerHasAutismSpectrum() and $rentTime lt 0 and autismSpectrumPhase() isnot "settled">>
+		<<autism-bailey "Autism Rent Robin Options">>
 	<<else>>
-		<<if setup.hbsc.cancelIfShort("bailey", _rentTotal)>>
-			<span class="red">Your HBSC standing order couldn't cover the rent, so it's been cancelled.</span><br>
-		<</if>>
-		<<if ((setup.inflation ? setup.inflation.rentPayable() : $money) + ($baileyDeposit or 0)) gte _rentTotal>>
-			<<if setup.inflation and setup.inflation.baileyAggressive()>>
-				<<baileyGripDemand>>
-				<<if $syndromebailey isnot true>>
-					<<link [[Refuse|Rent Refuse Robin]]>><<def 1>><</link>>
-					<br>
-					<<if ($syndromebaileybuild gte 1 or $baileydefeated gte 5) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
-						<span class="bailey-red bailey-stockholm"><<link "Offer yourself" "Bailey Offer Yourself">><</link>></span>
-						<br>
-					<</if>>
-				<</if>>
-				<<if $inRobinsRoom>>
-					<<link [[Pay|Rent Pay Robin]]>><<set $inRobinsRoom to true>><</link>>
-				<<else>>
-					<<link [[Pay|Rent Pay Robin]]>><</link>>
-				<</if>>
-				<br>
-			<<else>>
-				<<if $inRobinsRoom>>
-					<<link [[Pay|Rent Pay Robin]]>><<set $inRobinsRoom to true>><</link>>
-				<<else>>
-					<<link [[Pay|Rent Pay Robin]]>><</link>>
-				<</if>>
-				<br>
-				<<link [[Refuse|Rent Refuse Robin]]>><<def 1>><</link>>
-				<br>
-				/* Already inside the non-relentless branch; only the bank's claim needs excluding here. */
-				<<if ($syndromebaileybuild gte 1 or $baileydefeated gte 5) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
-					<span class="bailey-red bailey-stockholm"><<link "Offer yourself" "Bailey Offer Yourself">><</link>></span>
-					<br>
-				<</if>>
-			<</if>>
-		<<else>>
-		<<set $baileypaychain to 0>>
-		<<speechresolve>>
-		<<switch _speechAttitudeResolved>>
-			<<case "bratty">>
-				You stare at <<him>> in defiance. "I don't have your money. And I wouldn't give it to you if I did. Leave Robin out of this."
-			<<case "meek" "shy">>
-				You hang your head, unable to pay and terrified of what's to come. "I'm sorry, Robin."
-				<br><br>
-				"I-it's not your fault," Robin interjects.
-			<<case "polite" "flamboyant">>
-				"I'm sorry," you say quickly. "I don't have it. Please, leave Robin out of this."
-				<br><br>
-				Robin looks at you with wide, frightened eyes.
-			<<case "docile">>
-				"I don't have it..." The words come small and earnest, as though gentleness alone might soften Bailey. "Please don't drag Robin into this." 
-				<br><br>
-				Robin swallows hard.
-			<<case "confident">>
-				"I don't have your money," you say. "This is between you and me, so leave Robin out of it."
-				<br><br>
-				Robin still looks terrified.
-			<<case "cruel">>
-				You narrow your eyes. "No money. Pick on someone who can actually pay you, and leave Robin alone."
-				<br><br>
-				Robin flinches at Bailey's smile.
-			<<default>>
-				"I don't have it," you say. "Please... leave Robin out of this."
-				<br><br>
-				Robin looks terrified.
-		<</switch>>
-		<br><br>
-
-		"That's okay," <<he>> says, smiling. "I've already made arrangements. I don't know what they intend for you two, and frankly I don't care."
-		<<He>> produces a hood and length of rope. "Hold still."
-		<br><br>
-
-		<<if isPregnancyEnding()>>
-			<<set $phase to 1>><<set $rentPregInterruption to "broke">><<include "Rent Pregnant">>
-		<<else>>
-			<<link [[Submit|Rent Intro]]>><<endevent>><<set $phase to 1>><</link>>
-			<br>
-			<<if $bus is "hospital">>
-				<<link [[Fight|Rent Hospital Fight Robin]]>><<set $fightstart to 1>><</link>>
-				<br>
-			<<else>>
-				<<link [[Fight|Rent Robin Fight]]>><<set $fightstart to 1>><</link>>
-				<br>
-			<</if>>
-		<</if>>
+		<<include "Autism Rent Robin Options">>
 	<</if>>
-	<</if>>
-	<<if !isPregnancyEnding()>><<set $rentTime to 7>><</if>>
 <</widget>>
 
 <<widget "thugrentduerobin">>
@@ -2287,3 +2139,178 @@ You're escorted by Bailey back to your bedroom and left alone.
 	<<link [[Next|Rent Intro]]>><</link>>
 <</if>>
 <br>
+
+:: Autism Rent Continue
+<<if passage() is "Autism Rent Continue">>
+	<<effects>><<person1>>
+	You keep the explanation to yourself. Bailey waits for your answer.
+	<br><br>
+<</if>>
+/* The demand's caller may already have cleared this room flag. */
+<<set _autismRentRoomBefore to $inRobinsRoom>>
+<<set $inRobinsRoom to $autismSpectrum.rentReturn.inRobinsRoom>>
+<<include $autismSpectrum.rentReturn.passage>>
+<<if _autismRentRoomBefore is undefined>>
+	<<unset $inRobinsRoom>>
+<<else>>
+	<<set $inRobinsRoom to _autismRentRoomBefore>>
+<</if>>
+<<unset $autismSpectrum.rentReturn>>
+
+:: Autism Rent Due Options
+<<set _rentTotal to ($rentMoney + ($babyRent or 0) + ($bratTax or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
+<<if ($baileyDeposit or 0) gte _rentTotal or setup.hbsc.canAutoPay("bailey", _rentTotal)>>
+	<<rentpay "bank">>
+	<<link [[Next|Rent Pay Auto]]>><<set $phase to $_robinWasInRoom>><</link>>
+<<else>>
+	<<if setup.hbsc.cancelIfShort("bailey", _rentTotal)>>
+		<span class="red">Your HBSC standing order couldn't cover the rent, so it's been cancelled.</span><br>
+	<</if>>
+	<<if ((setup.inflation ? setup.inflation.rentPayable() : $money) + ($baileyDeposit or 0)) gte _rentTotal>>
+		<<if setup.inflation and setup.inflation.baileyAggressive()>>
+			<<baileyGripDemand>>
+			<<link [[Pay|Rent Pay]]>><<set $phase to $_robinWasInRoom>><</link>>
+			<br>
+			<<if $syndromebailey isnot true>>
+				<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
+				<br>
+			<</if>>
+		<<else>>
+			<<link [[Pay|Rent Pay]]>><<set $phase to $_robinWasInRoom>><</link>>
+			<br>
+			<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
+			<br>
+		<</if>>
+		<<if !(setup.inflation and setup.inflation.baileyAggressive()) and $baileyseduced isnot 1>>
+			<<if hasSexStat("promiscuity", 2)>>
+				<<link [[Seduce|Rent Seduce]]>><<set $phase to ($_rentSeduce ? 1 : 0)>><<trauma 3>><</link>><<promiscuous2>><<gtrauma>>
+				<br>
+			<<elseif $uncomfortable.prostituting is false>>
+				<<set _desperateaction to 1>>
+				<<link [[Seduce|Rent Seduce]]>><<set $phase to ($_rentSeduce ? 1 : 0)>><<trauma 12>><<set $desperateaction to _desperateaction>><</link>><<promiscuous2>><<ggtrauma>>
+				<br>
+			<</if>>
+		<</if>>
+		/* Keep Stockholm progression available under aggressive rent demands; bank debt still requires money. */
+		<<if ($syndromebaileybuild gte 1 or $baileydefeated gte 5) and ($syndromebailey isnot true or !(setup.inflation and setup.inflation.baileyAggressive())) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
+			<span class="bailey-red bailey-stockholm"><<link "Offer yourself" "Bailey Offer Yourself">><</link>></span>
+			<br>
+		<</if>>
+	<<else>>
+		<<speechresolve>>
+		<<person1>>
+		<<switch _speechAttitudeResolved>>
+			<<case "bratty">>
+				You stare at <<him>> in open defiance. "I don't have your money. And I wouldn't give it to you if I did."
+			<<case "meek" "shy">>
+				You hang your head, unable to pay and dreading what's to come. The words die in your throat before they can form.
+			<<case "polite" "flamboyant">>
+				"I'm sorry," you say. But the apology sounds thin the moment it leaves your lips. "I don't have it."
+			<<case "docile">>
+				"I... I don't have it." The admission comes softly, almost as though speaking any louder might make things worse. You lower your gaze at once.
+			<<case "confident">>
+				"I don't have your money," you say, meeting <<his>> eyes. "Threatening me won't change that."
+			<<case "cruel">>
+				You look <<him>> over with open contempt. "No money. Shame. You came all this way for nothing."
+			<<default>>
+				"I don't have it," you say, with a tightness in your chest that makes each word feel heavier than it should.
+		<</switch>>
+		<br><br>
+
+		<<rentnopay true>>
+	<</if>>
+<</if>>
+<<if !isPregnancyEnding()>><<set $rentTime to 7>><</if>>
+
+:: Autism Rent Robin Options
+<<set _rentTotal to ($rentMoney + ($babyRent or 0) + ($bratTax or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
+<<if ($baileyDeposit or 0) gte _rentTotal or setup.hbsc.canAutoPay("bailey", _rentTotal)>>
+	<<rentpay "bank">>
+	<<link [[Next|Rent Pay Auto]]>><<if $inRobinsRoom>><<set $inRobinsRoom to true>><</if>><</link>>
+<<else>>
+	<<if setup.hbsc.cancelIfShort("bailey", _rentTotal)>>
+		<span class="red">Your HBSC standing order couldn't cover the rent, so it's been cancelled.</span><br>
+	<</if>>
+	<<if ((setup.inflation ? setup.inflation.rentPayable() : $money) + ($baileyDeposit or 0)) gte _rentTotal>>
+		<<if setup.inflation and setup.inflation.baileyAggressive()>>
+			<<baileyGripDemand>>
+			<<if $syndromebailey isnot true>>
+				<<link [[Refuse|Rent Refuse Robin]]>><<def 1>><</link>>
+				<br>
+				<<if ($syndromebaileybuild gte 1 or $baileydefeated gte 5) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
+					<span class="bailey-red bailey-stockholm"><<link "Offer yourself" "Bailey Offer Yourself">><</link>></span>
+					<br>
+				<</if>>
+			<</if>>
+			<<if $inRobinsRoom>>
+				<<link [[Pay|Rent Pay Robin]]>><<set $inRobinsRoom to true>><</link>>
+			<<else>>
+				<<link [[Pay|Rent Pay Robin]]>><</link>>
+			<</if>>
+			<br>
+		<<else>>
+			<<if $inRobinsRoom>>
+				<<link [[Pay|Rent Pay Robin]]>><<set $inRobinsRoom to true>><</link>>
+			<<else>>
+				<<link [[Pay|Rent Pay Robin]]>><</link>>
+			<</if>>
+			<br>
+			<<link [[Refuse|Rent Refuse Robin]]>><<def 1>><</link>>
+			<br>
+			/* Already inside the non-relentless branch; only the bank's claim needs excluding here. */
+			<<if ($syndromebaileybuild gte 1 or $baileydefeated gte 5) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
+				<span class="bailey-red bailey-stockholm"><<link "Offer yourself" "Bailey Offer Yourself">><</link>></span>
+				<br>
+			<</if>>
+		<</if>>
+	<<else>>
+		<<set $baileypaychain to 0>>
+		<<speechresolve>>
+		<<switch _speechAttitudeResolved>>
+			<<case "bratty">>
+				You stare at <<him>> in defiance. "I don't have your money. And I wouldn't give it to you if I did. Leave Robin out of this."
+			<<case "meek" "shy">>
+				You hang your head, unable to pay and terrified of what's to come. "I'm sorry, Robin."
+				<br><br>
+				"I-it's not your fault," Robin interjects.
+			<<case "polite" "flamboyant">>
+				"I'm sorry," you say quickly. "I don't have it. Please, leave Robin out of this."
+				<br><br>
+				Robin looks at you with wide, frightened eyes.
+			<<case "docile">>
+				"I don't have it..." The words come small and earnest, as though gentleness alone might soften Bailey. "Please don't drag Robin into this."
+				<br><br>
+				Robin swallows hard.
+			<<case "confident">>
+				"I don't have your money," you say. "This is between you and me, so leave Robin out of it."
+				<br><br>
+				Robin still looks terrified.
+			<<case "cruel">>
+				You narrow your eyes. "No money. Pick on someone who can actually pay you, and leave Robin alone."
+				<br><br>
+				Robin flinches at Bailey's smile.
+			<<default>>
+				"I don't have it," you say. "Please... leave Robin out of this."
+				<br><br>
+				Robin looks terrified.
+		<</switch>>
+		<br><br>
+		"That's okay," <<he>> says, smiling. "I've already made arrangements. I don't know what they intend for you two, and frankly I don't care."
+		<<He>> produces a hood and length of rope. "Hold still."
+		<br><br>
+		<<if isPregnancyEnding()>>
+			<<set $phase to 1>><<set $rentPregInterruption to "broke">><<include "Rent Pregnant">>
+		<<else>>
+			<<link [[Submit|Rent Intro]]>><<endevent>><<set $phase to 1>><</link>>
+			<br>
+			<<if $bus is "hospital">>
+				<<link [[Fight|Rent Hospital Fight Robin]]>><<set $fightstart to 1>><</link>>
+				<br>
+			<<else>>
+				<<link [[Fight|Rent Robin Fight]]>><<set $fightstart to 1>><</link>>
+				<br>
+			<</if>>
+		<</if>>
+	<</if>>
+<</if>>
+<<if !isPregnancyEnding()>><<set $rentTime to 7>><</if>>

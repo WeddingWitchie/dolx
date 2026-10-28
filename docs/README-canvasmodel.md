@@ -262,3 +262,16 @@ Result:
 ![Pattern result](assets/canvasmodel-demo3.png)
 
 The pattern image here is `img/ui/sym-harmony.png`. Patterns are registered in `game/04-Variables/canvasmodel-patterns-lib.js`, for example `registerImagePattern("wolfharmony", "img/ui/sym-harmony.png")`. The same file shows how to define a procedural pattern that takes parameters.
+
+### Face freckles in image packs
+
+Face variants can provide `img/face/{facestyle}/{facevariant}/freckles.png` and
+`img/face/{facestyle}/{facevariant}/blush-freckles/freckles-blush-{1..5}.png` or
+`blush-freckles/freckles-blusher.png`. Supplied combined images take priority.
+When a combined image is missing, the renderer composes the variant's existing
+`blush-{1..5}.png` or `blusher.png` with its freckles. Missing variant freckles
+fall back to `img/face/{facestyle}/freckles.png`. If the components are unavailable,
+the shared `img/face/{facestyle}/blush-freckles/` image is used instead.
+Gentle (`default`) keeps the shared combined artwork unless the pack supplies
+variant freckles or a variant combined image. Single-frame freckles repeat across
+both blusher frames; fallback results use the ordinary renderer image cache.

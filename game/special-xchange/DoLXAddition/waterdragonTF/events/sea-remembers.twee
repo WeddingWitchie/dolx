@@ -1,7 +1,7 @@
 :: Island Return
 <<if setup.seaRemembers.access()>>
 	<<run setup.seaRemembers.init()>><<location "island">><<set $outside to 1>><<effects>>
-	<<island_init>><<set $sea to 0>>
+	<<island_init>><<set $sea to 0>><<pass 2>>
 	<<if $waterdragonJourneyDay gt 0>>
 		You pull yourself out of the water onto the beach. You have spent days swimming towards the island, stopping only when you could no longer continue. Now that you are on land, your legs are too tired to carry you straight away. You sit on the sand until you have enough strength to stand, then follow the beach towards the trees.
 		<<set _arrivalFatigue to Math.max(6, Math.floor(C.tiredness.max * 0.05))>>
@@ -40,7 +40,7 @@
 <</if>>
 
 :: Island Elder
-<<effects>>
+<<effects>><<pass 2>>
 <<if setup.seaRemembers.access()>>
 	<<run setup.seaRemembers.init()>>
 	<<if $per_npc.waterdragon_elder>>
@@ -73,7 +73,6 @@
 
 :: Island Elder History
 <<effects>>
-
 <<if $island.dragon_lore>>
 	"Our families used to leave an empty bowl beside the water whenever they ate," the Elder explains. "It was meant for the dragons who lived with our ancestors. People continued doing it long after the last dragon had disappeared."
 	<br><br>
@@ -284,6 +283,7 @@ You hold on to the wall until the water stops moving so violently, then look bac
 <br>
 
 :: Island Sea Restored
+<<effects>><<pass 2>>
 You follow the upper handholds back towards the bay. Water is still flowing past the opening, but it no longer pulls you towards the cliff. You climb onto a rock ledge and look down at the coastal steps. You can see the lowest step through the shallow water, and the loose stones above it are no longer moving with every wave.
 <br><br>
 On the other side of the bay, an islander carrying a basket stops at the top of the steps. You watch the islander lower a stick into the water to check its depth. After another wave passes, the islander begins climbing down carefully.
@@ -373,7 +373,7 @@ You examine the drawings more closely. In one, a person keeps a gate open while 
 <br>
 
 :: Island Names 2
-<<effects>>
+<<effects>><<pass 2>>
 Beneath the drawings, you find a map of the coast. A shell marks an opening facing the shore, a wave marks another opening beside a pointed rock, and a star marks a place below a ledge. The symbols are joined by arrows, but part of the page has been torn away.
 <br><br>
 You tell the old islander what the Elder said about keeping the large gate closed. <<He>> reads the damaged writing beside the map before answering.
@@ -609,7 +609,7 @@ You have found the <span class="gold">guardians' sea passage</span>. The drain i
 <</if>>
 
 :: Island Trial Result
-<<effects>>
+<<effects>><<pass 2>>
 <<if $seaRemembers.result and setup.seaRemembers.access() and ["current", "stone", "echo"].includes($seaRemembers.result.game) and (!$seaRemembers.result.success or $seaRemembers[$seaRemembers.result.game] is ($seaRemembers.result.game is "current" ? 5 : 3))>>
 	<<if $seaRemembers.result.success>>
 		<<if $seaRemembers.result.game is "current">>
@@ -696,12 +696,11 @@ You have found the <span class="gold">guardians' sea passage</span>. The drain i
 		You rest a hand in the hollow. Water gathers beneath your palm without entering any of the channels. Beside them, the last intact line repeats a requirement from the scroll: a skilled swimmer, trained to the limit of the chosen discipline. The repaired passage remains open behind you. You can leave the rite until you are ready.
 		<br><br>
 		<<for _srSkill range ["physique", "athletics", "willpower"]>>
-			<<capture _srSkill>>
 				<<set _srCap to _srSkill is "physique" ? $physiquesize : (_srSkill is "willpower" ? $willpowermax : 1000)>>
 				<<set _srName to _srSkill[0].toUpperCase() + _srSkill.slice(1)>>
 				<b><<if _srSkill is "physique">>Body<<elseif _srSkill is "athletics">>Motion<<else>>Spirit<</if>>: Tempered _srName</b>: <<print Math.floor(State.variables[_srSkill])>>/<<print Math.floor(_srCap)>>.
 				<br>
-				<<link `"Consider Tempered " + _srName` "Island Confirm">><<set $seaRemembers.pending to _srSkill>><</link>>
+				<<if _srSkill is "physique">><<link [[Consider Tempered Physique|Island Confirm]]>><<set $seaRemembers.pending to "physique">><</link>><<elseif _srSkill is "athletics">><<link [[Consider Tempered Athletics|Island Confirm]]>><<set $seaRemembers.pending to "athletics">><</link>><<elseif _srSkill is "willpower">><<link [[Consider Tempered Willpower|Island Confirm]]>><<set $seaRemembers.pending to "willpower">><</link>><</if>>
 				<<if setup.seaRemembers.ready(_srSkill)>>
 					You meet the requirements for this choice.
 				<<else>>
@@ -712,7 +711,6 @@ You have found the <span class="gold">guardians' sea passage</span>. The drain i
 					You already have this talent. You can still finish the challenge, but you will not receive another copy of the bonus.
 				<</if>>
 				<br>
-			<</capture>>
 		<</for>>
 	<</if>>
 	<br>
