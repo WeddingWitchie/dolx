@@ -419,6 +419,12 @@
 		const p = activeProperties(s.active);
 		s.active.remaining = p.duration;
 		s.active.total = p.duration;
+		// Half a bath's glow (2400), wearing off over about the same 7 waking hours
+		if (V.beautyBoost) {
+			V.beautyBoost.perfume = 1200;
+			delete V.beautyBoost._perfumeShown;
+			V.effectsmessage = 1;
+		}
 		// Poppy's Opium carries the real scent, so wearing it counts like being close to Poppy.
 		if (b.opium && typeof window.poppyOpiumPulse === "function") window.poppyOpiumPulse();
 	}
@@ -430,6 +436,10 @@
 			V.perfumery.active = null;
 			V.perfumeFadedMessage = a.name;
 			V.effectsmessage = 1;
+			if (V.beautyBoost) {
+				V.beautyBoost.perfume = 0;
+				delete V.beautyBoost._perfumeShown;
+			}
 		}
 	}
 	function wash() {
@@ -438,6 +448,11 @@
 		V.perfumeWashedMessage = true;
 		V.effectsmessage = 1;
 		V.perfumery.active = null;
+		// The "scent is gone" line already covers the lost glow
+		if (V.beautyBoost) {
+			V.beautyBoost.perfume = 0;
+			delete V.beautyBoost._perfumeShown;
+		}
 	}
 	function scent() {
 		const a = V.perfumery?.active;

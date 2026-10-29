@@ -290,15 +290,24 @@
 			<<set _selectedWardrobe[_slot].deleteAt(_wearId)>>
 			<br>
 		<<elseif $wardrobeOption is "repair" and _item.repairable isnot false and !_item.altDamage>>
-			<<set _item.integrity to clothingData(_slot,_item,'integrity_max')>>
-			<<set $_timeSpent to 5>>
-			/*Repair the relating items*/
-			<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
-				<<set _selectedWardrobe[$_outfitSlot][$_outfitId].integrity to clothingData($_outfitSlot,_selectedWardrobe[$_outfitSlot][$_outfitId],'integrity_max')>>
-				<<set $_timeSpent += 5>>
-			<</for>>
-			<<pass $_timeSpent>>
-			You repair the <<print _item.name>>.
+			/* One spool per damaged piece */
+			<<set _repairSpools to (_item.integrity lt clothingData(_slot,_item,'integrity_max') ? 1 : 0) + Object.entries(_outfitPieceIds).filter(([s, i]) => _selectedWardrobe[s][i].integrity lt clothingData(s,_selectedWardrobe[s][i],'integrity_max')).length>>
+			<<if _repairSpools is 0>>
+				The <<print _item.name>> doesn't need repairing.
+			<<elseif ($DoLPSpools or 0) lt _repairSpools>>
+				You need <span class="red"><<print _repairSpools>> <<print _repairSpools is 1 ? "spool" : "spools">></span> to repair the <<print _item.name>>.
+			<<else>>
+				<<set $DoLPSpools -= _repairSpools>>
+				<<set _item.integrity to clothingData(_slot,_item,'integrity_max')>>
+				<<set $_timeSpent to 5>>
+				/*Repair the relating items*/
+				<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
+					<<set _selectedWardrobe[$_outfitSlot][$_outfitId].integrity to clothingData($_outfitSlot,_selectedWardrobe[$_outfitSlot][$_outfitId],'integrity_max')>>
+					<<set $_timeSpent += 5>>
+				<</for>>
+				<<pass $_timeSpent>>
+				You repair the <<print _item.name>>.
+			<</if>>
 			<br>
 		<<elseif $wardrobeOption is "separateOutfits" and Object.values(_outfitPieceIds).length gt 0>>
 			<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
@@ -894,7 +903,7 @@
 		<span class="wardrobe-mode-caption">Click an item to:</span>
 		<label class="wardrobe-mode"><<radiobutton "$wardrobeOption" "wear" autocheck>><span class="wardrobe-mode-label">Wear</span></label>
 		<<if $sewingKit is 1 and $location is "home">>
-			<label class="wardrobe-mode"><<radiobutton "$wardrobeOption" "repair" autocheck>><span class="wardrobe-mode-label">Repair (0:05 per piece)</span></label>
+			<label class="wardrobe-mode"><<radiobutton "$wardrobeOption" "repair" autocheck>><span class="wardrobe-mode-label">Repair (0:05 and 1 spool per piece)</span></label>
 		<</if>>
 		<label class="wardrobe-mode"><<radiobutton "$wardrobeOption" "separateOutfits" autocheck>><span class="wardrobe-mode-label">Separate Outfits</span></label>
 		<<if $settings.multipleWardrobes and $wardrobes[$wardrobe_location].transfer && Object.values($wardrobes).filter(w => w.unlocked && w.shopSend).length > 1>>

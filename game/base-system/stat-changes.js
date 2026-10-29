@@ -83,6 +83,7 @@ const statChange = (() => {
 				(V.beautyBoost.hands || 0) +
 				(V.beautyBoost.hygiene || 0) +
 				(V.beautyBoost.tan || 0) +
+				(V.beautyBoost.perfume || 0) +
 				getSpaBeautyBoost();
 		}
 		// Makeup boost: calculated dynamically (350 per cosmetic, 170 for concealer, up to total of 1350)
@@ -112,6 +113,7 @@ const statChange = (() => {
 			if (V.beautyBoost.tan > 0) sources.push("healthy glow");
 			if (getSpaBeautyBoost() > 0) sources.push(V.beautyBoost.spa?.treatment || "spa treatment");
 		}
+		if (V.beautyBoost?.perfume > 0) sources.push("perfume");
 		if (V.makeup) {
 			const hasMakeup =
 				(V.makeup.lipstick && V.makeup.lipstick !== 0) ||

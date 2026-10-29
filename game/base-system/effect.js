@@ -325,6 +325,16 @@ function effectsMakeup() {
 			br();
 		}
 
+		if (V.beautyBoost.perfume > 0 && !V.beautyBoost._perfumeShown) {
+			V.beautyBoost._perfumeShown = true;
+			span("The perfume on your skin makes you feel more alluring.", "gold");
+			br();
+		} else if (V.beautyBoost.perfume <= 0 && V.beautyBoost._perfumeShown) {
+			delete V.beautyBoost._perfumeShown;
+			span("The glow from your perfume has worn off.", "teal");
+			br();
+		}
+
 		if (V.beautyBoost.teeth > 0 && !V.beautyBoost._teethShown) {
 			V.beautyBoost._teethShown = true;
 			span("Your clean smile gives you a quiet confidence.", "gold");

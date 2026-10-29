@@ -1717,7 +1717,8 @@ $(document).on(":passagestart", ev => {
 
 // Save compatibility runs on load; only expiry checks need a per-passage tick.
 function repairBeautyBoostShape() {
-	V.beautyBoost ??= { bath: 0, teeth: 0, face: 0, hands: 0, hygiene: 0, tan: 0 };
+	V.beautyBoost ??= { bath: 0, teeth: 0, face: 0, hands: 0, hygiene: 0, tan: 0, perfume: 0 };
+	if (V.beautyBoost.perfume == null) V.beautyBoost.perfume = 0;
 	if (V.beautyBoost.bath == null) V.beautyBoost.bath = 0;
 	if (V.beautyBoost.teeth == null) V.beautyBoost.teeth = 0;
 	if (V.beautyBoost.face == null) V.beautyBoost.face = 0;
