@@ -34,6 +34,14 @@
 		<<set versionUpdateCheck to false>>
 		<<set onLoadUpdateCheck to false>>
 
+		/* The no-argument breastfed widget previously subtracted an undefined milk amount. */
+		<<script>>
+			for (const variables of [V, ...State.history.map(moment => moment.variables)]) {
+				if (Number.isNaN(variables.hunger)) variables.hunger = 0;
+				if (Number.isNaN(variables.thirst)) variables.thirst = 0;
+			}
+		<</script>>
+
 		/* convert game version to numeric value for use in <<backComp>> */
 		<<set _version to (V.saveVersions?.last()?.match(/\d+/g) || [0]).map(Number).reduce((acc, num, index) => acc + num * Math.pow(100, 3 - index), 0)>>
 		/* preserve prng so updater code won't alter which events are picked, don't forget to restore it
