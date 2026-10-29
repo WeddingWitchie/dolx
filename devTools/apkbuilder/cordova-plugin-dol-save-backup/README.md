@@ -37,8 +37,8 @@ This plugin keeps up to three recent recovery snapshots in Android's private app
 
 1. Export a save file before updating. Install the updated APK over the existing app when supported; keep exported files outside the app.
 2. Play a regular non-Ironman game and save to a slot as usual. A recovery copy is requested automatically. Autosaves also request copies, at most once every ten minutes. There is no separate enable button.
-3. Open **Saves** and look for the **APK recovery backups** entries. Each entry shows the save name, game day, and time. Wait for a pending write to finish and reopen Saves if a just-created copy is not listed yet.
-4. If normal slots disappear, open **Saves**, find the last good recovery entry, and select **Restore APK backup**. Confirm to replace the currently running game, including any unsaved progress. Cancel leaves your current game unchanged. If the newest copy fails, try an older one.
+3. Open **Saves**, then select **Backups** to find the APK recovery copies. Each entry shows the save name, game day, and time. Wait for a pending write to finish and reopen Backups if a just-created copy is not listed yet.
+4. If normal slots disappear, open **Saves**, select **Backups**, find the last good recovery entry, and select **Restore APK backup**. Confirm to replace the currently running game, including any unsaved progress. Cancel leaves your current game unchanged. If the newest copy fails, try an older one.
 5. After recovery, save normally to create a slot again and export a separate file. Recovery loads one snapshot; it does not recreate the entire missing slot list.
 
 If saves disappear, check recovery before making more saves: new copies eventually replace older ones. The three copies are shared by the app installation, not three copies per character or per slot. Deleting a normal slot leaves recovery copies intact. Clearing app data or uninstalling deletes the native backups too.

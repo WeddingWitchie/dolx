@@ -31,6 +31,7 @@
 		Performance: "\u21AF", // ↯
 		Advanced: "\u2692\uFE0E", // ⚒︎
 		Saves: "\u25A3", // ▣
+		Backups: "\u21BA",
 		"Export/Import": "\u21C4", // ⇄
 
 		"Event Info": "\u25CE", // ◎

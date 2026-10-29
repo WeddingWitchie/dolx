@@ -161,7 +161,7 @@ const DoLSaveGuard = (() => {
 							try {
 								const payload = JSON.parse(await appBackup().read(backup.index));
 								if (payload.date !== backup.date || payload.saveId !== backup.saveId) {
-									throw new Error("The backup changed. Reopen Saves to refresh the list.");
+									throw new Error("The backup changed. Reopen Backups to refresh the list.");
 								}
 								if (restorePayload(payload)) {
 									dismissLoss();
@@ -658,7 +658,7 @@ const DoLSaveGuard = (() => {
 							"p",
 							appBackup() == null
 								? "No browser-side backup copy was available. An exported file is the only independent copy."
-								: "No localStorage backup copy was available. Check the APK recovery backups below, or import an exported file."
+								: "No localStorage backup copy was available. Check the APK recovery copies in the Backups tab, or import an exported file."
 					  ),
 				element("p", "The backup and save-list record use the same browser or app storage. They can also disappear if all site data is cleared."),
 				element("div", actions),
@@ -705,7 +705,7 @@ const DoLSaveGuard = (() => {
 						event.currentTarget.disabled = true;
 						event.currentTarget.value = "Requesting...";
 						await requestPersistence();
-						await renderNotice(container.id);
+						await renderNotice(container.id, true);
 					},
 				})
 			);
@@ -714,27 +714,28 @@ const DoLSaveGuard = (() => {
 	}
 
 	/**
-	 * Reconcile storage, then draw whichever notice applies. Called by the saves overlay.
+	 * Reconcile storage, then draw loss notices or the Backups tab's storage and recovery controls.
 	 *
 	 * @param {string} containerId
+	 * @param {boolean} showBackups include routine storage guidance and APK recovery copies
 	 * @returns {Promise<void>}
 	 */
 	let noticeRender = 0;
 
-	async function renderNotice(containerId) {
+	async function renderNotice(containerId, showBackups = false) {
 		const container = document.getElementById(containerId);
 		if (container == null) return;
 		/* Re-rendering the Saves tab starts a second pass while the first is still awaiting storage.
 		   Without this, both would append and the notice would appear twice. */
 		const pass = ++noticeRender;
 		container.textContent = "";
-		const [, , backups] = await Promise.all([refresh(), checkPersistence(), appBackups()]);
+		const [, , backups] = await Promise.all([refresh(), showBackups ? checkPersistence() : null, showBackups && !V.ironmanmode ? appBackups() : []]);
 		if (pass !== noticeRender || !container.isConnected) return;
 		container.textContent = "";
 		const report = getLossReport();
 		if (report != null) renderLoss(container, report);
-		else renderPersistenceHint(container);
-		renderAppBackups(container, backups);
+		else if (showBackups) renderPersistenceHint(container);
+		if (showBackups) renderAppBackups(container, backups);
 	}
 
 	/**
@@ -804,10 +805,6 @@ const DoLSaveGuard = (() => {
 	});
 })();
 window.DoLSaveGuard = DoLSaveGuard;
-
-/* Avoid duplicate export reminders: renderPersistenceHint already provides this message.
-   Clear the format's copy before L10n.init(), so this must run at top level. */
-l10nStrings.savesExportReminder = "";
 
 /* Run once per session, as early as the storage APIs allow. idb already requests persistence while
    opening its database, so this layer only reads the result instead of adding a redundant prompt. */

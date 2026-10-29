@@ -189,10 +189,10 @@ test.describe("Save resilience", () => {
 			const host = document.createElement("div");
 			host.id = "test-saves-overlay";
 			document.body.appendChild(host);
-			new (window as any).SugarCube.Wikifier(host, "<<saves>>");
+			new (window as any).SugarCube.Wikifier(host, "<<saveBackups>>");
 		});
-		await expect(page.locator("#saveGuardNotice")).toContainText("backup could not be updated");
-		await expect(page.locator("#saveGuardNotice")).toContainText("deliberate slot save will retry");
+		await expect(page.locator("#saveGuardBackups")).toContainText("backup could not be updated");
+		await expect(page.locator("#saveGuardBackups")).toContainText("deliberate slot save will retry");
 
 		await page.evaluate(() => {
 			const SC = (window as any).SugarCube;
@@ -267,7 +267,7 @@ test.describe("Save resilience", () => {
 		await expect(page.locator("#saveGuardDiagnostics")).toContainText("Storage persistent");
 	});
 
-	test("the saves overlay warns when persistent storage is denied", async ({ page }) => {
+	test("routine storage guidance stays in Backups and the persistence request still works", async ({ page }) => {
 		await page.addInitScript(() => {
 			Object.defineProperty(navigator, "storage", {
 				configurable: true,
@@ -283,16 +283,132 @@ test.describe("Save resilience", () => {
 			(window as any).SugarCube.Wikifier.wikifyEval('<<overlayReplace "saves">>');
 		});
 
-		const notice = page.locator("#saveGuardNotice");
+		const tabs = page.locator("#overlayTabs");
+		await expect(tabs.locator("button")).toHaveText(["Saves", "Backups", "Export/Import"]);
+		await expect(page.locator("#saveGuardNotice")).toBeEmpty();
+		await expect(page.locator("#saves-export-reminder")).toContainText("browser cache is cleared");
+		await tabs.getByRole("button", { name: "Backups", exact: true }).click();
+		const notice = page.locator("#saveGuardBackups");
 		await expect(notice).toContainText("Protected storage is not enabled");
 		await expect(notice).toContainText("Export your save to a file");
 		const button = notice.locator("br + input[value='Request persistent storage']");
 		await expect(button).toBeVisible();
 		await button.click();
 		await expect(notice).toContainText("Your browser did not allow protected storage");
-		await expect(page.locator("#saves-export-reminder")).toBeEmpty();
+		await expect(page.locator("#saves-export-reminder")).toHaveCount(0);
 		await expect(button).toHaveCount(0);
 		expect(await page.evaluate(() => JSON.parse(localStorage.getItem("dolStoragePersistence") ?? "null").requested)).toBe(true);
+		await tabs.getByRole("button", { name: "Saves", exact: true }).click();
+		await expect(page.locator("#saveGuardBackups")).toHaveCount(0);
+		await expect(page.locator("#saveList")).toBeVisible();
+		await expect(page.locator("#saveGuardNotice")).toBeEmpty();
+		await tabs.getByRole("button", { name: "Backups", exact: true }).click();
+		await expect(page.locator("#saveGuardBackups")).toContainText("Your browser did not allow protected storage");
+		await tabs.getByRole("button", { name: "Export/Import", exact: true }).click();
+		await expect(page.locator("#saveDataInput")).toBeVisible();
+		await page.evaluate(() => {
+			(window as any).closeOverlay();
+			(window as any).SugarCube.Wikifier.wikifyEval('<<overlayReplace "export">>');
+		});
+		await expect(tabs.locator(".tab-selected")).toHaveText("Export/Import");
+	});
+
+	test("APK recovery copies render only in Backups and still restore the selected save", async ({ page }) => {
+		await setupGame(page);
+		await page.evaluate(() => {
+			(window as any).SugarCube.State.variables.money = 654300;
+		});
+		await navigateTo(page, "Bedroom");
+		await page.evaluate(() => {
+			const guard = (window as any).DoLSaveGuard;
+			guard.lifeboat.write(true);
+			const payload = localStorage.getItem("dolSaveLifeboat")!;
+			const save = JSON.parse(payload);
+			(window as any).backupListCalls = 0;
+			(window as any).cordova = {
+				plugins: {
+					dolSaveBackup: {
+						list: async () => {
+							(window as any).backupListCalls++;
+							return [{ index: 0, date: save.date, saveId: save.saveId, saveName: "APK test", days: save.days }];
+						},
+						read: async () => payload,
+					},
+				},
+			};
+			(window as any).SugarCube.State.variables.money = 1;
+			(window as any).SugarCube.Wikifier.wikifyEval('<<overlayReplace "saves">>');
+		});
+		const tabs = page.locator("#overlayTabs");
+		await expect(page.locator("#saveList")).toBeVisible();
+		await expect(page.locator("input[value='Restore APK backup']")).toHaveCount(0);
+		expect(await page.evaluate(() => (window as any).backupListCalls)).toBe(0);
+		await tabs.getByRole("button", { name: "Backups", exact: true }).click();
+		await expect(page.locator("#saveGuardBackups")).toContainText("APK test");
+		await expect(page.locator("input[value='Restore APK backup']")).toHaveCount(1);
+		await tabs.getByRole("button", { name: "Saves", exact: true }).click();
+		await tabs.getByRole("button", { name: "Backups", exact: true }).click();
+		await expect(page.locator("input[value='Restore APK backup']")).toHaveCount(1);
+		page.once("dialog", dialog => dialog.accept());
+		await page.locator("input[value='Restore APK backup']").click();
+		await expect.poll(() => page.evaluate(() => (window as any).SugarCube.State.variables.money)).toBe(654300);
+	});
+
+	test("Ironman does not query or expose APK recovery copies", async ({ page }) => {
+		await setupGame(page);
+		await page.evaluate(() => {
+			(window as any).SugarCube.State.variables.ironmanmode = true;
+			(window as any).backupListCalls = 0;
+			(window as any).cordova = {
+				plugins: {
+					dolSaveBackup: {
+						list: async () => {
+							(window as any).backupListCalls++;
+							return [];
+						},
+					},
+				},
+			};
+			(window as any).SugarCube.Wikifier.wikifyEval('<<overlayReplace "saves">>');
+		});
+		await page.locator("#overlayTabs").getByText("Backups", { exact: true }).click();
+		await page.evaluate(() => (window as any).DoLSaveGuard.renderNotice("saveGuardBackups", true));
+		expect(await page.evaluate(() => (window as any).backupListCalls)).toBe(0);
+		await expect(page.locator("input[value='Restore APK backup']")).toHaveCount(0);
+		expect(await page.evaluate(() => (window as any).SugarCube.State.variables.ironmanmode)).toBe(true);
+	});
+
+	test("late APK results cannot populate another tab or duplicate recovery controls", async ({ page }) => {
+		await setupGame(page);
+		await page.evaluate(() => {
+			(window as any).backupResolvers = [];
+			(window as any).cordova = {
+				plugins: {
+					dolSaveBackup: {
+						list: () => new Promise(resolve => (window as any).backupResolvers.push(resolve)),
+					},
+				},
+			};
+			(window as any).SugarCube.Wikifier.wikifyEval('<<overlayReplace "saves">>');
+		});
+		const tabs = page.locator("#overlayTabs");
+		await tabs.getByText("Backups", { exact: true }).click();
+		await expect.poll(() => page.evaluate(() => (window as any).backupResolvers.length)).toBe(1);
+		await tabs.getByText("Saves", { exact: true }).click();
+		await tabs.getByText("Backups", { exact: true }).click();
+		await expect.poll(() => page.evaluate(() => (window as any).backupResolvers.length)).toBe(2);
+		await page.evaluate(() => {
+			(window as any).backupResolvers[1]([{ index: 0, saveName: "current backup", date: 2 }]);
+		});
+		await expect(page.locator("#saveGuardBackups")).toContainText("current backup");
+		await page.evaluate(() => {
+			(window as any).backupResolvers[0]([{ index: 0, saveName: "stale backup", date: 1 }]);
+		});
+		await expect(page.locator("#saveGuardBackups")).not.toContainText("stale backup");
+		await expect(page.locator("input[value='Restore APK backup']")).toHaveCount(1);
+		await tabs.getByText("Saves", { exact: true }).click();
+		await expect(page.locator("#saveGuardBackups")).toHaveCount(0);
+		await expect(page.locator("#saveGuardNotice")).toBeEmpty();
 	});
 
 	test("diagnostics report the storage facts needed to triage a report", async ({ page }) => {
