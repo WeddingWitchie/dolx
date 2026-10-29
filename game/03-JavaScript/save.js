@@ -1023,7 +1023,7 @@ function settingsPreviewLeaves(config, data, out) {
 }
 window.settingsPreviewLeaves = settingsPreviewLeaves;
 
-function exportSettings(data, type) {
+function exportSettings(type) {
 	const output = {
 		general: {},
 		npc: {},

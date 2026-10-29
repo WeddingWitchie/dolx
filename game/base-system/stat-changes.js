@@ -1640,7 +1640,7 @@ const statChange = (() => {
 		if (lastBadEnd && !lastBadEnd.trackedEnd) {
 			badEndTrackingEnd(lastBadEnd.source, {
 				reason: "unknown",
-				notes: `A bad end started in passage ${V.passage} while the previous bad end was still active. This is an error. Please report this to D.N.A.`,
+				notes: `A bad end started in passage ${V.passage} while the previous bad end was still active. This is an error. Please report this to the developer`,
 			});
 		}
 
@@ -1673,7 +1673,7 @@ const statChange = (() => {
 			badEndTracking(source, {
 				reason: "unknown",
 				notes: `No bad end was considered active in ${V.passage} when badEndTrackingEnd was called. This is
-				 ${V.badEndStats.length ? "an error. Please report this to D.N.A." : "likely due to loading an old save"}.`,
+				 ${V.badEndStats.length ? "an error. Please report this to the developer" : "likely due to loading an old save"}.`,
 			});
 			lastBadEnd = V.badEndStats.last();
 		}

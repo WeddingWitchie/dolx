@@ -1,5 +1,5 @@
 /**
- * As the v0.17.0 DoLX update, D.N.A. separated gender-identity and pill related handling:
+ * As the v0.17.0 DoLX update, the developer separated gender-identity and pill related handling:
  * - JS-side logic moved/split from `xchange.js` into `identity.js`
  * - The split also applied for the corresponding Twine-side logic
  * Some gender-identity core functions and utilities are still in `xchange.js`, and some mirrored behaviour
