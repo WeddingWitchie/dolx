@@ -1,58 +1,3 @@
-:: Widgets Mines [widget]
-<<widget "mines_init">>
-<<if $prof.pickaxe is undefined>>
-	<<set $prof.pickaxe to 0>>
-<</if>>
-<<set $mines_suspicion to 61>>
-<<set $mines_guards_dig to 0>>
-<</widget>>
-
-<<widget "mines_end">>
-<<unset $mines_suspicion>>
-<<unset $mines_guards_dig>>
-<<unset $mines_bed>>
-<</widget>>
-
-<<widget "mines_dig_progress">>
-	/* Shows tunnel completion including the current dig: passages set _digAmount before calling this, then apply it to $mines_guards_dig at the bottom. */
-	<<set _digTotal to Math.clamp($mines_guards_dig + (_digAmount || 0), 0, 20)>>
-	<<set _digPercent to Math.floor((_digTotal / 20) * 100)>>
-	<<set _digColor to ["red", "red", "pink", "pink", "purple", "purple", "blue", "lblue", "teal", "green", "green"][Math.clamp(Math.floor(_digPercent / 10), 0, 10)]>>
-	The escape tunnel looks <span @class="_digColor"><<print _digPercent>>%</span> complete.
-	<br><br>
-<</widget>>
-
-<<widget "passout_mines">>
-<<passout>>
-<<link [[Next|Mines Passout]]>><</link>>
-<br>
-<</widget>>
-
-<<widget "mines_suspicion_text">>
-<<if $mines_suspicion gte 100>>
-	<span class="red">The guards don't take their eyes off you.</span>
-<<elseif $mines_suspicion gte 80>>
-	<span class="pink">The guards throw searching glances in your direction.</span>
-<<elseif $mines_suspicion gte 60>>
-	<span class="purple">The guards eye you warily.</span>
-<<elseif $mines_suspicion gte 40>>
-	<span class="blue">The guards are keeping an eye on you.</span>
-<<elseif $mines_suspicion gte 20>>
-	<span class="lblue">The guards pay you little attention.</span>
-<<elseif $mines_suspicion gte 1>>
-	<span class="teal">The guards don't pay you any attention.</span>
-<<else>>
-	<span class="green">You might as well be invisible for all the guards pay attention to you.</span>
-<</if>>
-<</widget>>
-
-<<widget "mines_suspicion">>
-	<<if _args[0] and $statFreeze isnot true>>
-		<<set $mines_suspicion += (_args[0])>>
-		<<set $mines_suspicion to Math.clamp($mines_suspicion, 0, 100)>>
-	<</if>>
-<</widget>>
-
 :: Widgets Mine [widget]
 <<widget "mine_init">>
 	<<if $prof.pickaxe is undefined>>
@@ -187,7 +132,6 @@
 <</widget>>
 
 <<widget "mine_passout">>
-	<<if $passage.startsWith("Mines")>><<passout_mines>><<exit>><</if>>
 	You've pushed yourself too much.
 	<br><br>
 
