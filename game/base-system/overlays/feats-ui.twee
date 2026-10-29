@@ -1045,6 +1045,7 @@
 			<</if>>
 		<<case "sexToys">>
 			Each purchased upgrade will give you three starting sex toys of your choice.
+			Novelty chastity devices are placed in your wardrobe with their keys.
 		<<case "xchangePremiumPills">>
 			Each purchased pack gives you five X-Change Premium pills.
 		<<case "greenThumb">>
@@ -1174,7 +1175,8 @@
 	<</if>>
 	<<if _toys is undefined>>
 		<<set _toys to {}>>
-		<<run Object.values(setup.sextoys.filter(item => !item.shop.includes("forest"))).forEach(toy => T.toys[toy.namecap] = toy.index)>>
+		<<run setup.sextoys.forEach(toy => T.toys[toy.namecap] = toy.index)>>
+		<<run setup.clothes.genitals.filter(item => item.chastityKey === "player").forEach(item => T.toys[item.name.toUpperFirst()] = item.name)>>
 	<</if>>
 	<<if _totalToys gt 1>>
 		<div class="settingsGrid" style="margin:10px 0px">
@@ -1222,6 +1224,9 @@
 	<<if $featsBoosts.sexToys[_toyNumber].index isnot undefined and $featsBoosts.sexToys[_toyNumber].index isnot -1>>
 		<<set _toyColours to {}>>
 		<<set _selectedToy to Object.values(setup.sextoys).find(toy => toy.index === V.featsBoosts.sexToys[T.toyNumber].index)>>
+		<<if !_selectedToy>>
+			<<set _selectedToy to setup.clothes.genitals.find(item => item.name === V.featsBoosts.sexToys[T.toyNumber].index and item.chastityKey === "player")>>
+		<</if>>
 		<<if _selectedToy and _selectedToy.colour_options and _selectedToy.colour_options.length>>
 			<<run _selectedToy.colour_options.forEach(colour => _toyColours[colour] = colour)>>
 		<</if>>

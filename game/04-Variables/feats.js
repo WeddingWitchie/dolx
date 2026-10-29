@@ -4746,7 +4746,8 @@ function applyFeatBoosts() {
 	if (upgrades.sexToys) {
 		const totalToys = gain("sexToys", 3);
 		// stupid code uses stupid indexes, arrrr
-		const toyIndexes = setup.sextoys.filter(t => !t.shop.includes("forest")).map(m => m.index);
+		const noveltyChastity = setup.clothes.genitals.filter(item => item.chastityKey === "player");
+		const toyIndexes = setup.sextoys.map(m => m.index).concat(noveltyChastity.map(item => item.name));
 		const boostObj = V.featsBoosts.sexToys;
 		// remove claimed non-random toys from the pool
 		for (let i = 0; i < totalToys; ++i) {
@@ -4756,11 +4757,19 @@ function applyFeatBoosts() {
 			// index
 			let index = boostObj[i].index;
 			if (index == null || index === -1) index = toyIndexes.pluck();
+			const chastity = noveltyChastity.find(item => item.name === index);
+			const item = chastity || setup.sextoys[index];
 			// color
 			let color = boostObj[i].colour;
-			if (color == null || color === -1) color = setup.sextoys[index].colour_options.random();
+			if (color == null || color === -1 || !item.colour_options.includes(color)) color = item.colour_options.random();
 
-			sexShopOnBuyClick(index, false, color, false);
+			if (chastity) {
+				const clothing = clone(chastity);
+				clothing.colour = color;
+				V.wardrobe.genitals.push(clothing);
+			} else {
+				sexShopOnBuyClick(index, false, color, false);
+			}
 		}
 	}
 
