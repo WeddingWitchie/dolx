@@ -93,18 +93,15 @@ var Renderer;
 		});
 		// Older packs have separate freckles and blush. Compose those without requiring new pack assets.
 		Promise.all([
-			load(`${root}/${variant}/freckles.png`).catch(error => {
-				if (variant === "default") throw error;
-				return load(`${root}/freckles.png`);
-			}),
+			load(`${root}/${variant}/freckles.png`).catch(() => load(`${root}/freckles.png`)),
 			load(`${root}/${variant}/${blush}.png`),
 		]).then(([freckles, colour]) => {
 			const height = Math.max(freckles.height, colour.height);
-			const frames = Math.max(freckles.width / freckles.height, colour.width / colour.height);
+			const frames = Math.max(Math.floor(freckles.width / freckles.height), Math.floor(colour.width / colour.height));
 			const canvas = createCanvas(height * frames, height);
 			canvas.imageSmoothingEnabled = false;
 			for (const image of [colour, freckles]) {
-				const imageFrames = image.width / image.height;
+				const imageFrames = Math.floor(image.width / image.height);
 				for (let frame = 0; frame < frames; frame++) {
 					canvas.drawImage(image, (frame % imageFrames) * image.height, 0, image.height, image.height,
 						frame * height, 0, height, height);

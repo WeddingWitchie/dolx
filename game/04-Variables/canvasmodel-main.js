@@ -1560,7 +1560,7 @@ Renderer.CanvasModels.main = {
 				return `img/face/${options.facestyle}/${options.facevariant}/freckles.png`;
 			},
 			showfn(options) {
-				return options.show_face && !!options.freckles && options.blush <= 0 && !options.blusher_colour;
+				return options.show_face && !!options.freckles && ((options.blush <= 0 && !options.blusher_colour) || (!!options.blusher_colour && !!options.blusher_custom));
 			},
 		},
 		// Combination of freckles and blush
@@ -1572,7 +1572,7 @@ Renderer.CanvasModels.main = {
 				return `img/face/${options.facestyle}/${options.facevariant}/blush-freckles/freckles-blush-${options.blush}.png`;
 			},
 			showfn(options) {
-				return options.show_face && !!options.freckles && options.blush > 0;
+				return options.show_face && !!options.freckles && options.blush > 0 && !(options.blusher_colour && options.blusher_custom);
 			},
 		},
 		// Combination of freckles and blusher
@@ -1584,7 +1584,7 @@ Renderer.CanvasModels.main = {
 				return `img/face/${options.facestyle}/${options.facevariant}/blush-freckles/freckles-blusher.png`;
 			},
 			showfn(options) {
-				return options.show_face && !!options.freckles && !!options.blusher_colour;
+				return options.show_face && !!options.freckles && !!options.blusher_colour && !options.blusher_custom;
 			},
 		},
 		"ears": {
@@ -1723,7 +1723,7 @@ Renderer.CanvasModels.main = {
 				return `img/face/${options.facestyle}/${options.facevariant}/blusher.png`;
 			}, filtersfn(options) { return (options.blusher_custom) ? ["blusher"] : ["tan"]; },
 			showfn(options) {
-				return options.show_face && !!options.blusher_colour && !options.freckles;
+				return options.show_face && !!options.blusher_colour && (!options.freckles || !!options.blusher_custom);
 			},
 		},
 		"brows": {
@@ -1776,7 +1776,7 @@ Renderer.CanvasModels.main = {
 				return `img/face/${options.facestyle}/${options.facevariant}/blush-${options.blush}.png`;
 			},
 			showfn(options) {
-				return options.show_face && options.blush > 0 && !options.freckles;
+				return options.show_face && options.blush > 0 && (!options.freckles || (!!options.blusher_colour && !!options.blusher_custom));
 			},
 		},
 		"tears": {
