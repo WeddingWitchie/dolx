@@ -259,7 +259,7 @@ const events = [
 	{
 		name: "bailey date",
 		condition() {
-			return (V.bailey_date_scheduled === 1 || V.bailey_date_allnight_scheduled === 1) && V.rentTime > 0 && V.bailey_date_attended !== 1;
+			return (V.baileyDateScheduled || V.baileyDateAllNightScheduled) && V.rentTime > 0 && !V.baileyDateAttended;
 		},
 		starthour: 19,
 		endhour: 19,
@@ -271,10 +271,10 @@ const events = [
 		name: "bailey halloween gala",
 		condition() {
 			return (
-				V.bailey_halloween_scheduled === Time.year &&
+				V.baileyHalloweenScheduled === Time.year &&
 				Time.monthDay === 31 &&
 				Time.monthName === "October" &&
-				V.bailey_halloween_attended !== Time.year &&
+				V.baileyHalloweenAttended !== Time.year &&
 				!V.possessed
 			);
 		},
