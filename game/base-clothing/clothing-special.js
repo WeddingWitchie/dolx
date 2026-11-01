@@ -42,7 +42,7 @@ function initSpecialClothes() {
 		{ name: "reindeer slippers", 			sets: ["christmas"] },
 		{ name: "candy cane", 					sets: ["christmas"] },
 
-		{ name: "rose", 						sets: ["valentines", "flowers"], requirements: () => V.gwylanSeen?.includes("rose"), hint: "get kissed by a rose" },
+		{ name: "rose", 						sets: ["valentines", "flowers"], requirements: () => V.gwylanSeen?.includes("rose_kiss"), hint: "get kissed by a rose" },
 		{ name: "rose eyepatch", 				sets: ["valentines", "rose_wedding"] },
 		{ name: "rose wedding veil", 			sets: ["valentines", "rose_wedding"] },
 		{ name: "long rose wedding veil", 		sets: ["valentines", "rose_wedding"] },
