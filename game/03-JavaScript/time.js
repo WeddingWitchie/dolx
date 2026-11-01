@@ -2259,8 +2259,8 @@ function dailyNPCEffects() {
 	// Wraith
 	if (V.wraith.state) {
 		if (V.wraithAngerCooldown) {
-			if (V.wraithAngerCooldown > 0) V.wraithAngerCooldown--;
-			else {
+			V.wraithAngerCooldown--;
+			if (V.wraithAngerCooldown <= 0) {
 				V.wraith.offspring = "";
 				delete V.wraithAngerCooldown;
 			}
@@ -2847,7 +2847,7 @@ function yearlyEventChecks() {
 		V.avery_valentines.invite = false;
 		V.avery_valentines.ready = false;
 		V.avery_valentines.done = false;
-		V.avery_valentines.reservation = false;
+		V.avery_valentines.reservations = false;
 		V.avery_valentines.chocolate = false;
 		V.avery_valentines.chocolate_asked = false;
 		V.avery_valentines.opinion = "none";
