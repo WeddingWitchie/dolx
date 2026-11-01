@@ -1,4 +1,4 @@
-const BAILEY_EXPANSION_VERSION = "0.6.3.1";
+const BAILEY_EXPANSION_VERSION = "0.6.3.2";
 
 function baileyRevealed() {
 	return V.syndromeBailey === true;
