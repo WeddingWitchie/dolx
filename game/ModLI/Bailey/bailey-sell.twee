@@ -1,8 +1,6 @@
 :: Bailey Offer Yourself
 <<effects>><<speechresolve>>
 <<person1>>
-<<if $stockholm_points is undefined>><<set $stockholm_points to {}>><</if>>
-<<set $bailey_offered to ($bailey_offered || 0)>>
 
 <<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"I-I have the money," you say quietly. You hold it out, then pull it back slightly. "But I could... go. If you wanted. I-I'll be back."
@@ -25,7 +23,7 @@
 <<set _offerHeld to !!$bailey_confiscation>>
 <<baileyOfferSettleRent>>
 
-<<if $bailey_offered is undefined or $bailey_offered is 0>>
+<<if $baileyOffered is 0>>
 	<<if $baileydefeated gte 5>>
 		Bailey goes very still. <<He>> frowns deeply, <<his>> eyes moving over your face.
 		<br><br>
@@ -36,7 +34,7 @@
 		<<He>> produces a hood and rope from behind <<his>> back.
 		<br><br>
 
-		"Fine, you little shit. Let's see how you do."<<npcincr Bailey dom 3>><<gggdom>><<npcincr Bailey love 3>><<ggglove>><<set $syndromebaileybuild += 3>><<set $stockholm_points.offer to true>><<set $stockholm_points.offer_defeat to true>><<gbaileystock>>
+		"Fine, you little shit. Let's see how you do."<<npcincr Bailey dom 3>><<gggdom "Bailey">><<npcincr Bailey love 3>><<ggglove "Bailey">><<set $syndromeBaileyBuild += 3>><<set $baileyStockholmPoints.offer to true>><<set $baileyStockholmPoints.offerDefeat to true>><<gbaileystock>>
 		<br><br>
 	<<else>>
 		Bailey goes very still. <<His>> eyes move over your face, evaluating it for something. The corner of <<his>> mouth twitches into a smirk.
@@ -45,13 +43,13 @@
 		<<He>> takes the money from you. Then <<he>> produces a hood and rope from behind <<his>> back.
 		<br><br>
 
-		"Don't make me regret this."<<npcincr Bailey dom 3>><<gggdom>><<npcincr Bailey love 3>><<ggglove>><<set $syndromebaileybuild += 1>><<set $stockholm_points.offer to true>><<gbaileystock>>
+		"Don't make me regret this."<<npcincr Bailey dom 3>><<gggdom "Bailey">><<npcincr Bailey love 3>><<ggglove "Bailey">><<set $syndromeBaileyBuild += 1>><<set $baileyStockholmPoints.offer to true>><<gbaileystock>>
 		<br><br>
 	<</if>>
-	/* Don't bump $bailey_offered here. That happens later in Bailey Offer Walk. */
+	/* Don't bump $baileyOffered here. That happens later in Bailey Offer Walk. */
 <<else>> /* Stockholm Activation */
-	<<if $syndromebaileybuild gte 3 and $syndromebailey isnot true>> 
-		<<set $bailey_offered += 1>>
+	<<if $syndromeBaileyBuild gte 3 and $syndromeBailey isnot true>> 
+		<<set $baileyOffered += 1>>
 
 		<<He>> takes the money from your hand and counts it slower than usual. <<He>> folds it into <<his>> coat.
 		<br><br>
@@ -68,12 +66,12 @@
 		<</if>>
 		<<link [[Next|Bailey Stockholm Reveal]]>><</link>>
 	<<else>>
-		<<if $bailey_offered gte 4>>
-			Bailey tosses you a hood. <<Hes>> smiling at you.
+		<<if $baileyOffered gte 4>>
+			Bailey tosses you a hood. <<He>>'s smiling at you.
 			<br><br>
 
 			"You know the way."
-		<<elseif $bailey_offered gte 3>>
+		<<elseif $baileyOffered gte 3>>
 			The hood is already in <<his>> hand. <<He>> holds it out to you.
 			<br><br>
 
@@ -82,22 +80,22 @@
 			Bailey lets out a light exhale. <<He>> pulls out a hood and ropes from seemingly nowhere.
 			<br><br>
 
-			"Let's go, then."<<npcincr Bailey dom 1>><<gdom>><<npcincr Bailey love 1>><<glove>>
+			"Let's go, then."<<npcincr Bailey dom 1>><<gdom "Bailey">><<npcincr Bailey love 1>><<glove "Bailey">>
 		<</if>>
 		<br><br>
 
-		<<set $bailey_offered += 1>>
+		<<set $baileyOffered += 1>>
 	<</if>>
 <</if>>
 
-<<if $syndromebaileybuild lt 3 or $syndromebailey is true or $bailey_offered lte 1>>
+<<if $syndromeBaileyBuild lt 3 or $syndromeBailey is true or $baileyOffered lte 1>>
 	<<if _offerHeld and !$bailey_confiscation>>
 		<span class="blue">Bailey has returned your confiscated belongings to you.</span>
 		<br><br>
 	<</if>>
 	<<link [[Next|Bailey Offer Walk]]>><</link>>
 	<br>
-	<<if $bailey_offered_seen and $bailey_offered_seen.manor and $bailey_offered_seen.eden and $bailey_offered_seen.remy and $bailey_offered_seen.underground and setup.inflation.canAfford(300000, "baileyRent")>>
+	<<if $baileySeen.includes("offerManor") and $baileySeen.includes("offerEden") and $baileySeen.includes("offerRemy") and $baileySeen.includes("offerUnderground") and setup.inflation.canAfford(300000, "baileyRent")>>
 		<<link [[Ask to choose where you're sent (<<printmoney 300000>>)|Bailey Choose Buyer Ask]]>><</link>>
 		<br>
 	<</if>>
@@ -107,12 +105,11 @@
 :: Bailey Offer Walk
 <<effects>>
 <<set $soldCount += 1>>
-<<set $bailey_offered_seen to ($bailey_offered_seen || {})>>
 <<person1>>
 <<set $phase to 0>> /* Force phase to 0 so Robin isn't sold alongside PC. */
-<<if $bailey_offered gte 3>>
+<<if $baileyOffered gte 3>>
 	You pull the hood over your own head. Bailey binds your arms behind your back, loosely. You know the route by now. Down the stairs, along the tunnel. Bailey walks beside you.
-<<elseif $bailey_offered gte 2>>
+<<elseif $baileyOffered gte 2>>
 	With the hood over your head and your arms bound behind your back, you are led down the stairs and along the tunnel. Bailey's hand rests on your shoulder, guiding you down the tunnel.
 <<else>>
 	With your head covered by a hood and your arms bound behind your back, you are led down a flight of stairs and along a tunnel. Bailey's grip on your arm is firm but steady. You manage not to trip despite the brutal pace Bailey set.
@@ -122,10 +119,10 @@
 <<pass 20>>
 
 <<if $rentSale is 3>>
-	<<if $bailey_offered_seen.underground>>
+	<<if $baileySeen.includes("offerUnderground")>>
 		Bailey walks you down the corridor.
 		<br><br>
-		"Underground brothel," <<he>> says, like <<hes>> reading from a list. "You'll be there a while. Keep your head down and find a way out."
+		"Underground brothel," <<he>> says, like <<he>>'s reading from a list. "You'll be there a while. Keep your head down and find a way out."
 	<<else>>
 		Bailey leads you down the corridor. <<His>> pace is slower than usual.
 		<br><br>
@@ -139,17 +136,17 @@
 		<br><br>
 		"Change of plans," <<he>> says. "Someone paid more." <<He>> pauses. "Be careful with the shopkeep. You don't know what you're getting yourself into, brat."
 		<br><br>
-	<<elseif $bailey_offered_seen.remy>>
+	<<elseif $baileySeen.includes("offerRemy")>>
 		"Remy's farm," <<he>> says while <<he>> walks you. "You've been there. You know what they do."
 	<<else>>
-		Bailey is quiet for a long time. You can tell <<hes>> angry, even though you can't see <<him>>.
+		Bailey is quiet for a long time. You can tell <<he>>'s angry, even though you can't see <<him>>.
 		<br><br>
 		"You'll be taken to a farm," <<he>> says. "Try to stay in one piece."
 	<</if>>
 	<br><br>
 
 <<elseif $rentSale is 1>>
-	<<if $bailey_offered_seen.eden>>
+	<<if $baileySeen.includes("offerEden")>>
 		"Eden," Bailey says to you. "Enjoy your time playing house. I'll see you when you come home."
 	<<else>>
 		"Someone in the forest wants company," Bailey says to you. You can hear something stiff in <<his>> tone. "You'll manage."
@@ -157,7 +154,7 @@
 	<br><br>
 
 <<else>>
-	<<if $bailey_offered_seen.manor>>
+	<<if $baileySeen.includes("offerManor")>>
 		"Watch the dogs," <<he>> says. "I'll see you when you're home."
 	<<else>>
 		"Dinner party," <<he>> says. "You're on the menu."
@@ -174,7 +171,7 @@
 	<br><br>
 
 	"You won't want <<phim stranger>> when we're done."
-	<<if $bailey_offered_seen.underground>>
+	<<if $baileySeen.includes("offerUnderground")>>
 		<br><br>
 		Bailey exhales once through <<nnpc_his "Bailey">> nose. <span class="bailey-red">"I wouldn't bet on that."</span>
 	<</if>>
@@ -184,7 +181,7 @@
 	<br><br>
 
 	<<badEndTracking "Underground Dungeon" { reason: "soldBailey" }>>
-	<<link [[Next|Underground Intro]]>><<set $baileySold to true>><<set $bailey_offered_seen.underground to true>><<if $bailey_offered is 0 or $bailey_offered is undefined>><<set $bailey_offered to 1>><</if>><</link>>
+	<<link [[Next|Underground Intro]]>><<set $baileySold to true>><<baileySeenAdd "offerUnderground">><<if $baileyOffered is 0>><<set $baileyOffered to 1>><</if>><</link>>
 	<br>
 
 <<elseif $rentSale is 2>>
@@ -198,8 +195,8 @@
 		You hear <<him>> walk away, leaving you alone.
 		<br><br>
 
-		<<set $bailey_offered_seen.remy to true>>
-		<<if $bailey_offered is 0 or $bailey_offered is undefined>><<set $bailey_offered to 1>><</if>>
+		<<baileySeenAdd "offerRemy">>
+		<<if $baileyOffered is 0>><<set $baileyOffered to 1>><</if>>
 		<<endevent>>
 		<<rentGwylanTrade>>
 	<<else>>
@@ -219,7 +216,7 @@
 		You sit, then hear the slam of doors, and a few moments later you lurch as the floor moves beneath you. You're in a vehicle.
 		<br><br>
 
-		<<link [[Next|Street Van Bailey]]>><<set $baileySold to true>><<set $bailey_offered_seen.remy to true>><<if $bailey_offered is 0 or $bailey_offered is undefined>><<set $bailey_offered to 1>><</if>><</link>>
+		<<link [[Next|Street Van Bailey]]>><<set $baileySold to true>><<baileySeenAdd "offerRemy">><<if $baileyOffered is 0>><<set $baileyOffered to 1>><</if>><</link>>
 		<br>
 	<</if>>
 
@@ -229,8 +226,8 @@
 	You journey for some time until you hear birdsong, and the crunch of earth beneath your feet. A door creaks. Bailey pushes you forward, and you hear the door close and lock behind you.
 	<br><br>
 
-	<<set $bailey_offered_seen.eden to true>>
-	<<if $bailey_offered is 0 or $bailey_offered is undefined>><<set $bailey_offered to 1>><</if>>
+	<<baileySeenAdd "offerEden">>
+	<<if $baileyOffered is 0>><<set $baileyOffered to 1>><</if>>
 	<<endevent>>
 	<<rentEdenTrade>>
 
@@ -246,7 +243,7 @@
 	A moment later, you feel someone press something against your mouth, and your consciousness fades.<<arousal 6000>><<gggarousal>>
 	<br><br>
 
-	<<link [[Next|Danube Meal]]>><<endevent>><<set $phase to 0>><<set $bailey_offered_seen.manor to true>><<if $bailey_offered is 0 or $bailey_offered is undefined>><<set $bailey_offered to 1>><</if>><</link>>
+	<<link [[Next|Danube Meal]]>><<endevent>><<set $phase to 0>><<baileySeenAdd "offerManor">><<if $baileyOffered is 0>><<set $baileyOffered to 1>><</if>><</link>>
 <</if>>
 
 :: Bailey Choose Buyer Ask
@@ -348,7 +345,7 @@ A kick lands across your face.
 	You take it. You don't make a sound.<<gwillpower>><<willpower 3>>
 	<br><br>
 
-	The toe of <<his>> boot nudges your shoulder. You stay still. Bailey exhales above you.<<npcincr Bailey love 1>><<glove>>
+	The toe of <<his>> boot nudges your shoulder. You stay still. Bailey exhales above you.<<npcincr Bailey love 1>><<glove "Bailey">>
 <<else>>
 	<span class="red">You cry out.</span><<pain 4>><<gpain>><<gwillpower>><<willpower 1>>
 	<br><br>
@@ -363,7 +360,7 @@ A kick lands across your face.
 <<He>> makes you walk forward.
 <br><br>
 
-<<link "Next" $bailey_kick_return>><</link>>
+<<link "Next" "Rent Intro">><</link>>
 <br>
 
 
@@ -400,13 +397,12 @@ A swift kick lands across your face.<<pain 4>><<gpain>>
 <<He>> makes you walk forward.
 <br><br>
 
-<<link "Next" $bailey_kick_return>><</link>>
+<<link "Next" "Rent Intro">><</link>>
 <br>
 
 
 :: Bailey Sell Kick Lick
 <<effects>><<person1>>
-<<set $stockholm_points to ($stockholm_points || {})>>
 
 You hear the scuff of Bailey's shoes in front of you.
 <br><br>
@@ -420,17 +416,17 @@ You press your tongue to it. You taste dirt and salt and leather.<<arousal 600>>
 Bailey goes still. Your tongue moves clumsily over the surface of <<his>> shoe.
 <br><br>
 
-"Look at you." Bailey scoffs above you. "Pathetic."<<npcincr Bailey lust 1>><<glust>>
+"Look at you." Bailey scoffs above you. "Pathetic."<<npcincr Bailey lust 1>><<glust "Bailey">>
 <br><br>
 
 <<He>> lifts <<his>> foot and presses the toe against your jaw, holding you there for a moment. The tunnels are filled with the sound of your breathing.
 <br><br>
 
-Eventually, Bailey pulls you up by your bindings. <<He>> walks slower than before.<<npcincr Bailey dom 1>><<gdom>><<if !$stockholm_points.kick>><<set $syndromebaileybuild += 1>><<set $stockholm_points.kick to true>><<gbaileystock>><</if>>
+Eventually, Bailey pulls you up by your bindings. <<He>> walks slower than before.<<npcincr Bailey dom 1>><<gdom "Bailey">><<if !$baileyStockholmPoints.kick>><<set $syndromeBaileyBuild += 1>><<set $baileyStockholmPoints.kick to true>><<gbaileystock>><</if>>
 <br><br>
 
 You walk the rest of the way with the taste of <<his>> shoe still in your mouth.
 <br><br>
 
-<<link "Next" $bailey_kick_return>><</link>>
+<<link "Next" "Rent Intro">><</link>>
 <br>
