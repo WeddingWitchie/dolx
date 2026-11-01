@@ -188,6 +188,7 @@ module.exports = {
 		inDOM: "readonly",
 		integrityKeyword: "readonly",
 		ironmanAutoSave: "readonly",
+		isBaileyLookingForPlayer: "readonly",
 		isBestialityOnForAnyCreature: "readonly",
 		isBloodmoon: "readonly",
 		isGwylanAbsent: "readonly",

@@ -12,7 +12,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.13.6 DoLP v0.778 DoLX 0.22.4a",
+	version: "0.5.13.7 DoLP v0.778 DoLX 0.22.4a",
 	versionName: `"Dark History" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,
