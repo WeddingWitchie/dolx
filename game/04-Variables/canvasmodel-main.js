@@ -3290,7 +3290,7 @@ Renderer.CanvasModels.main = {
 				return options.bodyFreckles !== "none" && !options.mannequin && options.arm_left !== "none";
 			},
 			zfn(options) {
-				return options.arm_left === "cover" ? ZIndices.left_cover_arm + 0.1 : ZIndices.armsidle + 0.1;
+				return options.arm_left === "cover" ? ZIndices.left_cover_arm : ZIndices.armsidle + 0.1;
 			},
 		},
 		"freckles_right_arm": {
@@ -3310,7 +3310,7 @@ Renderer.CanvasModels.main = {
 				return options.bodyFreckles !== "none" && !options.mannequin && options.arm_right !== "none";
 			},
 			zfn(options) {
-				return ["cover", "hold"].includes(options.arm_right) ? ZIndices.right_cover_arm + 0.1 : ZIndices.armsidle + 0.1;
+				return ["cover", "hold"].includes(options.arm_right) ? ZIndices.right_cover_arm : ZIndices.armsidle + 0.1;
 			},
 		},
 
