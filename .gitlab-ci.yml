@@ -99,6 +99,12 @@ html_job:
       Remove-Item -Force $zipPath -ErrorAction SilentlyContinue
 
       ./compile.bat
+      if ($LASTEXITCODE -ne 0) {
+        throw "compile.bat failed with exit code $LASTEXITCODE"
+      }
+      if (-not (Test-Path "./Degrees of Lewdity VERSION.html")) {
+        throw "Compilation did not create the expected HTML file."
+      }
       Compress-Archive -Path "./Degrees of Lewdity VERSION.html" -DestinationPath $zipPath -Force
 
       $zipSize = (Get-Item $zipPath).Length
