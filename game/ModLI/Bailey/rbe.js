@@ -1,4 +1,4 @@
-const BAILEY_EXPANSION_VERSION = "0.6.3.2";
+const BAILEY_EXPANSION_VERSION = "0.6.3.3";
 
 function baileyRevealed() {
 	return V.syndromeBailey === true;
@@ -166,11 +166,15 @@ function syncBaileyDom() {
 			bailey.dom = baileyRevealed() ? 100 : 50;
 			baileyLog("Initialized C.npc.Bailey.dom -> " + bailey.dom);
 		}
-		if (bailey.outfits && !bailey.outfits.includes("business")) {
-			bailey.outfits.pushUnique("business", "maleFormal1", "femaleFormal1", "townBlazer", "townCoat");
-			baileyLog("Added Bailey outfit pool to an existing save");
-		}
 		V.baileyRbeInit = true;
+	}
+	if (bailey.outfits) {
+		const retired = ["business", "maleFormal1", "femaleFormal1", "townBlazer", "townCoat"];
+		if (bailey.outfits.some(name => retired.includes(name)) || !bailey.outfits.includes("baileyJacket")) {
+			bailey.outfits = bailey.outfits.filter(name => !retired.includes(name));
+			bailey.outfits.pushUnique("townTurtleneck", "baileyJacket");
+			baileyLog("Reset Bailey's outfits to vanilla's");
+		}
 	}
 
 	if (bailey.sextoys == null) bailey.sextoys = {};
