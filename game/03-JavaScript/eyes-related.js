@@ -287,6 +287,7 @@ function pcEyesCovered() {
 window.pcEyesCovered = pcEyesCovered;
 
 function blindAdaptationStrength() {
+	if (V.blindAdaptation?.locked) return 1;
 	return Math.min(1, (V.blindAdaptation?.minutes ?? 0) / 10080);
 }
 window.blindAdaptationStrength = blindAdaptationStrength;
@@ -310,7 +311,9 @@ window.pcIsBlinded = pcIsBlinded;
 function blindAdaptationTimePassed(minutes) {
 	if (minutes <= 0 || V.statFreeze) return;
 	const covered = pcEyesCovered();
-	if (!covered && (!V.blindAdaptation || V.blindAdaptation.minutes === 0 || V.hypnosis_traits?.adaptability)) return;
+	/* With the "Locks in" setting, full Adaptability becomes permanent. A lock is kept if the setting changes later. */
+	if (V.blindAdaptation?.minutes >= 10080 && V.xchange?.blindAdaptabilityKeep === "auto") V.blindAdaptation.locked = true;
+	if (!covered && (!V.blindAdaptation || V.blindAdaptation.minutes === 0 || V.blindAdaptation.locked || V.hypnosis_traits?.adaptability)) return;
 	V.blindAdaptation ??= { minutes: 0 };
 	const state = V.blindAdaptation;
 	let senses = 0;
@@ -323,6 +326,7 @@ function blindAdaptationTimePassed(minutes) {
 		if (before < 10080 && state.minutes === 10080) {
 			V.timeMessages ??= [];
 			V.timeMessages.pushUnique("blindAdaptation");
+			if (V.xchange?.blindAdaptabilityKeep === "auto") state.locked = true;
 		}
 		if (Transformations.effectiveLevel("bird") >= 2 || Transformations.effectiveLevel("cow") >= 2) statChange.stress(-minutes / 60);
 		if (V.backgroundTraits.includes("insanity") && !V.insanityPermanent) statChange.trauma(-minutes / 1440);
@@ -331,6 +335,21 @@ function blindAdaptationTimePassed(minutes) {
 	}
 }
 window.blindAdaptationTimePassed = blindAdaptationTimePassed;
+
+/*
+	Whether Gwylan offers help with full Adaptability. The "Gwylan locks it in" setting makes the help permanent; otherwise it is a timed hypnosis.
+	Gwylan needs 50% love, or with the no-love setting, Gwylan's first favour done.
+*/
+function blindAdaptationGwylanReady(lovePercent) {
+	const keep = V.xchange?.blindAdaptabilityKeep;
+	if (blindAdaptationStrength() < 1 || V.blindAdaptation?.locked || keep === "auto") return false;
+	if (keep !== "gwylan" && V.hypnosis_traits?.adaptability) {
+		const timer = V.hypnosisTimers?.adaptability;
+		if (!timer || timer.time >= Math.floor(timer.max / 2)) return false;
+	}
+	return V.xchange?.blindAdaptabilityNoLove ? V.gwylanSeen.includes("request_intro") : lovePercent >= 50;
+}
+window.blindAdaptationGwylanReady = blindAdaptationGwylanReady;
 
 /*
 	True only when the player chose removable darkness, not when it was forced on them.
