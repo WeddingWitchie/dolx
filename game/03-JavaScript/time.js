@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered schoolDisciplineDayPassed ensureRobinStand robinStandWeeklyTick robinCafeWeeklyTick robinCafeDayPassed robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged playerOriginalSex activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception autismMaskingUpdate playerClearClimax */
+/* globals beltSealedLiquidCount orphanagePlotsPlanted orphanagePlotsWatered schoolDisciplineDayPassed ensureRobinStand robinStandWeeklyTick robinCafeWeeklyTick robinCafeDayPassed robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged playerOriginalSex activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception autismMaskingUpdate playerClearClimax */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -1397,7 +1397,7 @@ function hourPassed(hours, advanceFirst) {
 			});
 		});
 
-		if (V.ejactrait >= 1 && V.tiredness < C.tiredness.max) V.stress -= (V.goocount + V.semencount) * 10;
+		if (V.ejactrait >= 1 && V.tiredness < C.tiredness.max) V.stress -= (V.goocount + V.semencount + beltSealedLiquidCount(["goo", "semen"])) * 10;
 		if (V.kylarwatched) V.kylarwatchedtimer--;
 		if (V.parasite.nipples.name) statChange.milkvolume(1);
 		if (V.worn.head.name === "hairpin" || V.sexStats.pills.pills["Hair Growth Formula"].doseTaken) {
