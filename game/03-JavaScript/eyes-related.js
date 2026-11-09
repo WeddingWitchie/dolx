@@ -1,28 +1,29 @@
 /* globals currentSkillValue */
+function getEyeDisplayName(key) {
+	const entry = setup.colours.eyes_map[key];
+	if (!entry) return key;
+
+	if (typeof entry.name === "string" && !/^colorWheelTemporary\d+$/.test(entry.name)) {
+		return entry.name;
+	}
+
+	if (entry.canvasfilter && typeof entry.canvasfilter.blend === "string" && typeof window.colorNamer === "function") {
+		const colourName = window.colorNamer(entry.canvasfilter.blend);
+		if (typeof window.colorNameTranslate === "function") {
+			return window.colorNameTranslate(colourName, "spaced name");
+		}
+		return colourName;
+	}
+
+	return entry.name || key;
+}
+window.getEyeDisplayName = getEyeDisplayName;
+
 function buildEyeDetails() {
 	let sentence = "";
 	let concatFlag = false;
 	const lenses = V.makeup.eyelenses;
 	const colourMap = setup.colours.eyes_map;
-
-	function getEyeDisplayName(key) {
-		const entry = colourMap[key];
-		if (!entry) return key;
-
-		if (typeof entry.name === "string" && !/^colorWheelTemporary\d+$/.test(entry.name)) {
-			return entry.name;
-		}
-
-		if (entry.canvasfilter && typeof entry.canvasfilter.blend === "string" && typeof window.colorNamer === "function") {
-			const colourName = window.colorNamer(entry.canvasfilter.blend);
-			if (typeof window.colorNameTranslate === "function") {
-				return window.colorNameTranslate(colourName, "spaced name");
-			}
-			return colourName;
-		}
-
-		return entry.name || key;
-	}
 
 	if (lenses.right !== 0 || lenses.left !== 0) {
 		sentence += "You wear ";
@@ -272,10 +273,16 @@ window.defineCustomEyeColourStyle = function () {
 /*
 	Physical eye covering, including after the player has adapted.
 
-	The player is blinded by a blindfold, or by the sleeping mask when it is pulled down.
+	The player is blinded by a blindfold, by the sleeping mask when it is pulled down, or by blackout lenses in both eyes.
 	Use pcIsBlinded() to check whether the covering still prevents navigation.
 */
 function pcEyesCovered() {
+	return pcFaceCoversEyes() || pcBlackoutLensesWorn();
+}
+window.pcEyesCovered = pcEyesCovered;
+
+/* Eye covering worn in the face slot, which other people can see. */
+function pcFaceCoversEyes() {
 	const face = V.worn?.face;
 	if (!face || !Array.isArray(face.type)) return false;
 	/* A blindfold torn off in combat leaves the item behind but stops covering anything. */
@@ -284,7 +291,109 @@ function pcEyesCovered() {
 	if (face.variable === "sleeping mask" && face.altposition === "alt") return true;
 	return false;
 }
-window.pcEyesCovered = pcEyesCovered;
+window.pcFaceCoversEyes = pcFaceCoversEyes;
+
+/* Blackout contact lenses only blind the player when both eyes are occupied by a blackout lens. */
+function pcBlackoutLensesWorn() {
+	const lenses = V.makeup?.eyelenses;
+	return !!(lenses?.left && lenses.right && lenses.blackoutLeft && lenses.blackoutRight);
+}
+window.pcBlackoutLensesWorn = pcBlackoutLensesWorn;
+
+/* Name of the item blocking the player's sight, for text shown while blinded. */
+function pcBlindCoveringName() {
+	return pcFaceCoversEyes() ? V.worn.face.name : "contacts";
+}
+window.pcBlindCoveringName = pcBlindCoveringName;
+
+/* Colours the player owns as blackout lenses for stock and custom lenses. */
+function ownedBlackoutLenses() {
+	return V.makeup.owned.blackout_eyelenses || [];
+}
+window.ownedBlackoutLenses = ownedBlackoutLenses;
+
+function addBlackoutLens(colour) {
+	V.makeup.owned.blackout_eyelenses ??= [];
+	V.makeup.owned.blackout_eyelenses.pushUnique(colour);
+}
+window.addBlackoutLens = addBlackoutLens;
+
+/* Whether a blackout lens is inserted in each eye is stored next to that eye's colour. */
+function wearContactLens(colour, eyes, blackout) {
+	if (eyes === "Left eye") {
+		V.makeup.eyelenses.left = colour;
+		V.makeup.eyelenses.blackoutLeft = !!blackout;
+	} else if (eyes === "Right eye") {
+		V.makeup.eyelenses.right = colour;
+		V.makeup.eyelenses.blackoutRight = !!blackout;
+	} else {
+		V.makeup.eyelenses = { left: colour, right: colour, blackoutLeft: !!blackout, blackoutRight: !!blackout };
+	}
+}
+window.wearContactLens = wearContactLens;
+
+/* Whether the player owns, or is already wearing, the lens saved for this eye ("left" or "right"). */
+function outfitLensAvailable(lenses, side) {
+	const colour = lenses[side];
+	if (!colour) return true;
+	const blackoutKey = side === "left" ? "blackoutLeft" : "blackoutRight";
+	if (lenses[blackoutKey]) return ownedBlackoutLenses().includes(colour);
+	const owned = V.makeup.owned ?? {};
+	const wearingOrdinary = V.makeup.eyelenses[side] === colour && !V.makeup.eyelenses[blackoutKey];
+	return !!(owned.eyelenses?.includes(colour) || owned.custom_eyelenses?.includes(colour) || wearingOrdinary);
+}
+window.outfitLensAvailable = outfitLensAvailable;
+
+function outfitLensName(lenses, side) {
+	const blackout = lenses[side === "left" ? "blackoutLeft" : "blackoutRight"];
+	return `${getEyeDisplayName(lenses[side])} ${blackout ? "blackout " : ""}contacts`;
+}
+window.outfitLensName = outfitLensName;
+
+/* The text shown on the makeup preset screen for the lens saved for this eye, such as "Red Blackout". */
+function presetLensLabel(lenses, side) {
+	const colour = lenses[side];
+	if (!colour) return "None";
+	return colour.toUpperFirst() + (lenses[side === "left" ? "blackoutLeft" : "blackoutRight"] ? " Blackout" : "");
+}
+window.presetLensLabel = presetLensLabel;
+
+/* The mirror's description of the worn lenses. Empty when no blackout lens is inserted. */
+function blackoutLensDescription() {
+	const lenses = V.makeup.eyelenses;
+	const leftBlackout = !!(lenses.left && lenses.blackoutLeft);
+	const rightBlackout = !!(lenses.right && lenses.blackoutRight);
+	if (!leftBlackout && !rightBlackout) return "";
+	const single = (colour, blackout) => {
+		const name = getEyeDisplayName(colour);
+		return `${/^[aeiou]/i.test(name) ? "an" : "a"} ${name} ${blackout ? "blackout " : ""}contact`;
+	};
+	if (leftBlackout && rightBlackout) {
+		if (lenses.left === lenses.right) return `You are wearing ${getEyeDisplayName(lenses.left)} blackout contacts. You can't see through them.`;
+		return `You are wearing ${single(lenses.left, true)} in your left eye and ${single(lenses.right, true)} in your right eye. You can't see through them.`;
+	}
+	const [eye, otherEye] = leftBlackout ? ["left", "right"] : ["right", "left"];
+	if (lenses[otherEye]) {
+		const parts = { left: single(lenses.left, leftBlackout), right: single(lenses.right, rightBlackout) };
+		return `You are wearing ${parts.left} in your left eye and ${parts.right} in your right eye. You can still see through your ${otherEye} eye.`;
+	}
+	const natural = getEyeDisplayName(otherEye === "left" ? V.leftEyeColour : V.rightEyeColour);
+	return `You are wearing ${single(
+		lenses[eye],
+		true
+	)} in your ${eye} eye. Your ${otherEye} eye is your natural ${natural} colour, and you can still see through it.`;
+}
+window.blackoutLensDescription = blackoutLensDescription;
+
+/* Redraws the pharmacy's colour list when the blackout box changes, because each list leaves out the colours already owned in that form. */
+function bindBlackoutLensToggle() {
+	$(document).one(":passagedisplay", () => {
+		$("#lensBlackoutToggle input").on("change", () => {
+			$("#pharmacyLensStock").empty().wiki('<<pharmacyLensStock>><<numberify "#passages > .passage">>');
+		});
+	});
+}
+window.bindBlackoutLensToggle = bindBlackoutLensToggle;
 
 function blindAdaptationStrength() {
 	if (V.blindAdaptation?.locked) return 1;
@@ -356,7 +465,7 @@ window.blindAdaptationGwylanReady = blindAdaptationGwylanReady;
 */
 function pcIsBlindedByChoice() {
 	if (!pcIsBlinded()) return false;
-	return V.worn.face.cursed !== 1;
+	return !pcFaceCoversEyes() || V.worn.face.cursed !== 1;
 }
 window.pcIsBlindedByChoice = pcIsBlindedByChoice;
 

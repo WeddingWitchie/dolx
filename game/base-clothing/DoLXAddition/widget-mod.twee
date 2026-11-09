@@ -26,10 +26,12 @@
 	<<if _outfitMakeup.blusher>><<run _parts.push(_outfitMakeup.blusher + " blusher")>><</if>>
 	<<if _outfitMakeup.browscolour>><<run _parts.push(_outfitMakeup.browscolour + " brows")>><</if>>
 	<<if _outfitMakeup.eyelenses and (_outfitMakeup.eyelenses.left or _outfitMakeup.eyelenses.right)>>
-		<<if _outfitMakeup.eyelenses.left is _outfitMakeup.eyelenses.right>>
-			<<run _parts.push(_outfitMakeup.eyelenses.left + " contacts")>>
+		<<set _lensLeft to (_outfitMakeup.eyelenses.left || "no") + (_outfitMakeup.eyelenses.left and _outfitMakeup.eyelenses.blackoutLeft ? " blackout" : "")>>
+		<<set _lensRight to (_outfitMakeup.eyelenses.right || "no") + (_outfitMakeup.eyelenses.right and _outfitMakeup.eyelenses.blackoutRight ? " blackout" : "")>>
+		<<if _lensLeft is _lensRight>>
+			<<run _parts.push(_lensLeft + " contacts")>>
 		<<else>>
-			<<run _parts.push((_outfitMakeup.eyelenses.left || "no") + " L / " + (_outfitMakeup.eyelenses.right || "no") + " R contacts")>>
+			<<run _parts.push(_lensLeft + " L / " + _lensRight + " R contacts")>>
 		<</if>>
 	<</if>>
 	<<if _parts.length gt 0>>
@@ -62,12 +64,18 @@
 	<</for>>
 	<<if _outfitMakeup.eyelenses isnot undefined>>
 		<<set _lens to _outfitMakeup.eyelenses>>
-		<<set _ownedL to $makeup.owned ? ($makeup.owned.eyelenses || []) : []>>
-		<<set _ownedC to $makeup.owned ? ($makeup.owned.custom_eyelenses || []) : []>>
-		<<set _okL to _lens.left is 0 or _ownedL.includes(_lens.left) or _ownedC.includes(_lens.left) or $makeup.eyelenses.left is _lens.left>>
-		<<set _okR to _lens.right is 0 or _ownedL.includes(_lens.right) or _ownedC.includes(_lens.right) or $makeup.eyelenses.right is _lens.right>>
-		<<if _okL and _okR>>
-			<<set $makeup.eyelenses to { left: clone(_lens.left), right: clone(_lens.right) }>>
+		<<set _lensesAvailable to true>>
+		<<for _side range ["left", "right"]>>
+			<<if !outfitLensAvailable(_lens, _side)>>
+				<<set _lensesAvailable to false>>
+				<<if _notEquipped>>
+					<<set _missingLens to outfitLensName(_lens, _side)>>
+					<<set _notEquipped["lens " + _missingLens] to { name: _missingLens, reason: "not found" }>>
+				<</if>>
+			<</if>>
+		<</for>>
+		<<if _lensesAvailable>>
+			<<set $makeup.eyelenses to { left: clone(_lens.left), right: clone(_lens.right), blackoutLeft: _lens.blackoutLeft is true, blackoutRight: _lens.blackoutRight is true }>>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -104,6 +112,9 @@
 		<<for _c range ($makeup.owned.custom_eyelenses || [])>>
 			<<set _options[_c + " [C]"] to _c>>
 		<</for>>
+		<<for _c range ownedBlackoutLenses()>>
+			<<if !Object.values(_options).includes(_c)>><<set _options[_c] to _c>><</if>>
+		<</for>>
 	<</if>>
 	<<set _l to $outfit[_outfitIndex].makeup.eyelenses.left>>
 	<<set _r to $outfit[_outfitIndex].makeup.eyelenses.right>>
@@ -113,8 +124,10 @@
 	<<set _rVar to "$outfit[" + _outfitIndex + "].makeup.eyelenses.right">>
 	Contacts: Left
 	<<listbox `_lVar` autoselect>><<optionsfrom _options>><</listbox>>
+	<<if ownedBlackoutLenses().length gt 0>><label><<checkbox `_lVar.replace(/left$/, "blackoutLeft")` false true autocheck>> Blackout</label><</if>>
 	Right
 	<<listbox `_rVar` autoselect>><<optionsfrom _options>><</listbox>>
+	<<if ownedBlackoutLenses().length gt 0>><label><<checkbox `_rVar.replace(/right$/, "blackoutRight")` false true autocheck>> Blackout</label><</if>>
 	<br>
 <</widget>>
 

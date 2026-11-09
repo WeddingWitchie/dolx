@@ -301,8 +301,8 @@
 <</if>>
 
 :: Pharmacy Lenses
-An assortment of colourful contact lenses is displayed behind the glass. You can purchase lenses to change the colour of your eyes.
-<<if $makeup.owned.eyelenses.length + $makeup.owned.custom_eyelenses.length gt 0>>
+An assortment of colourful contact lenses is displayed behind the glass. You can purchase lenses to change the colour of your eyes. Some can be fitted with a blackout layer that stops all light from reaching your eyes.
+<<if $makeup.owned.eyelenses.length + $makeup.owned.custom_eyelenses.length + ownedBlackoutLenses().length gt 0>>
 	<br>
 	You already own lenses of the following colours:
 	<span style="display: inline-block;">
@@ -322,38 +322,62 @@ An assortment of colourful contact lenses is displayed behind the glass. You can
 		})>>
 	<</if>>
 
+	<<run ownedBlackoutLenses().forEach(colour => {
+		const custom = $custom_eyecolours.find(c => c.variable is colour);
+		const name = getEyeDisplayName(colour);
+		if (custom) _lenses.push(`<span class="eye-custom"><span style="color:${custom.canvasfilter.blend}">${name} blackout</span></span>`);
+		else _lenses.push(`<span @class="'eye-${colour.replace(/ /g, '-')}'"><span class="left-iris" style="color:#6E4E11;">${name} blackout</span></span>`);
+	})>>
 	<<print _lenses.join(", ")>>. /* Print the list */
 	</span>
 <</if>>
 <br><br>
 
-<<set _availableColours = ["dark blue", "light blue", "purple", "hazel", "amber", "green", "light green", "lime green", "grey", "light grey", "red", "pink", "brown", "black"].filter(x => !$makeup.owned.eyelenses.includes(x))>>
-<<if _availableColours.length == 0>>
-	You have collected all available colours of contact lenses. There's nothing left for you to buy.
-	<br><br>
-<<else>>
-	Each pair of lenses costs <<printprice 20000>>.
-	<br>
-	<<set _lensChoice = _availableColours[0]>>
-	<<for _i, _colour range _availableColours>>
-		<label><span @class="'eye-' + _colour.replace(/ /g, '-')"><span class="colour-eye" style="color:#6E4E11;">_colour</span></span>&nbsp;<<print '<<radiobutton "_lensChoice" "'+_colour+'" ' + (_lensChoice is _colour ? "checked" : "") + '>>'>></label> |
-	<</for>>
-
-	<br><br>
-
-	<<if setup.inflation.canAfford(20000, "pharmacyContacts")>>
-		<<link [[Buy and send home|Pharmacy Lenses]]>><<money -20000 "pharmacyContacts">><<set $makeup.owned.eyelenses.push(_lensChoice)>><</link>>
-		<br>
-		<<link [[Buy and wear|Pharmacy]]>><<money -20000 "pharmacyContacts">><<set $makeup.owned.eyelenses.push(_lensChoice)>><<set $makeup.eyelenses = {"left":_lensChoice, "right":_lensChoice}>><</link>>
-		<br>
-	<<else>>
-		<span class="purple">You can't afford the purchase.</span>
-		<br>
-	<</if>>
-<</if>>
+<<set _lensBlackout to false>>
+<label id="lensBlackoutToggle"><<checkbox "_lensBlackout" false true>> Add a blackout layer (<<printprice 20000>> more)</label>
+<br><br>
+<span id="pharmacyLensStock"><<pharmacyLensStock>></span>
+<<run bindBlackoutLensToggle()>>
 <<link [[Ask for custom-coloured contact ones|Pharmacy Ask Custom Lenses]]>><</link>>
 <br>
 <<link [[Go back|Pharmacy]]>><</link>>
+
+:: Pharmacy Lens Widgets [widget]
+<<widget "pharmacyLensStock">>
+	<<set _lensPrice to _lensBlackout ? 40000 : 20000>>
+	<<set _lensAfterWear to _lensBlackout ? "Pharmacy Blackout Lenses" : "Pharmacy">>
+	<<set _lensAfterHome to _lensBlackout ? "Pharmacy Blackout Lenses" : "Pharmacy Lenses">>
+	<<set _lensesOwned to _lensBlackout ? ownedBlackoutLenses() : $makeup.owned.eyelenses>>
+	<<set _availableColours = ["dark blue", "light blue", "purple", "hazel", "amber", "green", "light green", "lime green", "grey", "light grey", "red", "pink", "brown", "black"].filter(x => !_lensesOwned.includes(x))>>
+	<<if _availableColours.length == 0>>
+		You have collected all available colours of contact lenses. There's nothing left for you to buy.
+		<br><br>
+	<<else>>
+		Each pair of lenses costs <<printprice _lensPrice>>.
+		<br>
+		<<set _lensChoice = _availableColours[0]>>
+		<<for _i, _colour range _availableColours>>
+			<label><span @class="'eye-' + _colour.replace(/ /g, '-')"><span class="colour-eye" style="color:#6E4E11;">_colour</span></span>&nbsp;<<print '<<radiobutton "_lensChoice" "'+_colour+'" ' + (_lensChoice is _colour ? "checked" : "") + '>>'>></label> |
+		<</for>>
+
+		<br><br>
+
+		<<if setup.inflation.canAfford(_lensPrice, "pharmacyContacts")>>
+			<<link [[Buy and send home|_lensAfterHome]]>><<money `-_lensPrice` "pharmacyContacts">><<if _lensBlackout>><<run addBlackoutLens(_lensChoice)>><<else>><<run $makeup.owned.eyelenses.pushUnique(_lensChoice)>><</if>><</link>>
+			<br>
+			<<link [[Buy and wear|_lensAfterWear]]>><<money `-_lensPrice` "pharmacyContacts">><<if _lensBlackout>><<run addBlackoutLens(_lensChoice)>><<else>><<run $makeup.owned.eyelenses.pushUnique(_lensChoice)>><</if>><<run wearContactLens(_lensChoice, "Both", _lensBlackout)>><</link>>
+			<br>
+		<<else>>
+			<span class="purple">You can't afford the purchase.</span>
+			<br>
+		<</if>>
+	<</if>>
+<</widget>>
+
+:: Pharmacy Blackout Lenses
+"These lenses with the blackout layer will stop you from seeing anything once you put them in," the nurse says.
+<br><br>
+<<link [[Next|Pharmacy]]>><</link>>
 
 :: Pharmacy Ask Custom Lenses
 <<if $daily.pharm.impatient gt 2>>
@@ -402,13 +426,19 @@ An assortment of colourful contact lenses is displayed behind the glass. You can
 <<set _color_lenses_temp>> <!-- used inside colorWheelContactLenses() -->
 <<run colorWheelContactLenses()>>
 <br><br>
+<<set _customBlackout to false>>
+<<if setup.inflation.canAfford($pharmacy_order_colours is 2 ? 185000 : 95000, "pharmacyContacts")>>
+	<label><<checkbox "_customBlackout" false true>> Add a blackout layer (<<printprice 45000>> more per colour)</label>
+	<br><br>
+<</if>>
 <<link [[Order it|Pharmacy Order Custom Lenses]]>>
 	<<money -50000 "pharmacyContacts">>
+	<<if _customBlackout>><<money `-45000 * ($pharmacy_order_colours is 2 ? 2 : 1)` "pharmacyContacts">><</if>>
 	<<set $custom_lenses_already_ordered to 1>>
-	<<run $lenses_ordered.push([window.colorNamer(_color_lenses_temp[0].hexString), Time.monthDay.toString() + Time.month + Time.year.toString(), [_color_lenses_temp[0].hexString, _color_lenses_temp[0].hsl["l"] / 500]])>>
+	<<run $lenses_ordered.push([window.colorNamer(_color_lenses_temp[0].hexString), Time.monthDay.toString() + Time.month + Time.year.toString(), [_color_lenses_temp[0].hexString, _color_lenses_temp[0].hsl["l"] / 500], _customBlackout])>>
 	<<if $pharmacy_order_colours is 2>>
 		<<money -45000 "pharmacyContacts">>
-		<<run $lenses_ordered.push([window.colorNamer(_color_lenses_temp[1].hexString), Time.monthDay.toString() + Time.month + Time.year.toString(), [_color_lenses_temp[1].hexString, _color_lenses_temp[1].hsl["l"] / 500]])>>
+		<<run $lenses_ordered.push([window.colorNamer(_color_lenses_temp[1].hexString), Time.monthDay.toString() + Time.month + Time.year.toString(), [_color_lenses_temp[1].hexString, _color_lenses_temp[1].hsl["l"] / 500], _customBlackout])>>
 	<</if>>
 <</link>>
 <br>
@@ -417,6 +447,10 @@ An assortment of colourful contact lenses is displayed behind the glass. You can
 :: Pharmacy Order Custom Lenses
 "Here is your receipt," the nurse adds, handing you the ticket. "It's likely to arrive by tomorrow, you come back anytime with your receipt and whoever is on duty that day will hand it over to you."
 <br><br>
+<<if $lenses_ordered.last()[3]>>
+	"These lenses with the blackout layer will stop you from seeing anything once you put them in," the nurse says.
+	<br><br>
+<</if>>
 <<link [[Next|Pharmacy]]>><</link>>
 
 :: Pharmacy Ask If Lenses Delivered
@@ -443,7 +477,11 @@ An assortment of colourful contact lenses is displayed behind the glass. You can
 	<<if Time.monthDay.toString() + Time.month + Time.year.toString() != $lenses_ordered[_i][1]>>
 		<<set _received += 1>>
 		<<set _spaced_colour_name = window.colorNameTranslate($lenses_ordered[_i][0], "spaced name")>>
-		<<run $makeup.owned.custom_eyelenses.push(clone($lenses_ordered[_i][0]))>>
+		<<if $lenses_ordered[_i][3]>>
+			<<run addBlackoutLens($lenses_ordered[_i][0])>>
+		<<else>>
+			<<run $makeup.owned.custom_eyelenses.push(clone($lenses_ordered[_i][0]))>>
+		<</if>>
 		<<run $custom_eyecolours.push({
 			variable: $lenses_ordered[_i][0],
 			name: _spaced_colour_name,

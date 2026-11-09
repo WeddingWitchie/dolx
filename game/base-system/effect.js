@@ -1,4 +1,4 @@
-/* globals pcIsBlinded, sizeSidebarDollCanvases, canBeMPregnant, playerClutchReadyToLay */
+/* globals pcIsBlinded, pcBlindCoveringName, sizeSidebarDollCanvases, canBeMPregnant, playerClutchReadyToLay */
 function effectsWater(waterType = "liquid") {
 	const fragment = document.createDocumentFragment();
 
@@ -2441,7 +2441,7 @@ function effects() {
 
 	/* Worth flagging in combat, where not being able to see costs you performance (blindSexMultiplier). */
 	if (V.combat && pcIsBlinded()) {
-		sWikifier(`<span class="purple">You can't see through your ${V.worn.face.name}.</span>`);
+		sWikifier(`<span class="purple">You can't see through your ${pcBlindCoveringName()}.</span>`);
 		br();
 	}
 

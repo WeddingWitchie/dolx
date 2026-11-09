@@ -2516,7 +2516,7 @@
 		<<if !$simpleMirror>>
 			<div class="settingsToggleItemWide">
 				<<cosmeticsicon "contacts">>
-				<<if $makeup.owned.eyelenses.length == 0 and $makeup.owned.custom_eyelenses.length == 0>>
+				<<if $makeup.owned.eyelenses.length == 0 and $makeup.owned.custom_eyelenses.length == 0 and ownedBlackoutLenses().length == 0>>
 					You don't own any contact lenses.
 				<<else>>
 					<span class="gold bold">Contact Lenses:</span>
@@ -2531,15 +2531,18 @@
 								<</link>>
 						</span>
 						<br>
-						You are wearing
-						<<if $makeup.eyelenses.left is $makeup.eyelenses.right>>
+						<<set _blackoutLensText to blackoutLensDescription()>>
+						<<if _blackoutLensText>>
+							_blackoutLensText
+						<<elseif $makeup.eyelenses.left is $makeup.eyelenses.right>>
+							You are wearing
 							<<= $makeup.eyelenses.left>> contacts.
 						<<elseif $makeup.eyelenses.left != 0 and $makeup.eyelenses.right != 0>>
-							<<= $makeup.eyelenses.left>> contacts in your left eye and <<= $makeup.eyelenses.right>> contacts in your right eye.
+							You are wearing <<= $makeup.eyelenses.left>> contacts in your left eye and <<= $makeup.eyelenses.right>> contacts in your right eye.
 						<<else>>
 							<<set _lens to $makeup.eyelenses.left != 0 ? $makeup.eyelenses.left : $makeup.eyelenses.right>>
 							<<set _eye to $makeup.eyelenses.left != 0 ? "left" : "right">>
-							<<= _lens>> contacts in your <<= _eye>> eye. Your <<= _eye is "left" ? "right" : "left">> eye is your natural <<= _eye is "left" ? $rightEyeColour : $leftEyeColour>> colour.
+							You are wearing <<= _lens>> contacts in your <<= _eye>> eye. Your <<= _eye is "left" ? "right" : "left">> eye is your natural <<= _eye is "left" ? $rightEyeColour : $leftEyeColour>> colour.
 						<</if>>
 					<<else>>
 						<br>
@@ -2557,19 +2560,34 @@
 							<<switch _contact_eye_selected>>
 								<<default>><<set _eye to "left">>
 							<</switch>>
-							<span @class="$makeup.eyelenses.left == _colour || $makeup.eyelenses.right == _colour ? 'makeupWorn' : 'makeupItem'">
+							<span @class="($makeup.eyelenses.left == _colour and !$makeup.eyelenses.blackoutLeft) || ($makeup.eyelenses.right == _colour and !$makeup.eyelenses.blackoutRight) ? 'makeupWorn' : 'makeupItem'">
 								<<capture _colour>>
 									<<set _contactName to
 									`_colour <span @class="'eye-'+_colour.replace(/ /g, '-')"><span class="colour-sample bgcolour-eyes left-"></span></span>`>>
 
 									<<button _contactName>>
-										<<if _contact_eye_selected == "Both">>
-											<<set $makeup.eyelenses = { left: _colour, right: _colour }>>
-										<<elseif _contact_eye_selected == "Left eye">>
-											<<set $makeup.eyelenses.left = _colour>>
-										<<elseif _contact_eye_selected == "Right eye">>
-											<<set $makeup.eyelenses.right = _colour>>
-										<</if>>
+										<<run wearContactLens(_colour, _contact_eye_selected, false)>>
+										<<replace #mirror>>
+											<<updatesidebarimg>>
+											<<mirrorDisplay>>
+										<</replace>>
+									<</button>>
+								<</capture>>
+							</span>
+						<</for>>
+						<<for _i, _colour range ownedBlackoutLenses()>>
+							<<set _customLens to $custom_eyecolours.find(c => c.variable == _colour)>>
+							<<set _blackoutBackground to _customLens ? _customLens.canvasfilter.blend : false>>
+							<<set _blackoutColourName to getEyeDisplayName(_colour)>>
+							<span @class="($makeup.eyelenses.left == _colour and $makeup.eyelenses.blackoutLeft) || ($makeup.eyelenses.right == _colour and $makeup.eyelenses.blackoutRight) ? 'makeupWorn' : 'makeupItem'">
+								<<capture _colour _blackoutBackground _blackoutColourName>>
+									<<if _blackoutBackground>>
+										<<set _blackoutName to `_blackoutColourName blackout <span class="eye-custom"><span @style="'background:'+_blackoutBackground" class="colour-sample"></span></span>`>>
+									<<else>>
+										<<set _blackoutName to `_blackoutColourName blackout <span @class="'eye-'+_colour.replace(/ /g, '-')"><span class="colour-sample bgcolour-eyes left-"></span></span>`>>
+									<</if>>
+									<<button _blackoutName>>
+										<<run wearContactLens(_colour, _contact_eye_selected, true)>>
 										<<replace #mirror>>
 											<<updatesidebarimg>>
 											<<mirrorDisplay>>
@@ -2593,13 +2611,7 @@
 									`_colourSpaced [C] <span class="eye-custom"><span @style="'background:'+_background_colour" class="colour-sample"></span></span>`>>
 
 									<<button _customName>>
-										<<if _contact_eye_selected == "Both">>
-											<<set $makeup.eyelenses = { left:_colour, right:_colour }>>
-										<<elseif _contact_eye_selected == "Left eye">>
-											<<set $makeup.eyelenses.left = _colour>>
-										<<elseif _contact_eye_selected == "Right eye">>
-											<<set $makeup.eyelenses.right = _colour>>
-										<</if>>
+										<<run wearContactLens(_colour, _contact_eye_selected, false)>>
 										<<replace #mirror>>
 											<<updatesidebarimg>>
 											<<mirrorDisplay>>
@@ -2685,6 +2697,10 @@
 			<<if _makeupName is "eyelenses">>
 				<<if _preset.left is 0 and _preset.right is 0>>
 					<<set $makeup.eyelenses to { left:0, right:0 }>>
+				<<elseif _preset.blackoutLeft or _preset.blackoutRight>>
+					<<if outfitLensAvailable(_preset, "left") and outfitLensAvailable(_preset, "right")>>
+						<<set $makeup.eyelenses to _preset>>
+					<</if>>
 				<<elseif $makeup.owned.eyelenses.includes(_preset.left) and $makeup.owned.eyelenses.includes(_preset.right)>>
 					<<set $makeup.eyelenses to _preset>>
 				<<elseif $makeup.owned.custom_eyelenses.includes(_preset.left) and $makeup.owned.custom_eyelenses.includes(_preset.right)>>
@@ -2726,16 +2742,10 @@
 			<<if _args[0] is "eyelenses">>
 				<<if _args[1].left == 0 && _args[1].right == 0>>
 					None
-				<<elseif _args[1].left == _args[1].right>>
-					<span class="green"><<print _args[1].left.toUpperFirst()>> (Owned)</span>
+				<<elseif presetLensLabel(_args[1], "left") is presetLensLabel(_args[1], "right")>>
+					<span class="green"><<print presetLensLabel(_args[1], "left")>> (Owned)</span>
 				<<else>>
-					<<if _args[1].left == 0>>
-						<<set _args[1].left to "None">>
-					<</if>>
-					<<if _args[1].right == 0>>
-						<<set _args[1].right to "None">>
-					<</if>>
-					<span class="green"><<print _args[1].left.toUpperFirst() + " (Left), " + _args[1].right.toUpperFirst()+" (Right)">></span>
+					<span class="green"><<print presetLensLabel(_args[1], "left") + " (Left), " + presetLensLabel(_args[1], "right") + " (Right)">></span>
 				<</if>>
 			<<else>>
 				<<for $_i to 0; $_i lt $makeup.owned[_args[0]].length; $_i++>>
