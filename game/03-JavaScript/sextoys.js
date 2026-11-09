@@ -170,9 +170,24 @@ function playerInsertedDildos(genital) {
 }
 window.playerInsertedDildos = playerInsertedDildos;
 
+// True if the PC has a vagina and is wearing a chastity belt with a dildo in it. This keeps fluid inside and hides it from other people.
+function playerBeltSealsFluid(genital) {
+	return genital === "vagina" && V.player.vaginaExist && V.worn.genitals.type.includes("internal");
+}
+window.playerBeltSealsFluid = playerBeltSealsFluid;
+
+// How much fluid in this body part other people can notice. It is 0 while the belt hides it.
+// Ask for "semen", "goo" or "nectar" to get that one fluid, or for no fluid in particular to get the total of all three.
+function visibleGenitalFluid(genital, liquid) {
+	if (playerBeltSealsFluid(genital)) return 0;
+	return liquid ? V.player.bodyliquid[genital][liquid] : setup.bodyliquid.combined(genital);
+}
+window.visibleGenitalFluid = visibleGenitalFluid;
+
 // Whether recorded/stored fluid is held in and shielded from washing/decay: a worn butt plug, or any
 // inserted dildo (small dildos still retain, matching a real plug's seal even if they visibly leak).
 function playerGenitalFluidRetained(genital) {
+	if (playerBeltSealsFluid(genital)) return true;
 	if (genital === "anus" && playerHasButtPlug()) return true;
 	return playerInsertedDildos(genital).length > 0;
 }
@@ -181,6 +196,7 @@ window.playerGenitalFluidRetained = playerGenitalFluidRetained;
 // Whether the visible leak/drip is stopped: a worn butt plug, or a non-small inserted dildo.
 // A small dildo doesn't seal tightly, so it retains fluid but still drips.
 function playerGenitalFluidLeakBlocked(genital) {
+	if (playerBeltSealsFluid(genital)) return true;
 	if (genital === "anus" && playerHasButtPlug()) return true;
 	return playerInsertedDildos(genital).some(toy => !sexToyIsSmallDildo(toy));
 }

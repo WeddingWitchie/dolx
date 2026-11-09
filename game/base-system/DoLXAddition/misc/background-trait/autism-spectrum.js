@@ -1392,6 +1392,7 @@ const autismPrivateRooms = Object.freeze([
 	"Farm Shower",
 	"Flats Poppy Bedroom",
 	"Flats Poppy Bathroom",
+	"Island",
 	"School Toilets",
 	"School Boy's Toilets",
 	"School Girl's Toilets",
@@ -1421,7 +1422,8 @@ function autismPrivacyTier(passage = V.passage) {
 		const alone = V.bus === "fishingMoor" ? [undefined, "finished"].includes(V.daily?.fishing?.fishingMoor?.hikers?.phase) : isPlayerFishingAlone();
 		return alone ? company : "strangers";
 	}
-	if (autismPrivateRooms.includes(passage)) return company;
+	/* A link that leaves a private room passes its time before the passage changes, so it sets this to stop that time counting as private. */
+	if (autismPrivateRooms.includes(passage) && !(passage === V.passage && T.autismLeavingRoom)) return company;
 	const place = V.location;
 	if (autismAlonePlaces.includes(place)) return company;
 	if (autismKnownPlaces.includes(place)) return "known";

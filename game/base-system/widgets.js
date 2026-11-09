@@ -1,6 +1,6 @@
 /* eslint-disable no-new */
 /* eslint-disable jsdoc/require-description-complete-sentence */
-/* globals wornSetupClothes, playerHasXChangeBody, Transformations, playerGenitalFluidLeakBlocked, wearingTidebloomRing, effectiveDrunk, ccmUtils */
+/* globals wornSetupClothes, playerHasXChangeBody, Transformations, playerGenitalFluidLeakBlocked, playerBeltSealsFluid, wearingTidebloomRing, effectiveDrunk, ccmUtils */
 function setfemininitymultiplierfromgender(gender) {
 	if (gender === "f") {
 		T.femininity_multiplier = 1;
@@ -615,6 +615,13 @@ function liquidclamp() {
 	}
 }
 
+/* Fluid sealed in by a chastity belt, in goocount()'s units. goocount() leaves it out, so add it back where it should still count. */
+function beltSealedLiquidCount(liquids = setup.bodyliquid.liquidtype) {
+	const sealed = setup.bodyliquid.innerbodyparts.filter(playerBeltSealsFluid);
+	return liquids.reduce((sum, liquid) => sum + liquidcount(liquid, sealed) * 3, 0);
+}
+window.beltSealedLiquidCount = beltSealedLiquidCount;
+
 function goocount() {
 	liquidclamp();
 	const outer = setup.bodyliquid.outerbodyparts;
@@ -623,7 +630,7 @@ function goocount() {
 	const nectaroutsidecount = liquidcount("nectar", outer);
 	const liquidoutsidecount = goooutsidecount + semenoutsidecount + nectaroutsidecount;
 
-	const inner = setup.bodyliquid.innerbodyparts;
+	const inner = setup.bodyliquid.innerbodyparts.filter(part => !playerBeltSealsFluid(part));
 	const gooinsidecount = liquidcount("goo", inner) * 3;
 	const semeninsidecount = liquidcount("semen", inner) * 3;
 	const nectarinsidecount = liquidcount("nectar", inner) * 3;
@@ -742,7 +749,7 @@ function calculateallure() {
 	allure += baseattractiveness * (nightMod - 1);
 	/* bodyliquid danger */
 	goocount();
-	allure += V.liquidcount * 50;
+	allure += (V.liquidcount + beltSealedLiquidCount()) * 50;
 
 	// Allure changes from ear slimes
 	if (V.earSlime.growth > 50) allure += (V.earSlime.growth - 50) * 10;

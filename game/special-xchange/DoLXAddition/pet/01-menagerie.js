@@ -184,6 +184,32 @@ const Menagerie = (() => {
 		return badEndActive() || (!!b && !!b.trackedEnd && b.trackedEnd > last);
 	};
 
+	// A trip to the island, by ship or by swimming, is not a tracked bad end, but the pets are still left at home.
+	// The trip is opened and closed by passage hooks, never by time passing.
+	const awayNow = () => ["island", "pirate_ship"].includes(V.location) || !!V.waterdragonJourneyDay;
+	function leaveHome() {
+		if (!exists() || historical()) return;
+		const m = state();
+		if (m.away && !m.away.end) return;
+		sync();
+		m.away = { start: now() };
+	}
+	function returnHome() {
+		if (!exists() || historical()) return;
+		const m = state();
+		if (m.away && !m.away.end) m.away.end = now();
+	}
+	// Returns the time care resumes for this pet, or 0 if the away trip does not affect it.
+	const awayResume = p => {
+		const a = V.menagerie && V.menagerie.away;
+		if (!a) return 0;
+		// Safety net for an exit with no hook: close the trip the next time pets update away from the trip.
+		if (!a.end && !awayNow()) a.end = now();
+		const last = Number.isFinite(p.lastTick) ? p.lastTick : 0;
+		if (!a.end) return now();
+		return a.end > last ? a.end : 0;
+	};
+
 	/* --- Care --- */
 
 	function makePet(species, colour) {
@@ -228,6 +254,9 @@ const Menagerie = (() => {
 			p.lastTick = currentTime;
 			return;
 		}
+
+		const resume = awayResume(p);
+		if (resume) p.lastTick = resume;
 
 		let hours = (currentTime - p.lastTick) / 3600;
 		if (hours <= 0) return;
@@ -793,6 +822,8 @@ const Menagerie = (() => {
 		state,
 		exists,
 		sync,
+		leaveHome,
+		returnHome,
 		allPets,
 		getPet,
 		owned,
