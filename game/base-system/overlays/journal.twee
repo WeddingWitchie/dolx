@@ -431,9 +431,6 @@
 						<<set _bikeString to "where you left it">>
 				<</switch>>
 				<li><<if $bicycle.persistentLocation is true>>Your bike is at _bikeString.<</if>> Your bike has $bicycle.durability.current minutes of usage time left in it.</li>
-				<<if $bicycle.durability.repair isnot undefined>>
-					<li>You have $bicycle.durability.repair repair kits. You think you can carry 5 at most.</li>
-				<</if>>
 			<</if>>
 
 			<<if $studyBooks isnot undefined and $studyBooks.rented.count gte 1>>
@@ -1685,7 +1682,7 @@
 	<<set _hasProduce to Object.keys($foodstuff).some(key => $foodstuff[key].amount >= 1)>>
 	<<set _hasFoodNotice to pocketSpoiledNotice().length>>
 	<<set _hasCookedFood to pocketFoodList().length or refrigeratorFoodList().length>>
-	<<set _carrying to $whitneyWaterdragonPlushie is "carried" or [$antiquemoney, $blackmoney, $phials_held, $lurkers_held, $popcorn, $milkshake, $panties_held, $prison?.teeth].some(i => i >= 1)>>
+	<<set _carrying to $whitneyWaterdragonPlushie is "carried" or [$antiquemoney, $blackmoney, $phials_held, $lurkers_held, $popcorn, $milkshake, $panties_held, $prison?.teeth, $bicycle?.durability?.repair].some(i => i >= 1)>>
 	<<if _carrying or _hasProduce or _hasCookedFood or _hasFoodNotice>>
 		<hr>
 		<h1 class="header gold bold">Inventory</h1>
@@ -1743,6 +1740,9 @@
 			<</if>>
 				<<if $DoLPSpools isnot undefined>>
 				<li><<shopicon "tailor">> <span class="green">$DoLPSpools</span> spools.</li>
+			<</if>>
+			<<if $bicycle?.durability?.repair gt 0>>
+				<li><<birdicon "tools">> <span class="green">$bicycle.durability.repair</span> bike <<pluralise $bicycle.durability.repair "repair kit">>. <<if $bicycle.durability.repair lt 5>>You can carry <<print 5 - $bicycle.durability.repair>> more.<<else>>You cannot carry more.<</if>></li>
 			<</if>>
 		</ul>
 
