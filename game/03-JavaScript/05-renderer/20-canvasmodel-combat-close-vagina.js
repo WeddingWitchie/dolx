@@ -108,7 +108,7 @@ const combatCloseVagina = {
 				return `${options.src}vagina/${options.position}/${options.vagina.cumState}-cum.png`;
 			},
 			showfn(options) {
-				return !!options.showVagina && setup.bodyliquid.combined("vagina") >= 1;
+				return !!options.showVagina && setup.bodyliquid.combined("vagina") >= 1 && !playerBeltSealsFluid("vagina");
 			},
 			animationfn(options) {
 				return options.vagina.cumState === "vagina" ? "sex-17f-slow" : options.animKeyVagina;

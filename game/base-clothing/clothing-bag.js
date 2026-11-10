@@ -532,7 +532,7 @@ function initBag() {
 				"custom",
 			],
 			colour_sidebar: 1,
-			type: ["bookbag"],
+			type: ["school", "bookbag"],
 			gender: "n",
 			femininity: 0,
 			warmth: 0,

@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered schoolDisciplineDayPassed ensureRobinStand robinStandWeeklyTick robinCafeWeeklyTick robinCafeDayPassed robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged playerOriginalSex activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception autismMaskingUpdate playerClearClimax */
+/* globals beltSealedLiquidCount orphanagePlotsPlanted orphanagePlotsWatered schoolDisciplineDayPassed ensureRobinStand robinStandWeeklyTick robinCafeWeeklyTick robinCafeDayPassed robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged playerOriginalSex activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception autismMaskingUpdate playerClearClimax */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -1397,7 +1397,7 @@ function hourPassed(hours, advanceFirst) {
 			});
 		});
 
-		if (V.ejactrait >= 1 && V.tiredness < C.tiredness.max) V.stress -= (V.goocount + V.semencount) * 10;
+		if (V.ejactrait >= 1 && V.tiredness < C.tiredness.max) V.stress -= (V.goocount + V.semencount + beltSealedLiquidCount(["goo", "semen"])) * 10;
 		if (V.kylarwatched) V.kylarwatchedtimer--;
 		if (V.parasite.nipples.name) statChange.milkvolume(1);
 		if (V.worn.head.name === "hairpin" || V.sexStats.pills.pills["Hair Growth Formula"].doseTaken) {
@@ -2259,8 +2259,8 @@ function dailyNPCEffects() {
 	// Wraith
 	if (V.wraith.state) {
 		if (V.wraithAngerCooldown) {
-			if (V.wraithAngerCooldown > 0) V.wraithAngerCooldown--;
-			else {
+			V.wraithAngerCooldown--;
+			if (V.wraithAngerCooldown <= 0) {
 				V.wraith.offspring = "";
 				delete V.wraithAngerCooldown;
 			}
@@ -2654,11 +2654,7 @@ function dailyPlayerEffects() {
 			}
 			if (key !== "devotion" && V.hypnosisTimers[key].time <= 0) {
 				V.hypnosis_timer_messages ||= [];
-				if (key === "insight" && V.awareness >= 300) {
-					V.hypnosis_timer_messages.pushUnique("ignorance");
-				} else {
-					V.hypnosis_timer_messages.pushUnique(key);
-				}
+				V.hypnosis_timer_messages.pushUnique(key);
 				V.effectsmessage = 1;
 			} else if (key === "devotion" && V.hypnosisTimers.devotion.time <= gwylanHypnoMax("value", V.hypnosis_traits.devotion - 1)) {
 				V.hypnosis_timer_messages ||= [];
@@ -2847,7 +2843,7 @@ function yearlyEventChecks() {
 		V.avery_valentines.invite = false;
 		V.avery_valentines.ready = false;
 		V.avery_valentines.done = false;
-		V.avery_valentines.reservation = false;
+		V.avery_valentines.reservations = false;
 		V.avery_valentines.chocolate = false;
 		V.avery_valentines.chocolate_asked = false;
 		V.avery_valentines.opinion = "none";
@@ -3075,11 +3071,12 @@ function dailySchoolEffects() {
 		if (C.npc.Mason.love >= V.npclovehigh) delinquencyDecay++;
 		if (V.lessonmissedtext) delinquencyDecay = Math.floor(delinquencyDecay / 2);
 		statChange.delinquency(-delinquencyDecay / 4);
-		if (V.schoolfameblackmail !== undefined) V.schoolfameblackmail++;
 	}
 
 	/* Handles suspension days and community service after the normal school attendance update. */
 	if (typeof schoolDisciplineDayPassed === "function") schoolDisciplineDayPassed();
+
+	if (Time.schoolDay && V.schoolfameblackmail !== undefined) V.schoolfameblackmail++;
 
 	if (V.science_star >= 1) {
 		wikifier("scienceskill", Math.clamp(V.science_star, 0, 3));

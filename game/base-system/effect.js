@@ -759,7 +759,7 @@ function effects() {
 						delete V.hypnosisTimers[trait];
 						break;
 					default:
-						sWikifier(`<span class="purple">Your Hypnotic ${trait.toUpperFirst()} has faded.</span>`);
+						sWikifier(`<span class="purple">Your Hypnotic ${trait === "insight" && V.awareness >= 300 ? "Ignorance" : trait.toUpperFirst()} has faded.</span>`);
 						delete V.hypnosis_traits[trait];
 						delete V.hypnosisTimers[trait];
 						break;

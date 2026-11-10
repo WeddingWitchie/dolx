@@ -1,6 +1,6 @@
 /*
  * Bailey and Eden lake encounter, once a week.
- * Fires when $syndromeeden >= 1, $syndromebaileybuild >= 1,
+ * Fires when $syndromeeden >= 1, $syndromeBaileyBuild >= 1,
  * the time is 11:00–13:59, and a 20% roll passes ($rng >= 81).
  */
 
@@ -8,7 +8,7 @@
 <<effects>><<endevent>>
 <<npc Bailey>><<person1>>
 
-<<if !$baileySeen?.includes("edenLakeSeen")>>
+<<if !$baileySeen.includes("edenLakeSeen")>>
 	You see two figures at the water's edge.
 	<br><br>
 
@@ -21,7 +21,7 @@
 	Neither is talking. Eden stares at <<nnpc_his "Eden">> line. Bailey reels in a catch. <<He>> unhooks it without looking and drops it in a freezer. Eden's jaw tightens.
 	<br><br>
 
-	Bailey casts again. The line hits the water, causing lotus flowers to drift away. <<if $bailey_lure_received>><span class="blue">You recognize Bailey's lure.</span> It's the snake-shaped fishing lure you gave <<him>> for Christmas.<</if>>
+	Bailey casts again. The line hits the water, causing lotus flowers to drift away. <<if $baileySeen.includes("lure")>><span class="blue">You recognise Bailey's lure.</span> It's the snake-shaped fishing lure you gave <<him>> for Christmas.<</if>>
 	<br><br>
 
 
@@ -178,13 +178,13 @@ Bailey stands. <<He>> shoulders the rod.
 /* Savings count, same as the doorstep and the street hunt: Bailey walks you to the bank if your pockets are short. */
 <<set _loanSurcharge to (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0)>>
 <<bratTaxCalc>>
-<<set _rentTotal to ($rentMoney + ($babyRent || 0) + ($bratTax or 0) + _loanSurcharge)>>
+<<set _rentTotal to ($rentMoney + ($babyRent || 0) + $baileyBratTax + _loanSurcharge)>>
 <<set _rentAffordable to ((setup.inflation ? setup.inflation.rentPayable() : $money) + ($baileyDeposit or 0)) gte _rentTotal>>
 <<if _rentAffordable>>
 	<<link [[Pay|Bailey Eden Lake Solo Pay]]>><</link>>
 	<br>
 <</if>>
-<<if $syndromebaileybuild gte 1 and _rentAffordable and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
+<<if $syndromeBaileyBuild gte 1 and _rentAffordable and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
 	<span class="red bailey-stockholm"><<link [[Offer yourself|Bailey Eden Lake Solo Offer]]>><</link>></span>
 	<br>
 <</if>>
@@ -246,7 +246,7 @@ Bailey looks between you and the trees where Eden left. "Wait here."
 Eden comes back through the trees. <<nnpc_Hes "Eden">> carrying the freezer in one hand and <<nnpc_his "Eden">> rifle in the other. <<nnpc_He "Eden">> stops when <<nnpc_he "Eden">> sees you.
 <br><br>
 
-Bailey gestures towards you with a flick of <<his>> wrist. "Take this one too."<<if $bailey_offered is undefined>><<set $bailey_offered to 0>><</if>><<if $bailey_offered is 0>><<npcincr Bailey dom 3>><<gdom "Bailey">><<npcincr Bailey love 3>><<glove "Bailey">><<set $syndromebaileybuild += 1>><<set $stockholm_points.eden to true>><<gbaileystock>><<else>><<npcincr Bailey dom 1>><<gdom "Bailey">><<npcincr Bailey love 1>><<glove "Bailey">><</if>><<set $bailey_offered += 1>>
+Bailey gestures towards you with a flick of <<his>> wrist. "Take this one too."<<if $baileyOffered is 0>><<npcincr Bailey dom 3>><<gdom "Bailey">><<npcincr Bailey love 3>><<glove "Bailey">><<set $syndromeBaileyBuild += 1>><<set $baileyStockholmPoints.eden to true>><<gbaileystock>><<else>><<npcincr Bailey dom 1>><<gdom "Bailey">><<npcincr Bailey love 1>><<glove "Bailey">><</if>><<set $baileyOffered += 1>>
 <br><br>
 
 <<if edenFreedomStatus() is 0>>
@@ -331,8 +331,8 @@ Bailey's eyes don't leave yours as Eden drags you away to <<nnpc_his "Eden">> ca
 	<<link [[Next|Forest]]>><<endevent>><</link>>
 	<br>
 <<elseif $stalk_end is "ambush">>
-	<<set _physique_topple to random(2000, 18000)>>
-	<<if $physique gte _physique_topple>>
+	<<set _physiqueTopple to random(2000, 18000)>>
+	<<if $physique gte _physiqueTopple>>
 		<<endcombat>>
 		<<npc Bailey>><<person1>>
 		You end up on top of <<him>>. <<He>> looks annoyed with you. <<His>> chest rises and falls evenly under your palm.
@@ -472,7 +472,7 @@ You sit on the log next to Bailey. The bark is warm to the touch.
 <br><br>
 
 Bailey casts <<his>> line. You watch the lotus flowers part around it.
-<<if $bailey_lure_received>>
+<<if $baileySeen.includes("lure")>>
 	The snake lure breaks the surface. You watch it sink.
 <</if>>
 <br><br>
@@ -745,7 +745,7 @@ Eden steps towards you.
 		"You lost your collar." <<nnpc_He "Eden">> notes, disappointed.
 		<br><br>
 
-		<<if $syndromebailey>>
+		<<if $syndromeBailey>>
 			"Lost mine too." Bailey eyes your neck and scoffs. "And mine costs more."
 			<br><br>
 		<</if>>
@@ -754,7 +754,7 @@ Eden steps towards you.
 		<<npcincr Eden lust 1>><<glust "Eden">><<npcincr Eden dom 1>><<gdom "Eden">>
 		<br><br>
 
-		<<if $syndromebailey>>
+		<<if $syndromeBailey>>
 			Bailey glances at your neck before giving Eden a level stare.
 			<<npcincr Bailey dom -1>><<ldom "Bailey">>
 			<br><br>
@@ -763,7 +763,7 @@ Eden steps towards you.
 		Eden's eyes drop to your neck. <<nnpc_He "Eden">> frowns at the familiar collar. "The witch marked you."
 		<br><br>
 
-		<<if $syndromebailey>>
+		<<if $syndromeBailey>>
 			Bailey eyes your neck too. "<<pShes "Bailey">> in over <<pher "Bailey">> head."
 			<br><br>
 		<</if>>
@@ -771,7 +771,7 @@ Eden steps towards you.
 		"Whose collar is that?" Eden barks.
 		<br><br>
 
-		<<if $syndromebailey>>
+		<<if $syndromeBailey>>
 			Bailey glances at your neck. <<He>> seems amused. "No one important."
 			<br><br>
 		<</if>>
@@ -779,13 +779,13 @@ Eden steps towards you.
 		"Where's your collar?" <<nnpc_He "Eden">> frowns at you.
 		<br><br>
 
-		<<if $syndromebailey>>
+		<<if $syndromeBailey>>
 			Bailey exhales, "<<pShe "Bailey">> <<pverb "has" "have" "Bailey">> a habit of losing them."
 			<br><br>
 		<</if>>
 	<</if>>
 
-	<<if $syndromebailey>>
+	<<if $syndromeBailey>>
 		<<link [[Next|Bailey Eden Lake Stockholm]]>><</link>>
 	<<else>>
 		<<link [[Next|Bailey Eden Lake No Stockholm]]>><</link>>
@@ -849,7 +849,7 @@ Eden glares at Bailey, <<nnpc_his "Eden">> hand tightening around <<nnpc_his "Ed
 <</if>>
 <br><br>
 
-Eden hears you but refuses to look at you. <<nnpc_He "Eden">> glares at Bailey, furious. Bailey is unshakable in comparison.
+Eden hears you but refuses to look at you. <<nnpc_He "Eden">> glares at Bailey, furious. Bailey is unshakeable in comparison.
 <br><br>
 
 Eden's shaking grip on your arm tightens for just one moment before <<nnpc_he "Eden">> lets go.
@@ -954,7 +954,7 @@ Bailey turns to you now. <<His>> hand circles your arm.
 <<person1>>
 
 Bailey escorts you through the woods, one hand around your arm, the other holding <<his>> fishing rod against <<his>> shoulder.
-<<if $bailey_lure_received>>
+<<if $baileySeen.includes("lure")>>
 	The snake-shaped fishing lure bounces as <<he>> walks.
 <</if>>
 <br><br>
@@ -962,7 +962,7 @@ Bailey escorts you through the woods, one hand around your arm, the other holdin
 <<He>> walks at a quick pace towards town. You have to work to keep up without tripping.
 <br><br>
 
-"Don't go into the forests unprepared." Bailey says to you. <<Hes>> not looking at you. <<Hes>> looking at the trees ahead. "Something or the other will try to hunt you down."
+"Don't go into the forests unprepared," Bailey says to you. <<Hes>> not looking at you. <<Hes>> looking at the trees ahead. "Something or the other will try to hunt you down."
 <br><br>
 
 Once you reach the edge of town, <<he>> lets go of your arm. <<He>> glances at you. <<pass 30>>
@@ -1084,7 +1084,7 @@ The corner of Bailey's lip twitches. "Sure. Take <<pher "Bailey">>. <<pShe "Bail
 <<effects>>
 <<person1>>
 
-"You need to pay up." Bailey says to you, taking a step towards you before Eden stops <<him>> with a hand on <<his>> shoulder.
+"You need to pay up," Bailey says to you, taking a step towards you before Eden stops <<him>> with a hand on <<his>> shoulder.
 <br><br>
 
 "Give <<pher "Eden">> to me." Eden turns to Bailey.

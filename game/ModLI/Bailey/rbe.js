@@ -1,18 +1,18 @@
-const BAILEY_EXPANSION_VERSION = "0.6.2";
+const BAILEY_EXPANSION_VERSION = "0.6.3.3";
 
 function baileyRevealed() {
-	return V.syndromebailey === true;
+	return V.syndromeBailey === true;
 }
 
-function baileyLog(message) {
-	if (V.debug === 1) console.log("[BaileyExpansion] " + message);
+function baileyLog(message, vars = V) {
+	if (vars.debug === 1) console.log("[BaileyExpansion] " + message);
 }
 
 const BAILEY_STOCKHOLM_SCENES = ["temple", "kylar", "cafe", "whitney", "gwylan", "kick", "avery", "halloween", "eden"];
 
 window.baileyStockholmFloor = function () {
-	const pts = V.stockholm_points;
-	let floor = pts.offer_defeat === true ? 3 : pts.offer === true ? 1 : 0;
+	const pts = V.baileyStockholmPoints;
+	let floor = pts.offerDefeat === true ? 3 : pts.offer === true ? 1 : 0;
 	BAILEY_STOCKHOLM_SCENES.forEach(function (k) {
 		if (pts[k] === true) floor += 1;
 	});
@@ -26,6 +26,11 @@ window.baileyStockholmFloorMax = function () {
 window.baileyMaxRent = function () {
 	const modifier = V.settings.rentCostModifier || 1;
 	return Math.floor(200000 * modifier);
+};
+
+const BAILEY_PRICE_RATES = { spank: 0.25, short: 0.5, medium: 1, allNight: 2.5, catEars: 1 };
+window.baileyPrice = function (kind) {
+	return Math.floor(window.baileyMaxRent() * BAILEY_PRICE_RATES[kind]);
 };
 
 window.baileyFlatState = function () {
@@ -50,8 +55,8 @@ window.baileyWeekendClose = function (day) {
 };
 
 window.baileyWeeksMissed = function () {
-	if (!V.bailey_monogamous || V.bailey_weekend_closed === undefined) return 0;
-	return Math.max(0, (baileyDateToDay(Time.getPreviousWeekdayDate(1)) - V.bailey_weekend_closed) / 7);
+	if (!V.baileyMonogamous || V.baileyWeekendClosed === undefined) return 0;
+	return Math.max(0, (baileyDateToDay(Time.getPreviousWeekdayDate(1)) - V.baileyWeekendClosed) / 7);
 };
 
 window.baileyStraying = function () {
@@ -129,36 +134,8 @@ window.baileyCollarRegistry = [
 	{ key: "mj_beeesss_silver", pack: "Beeesss", label: "Beeesss Silver by MJ" },
 ];
 
-function migrateLegacyStockholm() {
-	if (V.stockholm_active !== undefined) {
-		V.syndromebailey = V.stockholm_active === true;
-		baileyLog("Migrated $stockholm_active (" + V.stockholm_active + ") -> $syndromebailey (" + V.syndromebailey + ")");
-		delete V.stockholm_active;
-	}
-
-	if (V.stockholm_bailey !== undefined) {
-		const build = Number(V.stockholm_bailey);
-		V.syndromebaileybuild = Number.isFinite(build) ? build : 0;
-		baileyLog("Migrated $stockholm_bailey (" + V.stockholm_bailey + ") -> $syndromebaileybuild (" + V.syndromebaileybuild + ")");
-		delete V.stockholm_bailey;
-	}
-}
-
-/* Once per loaded state: new-game defaults, legacy migrations, one-off repairs. */
+/* Once per loaded state: one-off repairs. */
 function syncBaileyDom() {
-	if (!V.stockholm_points) V.stockholm_points = {};
-	if (V.syndromebaileybuild === undefined) V.syndromebaileybuild = 0;
-	V.bailey_title =
-		String(V.bailey_title || "")
-			.replace(/[<>]/g, "")
-			.trim()
-			.slice(0, 15) || "Bailey";
-	migrateLegacyStockholm();
-	if (V.bailey_weekend_lastvisit !== undefined) {
-		V.bailey_weekend_closed = window.baileyWeekendClose(V.bailey_weekend_lastvisit);
-		delete V.bailey_weekend_lastvisit;
-	}
-
 	const bailey = C.npc.Bailey;
 
 	["dom", "love"].forEach(function (stat) {
@@ -181,27 +158,31 @@ function syncBaileyDom() {
 
 	if (!Number.isFinite(bailey.dom)) bailey.dom = baileyRevealed() ? 100 : 50;
 	if (!Number.isFinite(bailey.love)) bailey.love = 0;
-	if (!Number.isFinite(V.syndromebaileybuild)) V.syndromebaileybuild = 0;
+	if (!Number.isFinite(V.syndromeBaileyBuild)) V.syndromeBaileyBuild = 0;
 
 	/* A save that predates RBE has the baseNNPC dom of 0 and the vanilla outfit list. */
-	if (V.bailey_rbe_init !== true) {
+	if (V.baileyRbeInit !== true) {
 		if (bailey.dom === 0) {
 			bailey.dom = baileyRevealed() ? 100 : 50;
 			baileyLog("Initialized C.npc.Bailey.dom -> " + bailey.dom);
 		}
-		if (bailey.outfits && !bailey.outfits.includes("business")) {
-			bailey.outfits.pushUnique("business", "maleFormal1", "femaleFormal1", "townBlazer", "townCoat");
-			baileyLog("Added Bailey outfit pool to an existing save");
+		V.baileyRbeInit = true;
+	}
+	if (bailey.outfits) {
+		const retired = ["business", "maleFormal1", "femaleFormal1", "townBlazer", "townCoat"];
+		if (bailey.outfits.some(name => retired.includes(name)) || !bailey.outfits.includes("baileyJacket")) {
+			bailey.outfits = bailey.outfits.filter(name => !retired.includes(name));
+			bailey.outfits.pushUnique("townTurtleneck", "baileyJacket");
+			baileyLog("Reset Bailey's outfits to vanilla's");
 		}
-		V.bailey_rbe_init = true;
 	}
 
 	if (bailey.sextoys == null) bailey.sextoys = {};
 
 	const floor = window.baileyStockholmFloor();
-	if (V.syndromebaileybuild < floor) {
-		baileyLog("Raised $syndromebaileybuild " + V.syndromebaileybuild + " -> " + floor);
-		V.syndromebaileybuild = floor;
+	if (V.syndromeBaileyBuild < floor) {
+		baileyLog("Raised $syndromeBaileyBuild " + V.syndromeBaileyBuild + " -> " + floor);
+		V.syndromeBaileyBuild = floor;
 	}
 
 	enforceBaileyState();
@@ -211,61 +192,60 @@ function enforceBaileyState() {
 	const bailey = C.npc.Bailey;
 	if (baileyRevealed() && bailey.dom !== 100) bailey.dom = 100;
 	/* 0 = never uses condoms; nothing in vanilla resets it. */
-	if (V.bailey_monogamous === true && bailey.pregnancyAvoidance !== 0) {
+	if (V.baileyMonogamous === true && bailey.pregnancyAvoidance !== 0) {
 		baileyLog("Monogamous Bailey pregnancyAvoidance " + bailey.pregnancyAvoidance + " -> 0");
 		bailey.pregnancyAvoidance = 0;
 	}
 }
 
 function markStoodUp() {
-	V.bailey_date_missed = 1;
-	V.bailey_brat = V.bailey_brat || { points: 0, reasons: [] };
-	V.bailey_brat.points = Math.clamp(V.bailey_brat.points + 2, 0, 20);
-	if (!V.bailey_brat.reasons.includes("stoodup")) V.bailey_brat.reasons.push("stoodup");
+	V.baileyDateMissed = true;
+	V.baileyBrat.points = Math.clamp(V.baileyBrat.points + 2, 0, 20);
+	if (!V.baileyBrat.reasons.includes("stoodup")) V.baileyBrat.reasons.push("stoodup");
 }
 
 /* Date booked but not attended by midnight. */
 function checkStoodUp() {
-	if (V.bailey_date_sched_day !== undefined && Time.days <= V.bailey_date_sched_day) return;
-	if (V.bailey_date_scheduled === 1) {
-		if (V.bailey_date_attended !== 1) markStoodUp();
-		V.bailey_date_scheduled = 0;
-		V.bailey_date_attended = 0;
+	if (V.baileyDateSchedDay !== undefined && Time.days <= V.baileyDateSchedDay) return;
+	if (V.baileyDateScheduled) {
+		if (!V.baileyDateAttended) markStoodUp();
+		V.baileyDateScheduled = false;
+		V.baileyDateAttended = false;
 	}
-	if (V.bailey_date_allnight_scheduled === 1) {
-		if (V.bailey_date_attended !== 1) markStoodUp();
-		V.bailey_date_allnight_scheduled = 0;
-		V.bailey_date_attended = 0;
+	if (V.baileyDateAllNightScheduled) {
+		if (!V.baileyDateAttended) markStoodUp();
+		V.baileyDateAllNightScheduled = false;
+		V.baileyDateAttended = false;
 	}
 }
 
 /* +1 lust/day once Stockholm's active, +2 while monogamous. */
 function dailyLust() {
-	if (V.bailey_lust_lastday === undefined) {
-		V.bailey_lust_lastday = Time.days;
+	if (V.baileyLustLastDay === undefined) {
+		V.baileyLustLastDay = Time.days;
 		return;
 	}
-	const delta = Time.days - V.bailey_lust_lastday;
+	const delta = Time.days - V.baileyLustLastDay;
 	if (delta <= 0) {
-		if (delta < 0) V.bailey_lust_lastday = Time.days;
+		if (delta < 0) V.baileyLustLastDay = Time.days;
 		return;
 	}
-	V.bailey_lust_lastday = Time.days;
-	if (V.syndromebailey === true) {
-		const perDay = V.bailey_monogamous ? 2 : 1;
+	V.baileyLustLastDay = Time.days;
+	if (V.syndromeBailey === true) {
+		const perDay = V.baileyMonogamous ? 2 : 1;
 		C.npc.Bailey.lust = Math.clamp(C.npc.Bailey.lust + delta * perDay, 0, 100);
 	}
 }
 
 function resetChristmasGift() {
 	if (V.christmas) return;
-	delete V.christmas_gift_bailey;
-	delete V.christmas_gift_bailey_wrapped;
-	delete V.christmas_gift_bailey_given;
+	delete V.christmasGiftBailey;
+	delete V.christmasGiftBaileyWrapped;
+	delete V.christmasGiftBaileyGiven;
 }
 
 function keepLure() {
-	if (V.bailey_office_gift === "lure" && !V.bailey_lure_received) V.bailey_lure_received = true;
+	if (V.baileyOfficeGift === "lure") V.baileySeen.pushUnique("lure");
 }
 
 /* Collar art. The uploaded image has no file on disk, so it is seeded into
@@ -342,7 +322,7 @@ function clearCustomCollar() {
 }
 
 function collarArtKey() {
-	let key = V.bailey_collar_art || "reiyu_goose";
+	let key = V.baileyCollarArt || "reiyu_goose";
 	if (key === "custom" && !window.baileyCollarImages.custom) key = "reiyu_goose";
 	if (
 		key !== "custom" &&
@@ -382,11 +362,11 @@ function applyCollarArt(key) {
 }
 
 function selectCollarArt(key) {
-	V.bailey_collar_art = key;
+	V.baileyCollarArt = key;
 	applyCollarArt(collarArtKey());
 }
 
-/* File picker -> base64 in localStorage -> $bailey_collar_art = "custom". 2 MB cap. */
+/* File picker -> base64 in localStorage -> $baileyCollarArt = "custom". 2 MB cap. */
 window.baileyCollarUpload = function () {
 	const input = document.createElement("input");
 	input.type = "file";
@@ -432,7 +412,7 @@ window.baileyCollarRemoveCustom = function () {
 	} catch (e) {}
 	window.baileyCollarImages.custom = null;
 	clearCustomCollar();
-	if (V.bailey_collar_art === "custom") selectCollarArt("reiyu_goose");
+	if (V.baileyCollarArt === "custom") selectCollarArt("reiyu_goose");
 	refreshCollarListbox();
 };
 
@@ -448,8 +428,15 @@ $(document).on("change", "#collar-listbox select", function () {
 	selectCollarArt(this.value);
 });
 
+let prepared = false;
 let synced = false;
-$(document).on(":onloadsave", function () {
+/* Every moment in the save, not just the current one. */
+$(document).on(":onloadsave", function (event, { save }) {
+	save.state.history.forEach(function (moment, index) {
+		const moved = prepareBaileyVars(moment.variables);
+		if (moved && index === save.state.index) baileyLog("Migrated " + moved + " old variables", moment.variables);
+	});
+	prepared = true;
 	synced = false;
 });
 
@@ -459,14 +446,19 @@ function baileyInGame() {
 }
 
 $(document).on(":passagestart", function () {
+	if (V.NPCName === undefined) return;
+	if (!prepared) {
+		prepared = true;
+		prepareBaileyVars(V);
+	}
 	if (!baileyInGame()) return;
 	if (!synced) {
 		synced = true;
 		syncBaileyDom();
 		const key = collarArtKey();
-		if (key !== V.bailey_collar_art && V.bailey_collar_art !== undefined) V.bailey_collar_art = key;
+		if (key !== V.baileyCollarArt && V.baileyCollarArt !== undefined) V.baileyCollarArt = key;
 		applyCollarArt(key);
-	} else if (V.bailey_collar_art === "custom" && !customCollarSeeded()) {
+	} else if (V.baileyCollarArt === "custom" && !customCollarSeeded()) {
 		seedCustomCollar();
 		redrawCollar();
 	}
@@ -505,3 +497,220 @@ $(document).one(":storyready", function () {
 		baileyLog("Bailey added to start of loveInterestNpc list");
 	}
 });
+
+/* Pre-0.6.3 name -> current name */
+const BAILEY_RENAMED_VARS = {
+	syndromebailey: "syndromeBailey",
+	syndromebaileybuild: "syndromeBaileyBuild",
+	bailey_ambush_advantage: "baileyAmbushAdvantage",
+	bailey_avery_rescue_active: "baileyAveryRescueActive",
+	bailey_avery_resume_combat: "baileyAveryResumeCombat",
+	bailey_brat: "baileyBrat",
+	bailey_catears: "baileyCatEars",
+	bailey_collar_art: "baileyCollarArt",
+	bailey_collar_taken: "baileyCollarTaken",
+	bailey_date_allnight: "baileyDateAllNight",
+	bailey_date_allnight_scheduled: "baileyDateAllNightScheduled",
+	bailey_date_attended: "baileyDateAttended",
+	bailey_date_bill: "baileyDateBill",
+	bailey_date_medium: "baileyDateMedium",
+	bailey_date_missed: "baileyDateMissed",
+	bailey_date_pc_paid: "baileyDatePcPaid",
+	bailey_date_sched_day: "baileyDateSchedDay",
+	bailey_date_scheduled: "baileyDateScheduled",
+	bailey_date_short: "baileyDateShort",
+	bailey_desk_offered: "baileyDeskOffered",
+	bailey_fight_sex: "baileyFightSex",
+	bailey_flat_dragged: "baileyFlatDragged",
+	bailey_gala: "baileyGala",
+	bailey_gift_toy: "baileyGiftToy",
+	bailey_halloween_asked: "baileyHalloweenAsked",
+	bailey_halloween_attended: "baileyHalloweenAttended",
+	bailey_halloween_scheduled: "baileyHalloweenScheduled",
+	bailey_handhold_weapon: "baileyHandholdWeapon",
+	bailey_kick_returning: "baileyKickReturning",
+	bailey_lust_lastday: "baileyLustLastDay",
+	bailey_mathsphoto: "baileyMathsPhoto",
+	bailey_monogamous: "baileyMonogamous",
+	bailey_nightmare_restless: "baileyNightmareRestless",
+	bailey_offered: "baileyOffered",
+	bailey_office_gift: "baileyOfficeGift",
+	bailey_office_mast_catch: "baileyOfficeMastCatch",
+	bailey_office_mast_catcher: "baileyOfficeMastCatcher",
+	bailey_office_seduced_this_cycle: "baileyOfficeSeducedThisCycle",
+	bailey_rbe_init: "baileyRbeInit",
+	bailey_sleep_config: "baileySleepConfig",
+	bailey_spank_choice: "baileySpankChoice",
+	bailey_spank_clean: "baileySpankClean",
+	bailey_spank_count: "baileySpankCount",
+	bailey_title: "baileyTitle",
+	bailey_title_from: "baileyTitleFrom",
+	bailey_vent_fight: "baileyVentFight",
+	bailey_vent_seen: "baileyVentSeen",
+	bailey_weekend_closed: "baileyWeekendClosed",
+	bailey_weekend_round: "baileyWeekendRound",
+	bailey_weekend_visits: "baileyWeekendVisits",
+	bailey_whitney_dom_entry: "baileyWhitneyDomEntry",
+	bailey_wraith_seen: "baileyWraithSeen",
+	baileywhitneyoutcome: "baileyWhitneyOutcome",
+	christmas_bailey_lotus_day: "christmasBaileyLotusDay",
+	christmas_gift_bailey: "christmasGiftBailey",
+	christmas_gift_bailey_given: "christmasGiftBaileyGiven",
+	christmas_gift_bailey_wrapped: "christmasGiftBaileyWrapped",
+	date_short_intimidated: "baileyDateShortIntimidated",
+	date_short_leaned: "baileyDateShortLeaned",
+	date_short_listened: "baileyDateShortListened",
+	date_short_stole: "baileyDateShortStole",
+	stockholm_points: "baileyStockholmPoints",
+	bratTax: "baileyBratTax",
+	safeWordEncounter: "baileySafeWordEncounter",
+	wraithPool: "baileyWraithPool",
+	wraithResisted: "baileyWraithResisted",
+};
+const BAILEY_RETIRED_VARS = [
+	"date_short_npc",
+	"date_medium_goon1",
+	"date_medium_goon2",
+	"date_medium_waiter",
+	"baileywhitneyround",
+	"bailey_catears_price",
+	"bailey_spank_price",
+	"bailey_date_medium_price",
+	"bailey_date_allnight_price",
+	"bailey_kick_return",
+	"bailey_monogamy_unlocked",
+	"bailey_title_unlocked",
+	"date_short_position",
+	"baileyQuestStage",
+	"baileyFirstSeen",
+	"baileywhitneysex",
+	"bailey_allnight_early_sex",
+	"bailey_allnight_masturbation_caught",
+	"bailey_flat_known",
+	"bailey_kept_photo",
+	"bailey_photo_seen",
+	"bailey_halloween_score",
+	"bailey_halloween_topics",
+	"bailey_halloween_cycle",
+	"bailey_halloween_guests_met",
+	"bailey_halloween_steal_caught",
+];
+/* Old flags -> $baileySeen entry */
+const BAILEY_SEEN_FLAGS = {
+	bailey_wolfsuit_seen: "wolfsuit",
+	bailey_lure_received: "lure",
+	baileycollar: "collar",
+	bailey_lotus_seen: "lotus",
+	bailey_papers_caught: "papersCaught",
+};
+/* Old flag objects -> $baileySeen, prefix + Key */
+const BAILEY_SEEN_OBJECTS = {
+	bailey_rent_seen: "rent",
+	bailey_town: "town",
+	bailey_gossip_seen: "gossip",
+	bailey_offered_seen: "offer",
+};
+/* Were 1/0 before 0.6.3 */
+const BAILEY_BOOLEAN_VARS = [
+	"baileyAveryRescueActive",
+	"baileyAveryResumeCombat",
+	"baileyDateScheduled",
+	"baileyDateAllNightScheduled",
+	"baileyDateAttended",
+	"baileyDateMissed",
+	"baileyWatchingMasturbation",
+	"christmasGiftBaileyGiven",
+	"christmasGiftBaileyWrapped",
+];
+const BAILEY_DEFAULTS = {
+	syndromeBailey: false,
+	syndromeBaileyBuild: 0,
+	baileyStockholmPoints: {},
+	baileySeen: [],
+	baileyTitle: "Bailey",
+	baileyBrat: { points: 0, reasons: [] },
+	baileyBratTax: 0,
+	baileyOffered: 0,
+	baileyMonogamous: false,
+	baileyCatEars: 0,
+	baileyDateShort: 0,
+	baileyDateMedium: 0,
+	baileyDateAllNight: 0,
+	baileyDeskOffered: 0,
+	baileyVentSeen: 0,
+	baileyWraithSeen: 0,
+	baileyWeekendVisits: 0,
+	baileyCatchCounter: 0,
+};
+
+function migrateRenamedVars(vars) {
+	let moved = 0;
+	if (!vars.baileySeen) vars.baileySeen = [];
+	Object.entries(BAILEY_SEEN_FLAGS).forEach(function ([from, entry]) {
+		if (vars[from] === undefined) return;
+		if (vars[from]) vars.baileySeen.pushUnique(entry);
+		delete vars[from];
+		moved++;
+	});
+	Object.entries(BAILEY_SEEN_OBJECTS).forEach(function ([from, prefix]) {
+		if (vars[from] === undefined) return;
+		Object.keys(vars[from]).forEach(function (key) {
+			if (vars[from][key]) vars.baileySeen.pushUnique(prefix + key.toUpperFirst());
+		});
+		delete vars[from];
+		moved++;
+	});
+	Object.entries(BAILEY_RENAMED_VARS).forEach(function ([from, to]) {
+		if (vars[from] === undefined) return;
+		vars[to] = vars[from];
+		delete vars[from];
+		moved++;
+	});
+	BAILEY_RETIRED_VARS.forEach(function (name) {
+		if (vars[name] === undefined) return;
+		delete vars[name];
+		moved++;
+	});
+	BAILEY_BOOLEAN_VARS.forEach(function (name) {
+		if (typeof vars[name] === "number") vars[name] = vars[name] === 1;
+	});
+	if (vars.baileyStockholmPoints?.offer_defeat !== undefined) {
+		vars.baileyStockholmPoints.offerDefeat = vars.baileyStockholmPoints.offer_defeat;
+		delete vars.baileyStockholmPoints.offer_defeat;
+	}
+	if (vars.weekly?.baileyTFseen !== undefined) {
+		vars.weekly.baileyTfSeen = vars.weekly.baileyTFseen;
+		delete vars.weekly.baileyTFseen;
+	}
+	return moved;
+}
+
+function migrateLegacyStockholm(vars) {
+	let moved = 0;
+	if (vars.stockholm_active !== undefined) {
+		vars.syndromeBailey = vars.stockholm_active === true;
+		delete vars.stockholm_active;
+		moved++;
+	}
+	if (vars.stockholm_bailey !== undefined) {
+		const build = Number(vars.stockholm_bailey);
+		vars.syndromeBaileyBuild = Number.isFinite(build) ? build : 0;
+		delete vars.stockholm_bailey;
+		moved++;
+	}
+	return moved;
+}
+
+/* Old save names first, then start values. Returns how many old variables were found. */
+function prepareBaileyVars(vars) {
+	const moved = migrateRenamedVars(vars) + migrateLegacyStockholm(vars);
+	if (vars.bailey_weekend_lastvisit !== undefined) {
+		if (vars.baileyWeekendClosed === undefined) vars.baileyWeekendClosed = window.baileyWeekendClose(vars.bailey_weekend_lastvisit);
+		delete vars.bailey_weekend_lastvisit;
+	}
+	Object.entries(BAILEY_DEFAULTS).forEach(function ([name, value]) {
+		if (vars[name] === undefined) vars[name] = clone(value);
+	});
+	vars.baileyTitle = vars.baileyTitle.replace(/[<>]/g, "").trim().slice(0, 15) || "Bailey";
+	return moved;
+}

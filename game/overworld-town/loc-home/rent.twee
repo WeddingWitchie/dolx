@@ -61,8 +61,8 @@
 	<<rentInflationNotice>>
 	<<loanRentNotice>>
 	<<bratTaxCalc>>
-	<<if $bailey_brat and $bailey_brat.points gt 0>>
-		"And you've been a pain this week," <<he>> adds. "That's <<printmoney $bratTax "pink">> extra. Don't argue."
+	<<if $baileyBrat.points gt 0>>
+		"And you've been a pain this week," <<he>> adds. "That's <<printmoney $baileyBratTax "pink">> extra. Don't argue."
 		<br><br>
 		You think Bailey is mad because <<bratReasonList>>.
 		<br><br>
@@ -192,8 +192,8 @@
 	<<rentInflationNotice>>
 	<<loanRentNotice>>
 	<<bratTaxCalc>>
-	<<if $bailey_brat and $bailey_brat.points gt 0>>
-		"And you've been a pain this week," <<he>> adds. "That's <<printmoney $bratTax "pink">> extra. Don't argue."
+	<<if $baileyBrat.points gt 0>>
+		"And you've been a pain this week," <<he>> adds. "That's <<printmoney $baileyBratTax "pink">> extra. Don't argue."
 		<br><br>
 		You think Bailey is mad because <<bratReasonList>>.
 		<br><br>
@@ -402,9 +402,9 @@
 	<<set _payVia to (_args[0] is "bank" ? "bank" : "cash")>>
 	/* Overdue HBSC loan: Bailey collects a weekly surcharge on top of rent. */
 	<<set _loanSurcharge to (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0)>>
-	/* Recompute here rather than trusting $bratTax: not every path into rentpay runs a demand passage first, and the tax must match what was announced before $rentMoney rolls over below. */
+	/* Recompute here rather than trusting $baileyBratTax: not every path into rentpay runs a demand passage first, and the tax must match what was announced before $rentMoney rolls over below. */
 	<<bratTaxCalc>>
-	<<set _rentDue to ($rentMoney + ($babyRent or 0) + ($bratTax or 0) + _loanSurcharge)>>
+	<<set _rentDue to ($rentMoney + ($babyRent or 0) + $baileyBratTax + _loanSurcharge)>>
 	<<set _depositPay to Math.min(Math.max($baileyDeposit or 0, 0), _rentDue)>>
 	<<if _depositPay gt 0>>
 		<<set $baileyDeposit -= _depositPay>>
@@ -450,45 +450,44 @@
 		<br><br>
 		"And before you ask," <<nnpc_he "Bailey">> adds, "<<printmoney _loanSurcharge "red">> of that's going to the bank. They came to me about the money you owe them. Take it up with them if you don't like it."
 	<</if>>
-	<<if $bratTax gt 0>>
+	<<if $baileyBratTax gt 0>>
 		<br><br>
-		<<nnpc_He "Bailey">> counts out the extra <<printmoney $bratTax "pink">> separately and pockets it with a thin smile. "That's for the trouble you've caused me. Behave and it won't happen again."
+		<<nnpc_He "Bailey">> counts out the extra <<printmoney $baileyBratTax "pink">> separately and pockets it with a thin smile. "That's for the trouble you've caused me. Behave and it won't happen again."
 	<</if>>
-	<<set $bailey_rent_seen to ($bailey_rent_seen || {})>>
-	<<if $fame.good gte 1000 and !$bailey_rent_seen.good3>>
+	<<if $fame.good gte 1000 and !$baileySeen.includes("rentGood3")>>
 		<br><br>
-		"The whole town's talking about you." <<nnpc_He "Bailey">> pockets the rent. "Don't let it go to your head."<<npcincr Bailey love 1>><<glove "Bailey">><<npcincr Bailey lust 2>><<gglust "Bailey">><<set $bailey_rent_seen.good3 to true>>
-	<<elseif $fame.good gte 600 and !$bailey_rent_seen.good2>>
+		"The whole town's talking about you." <<nnpc_He "Bailey">> pockets the rent. "Don't let it go to your head."<<npcincr Bailey love 1>><<glove "Bailey">><<if $syndromeBaileyBuild gte 1>><<npcincr Bailey lust 2>><<gglust "Bailey">><</if>><<baileySeenAdd "rentGood3">>
+	<<elseif $fame.good gte 600 and !$baileySeen.includes("rentGood2")>>
 		<br><br>
-		"You've been making friends." <<nnpc_He "Bailey">> pockets the rent. "Good. Keep it up."<<npcincr Bailey love 1>><<glove "Bailey">><<npcincr Bailey lust 1>><<glust "Bailey">><<set $bailey_rent_seen.good2 to true>>
-	<<elseif $fame.good gte 400 and !$bailey_rent_seen.good1>>
+		"You've been making friends." <<nnpc_He "Bailey">> pockets the rent. "Good. Keep it up."<<npcincr Bailey love 1>><<glove "Bailey">><<if $syndromeBaileyBuild gte 1>><<npcincr Bailey lust 1>><<glust "Bailey">><</if>><<baileySeenAdd "rentGood2">>
+	<<elseif $fame.good gte 400 and !$baileySeen.includes("rentGood1")>>
 		<br><br>
-		"People speak well of you." <<nnpc_He "Bailey">> pockets the rent. "That reflects on me, you know."<<npcincr Bailey love 1>><<glove "Bailey">><<set $bailey_rent_seen.good1 to true>>
-	<<elseif $fame.prostitution gte 1000 and !$bailey_rent_seen.prost3>>
+		"People speak well of you." <<nnpc_He "Bailey">> pockets the rent. "That reflects on me, you know."<<npcincr Bailey love 1>><<glove "Bailey">><<baileySeenAdd "rentGood1">>
+	<<elseif $fame.prostitution gte 1000 and !$baileySeen.includes("rentProst3")>>
 		<br><br>
-		"The town knows your rates now." <<nnpc_He "Bailey">> pockets the rent. <<nnpc_He "Bailey">> almost smiles. "Good."<<npcincr Bailey love 1>><<glove "Bailey">><<npcincr Bailey lust 2>><<gglust "Bailey">><<set $bailey_rent_seen.prost3 to true>>
-	<<elseif $fame.prostitution gte 600 and !$bailey_rent_seen.prost2>>
+		"The town knows your rates now." <<nnpc_He "Bailey">> pockets the rent. <<nnpc_He "Bailey">> almost smiles. "Good."<<npcincr Bailey love 1>><<glove "Bailey">><<if $syndromeBaileyBuild gte 1>><<npcincr Bailey lust 2>><<gglust "Bailey">><</if>><<baileySeenAdd "rentProst3">>
+	<<elseif $fame.prostitution gte 600 and !$baileySeen.includes("rentProst2")>>
 		<br><br>
-		"You've been fucking your way around town and earning your keep." <<nnpc_He "Bailey">> pockets the rent. "Keep it up."<<npcincr Bailey love 1>><<glove "Bailey">><<npcincr Bailey lust 1>><<glust "Bailey">><<set $bailey_rent_seen.prost2 to true>>
-	<<elseif $fame.prostitution gte 400 and !$bailey_rent_seen.prost1>>
+		"You've been fucking your way around town and earning your keep." <<nnpc_He "Bailey">> pockets the rent. "Keep it up."<<npcincr Bailey love 1>><<glove "Bailey">><<if $syndromeBaileyBuild gte 1>><<npcincr Bailey lust 1>><<glust "Bailey">><</if>><<baileySeenAdd "rentProst2">>
+	<<elseif $fame.prostitution gte 400 and !$baileySeen.includes("rentProst1")>>
 		<br><br>
-		"Word gets around. I hear you spread your legs for anyone." <<nnpc_He "Bailey">> pockets the rent. "At least you know what you're worth."<<npcincr Bailey love 1>><<glove "Bailey">><<set $bailey_rent_seen.prost1 to true>>
-	<<elseif $fame.exhibitionism gte 1000 and !$bailey_rent_seen.exhib3>>
+		"Word gets around. I hear you spread your legs for anyone." <<nnpc_He "Bailey">> pockets the rent. "At least you know what you're worth."<<npcincr Bailey love 1>><<glove "Bailey">><<baileySeenAdd "rentProst1">>
+	<<elseif $fame.exhibitionism gte 1000 and !$baileySeen.includes("rentExhib3")>>
 		<br><br>
-		"Your photos." <<nnpc_He "Bailey">> pockets the rent. "I've seen them. Valuable, aren't you?"<<npcincr Bailey love 1>><<glove "Bailey">><<npcincr Bailey lust 2>><<gglust "Bailey">><<set $bailey_rent_seen.exhib3 to true>>
-	<<elseif $fame.exhibitionism gte 600 and !$bailey_rent_seen.exhib2>>
+		"Your photos." <<nnpc_He "Bailey">> pockets the rent. "I've seen them. Valuable, aren't you?"<<npcincr Bailey love 1>><<glove "Bailey">><<if $syndromeBaileyBuild gte 1>><<npcincr Bailey lust 2>><<gglust "Bailey">><</if>><<baileySeenAdd "rentExhib3">>
+	<<elseif $fame.exhibitionism gte 600 and !$baileySeen.includes("rentExhib2")>>
 		<br><br>
-		"Half the town's seen you naked." <<nnpc_He "Bailey">> pockets the rent. "Advertising, are we?"<<npcincr Bailey love 1>><<glove "Bailey">><<npcincr Bailey lust 1>><<glust "Bailey">><<set $bailey_rent_seen.exhib2 to true>>
-	<<elseif $fame.exhibitionism gte 400 and !$bailey_rent_seen.exhib1>>
+		"Half the town's seen you naked." <<nnpc_He "Bailey">> pockets the rent. "Advertising, are we?"<<npcincr Bailey love 1>><<glove "Bailey">><<if $syndromeBaileyBuild gte 1>><<npcincr Bailey lust 1>><<glust "Bailey">><</if>><<baileySeenAdd "rentExhib2">>
+	<<elseif $fame.exhibitionism gte 400 and !$baileySeen.includes("rentExhib1")>>
 		<br><br>
-		"You've been getting around." <<nnpc_He "Bailey">> pockets your rent. "Good industry. But keep it off the orphanage doorstep."<<npcincr Bailey love 1>><<glove "Bailey">><<set $bailey_rent_seen.exhib1 to true>>
+		"You've been getting around." <<nnpc_He "Bailey">> pockets your rent. "Good industry. But keep it off the orphanage doorstep."<<npcincr Bailey love 1>><<glove "Bailey">><<baileySeenAdd "rentExhib1">>
 	<</if>>
-	<<if $syndromebaileybuild gte 1 and $exposed lt 1 and $allure gte (6000 * $settings.allureModifier) and !$bailey_rent_seen.allure2>>
+	<<if $syndromeBaileyBuild gte 1 and $exposed lt 1 and $allure gte (6000 * $settings.allureModifier) and !$baileySeen.includes("rentAllure2")>>
 		<br><br>
-		<<nnpc_His "Bailey">> eyes move over you slowly. <<nnpc_He "Bailey">> doesn't look away.<<npcincr Bailey lust 2>><<gglust "Bailey">><<set $bailey_rent_seen.allure2 to true>>
-	<<elseif $syndromebaileybuild gte 1 and $exposed lt 1 and $allure gte (3000 * $settings.allureModifier) and !$bailey_rent_seen.allure1>>
+		<<nnpc_His "Bailey">> eyes move over you slowly. <<nnpc_He "Bailey">> doesn't look away.<<if $syndromeBaileyBuild gte 1>><<npcincr Bailey lust 2>><<gglust "Bailey">><</if>><<baileySeenAdd "rentAllure2">>
+	<<elseif $syndromeBaileyBuild gte 1 and $exposed lt 1 and $allure gte (3000 * $settings.allureModifier) and !$baileySeen.includes("rentAllure1")>>
 		<br><br>
-		<<nnpc_His "Bailey">> eyes linger on you a moment longer than usual before <<nnpc_he "Bailey">> looks away.<<npcincr Bailey lust 1>><<glust "Bailey">><<set $bailey_rent_seen.allure1 to true>>
+		<<nnpc_His "Bailey">> eyes linger on you a moment longer than usual before <<nnpc_he "Bailey">> looks away.<<if $syndromeBaileyBuild gte 1>><<npcincr Bailey lust 1>><<glust "Bailey">><</if>><<baileySeenAdd "rentAllure1">>
 	<</if>>
 	<<if $exposed gte 2>>
 		<br><br>
@@ -499,16 +498,16 @@
 		<<else>>
 			<<nnpc_He "Bailey">> glances at you. "Put some clothes on."
 		<</if>>
-		<<if $syndromebaileybuild gte 1>><<npcincr Bailey lust 2>><<gglust "Bailey">><</if>>
+		<<if $syndromeBaileyBuild gte 1>><<npcincr Bailey lust 2>><<gglust "Bailey">><</if>>
 	<<elseif $exposed gte 1>>
 		<br><br>
 		<<nnpc_His "Bailey">> eyes flick down over your body, then back up. "Get dressed."
-		<<if $syndromebaileybuild gte 1>><<npcincr Bailey lust 1>><<glust "Bailey">><</if>>
+		<<if $syndromeBaileyBuild gte 1>><<npcincr Bailey lust 1>><<glust "Bailey">><</if>>
 	<</if>>
 	<br><br>
 
 	<<set $baileydefeatedchain to 0>>
-	<<set $baileyRefusedToPay to 0>><<set $bailey_brat to { points: 0, reasons: [] }>><<set $bratTax to 0>>
+	<<set $baileyRefusedToPay to 0>><<set $baileyBrat to { points: 0, reasons: [] }>><<set $baileyBratTax to 0>>
 	<<set $baileypaychain to ($baileypaychain || 0) + 1>>
 	<<unset $bailey_encroach>>
 	<<set $rentStage += 1>>
@@ -781,7 +780,7 @@
 
 <<rentpay $phase2>>
 <<if $bus isnot "hospital">><<perfumeryMoment "Bailey" "rent" 30>><</if>>
-<<set $bailey_office_seduced_this_cycle to false>>
+<<set $baileyOfficeSeducedThisCycle to false>>
 
 <<if $phase2 is "thug">>
 	You're left alone in the main hall.
@@ -936,7 +935,7 @@
 <<set $baileyseduced to 1>>
 <<set _loanSurcharge to (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0)>>
 <<bratTaxCalc>>
-<<set _rentTotal to ($rentMoney + ($babyRent or 0) + ($bratTax or 0) + _loanSurcharge)>>
+<<set _rentTotal to ($rentMoney + ($babyRent or 0) + $baileyBratTax + _loanSurcharge)>>
 
 <<switch _speechAttitudeResolved>>
 	<<case "meek" "shy">>
@@ -959,7 +958,7 @@
 <<if $phase is 1>>
 	Bailey smirks. <<His>> cold hand snakes over your shoulder, around the back of your head, and <<he>> begins to stroke your hair.
 	<br>
-	<<person1>>Then, without warning, <<he>> grabs a fistful of your hair and yanks you close, your face inches from <<his>> own.<<npcincr Bailey dom 1>><<gdom "Bailey">><<npcincr Bailey lust 1>><<glust "Bailey">>
+	<<person1>>Then, without warning, <<he>> grabs a fistful of your hair and yanks you close, your face inches from <<his>> own.<<npcincr Bailey dom 1>><<gdom "Bailey">><<if $syndromeBaileyBuild gte 1>><<npcincr Bailey lust 1>><<glust "Bailey">><</if>>
 	<br>
 	"Nice try," <<he>> hisses. "But that's not going to save your ass. Not this time."
 	<<if activeInsanityTrait()>>
@@ -995,7 +994,7 @@
 
 		<<link [[Pay|Rent Pay]]>><</link>>
 		<br>
-		<<if $syndromebailey isnot true or !(setup.inflation and setup.inflation.baileyAggressive())>>
+		<<if $syndromeBailey isnot true or !(setup.inflation and setup.inflation.baileyAggressive())>>
 			<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
 			<br>
 		<</if>>
@@ -1015,7 +1014,7 @@
 	<</if>>
 <<else>>
 	"You can pay me," <<person1>><<he>> sneers. "With money. <<printmoney _rentTotal "pink">>. <span class="red">That's what your body's worth.</span>"
-	<<npcincr Bailey lust 1>><<glust "Bailey">>
+	<<if $syndromeBaileyBuild gte 1>><<npcincr Bailey lust 1>><<glust "Bailey">><</if>>
 	<br><br>
 
 	<<if $baileydefeatedchain gte 1 and $phase2 isnot "thug">>
@@ -1035,7 +1034,7 @@
 
 		<<link [[Pay|Rent Pay]]>><</link>>
 		<br>
-		<<if $syndromebailey isnot true or !(setup.inflation and setup.inflation.baileyAggressive())>>
+		<<if $syndromeBailey isnot true or !(setup.inflation and setup.inflation.baileyAggressive())>>
 			<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
 			<br>
 		<</if>>
@@ -1100,7 +1099,7 @@ Bailey steps forward with a cold expression.
 <br><br>
 The next thing you know, you're being grabbed by your shoulders and rushed through the main hall. You spot orphans left and right, all turning to look at the commotion. "Move," you hear as a <<person2>><<personsimple>> who stood a bit too close gets shoved to the floor.
 <br><br>
-You're led outside to Bailey's car. <<He>> yanks open the door and pushes you into the front seat before throwing the seatbelt over you. With heavy eyes, you stare out the window as <<he>> circles around to the driver's side.
+You're led outside to Bailey's car. <<person1>><<He>> yanks open the door and pushes you into the front seat before throwing the seatbelt over you. With heavy eyes, you stare out the window as <<he>> circles around to the driver's side.
 <br><br>
 Then, there are only the fading sounds of an engine to lull you into darkness.
 <br><br>
@@ -1180,13 +1179,13 @@ Bailey finally drags <<his>> gaze from the nursery back to you.
 <<set _andRobin to (_robinIsPresent ? "and Robin" : "")>>
 <<npc Bailey 1>>
 
-<<if $bailey_kick_returning>>
-	<<unset $bailey_kick_returning>>
+<<if $baileyKickReturning>>
+	<<unset $baileyKickReturning>>
 <<else>>
 <<effects>>
 <<set $baileydefeatedchain to 0>><<set $soldCount += 1>>
 <<set $baileyRefusedToPay to 0>>
-	<<set $bailey_brat to { points: 0, reasons: [] }>><<set $bratTax to 0>>
+	<<set $baileyBrat to { points: 0, reasons: [] }>><<set $baileyBratTax to 0>>
 <<set $baileyRefusedToPayTotal to $baileyRefusedToPayTotal lt $rentMoney + ($babyRent || 0) ? 0 : $baileyRefusedToPayTotal - ($rentMoney + ($babyRent || 0))>>
 <<set _robin to statusCheck("Robin")>>
 <<unset $bailey_encroach>>
@@ -1202,8 +1201,7 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 <<pass 20>>
 
 	<<if C.npc.Bailey.dom lt 30>>
-		<<set $bailey_kick_returning to true>>
-		<<set $bailey_kick_return to "Rent Intro">>
+		<<set $baileyKickReturning to true>>
 		<<include "Bailey Sell Kick">><<exitAll>>
 	<</if>>
 <</if>>
@@ -1407,10 +1405,10 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 	<<neutral 1>>
 	<<maninit>>
 	<<set $enemyanger += 200>>
-	<<if $bailey_ambush_advantage>>
+	<<if $baileyAmbushAdvantage is Time.days>>
 		<<set $enemyhealth -= 150>>
-		<<set $bailey_ambush_advantage to false>>
 	<</if>>
+	<<unset $baileyAmbushAdvantage>>
 	<<npcidlegenitals>>
 	<<if $phase2 is "thug">>
 		"Not a smart move," you hear the <<person2>><<person>> say behind you. <<He>> lunges at
@@ -1603,7 +1601,7 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 
 <<else>>
 	<<set $baileydefeatedchain to 0>>
-	<<set $baileyRefusedToPay to 0>><<set $bailey_brat to { points: 0, reasons: [] }>><<set $bratTax to 0>>
+	<<set $baileyRefusedToPay to 0>><<set $baileyBrat to { points: 0, reasons: [] }>><<set $baileyBratTax to 0>>
 	<<unset $bailey_encroach>>
 	<<if $finish is 1>><<encounterEndViolence>><</if>>
 	Robin struggles, until Bailey hits <<nnpc_him "Robin">> hard on the head. <<nnpc_He "Robin">> collapses beside you.
@@ -1671,7 +1669,7 @@ You trip a couple of times, prompting Bailey to drag you back to your feet and s
 
 <<else>>
 	<<set $baileydefeatedchain to 0>>
-	<<set $baileyRefusedToPay to 0>><<set $bailey_brat to { points: 0, reasons: [] }>><<set $bratTax to 0>>
+	<<set $baileyRefusedToPay to 0>><<set $baileyBrat to { points: 0, reasons: [] }>><<set $baileyBratTax to 0>>
 	<<unset $bailey_encroach>>
 	<<if $finish is 1>><<encounterEndViolence>><</if>>
 	Bailey scoffs as <<nnpc_he "Bailey">> stares down at you.
@@ -2018,7 +2016,7 @@ You're escorted by Bailey back to your bedroom and left alone.
 <<widget "baileyRentReclaimOption">>
 	<<if $bailey_confiscation>>
 		<<babyRent true>><<bratTaxCalc>>
-		<<set _owed to Math.max(0, $rentMoney + ($babyRent or 0) + ($bratTax or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0) - ($baileyDeposit or 0))>>
+		<<set _owed to Math.max(0, $rentMoney + ($babyRent or 0) + $baileyBratTax + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0) - ($baileyDeposit or 0))>>
 		<<if (setup.inflation ? setup.inflation.rentPayable() : $money) gte _owed>>
 			<<highicon>><<link [[Reclaim your confiscated things|Bailey Rent Reclaim]]>><</link>> (<<printmoney _owed>>)
 			<br>
@@ -2158,7 +2156,7 @@ You're escorted by Bailey back to your bedroom and left alone.
 <<unset $autismSpectrum.rentReturn>>
 
 :: Autism Rent Due Options
-<<set _rentTotal to ($rentMoney + ($babyRent or 0) + ($bratTax or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
+<<set _rentTotal to ($rentMoney + ($babyRent or 0) + $baileyBratTax + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
 <<if ($baileyDeposit or 0) gte _rentTotal or setup.hbsc.canAutoPay("bailey", _rentTotal)>>
 	<<rentpay "bank">>
 	<<link [[Next|Rent Pay Auto]]>><<set $phase to $_robinWasInRoom>><</link>>
@@ -2171,7 +2169,7 @@ You're escorted by Bailey back to your bedroom and left alone.
 			<<baileyGripDemand>>
 			<<link [[Pay|Rent Pay]]>><<set $phase to $_robinWasInRoom>><</link>>
 			<br>
-			<<if $syndromebailey isnot true>>
+			<<if $syndromeBailey isnot true>>
 				<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
 				<br>
 			<</if>>
@@ -2192,7 +2190,7 @@ You're escorted by Bailey back to your bedroom and left alone.
 			<</if>>
 		<</if>>
 		/* Keep Stockholm progression available under aggressive rent demands; bank debt still requires money. */
-		<<if ($syndromebaileybuild gte 1 or $baileydefeated gte 5) and ($syndromebailey isnot true or !(setup.inflation and setup.inflation.baileyAggressive())) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
+		<<if ($syndromeBaileyBuild gte 1 or $baileydefeated gte 5) and ($syndromeBailey isnot true or !(setup.inflation and setup.inflation.baileyAggressive())) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
 			<span class="bailey-red bailey-stockholm"><<link "Offer yourself" "Bailey Offer Yourself">><</link>></span>
 			<br>
 		<</if>>
@@ -2223,7 +2221,7 @@ You're escorted by Bailey back to your bedroom and left alone.
 <<if !isPregnancyEnding()>><<set $rentTime to 7>><</if>>
 
 :: Autism Rent Robin Options
-<<set _rentTotal to ($rentMoney + ($babyRent or 0) + ($bratTax or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
+<<set _rentTotal to ($rentMoney + ($babyRent or 0) + $baileyBratTax + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
 <<if ($baileyDeposit or 0) gte _rentTotal or setup.hbsc.canAutoPay("bailey", _rentTotal)>>
 	<<rentpay "bank">>
 	<<link [[Next|Rent Pay Auto]]>><<if $inRobinsRoom>><<set $inRobinsRoom to true>><</if>><</link>>
@@ -2234,10 +2232,10 @@ You're escorted by Bailey back to your bedroom and left alone.
 	<<if ((setup.inflation ? setup.inflation.rentPayable() : $money) + ($baileyDeposit or 0)) gte _rentTotal>>
 		<<if setup.inflation and setup.inflation.baileyAggressive()>>
 			<<baileyGripDemand>>
-			<<if $syndromebailey isnot true>>
+			<<if $syndromeBailey isnot true>>
 				<<link [[Refuse|Rent Refuse Robin]]>><<def 1>><</link>>
 				<br>
-				<<if ($syndromebaileybuild gte 1 or $baileydefeated gte 5) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
+				<<if ($syndromeBaileyBuild gte 1 or $baileydefeated gte 5) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
 					<span class="bailey-red bailey-stockholm"><<link "Offer yourself" "Bailey Offer Yourself">><</link>></span>
 					<br>
 				<</if>>
@@ -2258,7 +2256,7 @@ You're escorted by Bailey back to your bedroom and left alone.
 			<<link [[Refuse|Rent Refuse Robin]]>><<def 1>><</link>>
 			<br>
 			/* Already inside the non-relentless branch; only the bank's claim needs excluding here. */
-			<<if ($syndromebaileybuild gte 1 or $baileydefeated gte 5) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
+			<<if ($syndromeBaileyBuild gte 1 or $baileydefeated gte 5) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
 				<span class="bailey-red bailey-stockholm"><<link "Offer yourself" "Bailey Offer Yourself">><</link>></span>
 				<br>
 			<</if>>

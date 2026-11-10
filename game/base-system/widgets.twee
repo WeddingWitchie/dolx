@@ -194,10 +194,11 @@
 	<<if _args[0] and (typeof _args[0]) is "number">>
 
 		<<if $consensual isnot 1>>
-			<<if _args[0] gt 0>>
-				<<stress `0.25 * _args[0]`>>
+			<<if $drunk gt 0>>
+				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
+				<<set $_stress_multiplier to [9,8,6,4,3][$_drunk_level]>>
 			<<else>>
-				<<stress `0.125 * _args[0]`>>
+				<<set $_stress_multiplier to 10>>
 			<</if>>
 			<<if $multiOrgasmToggle>>
 				/* Matches the sex widget: a small discount for longer encounters, not half price. */
@@ -253,10 +254,11 @@
 	<!-- For double penetration, the widget is now called twice. Once for each NPC. -->
 	<<if _args[0] and (typeof _args[0]) is "number">>
 		<<if $consensual isnot 1>>
-			<<if _args[0] gt 0>>
-				<<stress `0.25 * _args[0]`>>
+			<<if $drunk gt 0>>
+				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
+				<<set $_stress_multiplier to [9,8,6,4,3][$_drunk_level]>>
 			<<else>>
-				<<stress `0.125 * _args[0]`>>
+				<<set $_stress_multiplier to 10>>
 			<</if>>
 			/* Repeated orgasms reduce rape stress, but never remove it completely.
 			The old formula could reach 0 or become negative, causing incorrect stress values or even reducing stress during rape. */
@@ -488,10 +490,11 @@
 	<!-- args[1] - the NPC to whom PC is submitting (currently unused) -->
 	<<if _args[0]>>
 		<<if $consensual isnot 1>>
-			<<if _args[0] gt 0>>
-				<<stress `0.25 * _args[0]`>>
+			<<if $drunk gt 0>>
+				<<set $_drunk_level to Math.clamp(Math.floor($drunk / 120), 0, 4)>>
+				<<set $_stress_multiplier to [9,8,6,4,3][$_drunk_level]>>
 			<<else>>
-				<<stress `0.125 * _args[0]`>>
+				<<set $_stress_multiplier to 10>>
 			<</if>>
 			<<set $_stress_multiplier *= ($combatStressGain ?? 100) / 100>>
 			<<stress _args[0] $_stress_multiplier>>
@@ -3630,11 +3633,7 @@
 	<</if>>
 <</widget>>
 
-<<widget "rentday">>
-	<<set _rentDay to ((Time.weekDay - 1 + $rentTime) % 7 + 7) % 7>>
-	<<set $_text_output to ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][_rentDay]>>
-	<<print $_text_output>>
-<</widget>>
+<<widget "rentday">><<print new DateTime(Time.date).addDays($rentTime).weekDayName>><</widget>>
 
 <<widget "tearup">>
 	<<if $pain lte 20>>
@@ -3690,8 +3689,8 @@
 			<<gifticon "christmas">><<link [[Wrap the orphans' gifts (3:00)|Bedroom Orphans Clothes Wrap]]>><<pass 180>><<set $christmas_gift to "clothes">><</link>>
 			<br>
 		<</if>>
-		<<if $christmas_gift_bailey isnot undefined and $christmas_gift_bailey.endsWith("_unwrapped")>>
-			<<gifticon "christmas">><<link [[Wrap Bailey's gift (0:10)|Bedroom Bailey Wrap]]>><<pass 10>><<set $christmas_gift_bailey to $christmas_gift_bailey.replace("_unwrapped", "")>><<set $christmas_gift_bailey_wrapped to 1>><</link>>
+		<<if $christmasGiftBailey isnot undefined and $christmasGiftBailey.endsWith("_unwrapped")>>
+			<<gifticon "christmas">><<link [[Wrap Bailey's gift (0:10)|Bedroom Bailey Wrap]]>><<pass 10>><<set $christmasGiftBailey to $christmasGiftBailey.replace("_unwrapped", "")>><<set $christmasGiftBaileyWrapped to true>><</link>>
 			<br>
 		<</if>>
 		<<if $christmas_gift_poppy isnot undefined and $christmas_gift_poppy.endsWith("_unwrapped")>>
@@ -4173,7 +4172,6 @@
 						<<if _loveInterest>>
 							<img class="love-interest-icon" src="img/ui/love-interest.png" alt="Love Interest" title="Love Interest"/>
 						<</if>>
-						<span class="secondary-relation-collapse-arrow">▾</span>
 					</div>
 					<div class="relation-description">
 						<<if $options.images is 1 and (_rngWraithFace is 1 or $possessed)>>
@@ -4205,7 +4203,6 @@
 								<span class="lewd" alt="Love Interest" title="Love Interest"><b>LI</b></span>
 							<</if>>
 						<</if>>
-						<span class="primary-relation-collapse-arrow">▾</span>
 					</div>
 					<div class="relation-description">
 						<<set _rngWraithLineChance to 1>>
@@ -4243,7 +4240,6 @@
 							<span class="lewd" alt="Love Interest" title="Love Interest"><b>LI</b></span>
 						<</if>>
 					<</if>>
-					<span class="primary-relation-collapse-arrow">▾</span>
 				</div>
 				<div class="relation-description">
 					<<npcrelationship _npcData.nam>>
@@ -4268,7 +4264,6 @@
 			<div @class="'relation-box' + (_isNpcRelationBoxCollapsed ? ' is-collapsed' : '')" @data-npc="_npcData.nam">
 				<div class="relation-top-line" onclick="toggleRelationCollapse(this)">
 					<span class="relation-name"><<silverName>></span>
-					<span class="secondary-relation-collapse-arrow">▾</span>
 				</div>
 				<div class="relation-description">
 					<<npcrelationship "Luchifen">>
@@ -4288,7 +4283,6 @@
 						<small class="relation-title black"><i>The _npcData.title</i></small>
 						<<npc-xchange-relation-tag _npcData>>
 					</span>
-					<span class="secondary-relation-collapse-arrow">▾</span>
 				</div>
 				<div class="relation-description">
 					<<npcrelationship _npcData.nam>>
@@ -5704,7 +5698,7 @@
 	/* Picking your own shackles open needs the desk block to render even when there's nothing else on the desk to do. */
 	<<set _shackleOptions to $worn.feet.type.includes("shackle") and $worn.feet.name isnot "vines" and ($lockpickTrainingSet gte 5 or $skulduggery gte 2000)>>
 
-	<<if _projectOptions || _playOptions || _bookOptions || _lockpickOptions || _perfumeOptions || _shackleOptions || ($christmas_wrap is 1 && $christmas_gift_robin_wrapped isnot 1) || ($christmas_wrap is 1 && $christmas_gift is "clothes_unwrapped") || ($christmas_wrap is 1 && $christmas_gift_bailey isnot undefined && !$christmas_gift_bailey_wrapped) || ($christmas_wrap is 1 && $christmas_gift_poppy isnot undefined && !$christmas_gift_poppy_wrapped && !poppyFlatAccessible())>>
+	<<if _projectOptions || _playOptions || _bookOptions || _lockpickOptions || _perfumeOptions || _shackleOptions || ($christmas_wrap is 1 && $christmas_gift_robin_wrapped isnot 1) || ($christmas_wrap is 1 && $christmas_gift is "clothes_unwrapped") || ($christmas_wrap is 1 && $christmasGiftBailey isnot undefined && !$christmasGiftBaileyWrapped) || ($christmas_wrap is 1 && $christmas_gift_poppy isnot undefined && !$christmas_gift_poppy_wrapped && !poppyFlatAccessible())>>
 		<<if _args[0] is "noicon">>
 			Your _desk.name and <<if _chair.name isnot "chair">>_chair.article <</if>>_chair.nameSolo are wedged next to your wardrobe.
 			<br>
