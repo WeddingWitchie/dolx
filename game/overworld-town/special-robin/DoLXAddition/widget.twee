@@ -51,7 +51,7 @@
 			"I don't earn much at the cafe yet, but at least I know how much money I'll get each week."
 		<</if>>
 		<br><br>
-		<span class="blue"><<if robinCafeClosed()>>Robin can't work at the cafe while it is closed</span>. The stand is still open on weekends.<<else>>Robin earns money at the cafe during the week. The stand is only open on weekends.<</if>>
+		<span class="blue"><<if robinCafeClosed()>>Robin can't work at the cafe while it is closed. The stand is still open on weekends.<<else>>Robin earns money at the cafe during the week. The stand is only open on weekends.<</if>></span>
 	<</if>>
 <</widget>>
 
@@ -369,27 +369,31 @@ Called from robinCafeOptions and from the cafe shift. */
 
 <<widget "robinStandBusinessBeat">>
 	<<run ensureRobinStand()>>
-	<<set $_beatPool to ["queue"]>>
+	<<set $_beatPool to []>>
+	/* The queue beat says Robin keeps up with every customer, so it needs the skill at which Robin serves quickly. */
+	<<if $robinStand.skill gte 500>><<run $_beatPool.push("queue")>><</if>>
 	<<if $robinStand.named>><<run $_beatPool.push("named")>><</if>>
 	<<if $robinStand.nudeRounds gte 3>><<run $_beatPool.push("reputation")>><</if>>
 	<<if $robinStand.tier gte 3>><<run $_beatPool.push("fixture")>><</if>>
 	<<if $robinStand.skill gte 600>><<run $_beatPool.push("practised")>><</if>>
 	<<if $robinStand.selfSufficient isnot 1 and $robinpaid isnot 1>><<run $_beatPool.push("owing")>><</if>>
-	<<switch $_beatPool.random()>>
-		<<case "named">>
-			A customer asks for "the usual" and calls the stand by its name. Robin starts making the drink right away, then stops for a moment when <<he>> realises the customer knows the stand's name.
-		<<case "reputation">>
-			Two people waiting in line keep looking at you instead of reading the menu. Robin notices, but keeps making their drinks while they are still telling <<him>> what they want.
-		<<case "fixture">>
-			A <<personsimple>> asks Robin what time the stand will open tomorrow. Robin pauses to think before answering. After the customer leaves, <<he>> looks at you. "People are asking when to come back now. I have regular opening times."
-		<<case "practised">>
-			Robin listens to a customer's order, makes the drink, and takes the payment. <<He>> quickly counts out the money the customer should get back and hands it over, without having to stop and check each coin.
-		<<case "owing">>
-			Whenever a customer pays, Robin puts some of the money into a second box. <<Hes>> saving that money to pay what <<he>> still owes Bailey.
-		<<default>>
-			Customers keep arriving while you talk. Robin serves them and answers you whenever <<he>> has a moment, without making anyone wait. <<He>> used to have trouble doing both things at once when the stand first opened.
-	<</switch>>
-	<br><br>
+	<<if $_beatPool.length gt 0>>
+		<<switch $_beatPool.random()>>
+			<<case "named">>
+				A customer asks for "the usual" and calls the stand by its name. Robin starts making the drink right away, then stops for a moment when <<he>> realises the customer knows the stand's name.
+			<<case "reputation">>
+				Two people waiting in line keep looking at you instead of reading the menu. Robin notices, but keeps making their drinks while they are still telling <<him>> what they want.
+			<<case "fixture">>
+				A <<personsimple>> asks Robin what time the stand will open tomorrow. Robin pauses to think before answering. After the customer leaves, <<he>> looks at you. "People are asking when to come back now. I have regular opening times."
+			<<case "practised">>
+				Robin listens to a customer's order, makes the drink, and takes the payment. <<He>> quickly counts out the money the customer should get back and hands it over, without having to stop and check each coin.
+			<<case "owing">>
+				Whenever a customer pays, Robin puts some of the money into a second box. <<Hes>> saving that money to pay what <<he>> still owes Bailey.
+			<<default>>
+				Customers keep arriving while you talk. Robin serves them and answers you whenever <<he>> has a moment, without making anyone wait. <<He>> used to have trouble doing both things at once when the stand first opened.
+		<</switch>>
+		<br><br>
+	<</if>>
 <</widget>>
 
 <<widget "robinStandNudeLink">>
